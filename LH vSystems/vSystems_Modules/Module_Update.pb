@@ -198,6 +198,9 @@ Module vUpdate
             Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Update", Request_Update_Message() ,11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
             If Result = 0
                 ProcedureReturn #True
+            Else
+                SetActiveGadget( DC::#ListIcon_001 )
+                ProcedureReturn #False
             EndIf 
 
         EndIf
@@ -274,8 +277,8 @@ Module vUpdate
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 192
-; FirstLine = 135
+; CursorPosition = 201
+; FirstLine = 57
 ; Folding = --
 ; EnableAsm
 ; EnableXP

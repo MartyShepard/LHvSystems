@@ -263,7 +263,9 @@ Module Startup
         ;Builddate = FormatDate("%dd-%mm-%yyyy", #PB_Compiler_Date)
         
         XIncludeFile "Module_Version.pb"
-        ;
+        ;        
+        ; Version 0.27b          
+        ; Update Test
         
         ; Version 0.26b         
         ; Github Release
@@ -738,8 +740,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 625
-; FirstLine = 398
+; CursorPosition = 267
+; FirstLine = 188
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP
