@@ -3,8 +3,9 @@
         
         XIncludeFile "vSystems_Modules\Module_Version.pb"
                 
-        If ( MessageRequester( "Update", Title + " auf Version "+ Version +" ( "+ Builddate +" ) "+" Durchführen ?", #PB_MessageRequester_YesNo|#MB_ICONQUESTION) = #PB_MessageRequester_Yes )
-            
+;        If ( MessageRequester( "Update", Title + " auf Version "+ Version +" ( "+ Builddate +" ) "+" Durchführen ?", #PB_MessageRequester_YesNo|#MB_ICONQUESTION) = #PB_MessageRequester_Yes )
+         If ( MessageRequester( "Update", Title + " Update Durchführen ?", #PB_MessageRequester_YesNo|#MB_ICONQUESTION) = #PB_MessageRequester_Yes )
+                  
             Debug GetCurrentDirectory() 
             Event = #True
             Fext$ = "VUPDATE"
@@ -47,7 +48,7 @@
                     EndIf
                 Wend                
             Else
-                MessageRequester( "Update Fehler", "Konnte das Update nicht Durchführen", #MB_ICONSTOP)
+                MessageRequester( "Update Fehler", "Update Fehlgeschlagen", #MB_ICONSTOP)
             EndIf
         EndIf
         
@@ -115,7 +116,7 @@
 ;             
 ;         Ergebnis.l = MessageRequester("Fenstertitel","Text", #MB_YESNOCANCEL | 80 )
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 51
+; CursorPosition = 50
 ; EnableAsm
 ; EnableXP
 ; Executable = vSystems_Modules\Update_Modul\_UpdateModul_.exe

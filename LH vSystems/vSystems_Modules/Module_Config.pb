@@ -220,6 +220,8 @@ DeclareModule Startup
         vItemLoaded.i               ; Nummer für das gestartete Programm > Siehe vItemTool
         vItemColorF.i               ; TextFarbe                          > Siehe vItemTool
         
+        bBuild32Bit.i               ; bool Is32Bit Exe
+        VersionNumber.s             ; Version String (Nummer)
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
                 
     EndStructure           
@@ -262,6 +264,10 @@ Module Startup
         
         XIncludeFile "Module_Version.pb"
         ;
+        
+        ; Version 0.26b         
+        ; Github Release
+        ; (Beta) Update System bearbeitet
         
         ; Version 0.25b         
         ; Thread Optimiert und gesplttet den Code für die Thumbnails
@@ -437,6 +443,11 @@ Module Startup
             ProcedureReturn  Title + ": " + GetFilePart( ProgramFilename() ,1)
         EndIf         
         
+        
+        If ( Option = 2 )
+            ProcedureReturn  Version
+        EndIf
+        
         ProcedureReturn Title + " " + Version + " "+ "(Build: " + Builddate +")"
         
     EndProcedure
@@ -611,7 +622,8 @@ Module Startup
          *LHGameDB\PortablePath         = *LHGameDB\Base_Path
          *LHGameDB\TitleVersion         = History()
          *LHGameDB\BaseSVNCurrent       = History(#True)                                     ; The Database Version, for Update and changes
-         *LHGameDB\TrayIconTitle        = History(#False,1)          
+         *LHGameDB\TrayIconTitle        = History(#False,1)  
+         *LHGameDB\VersionNumber        = History(#False,2) 
          *LHGameDB\TaskbarCreate        = RegisterWindowMessage_("TaskbarCreated")
          *LHGameDB\SortMode             = 0
          *LHGameDB\ProgrammQuit         = #False
@@ -635,6 +647,7 @@ Module Startup
          *LHGameDB\bRegHotKey           = #False
          
          *LHGameDB\bUpdateProcess       = #False
+
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
          *LHGameDB\InfoWindow\bTabNum   = 0
@@ -654,6 +667,14 @@ Module Startup
          *LHGameDB\InfoWindow\FindReplace\lStructSize = SizeOf( FINDREPLACE )
          *LHGameDB\InfoWindow\kFind_Return            = #False
          *LHGameDB\InfoWindow\bURLOpnWith= #True
+         
+         If ( #PB_Compiler_Processor = #PB_Processor_x86 )
+              *LHGameDB\bBuild32Bit          = #True
+         EndIf
+         
+         If ( #PB_Compiler_Processor = #PB_Processor_x64 )
+              *LHGameDB\bBuild32Bit          = #False
+         EndIf
          
          Verify_Directories()
          Verify_DatabaseFiles() 
@@ -717,8 +738,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 267
-; FirstLine = 233
+; CursorPosition = 625
+; FirstLine = 398
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

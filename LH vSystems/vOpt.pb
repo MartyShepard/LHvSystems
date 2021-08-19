@@ -140,18 +140,18 @@
         
         End
         
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 58
-; FirstLine = 39
+; FirstLine = 16
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CPU = 1
 ; CurrentDirectory = Release\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
