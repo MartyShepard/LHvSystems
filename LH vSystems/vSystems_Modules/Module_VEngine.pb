@@ -2256,6 +2256,13 @@ Module VEngine
             Debug #TAB$ + "- Close Aero"
         EndIf 
         
+        If ( Startup::*LHGameDB\Settings_bBlockFW= #True )
+            UseModule ClassFirewall
+                Rule("vSystems " + *Params\Program ,"Acitvated and Configuration with "+ Startup::*LHGameDB\TitleVersion, *Params\PrgPath + *Params\Program, #True, #NET_FW_IP_PROTOCOL_TCP)
+                Rule("vSystems " + *Params\Program ,"Acitvated and Configuration with "+ Startup::*LHGameDB\TitleVersion, *Params\PrgPath + *Params\Program, #True, #NET_FW_IP_PROTOCOL_UDP)
+            UnuseModule ClassFirewall    
+        EndIf    
+        
         ; Minimiert vSystems, auch wenn mit Settings_Asyncron gestartet wurde
         ;
         Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)
@@ -2315,6 +2322,12 @@ Module VEngine
             Debug #TAB$ + "- Start Explorer"
         EndIf 
         
+        If ( Startup::*LHGameDB\Settings_bBlockFW= #True )
+            UseModule ClassFirewall
+                Rule("vSystems " + *Params\Program ,"Acitvated and Configuration with "+ Startup::*LHGameDB\TitleVersion, *Params\PrgPath + *Params\Program, #False, #NET_FW_IP_PROTOCOL_TCP)
+                Rule("vSystems " + *Params\Program ,"Acitvated and Configuration with "+ Startup::*LHGameDB\TitleVersion, *Params\PrgPath + *Params\Program, #False, #NET_FW_IP_PROTOCOL_UDP)
+            UnuseModule ClassFirewall    
+        EndIf        
         ;
         ;
         ; Compatibility Mod Setzen
@@ -2566,6 +2579,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_sCmpArgs = ""   ; Reset String
         Startup::*LHGameDB\Settings_FreeMemE = #False   ; Free Memory (For 32Bit, 4GB > Over Size 3.2GB) 
         Startup::*LHGameDB\Settings_Schwelle = -1
+        Startup::*LHGameDB\Settings_bBlockFW = #False
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
         ;
@@ -2600,7 +2614,49 @@ Module VEngine
             EndIf
             
         Next ArgIndex 
-                  
+        
+        
+        ;
+        ;
+        ; Block Programm in Firewall
+        For  ArgIndex = 1 To Len(Args)       
+            s.s = Mid(Args,ArgIndex,1)
+            If ( s = "%" )
+                
+                s.s + Mid(Args,ArgIndex+1,1)
+                If ( s =  "%b" )
+                    
+                    s.s + Mid(Args,ArgIndex+2,1)
+                    If ( s =  "%bl" )
+                        
+                        s.s + Mid(Args,ArgIndex+3,1)
+                        If ( s =  "%blo" )
+                            
+                            s.s + Mid(Args,ArgIndex+4,1)
+                            If ( s =  "%bloc" )
+                                
+                                s.s + Mid(Args,ArgIndex+5,1)
+                                If ( s =  "%block" )
+                                    
+                                    s.s + Mid(Args,ArgIndex+6,1)
+                                    If ( s =  "%blockf" )
+                                        
+                                        s.s + Mid(Args,ArgIndex+7,1)
+                                        If ( s =  "%blockfw" )
+                                            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Block Firewall Net (Activ)")  
+                                            Startup::*LHGameDB\Settings_bBlockFW = #True                        
+                                            Args = DOS_TrimArg(Args.s, s)     
+                                            Break;                        
+                                        EndIf                                                                
+                                    EndIf                                                            
+                                EndIf                                                        
+                            EndIf                                                    
+                        EndIf                                                
+                    EndIf                    
+                EndIf                    
+            EndIf    
+        Next ArgIndex       
+        
         ;
         ;
         ; Command: NoBorder
@@ -3754,9 +3810,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2111
-; FirstLine = 820
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 2327
+; FirstLine = 939
 ; Folding = jCADaDAegJB+
 ; EnableAsm
 ; EnableXP

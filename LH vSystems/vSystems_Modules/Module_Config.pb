@@ -171,6 +171,7 @@ DeclareModule Startup
         Settings_FreeMemE.i
         Settings_Schwelle.q         ; Speicherschwelle ab wann der speicher geleert werden
         Settings_bKillPrc.i         ; Killz den process
+        Settings_bBlockFW.i         ; Blocks programs from Inet/ Add Temporay to Firewall       
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -263,6 +264,11 @@ Module Startup
         ;Builddate = FormatDate("%dd-%mm-%yyyy", #PB_Compiler_Date)
         
         XIncludeFile "Module_Version.pb"
+        ;        
+        ; Version 0.28b          
+        ; Optimize Thumbnail Loading
+        ; Add Support to Block Program in the Firewall
+        
         ;        
         ; Version 0.27b          
         ; Update Test
@@ -739,9 +745,9 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 267
-; FirstLine = 188
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 270
+; FirstLine = 235
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

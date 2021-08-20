@@ -238,35 +238,34 @@ Module vImages
     Procedure Screens_Show_Thread(z)
         
         Protected nSlot.i, RowID.i = Startup::*LHGameDB\GameID, ImageData.l, *MemoryID
-                
+        
         *MemoryID = AllocateMemory(4096)
         
-          LockMutex( Startup::*LHGameDB\Images_Mutex)        
+        LockMutex( Startup::*LHGameDB\Images_Mutex)        
         For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots
-            
-  
-            
+                                   
             Debug ""
             Debug "Lege die Screenshots IN die Slots: " + Str(nSlot)
             
             If IsImage(Startup::*LHImages\NoScreenPB[nSlot])
                 
                 ; Hier wäre der Gute Zeitpunkt die Images aus der DB zu lesen?                   
-                   
+                
                 *MemoryID = Startup::SlotShots(nSlot)\thumb[RowID]
+                Debug "Lege die Screenshots IN die Slots: " + Str(*MemoryID)
                 
                 If ( *MemoryID > 1 )
                     
                     *MemoryID = ReAllocateMemory( *MemoryID , MemorySize( *MemoryID ), #PB_Memory_NoClear )
                     
                     If ( MemorySize(*MemoryID) > 1 )
-                                                                        
+                        
                         If ( CatchImage( Startup::*LHImages\OrScreenPB[nSlot], *MemoryID, MemorySize( *MemoryID ) ) )
-                             Screens_Copy_ResizeToGadget(nSlot, Startup::*LHImages\OrScreenPB[nSlot], Startup::*LHImages\ScreenGDID[nSlot], #True) 
+                            Screens_Copy_ResizeToGadget(nSlot, Startup::*LHImages\OrScreenPB[nSlot], Startup::*LHImages\ScreenGDID[nSlot], #True) 
                         Else
-                             Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " (Line " + Str(#PB_Compiler_Line) + " ) " + #TAB$ + "ERROR - CatchImage")
+                            Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " (Line " + Str(#PB_Compiler_Line) + " ) " + #TAB$ + "ERROR - CatchImage")
                         EndIf     
-                         
+                        
                         If (*MemoryID > 1)
                             FreeMemory( *MemoryID )
                         EndIf                       
@@ -277,59 +276,72 @@ Module vImages
                     
                 Else
                     
-                        Screens_Copy_ResizeToGadget(nSlot, Startup::*LHImages\NoScreenPB[nSlot], Startup::*LHImages\ScreenGDID[nSlot] )    
+                    Screens_Copy_ResizeToGadget(nSlot, Startup::*LHImages\NoScreenPB[nSlot], Startup::*LHImages\ScreenGDID[nSlot] )    
                     
                 EndIf    
-                    
-                    
                 
-;                 If ( ImageData = 0)
-;                     Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\NoScreenPB[n],Startup::*LHImages\ScreenGDID[n])                              
-;                 Else              
-;                     
-;                     If ( ImageData )
-;                         *m = AllocateMemory( ImageData, #PB_Memory_NoClear )
-;                         If *m
-;                             CatchImage(Startup::*LHImages\OrScreenPB[n], ImageData, MemorySize( ImageData ))                    
-;                             Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\OrScreenPB[n],Startup::*LHImages\ScreenGDID[n],#True) 
-;                             FreeMemory(*M) 
-;                         EndIf
-; 
-;                     EndIf    
-;                     
-;                 EndIf    
-                   ;
+                
+                
+                ;                 If ( ImageData = 0)
+                ;                     Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\NoScreenPB[n],Startup::*LHImages\ScreenGDID[n])                              
+                ;                 Else              
+                ;                     
+                ;                     If ( ImageData )
+                ;                         *m = AllocateMemory( ImageData, #PB_Memory_NoClear )
+                ;                         If *m
+                ;                             CatchImage(Startup::*LHImages\OrScreenPB[n], ImageData, MemorySize( ImageData ))                    
+                ;                             Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\OrScreenPB[n],Startup::*LHImages\ScreenGDID[n],#True) 
+                ;                             FreeMemory(*M) 
+                ;                         EndIf
+                ; 
+                ;                     EndIf    
+                ;                     
+                ;                 EndIf    
+                ;
                 ; Lege eine Kopie jeweils in das Gadget
- 
+                
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], -1)                
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], Startup::*LHImages\CpScreenID[nSlot])                
             EndIf
             
-
+            
         Next
-              UnlockMutex( Startup::*LHGameDB\Images_Mutex)      
+        UnlockMutex( Startup::*LHGameDB\Images_Mutex)      
         If (*MemoryID > 1)
             FreeMemory( *MemoryID )            
         EndIf    
-                
+        
+    EndProcedure
+    Procedure Screens_Show_Thread_End(n)
+        If ( Startup::*LHGameDB\Images_Thread[n] >= 0)
+            If IsThread( Startup::*LHGameDB\Images_Thread[n] )
+                WaitThread( Startup::*LHGameDB\Images_Thread[n] )              
+                Startup::*LHGameDB\Images_Thread[n] = -1                
+            EndIf
+        EndIf        
     EndProcedure    
+    
+    Procedure Screens_Show_Thread_EndB(n)
+        If ( Startup::*LHGameDB\Images_Thread[n] >= 0)
+            If IsThread( Startup::*LHGameDB\Images_Thread[n] )
+                KillThread( Startup::*LHGameDB\Images_Thread[n] )
+                Startup::*LHGameDB\Images_Thread[n] = -1
+            EndIf
+        EndIf        
+                
+    EndProcedure
+        
     ;******************************************************************************************************************************************
     ;  Erster Start/ Lade und Sichere die Scrennshots
     ;__________________________________________________________________________________________________________________________________________     
     Procedure Screens_Show()
 
         Screens_GetDB() 
-        
-        If ( Startup::*LHGameDB\Images_Thread[0] >= 0)
-            If IsThread( Startup::*LHGameDB\Images_Thread[0] )
-                WaitThread( Startup::*LHGameDB\Images_Thread[0] )
-                ;KillThread( Startup::*LHGameDB\Images_Thread[0] )
-                Startup::*LHGameDB\Images_Thread[0] = -1                
-            EndIf
-        EndIf
-        
-        ;Startup::*LHGameDB\Images_Mutex[0] = CreateMutex()
-        
+        Screens_Show_Thread_End(0)
+        Screens_Show_Thread_End(1)
+        Screens_Show_Thread_End(2)        
+        Screens_Show_Thread_End(3)        
+                
         For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots  +1
             Select nSlot
                 Case 0,4,8,12,16,20,24,28,32,36,40,44,48,52
@@ -338,40 +350,23 @@ Module vImages
                     Delay(1)
                 Case 1,5,9,13,17,21,25,29,33,37,41,45,49
                     Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread_2(),nSlot) 
+                    Startup::*LHGameDB\Images_Thread[1] = CreateThread( vThumbSys::@MainThread_2(),nSlot) 
                     Delay(1)   
                 Case 2,6,10,14,18,22,26,30,34,38,42,46,50
                     Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread_3(),nSlot) 
+                    Startup::*LHGameDB\Images_Thread[2] = CreateThread( vThumbSys::@MainThread_3(),nSlot) 
                     Delay(1) 
                 Case 3,7,11,15,19,23,27,31,35,39,43,47,51
                     Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
+                    Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
                     Delay(1)                     
             EndSelect         
         Next 
                 
-        If ( Startup::*LHGameDB\Images_Thread[0] >= 0)
-            If IsThread( Startup::*LHGameDB\Images_Thread[0] )
-                KillThread( Startup::*LHGameDB\Images_Thread[0] )
-                Startup::*LHGameDB\Images_Thread[0] = -1
-            EndIf
-        EndIf        
-        
-        
-        
- ;       Startup::*LHGameDB\Images_Thread[0] = CreateThread( @Screens_Show_Thread(),0)
-        
-               
-        ;WaitSemaphore( Startup::*LHGameDB\Images_Mutex[1] )  
-        
-  ;      WaitThread(Startup::*LHGameDB\Images_Thread[0],1)
-
-        
-        ;Startup::*LHGameDB\Images_Thread = CreateThread( @Screens_Show_Thread(),0) 
-        ;Screens_Show_Thread(0)      
-;        vThumbSys::MainThread(0)
-      
+        Screens_Show_Thread_EndB(0)        
+        Screens_Show_Thread_EndB(1) 
+        Screens_Show_Thread_EndB(2) 
+        Screens_Show_Thread_EndB(3)              
     EndProcedure 
     
     ;******************************************************************************************************************************************
@@ -385,10 +380,13 @@ Module vImages
         ; Würfel die 4 NoScreenshots Durcheinander
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
             Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)
+            
+            Delay(1)
+            
             If IsImage(Startup::*LHImages\NoScreenPB[n])                
-                Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])
+                Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
             EndIf                      
-        Next n            
+        Next            
     EndProcedure    
     ;******************************************************************************************************************************************
     ;  Konvertiere nach PNG
@@ -1333,10 +1331,9 @@ Module vImages
         Screens_ChgThumbnails(0,#True,0, 257)        
     EndProcedure    
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 346
-; FirstLine = 306
-; Folding = -----d+-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 295
+; Folding = -----46-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -29,7 +29,7 @@
         XIncludeFile "..\INCLUDES\Class_FastFileHandle.pb"       
         XIncludeFile "..\INCLUDES\CLASSES_FFS\FastFileSearch.pb"
         
-        XIncludeFile "..\INCLUDES\Class_Database.pb"
+        XIncludeFile "..\INCLUDES\Class_Database.pb"        
         
         XIncludeFile "..\INCLUDES\CLASSES_IMG\Class_Image_IFF.pb"
         XIncludeFile "..\INCLUDES\CLASSES_IMG\Class_Image_GIF.pb"
@@ -53,6 +53,7 @@
         ;XIncludeFile ".\vSystems_Modules\LocaleModule.pb"
           
         XIncludeFile ".\vSystems_Modules\Module_Registry.pbi"
+        XIncludeFile ".\vSystems_Modules\Module_Firewall.pb"        
 
         
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"     ; DB_Create::           
@@ -140,18 +141,17 @@
         
         End
         
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 58
-; FirstLine = 16
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 55
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems32Bit.exe
+; Executable = Release\vSystems64Bit.exe
 ; CPU = 1
 ; CurrentDirectory = Release\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
