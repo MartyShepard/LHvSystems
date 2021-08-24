@@ -229,7 +229,11 @@ Module vImages
         Protected RowID.i = Startup::*LHGameDB\GameID
         
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
+            
             Startup::SlotShots(n)\thumb[RowID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID")     
+            
+            Debug Str( ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID") )
+            
         Next 
         
         
@@ -337,14 +341,14 @@ Module vImages
     Procedure Screens_Show()
 
         Screens_GetDB() 
-        Screens_Show_Thread_End(0)
-        Screens_Show_Thread_End(1)
-        Screens_Show_Thread_End(2)        
-        Screens_Show_Thread_End(3)        
+;         Screens_Show_Thread_End(0)
+;         Screens_Show_Thread_End(1)
+;         Screens_Show_Thread_End(2)        
+;         Screens_Show_Thread_End(3)        
                 
-        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots  +1
+        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
             Select nSlot
-                Case 0,4,8,12,16,20,24,28,32,36,40,44,48,52
+                Case 4,8,12,16,20,24,28,32,36,40,44,48,52
                     Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
                     Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread(),nSlot) 
                     Delay(1)
@@ -363,10 +367,12 @@ Module vImages
             EndSelect         
         Next 
                 
-        Screens_Show_Thread_EndB(0)        
-        Screens_Show_Thread_EndB(1) 
-        Screens_Show_Thread_EndB(2) 
-        Screens_Show_Thread_EndB(3)              
+;         Screens_Show_Thread_EndB(0)        
+;         Screens_Show_Thread_EndB(1) 
+;         Screens_Show_Thread_EndB(2) 
+;         Screens_Show_Thread_EndB(3)    
+        
+         Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
     EndProcedure 
     
     ;******************************************************************************************************************************************
@@ -1331,8 +1337,9 @@ Module vImages
         Screens_ChgThumbnails(0,#True,0, 257)        
     EndProcedure    
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 295
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 369
+; FirstLine = 280
 ; Folding = -----46-
 ; EnableAsm
 ; EnableXP

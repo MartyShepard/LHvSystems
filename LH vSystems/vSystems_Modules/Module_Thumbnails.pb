@@ -26,7 +26,8 @@ Module vThumbSys
     EndStructure
     
     Global NewList Queue()
-
+    
+    Global ResizeMutex = 0
     ;*******************************************************************************************************************************************************************
     ;     
     Procedure   Clr_MemoryImg(*MemoryID, nSlot.i) 
@@ -141,11 +142,14 @@ Module vThumbSys
 ;             
 ;             KillThread(Startup::*LHGameDB\Images_Thread[2] )
 ;         EndIf 
-            
+        ResizeMutex = CreateMutex()
+        LockMutex( ResizeMutex )
+        
         *ImagesResize.STRUCT_REZIMAGES       = AllocateStructure(STRUCT_REZIMAGES) 
         InitializeStructure(*ImagesResize, STRUCT_REZIMAGES)          
         Protected ResizeThread
         If IsImage(ImageID.l)
+            
             *ImagesResize\ImageID    = ImageID.l
             *ImagesResize\BoxStyle   = BoxStyle
             *ImagesResize\ColorBlack = Color
@@ -155,11 +159,12 @@ Module vThumbSys
             *ImagesResize\Alpha      = Alpha
             *ImagesResize\Level      = Level
             
-             Startup::*LHGameDB\Images_Thread[2] = CreateThread(@Thread_Resize(),*ImagesResize)
-             If IsThread(Startup::*LHGameDB\Images_Thread[2])
-                 WaitThread(Startup::*LHGameDB\Images_Thread[2],1000)
+             Startup::*LHGameDB\Images_Thread[4] = CreateThread(@Thread_Resize(),*ImagesResize)
+             If IsThread(Startup::*LHGameDB\Images_Thread[4])
+                 WaitThread(Startup::*LHGameDB\Images_Thread[4],2000)
              EndIf 
-;           Thread_Resize(*ImagesResize)
+             ;           Thread_Resize(*ImagesResize)
+             UnlockMutex( ResizeMutex )
         EndIf
     EndProcedure      
     ;*******************************************************************************************************************************************************************
@@ -213,7 +218,8 @@ Module vThumbSys
     ;
     Procedure   Thumbnail_SetGadgetState(ThumbnailNum.i)
         
-            ;SetGadgetState(Startup::*LHImages\ScreenGDID[ThumbnailNum], -1)                
+        Delay(2)
+            SetGadgetState(Startup::*LHImages\ScreenGDID[ThumbnailNum], -1)                
             SetGadgetState(Startup::*LHImages\ScreenGDID[ThumbnailNum], Startup::*LHImages\CpScreenID[ThumbnailNum])  
             
      EndProcedure
@@ -221,6 +227,7 @@ Module vThumbSys
     ;
      Procedure  Thumbnail_UseDefaultImage(ThumbnailNum.i)
          
+         Delay(2)
          Resize_Gadget(ThumbnailNum, Startup::*LHImages\NoScreenPB[ThumbnailNum], Startup::*LHImages\ScreenGDID[ThumbnailNum] )  
          
      EndProcedure
@@ -1491,8 +1498,9 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5
-; Folding = LLAAAAAAAg--
+; CursorPosition = 220
+; FirstLine = 117
+; Folding = 8DAAAAAAAg--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

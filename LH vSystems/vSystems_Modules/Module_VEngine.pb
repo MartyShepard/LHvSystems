@@ -175,6 +175,7 @@ Module VEngine
                           vImages::Screens_Show() 
                           ;Delay(2)
                           VEngine::Switcher_Pres_List(DC::#Button_010)
+                          
                       EndIf                      
                   EndIf   
      EndProcedure        
@@ -800,6 +801,8 @@ Module VEngine
               ;
               ; Resete die Update Section. Siehe Modul Itemslist            
               Startup::*LHGameDB\UpdateSection = -1
+              Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")        
+              
           EndIf    
      EndProcedure      
     ;****************************************************************************************************************************************************************
@@ -2067,6 +2070,30 @@ Module VEngine
                 
         EndSelect       
     EndProcedure    
+    
+    ;****************************************************************************************************************************************************************
+    ; Programm läuft,  Sammle Textausgabe
+    ;________________________________________________________________________________________________________________________________________________________________                       
+    Procedure DOS_Thread_OutPut(*Params.PROGRAM_BOOT)
+        
+        Protected stdout.s
+        
+            If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow ) 
+                
+                *Params\Logging + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8) + #CR$
+                Debug #TAB$ + "Loggin: " + *Params\Logging                
+                
+                If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                    stdout = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
+                
+                    If ( Len( stdout)  > 0 )
+                        *Params\StError + stdout
+                        Debug #TAB$ + "StdOut: " + *Params\StError  
+                    EndIf                    
+                EndIf
+            EndIf        
+        
+    EndProcedure    
     ;****************************************************************************************************************************************************************
     ; Programm läuft,  While ProgramRunnin....
     ;________________________________________________________________________________________________________________________________________________________________                       
@@ -2077,63 +2104,50 @@ Module VEngine
         Repeat
             
             ;WindowState = DOS_Thread_HideWindow(*Params\Program, l_ProcID, #SW_HIDE, WindowState)  
-            
-            ; Delay Verzögerung
-            If ( Startup::*LHGameDB\Settings_Affinity >= 0   ) Or
-               ( Startup::*LHGameDB\Settings_NoBorder = #True) Or
-               ( Startup::*LHGameDB\Settings_FreeMemE = #True)
                
-                Delay(128)
-            EndIf    
-            
-            
-            If ( Startup::*LHGameDB\Settings_Affinity >= 0 )               
-                 If ( Startup::*LHGameDB\Settings_Affinity = 999 )   
-                     ;
-                     ; 999 - Forciere alle CPU's
-                     vSystem::System_SetAffinity(*Params\Program)
-                 Else
-                     vSystem::System_SetAffinity(*Params\Program, Startup::*LHGameDB\Settings_Affinity+1)
-                 EndIf    
-            EndIf
-                       
-            If Startup::*LHGameDB\Settings_NoBorder = #True                          
-                vSystem::System_NoBorder(*Params\Program)                
-            EndIf    
-            
-            If Startup::*LHGameDB\Settings_FreeMemE = #True            
-               vSystem::System_MemoryFree(*Params\Program) 
-               ; TODO
-               ; Schwellenwert angabe
-            EndIf   
-            
-            If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )
-                Delay(25)
-                ProcessEX::LHFreeMem()
-            EndIf
-                                
-            If AvailableProgramOutput(l_ProcID)             
-                *Params\Logging + ReadProgramString(l_ProcID,#PB_Ascii) + #CR$
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #LOGGING : " + *Params\Logging ) 
+                If ( Startup::*LHGameDB\Settings_Affinity >= 0   ) Or
+                   ( Startup::*LHGameDB\Settings_NoBorder = #True) Or
+                   ( Startup::*LHGameDB\Settings_FreeMemE = #True)                 
+                EndIf
+    
                 
-                StdOutErrors$ = ReadProgramError(l_ProcID,#PB_Ascii)
-                If ( Len(StdOutErrors$) <> 0 )                    
-                  *Params\StError = *Params\StError + StdOutErrors$
-                EndIf    
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #STD.OUT : " + StdOutErrors$) 
-                If StdOutErrors$
-                Else
-                EndIf                  
-            EndIf                
-            Delay(25)            
+                If ( Startup::*LHGameDB\Settings_Affinity >= 0 )               
+                     If ( Startup::*LHGameDB\Settings_Affinity = 999 )   
+                         ;
+                         ; 999 - Forciere alle CPU's
+                         vSystem::System_SetAffinity(*Params\Program)
+                     Else
+                         vSystem::System_SetAffinity(*Params\Program, Startup::*LHGameDB\Settings_Affinity+1)
+                     EndIf
+                     ; Aktivere den Patch nur einmal
+                     Startup::*LHGameDB\Settings_Affinity = -1                    
+                EndIf            
+                
+                If Startup::*LHGameDB\Settings_NoBorder = #True                          
+                    vSystem::System_NoBorder(*Params\Program)                                  
+                EndIf                
+                
+                If Startup::*LHGameDB\Settings_FreeMemE = #True            
+                   vSystem::System_MemoryFree(*Params\Program) 
+                   ; TODO
+                   ; Schwellenwert angabe                 
+                EndIf   
+                
+                
+                If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )               
+                    ProcessEX::LHFreeMem()
+                EndIf
+            
+            CreateThread(@DOS_Thread_OutPut(),*Params)     
             
             If Not (ProgramRunning(l_ProcID))
                 DOS_NOP = 0
-            EndIf            
+            EndIf 
+            Delay(25)
         Until DOS_NOP = 0    
         
-        Delay(65)
-        
+        Delay(1)
+
         FatalError_A$ = ""
         FatalError_B$ = ""
         
@@ -2199,6 +2213,7 @@ Module VEngine
         DOS_WorK$ = *Params\WrkPath
         DOS_CliC$ = *Params\Command
         
+        Startup::*LHGameDB\Thread_ProcessLow = -1
         ;
         ; Prüfung der Programm Eingenschaften
         If FileSize( DOS_PatH$ + DOS_ExeC$ ) = 0
@@ -2263,6 +2278,9 @@ Module VEngine
             UnuseModule ClassFirewall    
         EndIf    
         
+        
+        
+        ;vSystem::System_Set_Priority(GetFilePart( ProgramFilename() ), #IDLE_PRIORITY_CLASS)
         ; Minimiert vSystems, auch wenn mit Settings_Asyncron gestartet wurde
         ;
         Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)
@@ -2275,7 +2293,7 @@ Module VEngine
             Debug "Exec         : " + DOS_ExeC$ 
             Debug "Command      : " + DOS_CliC$           
             l_ProcID = DOS_Thread_CreatProcess(DOS_PatH$,DOS_ExeC$,DOS_CliC$) 
-            
+             Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
         Else                             
             Debug ""
             Debug "Programm Load: NonAsync "
@@ -2283,28 +2301,35 @@ Module VEngine
             Debug "Exec         : " + DOS_ExeC$ 
             Debug "Command      : " + DOS_CliC$
             Debug "Working      : " + DOS_WorK$
-            l_ProcID.l = RunProgram(DOS_PatH$ + DOS_ExeC$,DOS_CliC$,DOS_WorK$,*Params\PrgFlag): Delay(255)            
+            l_ProcID.l = RunProgram(DOS_PatH$ + DOS_ExeC$,DOS_CliC$,DOS_WorK$,*Params\PrgFlag)
+            Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
+            Delay(25)            
         EndIf    
         
+       
         
         If ( l_ProcID.l = 0 ) Or ( Startup::*LHGameDB\Settings_Asyncron = #True ) Or (IsProgram(l_ProcID) = 0)
             ProcedureReturn
         EndIf
-                
+        
+       
             
         h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, ProgramID(l_ProcID))          
      
-                
+
         DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)    
                 
         GetExitCodeProcess_(h_ProcID, @exitCodeH)
         GetExitCodeProcess_(l_ProcID, @exitCodeL)
         
+        Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
+        
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@ExitCode Low : " + Str(exitCodeL) )         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@ExitCode High: " + Str(exitCodeH) ) 
         
-        CloseProgram(l_ProcID)
+        CloseProgram(l_ProcID)                
         
+        ;vSystem::System_Set_Priority(GetFilePart( ProgramFilename() ), #NORMAL_PRIORITY_CLASS)
         ;
         ;
         ; Game Helper
@@ -2347,29 +2372,14 @@ Module VEngine
         EndIf
         
         Select exitCodeL
-            Case 0
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Successful " + Str(exitCodeL)) 
-                
-            Case 1
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Warning: Non fatal error(s) occurred " + Str(exitCodeL))                 
-                
-            Case 3
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Archive Error: A CRC error occurred when unpacking " + Str(exitCodeL))                 
-                
-            Case 4
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Archive Error: Attempt to modify an archive previously locked " + Str(exitCodeL))                  
-                
-            Case 5
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Error Loading Rom: Unknown Maschine " + Str(exitCodeL))                
-               
-            Case 6
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Commandline Error " + Str(exitCodeL))                 
-               
-            Case 255
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: User stopped the process " + Str(exitCodeL))                  
-                 
-            Default
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Unknow " + Str(exitCodeL))                    
+            Case 0:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Successful " + Str(exitCodeL))                 
+            Case 1:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Warning: Non fatal error(s) occurred " + Str(exitCodeL))                                 
+            Case 3:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Archive Error: A CRC error occurred when unpacking " + Str(exitCodeL))                                 
+            Case 4:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Archive Error: Attempt to modify an archive previously locked " + Str(exitCodeL))                                  
+            Case 5:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Error Loading Rom: Unknown Maschine " + Str(exitCodeL))                               
+            Case 6:   Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Commandline Error " + Str(exitCodeL))                                
+            Case 255: Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: User stopped the process " + Str(exitCodeL))                                   
+            Default : Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Unknow " + Str(exitCodeL))                    
         EndSelect               
                      
     EndProcedure        
@@ -3187,7 +3197,7 @@ Module VEngine
             ;If ( Startup::*LHGameDB\Settings_Asyncron = #False ) 
                 While IsThread(_Action1)   
                     Delay(25)                
-                    While WindowEvent() 
+                    While WindowEvent()                         
                     Wend  
                 Wend                 
             ;EndIf
@@ -3810,10 +3820,10 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 2327
-; FirstLine = 939
-; Folding = jCADaDAegJB+
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 797
+; FirstLine = 500
+; Folding = zCgDaDA+ASC9
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

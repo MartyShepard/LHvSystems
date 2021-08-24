@@ -12,11 +12,14 @@
     Declare     System_Compat_MenuItemW(MenuID)    
     Declare     System_Compat_MenuItemE(MenuID)
     
+    Declare.i   System_CheckInstance()
+    
 EndDeclareModule
 
 Module vSystem
     
-        ;    
+    Global bNBSet.i = #False
+    ;    
     ; Holt die Liste der Tasks
     ; 
     Procedure.i System_TaskList( List P32.PROCESSENTRY32() )
@@ -53,7 +56,7 @@ Module vSystem
                         
                         AddElement (P32())
                         
-                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))
+                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))                                               
                     Wend
                     
                 EndIf
@@ -62,6 +65,7 @@ Module vSystem
             
             CloseLibrary (#PROCESS32LIB)
         EndIf           
+              
     EndProcedure 
     ;
     ;
@@ -98,7 +102,9 @@ Module vSystem
         
         ResetList( PrioRity() )
                 
-        If ( szTaskName )  
+        If ( szTaskName )              
+
+            
             While NextElement( PrioRity() )                
                 If ( LCase( szTaskName ) = LCase( PeekS( @PrioRity()\szExeFile, 255, #PB_UTF8) ) )
                     
@@ -109,18 +115,16 @@ Module vSystem
                     uPID = PeekL (@PrioRity()\th32ProcessID) 
                     
                     System_Get_Priority(szTaskName + " = ", uPID )
-                    Delay( 25 )
                     
                     HiProcess = OpenProcess_(#PROCESS_SET_INFORMATION, 0, uPID)
                     If ( HiProcess )
                         SetPriorityClass_( HiProcess , PriorityClass)
                         CloseHandle_( HiProcess )  
-                        Delay( 25 )
+
                     EndIf
                     
                     System_Get_Priority(szTaskName + " > ", uPID )
-                    Delay( 25 )
-                                        
+             
                     Break
                 EndIf                    
             Wend    
@@ -185,7 +189,7 @@ Module vSystem
                     
                     Break;
                 EndIf    
-                
+
             Wend    
         EndIf
         
@@ -219,8 +223,7 @@ Module vSystem
             Debug "System Memory Free: Vollständig Clear Memory Cache)"
         EndIf   
         
-        
-        
+                
         RealProcessID = PeekL (@P32()\th32ProcessID)
                              
         PHandle = OpenProcess_(#PROCESS_ALL_ACCESS, #False, RealProcessID)
@@ -272,31 +275,33 @@ Module vSystem
         ResetList( Process32() )
         Debug "System Memory Free #3:"         
         If ( szTaskName )           
-                    Debug "System Memory Free #4:" 
+            Debug "System Memory Free #4:" 
             While NextElement( Process32() )
                 
                 If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )                    
-                            Debug "System Memory Free #6:" 
+                    Debug "System Memory Free #6:" 
                     System_MemorySetWorker( Process32(), szTaskName )                      
                     Break                      
                 EndIf    
+                Delay(5)
             Wend                                            
         Else                        
-                    Debug "System Memory Free #5:" 
+            Debug "System Memory Free #5:" 
             While NextElement( Process32() )
                 
                 szTaskName = PeekS( @Process32()\szExeFile, 255, #PB_UTF8)
                 
                 If ( szTaskName )                     
-                            Debug "System Memory Free #7:" 
+                    Debug "System Memory Free #7:" 
                     System_MemorySetWorker( Process32(), szTaskName ) 
                     Break
-                EndIf                           
+                EndIf   
+                Delay(5)
             Wend
         EndIf        
-                Debug "System Memory Free #8:" 
-                ClearList( Process32() )
-                        Debug "System Memory Free #9:" 
+        Debug "System Memory Free #8:" 
+        ClearList( Process32() )
+        Debug "System Memory Free #9:" 
     EndProcedure
     
     ;
@@ -565,8 +570,7 @@ Module vSystem
                                 DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
                                 Debug DbgLog + #CR$
                                                                 
-                                _NoBorder_(hwnd)
-                                                                                                   
+                                _NoBorder_(hwnd)                                                                
                                 ProcedureReturn #False 
                             EndIf    
                         Else                            
@@ -579,8 +583,11 @@ Module vSystem
     EndProcedure
     ;
     ;
-    ; Patch Games/Apps to remove Border
-    Procedure   System_NoBorder(szTaskName.s = "")  
+    ; Patch Games/Apps to remove Border  
+  
+    Procedure   System_NoBorder(szTaskName.s = "")   
+        
+        Startup::*LHGameDB\Thread_ProcessName = szTaskName
         
         Debug ""
         
@@ -594,13 +601,15 @@ Module vSystem
         System_TaskList( NoBorderList() ) 
         
         ResetList( NoBorderList() )
+
+        If ( Startup::*LHGameDB\Thread_ProcessName )  
+            ForEach NoBorderList()
                 
-        If ( szTaskName )  
-            While NextElement( NoBorderList() )                
-                If ( LCase( szTaskName ) = LCase( PeekS( @NoBorderList()\szExeFile, 255, #PB_UTF8) ) )
+                
+                If ( LCase( Startup::*LHGameDB\Thread_ProcessName ) = LCase( PeekS( @NoBorderList()\szExeFile, 255, #PB_UTF8) ) )
                     
                     Debug ""
-                    Debug "NoBorder für  : " + szTaskName
+                    Debug "NoBorder für  : " + Startup::*LHGameDB\Thread_ProcessName
                     Debug "- ProcessID   : " + Str( PeekL (@NoBorderList()\th32ProcessID) )
                     
                     uPID = PeekL (@NoBorderList()\th32ProcessID) 
@@ -608,26 +617,27 @@ Module vSystem
                     HiProcess = OpenProcess_(#PROCESS_SET_INFORMATION, 0, uPID)
                     If ( HiProcess )            
                         Debug "- TH32 ID List: "                        
-                        _NoBorder_Debug( NoBorderList(), szTaskname.s, HiProcess)                        
+                        _NoBorder_Debug( NoBorderList(), Startup::*LHGameDB\Thread_ProcessName, HiProcess)                        
                         EnumWindows_(@System_EnumWindows(),PeekL (@NoBorderList()\th32ProcessID) )
-                        
                         ;Debug "TH32ProcessID Parent============ :"
                         ;EnumWindows_(@System_EnumWindows(),PeekL (@NoBorderList()\th32ParentProcessID))
                         
                         ;Debug "HiProcess           ============ :"
                         ;EnumWindows_(@System_EnumWindows(),HiProcess)
-                        CloseHandle_( HiProcess )  
-                        Delay( 5 )
+                        CloseHandle_( HiProcess ) 
                     EndIf
-                    Delay( 5 )
+                    
                                         
                     Break
-                EndIf                    
-            Wend    
+
+                EndIf
+                Delay( 2 )
+            Next    
         EndIf
 
         ClearList( NoBorderList() )
-
+        
+        
     EndProcedure
     
     ;
@@ -699,12 +709,33 @@ Module vSystem
         UnuseModule Compatibility             
         
     EndProcedure    
+     
+    ;
+    ;
+    ; Prüfng ob es schon gestartet ist
+    Procedure.i   System_CheckInstance()
+        
+        FileName.s = GetFilePart( ProgramFilename() )
+        
+        ; VSystems Prüfverfahren          
+        
+        *a = CreateSemaphore_(0, 0, 1, FileName)
+        
+        If ( *a <> 0 ) And ( GetLastError_() = #ERROR_ALREADY_EXISTS )
+            CloseHandle_(*a)                      
+            
+            Request::MSG("", "Programm läuft", "Programm wurde zuvor schon gestartet." + #CR$ + "Pfad: '"+ProgramFilename() , 2, 2, ProgramFilename(), 0, 0, 0)            
+            End             
+        EndIf
+        
+    EndProcedure
+    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 263
-; FirstLine = 90
-; Folding = D9i-
+; CursorPosition = 727
+; FirstLine = 338
+; Folding = 4-T+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = H:\Games _ Adult Archiv\Theme - The Klub\
+; CurrentDirectory = ..\Release\

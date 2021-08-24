@@ -223,6 +223,9 @@ DeclareModule Startup
         
         bBuild32Bit.i               ; bool Is32Bit Exe
         VersionNumber.s             ; Version String (Nummer)
+        Thread_ProcessHigh.i        ; 
+        Thread_ProcessLow.i
+        Thread_ProcessName.s        ; szTaskanem     
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
                 
     EndStructure           
@@ -257,13 +260,15 @@ EndDeclareModule
 Module Startup    
     Procedure.s History(svn = #False, Option = 0)
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
-        
-        ;Title     = "vSystems"
-        ;Version   = "0.25b"
-        ;dbSVN     = "db004"                                             ; Diese muss seperat beim ersten erstellen der Datenbank auch stehen
-        ;Builddate = FormatDate("%dd-%mm-%yyyy", #PB_Compiler_Date)
-        
+               
         XIncludeFile "Module_Version.pb"
+        ;        
+        ; Version 0.29b          
+        ; Fixed HighCpu mit %Cpu[x] Argument
+        ; Vesetzt vSystem von Normal in Idle wenn ein programm gestartet wird
+        ; Intanz Nachricht an user wennn das "selbe" vSystems gestartet
+        ; Thread Optimierung für die Thumnails. Möglicher Crash Fix
+        
         ;        
         ; Version 0.28b          
         ; Optimize Thumbnail Loading
@@ -745,9 +750,9 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 270
-; FirstLine = 235
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 262
+; FirstLine = 227
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

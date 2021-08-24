@@ -735,9 +735,9 @@ CompilerIf #PB_Compiler_IsMainFile
   Debug Windows::Get_Language(1)
 
 CompilerEndIf
-; IDE Options = PureBasic 5.62 (Windows - x64)
-; CursorPosition = 18
-; FirstLine = 3
-; Folding = Xo-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 268
+; FirstLine = 101
+; Folding = Xr-
 ; EnableXP
 ; EnableUnicode

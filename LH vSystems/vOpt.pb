@@ -51,18 +51,17 @@
         ;           
         ProcessEX::SetAffinityActiv(GetCurrentProcessId_(),ProcessEX::SetAffinityCPUS(0,1))
         ;XIncludeFile ".\vSystems_Modules\LocaleModule.pb"
-          
+        
         XIncludeFile ".\vSystems_Modules\Module_Registry.pbi"
         XIncludeFile ".\vSystems_Modules\Module_Firewall.pb"        
-
-        
+    
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"     ; DB_Create::           
         XIncludeFile ".\vSystems_Modules\Module_Config.pb"              ; Startup:: 
         XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"        
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    ; DB_Migrate::           
-        
+              
         XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                ; Include Modules, Global Code Module (Menu System)              
-        
+              
         XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       ; vFont::
         XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            ; vItemTool::
         XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          ; vThumbSys::
@@ -74,19 +73,21 @@
         XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            ; vInfoMenu::
         XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"           ; vItem64E::
         BackupRestart:
-
-        Startup::Prepare()                           
+           
+        vSystem::System_CheckInstance()
+        
+        Startup::Prepare()                               
         
         XIncludeFile ".\vSystems_Modules\Module_Gui.pb"                 ; Haupt Fenster
         XIncludeFile ".\vSystems_Modules\Module_MameCall.pb"            ; Callback für das Programm
         XIncludeFile ".\vSystems_Modules\Module_vWindows.pb"            ; Externe Fenster/ Code Sachen
-        
+              
         ; Update System
         XIncludeFile ".\vSystems_Modules\Module_Update.pb"              ; Update System
         ; Menu System
- 
+               
         XIncludeFile ".\vSystems_Modules\Module_Menu.pb"                ; Beinhaltet die Individuellen Menüs        
-         
+              
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Update.pb"    ; DB_Update:: 
         XIncludeFile ".\vSystems_Modules\Module_GuiInteract.pb"         ; Haupt Code Geschichten
         
@@ -141,17 +142,21 @@
         
         End
         
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 55
+        Delay(25)
+        
+        If IsProgram( GetCurrentProcessId_() )
+            KillProgram( GetCurrentProcessId_() )
+        EndIf    
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 89
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
-; CPU = 1
-; CurrentDirectory = Release\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; Executable = Release\vSystems32Bit.exe
+; CurrentDirectory = L:\Sortet Games\Quake 1\vDosbox\
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
