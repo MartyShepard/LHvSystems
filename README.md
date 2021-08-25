@@ -1,2 +1,2 @@
 # LHvSystems
- Simple Startup Launcher for Windows
+ Experimental Simple Dynamic Startup Launcher for Windows.
