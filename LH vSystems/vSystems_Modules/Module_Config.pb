@@ -263,6 +263,9 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;        
+        ; Version 0.30b
+        ; Hinzugefügt %sc als universelle Kommandozeilen übergabe von den Slots aus
+        ;        
         ; Version 0.29b          
         ; Fixed HighCpu mit %Cpu[x] Argument
         ; Vesetzt vSystem von Normal in Idle wenn ein programm gestartet wird
@@ -751,8 +754,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 262
-; FirstLine = 227
+; CursorPosition = 263
+; FirstLine = 239
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

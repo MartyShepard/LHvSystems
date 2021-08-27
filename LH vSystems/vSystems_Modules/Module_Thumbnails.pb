@@ -164,8 +164,9 @@ Module vThumbSys
                  WaitThread(Startup::*LHGameDB\Images_Thread[4],2000)
              EndIf 
              ;           Thread_Resize(*ImagesResize)
-             UnlockMutex( ResizeMutex )
-        EndIf
+             
+         EndIf
+         UnlockMutex( ResizeMutex )
     EndProcedure      
     ;*******************************************************************************************************************************************************************
     ;    
@@ -1498,8 +1499,8 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 220
-; FirstLine = 117
+; CursorPosition = 168
+; FirstLine = 99
 ; Folding = 8DAAAAAAAg--
 ; EnableAsm
 ; EnableXP

@@ -2105,9 +2105,10 @@ Module MagicGUI
                                 "          x can be: f to force all Cpu Units"                       + #CR$ +
                                 "          x can be: digit number from 0 to 63"                      + #CR$ + #CR$ +
                                 "%blockfw= Block Program through the Firewall"                       + #CR$ + #CR$ +                                
-                                "%s      = Placeholder For Media Device File(s) Slots"               + #CR$ + 
+                                "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
+                                "          c: use as unviersal commandline in the Slots"             + #CR$ +                                 
                                 "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
-                                "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ +                                
+                                "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
                                 "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
                                 "          For Program's that has'nt builtin Packer Support."        + #CR$ + 
                                 "          vSystems Uncompress the File & give it to the Program."
@@ -2240,9 +2241,9 @@ Module MagicGUI
         EndIf
     EndProcedure    
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 2106
-; FirstLine = 913
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2109
+; FirstLine = 947
 ; Folding = nmH5-
 ; EnableAsm
 ; EnableXP
