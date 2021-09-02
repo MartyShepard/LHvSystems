@@ -249,7 +249,7 @@ Module Interact
                             If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
                                 Debug "Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
                             EndIf    
-                            
+                            Debug "Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
                     EndSelect     
                     
                     ;
@@ -679,8 +679,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 241
-; FirstLine = 205
+; CursorPosition = 251
+; FirstLine = 150
 ; Folding = --
 ; EnableAsm
 ; EnableXP

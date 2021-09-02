@@ -18,7 +18,7 @@ DeclareModule Fonts
             
             #_C64_CHARS     :#_C64_CHARS2   :#_C64_CHARS3_REQ
             
-            #PC_Clone_09
+            #PC_Clone_09 
             #DEJAVUSANS_MONO_09
             
                             ; Fonts Unbenutzt
@@ -183,14 +183,17 @@ Module Fonts
     AddFontMemResource( ?BEG_C64CHARSET2, ?END_C64CHARSET2 - ?BEG_C64CHARSET2, "Fixplain7/C64/Shift-D", 12 )   
     AddFontMemResource( ?BEG_C64CHARSET3, ?END_C64CHARSET3 - ?BEG_C64CHARSET3, "Fixplain7/C64/Request", 12 )   
     AddFontMemResource( ?BEG_FIXPLAIN7  , ?END_FIXPLAIN7   - ?BEG_FIXPLAIN7  , "fixplain7 12"         , 12 )
-    AddFontMemResource( ?BEG_PCCLONE    , ?END_PCCLONE     - ?BEG_PCCLONE    , "PC-Clone                       ", 9 )             
+    ;AddFontMemResource( ?BEG_PCCLONE    , ?END_PCCLONE     - ?BEG_PCCLONE    , "PC-Clone             ", 9 )             
+    AddFontMemResource( ?BEG_FRETINA    , ?END_FRETINA     - ?BEG_FRETINA    , "Fira Code Retina"    , 9 )    
     AddFontMemResource( ?BEG_DEJAVUSM   , ?END_DEJAVUSM    - ?BEG_DEJAVUSM   , "DejaVu Sans Mono"     , 9 )    
     AddFontMemResource( ?BEG_EUROSTILE  , ?END_EUROSTILE   - ?BEG_EUROSTILE  , "Xbox Book"            , 20 )
     AddFontMemResource( 0               , 0                                  , "Segoe UI"             , 10, #True )     
     AddFontMemResource( 0               , 0                                  , "Segoe UI"             , 11, #True )  
            
     LoadFont(#_FIXPLAIN7_12     ,"fixplain7 12"         ,12)
-    LoadFont(#PC_Clone_09       ,"PC-Clone"             ,9)    
+    ;LoadFont(#PC_Clone_09       ,"PC-Clone"             ,9)
+    LoadFont(#PC_Clone_09           ,"Fira Code Retina"     ,9)     
+    
 
     LoadFont(#DEJAVUSANS_MONO_09,"DejaVu Sans Mono"     ,9  ,#PB_Font_HighQuality)       
     LoadFont(#_EUROSTILE_20     ,"Xbox Book"            ,20 ,#PB_Font_HighQuality)
@@ -223,20 +226,23 @@ Module Fonts
             IncludeBinary "..\..\INCLUDES\_FONTS_EMBEDDED\XBOXBOOK.TTF"  
         END_EUROSTILE:
                     
-        BEG_PCCLONE:
-            IncludeBinary "..\..\INCLUDES\_FONTS_EMBEDDED\PCCLONE.FON"  
-        END_PCCLONE:            
+       ; BEG_PCCLONE:
+       ;     IncludeBinary "..\..\INCLUDES\_FONTS_EMBEDDED\PCCLONE.FON"  
+       ; END_PCCLONE:            
         
         BEG_DEJAVUSM:
             IncludeBinary "..\..\INCLUDES\_FONTS_EMBEDDED\DEJAVUSANSMONOTEST.TTF"  
         END_DEJAVUSM:  
-            
+        
+        BEG_FRETINA:
+            IncludeBinary "..\..\INCLUDES\_FONTS_EMBEDDED\DEJAVUSANSMONOTEST.TTF"  
+        END_FRETINA:          
     EndDataSection    
         
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 196
-; FirstLine = 120
-; Folding = j0
+; CursorPosition = 186
+; FirstLine = 89
+; Folding = j-
 ; EnableXP
 ; EnableUnicode

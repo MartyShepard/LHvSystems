@@ -443,24 +443,35 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ;
     ;**************************************************************************************************************************************************************** 
-    Procedure Database_Set_Title(Str$)
-        Protected Position.i, Text_001$, Text_002$
+    Procedure Database_Set_Title(Title.s)
+        Protected Position.i, Text_001$, Text_002$, cnt.i
         
-        Text_001$ = Str$
+        Text_001$ = Title
         Text_002$ = ""
         
-        Position = FindString(Str$,":",1)
-        If ( Position >= 5 )
-            Text_001$ = Mid(Str$,1,Position-1)
-            Text_002$ = Mid(Str$,Position + 1,Len(Str$))           
-        Else
-            
-            Position = FindString(Str$," - ",1)
-            If ( Position >= 5 )
-                Text_001$ = Mid(Str$,1,Position)
-                Text_002$ = Mid(Str$,Position + 2,Len(Str$))           
+        cnt = CountString( Text_001$, "-")
+        If (cnt > 0)
+            Position = FindString(Title,"-",1)
+            If ( Position > 0 )
+             
+              Text_001$ = Mid(Title, 1, Position-1)
+              Text_002$ = Mid(Title, Position + 1,Len(Title))
+
             EndIf            
-        EndIf                  
+        Else
+            cnt = CountString( Text_001$, ":")
+            If (cnt > 0)
+                Position = FindString(Title,":",1)
+                If ( Position > 0 )
+             
+                Text_001$ = Mid(Title, 1, Position-1)
+                Text_002$ = Mid(Title, Position + 1,Len(Title))
+
+                EndIf             
+            EndIf
+        EndIf    
+        
+        
         Text_001$ = Trim(Text_001$)
         Text_002$ = Trim(Text_002$)
         
@@ -515,14 +526,14 @@ Module VEngine
     ;
     ;****************************************************************************************************************************************************************     
     Procedure.s Change_Title_VerifyDate(TestString$)
-        Protected STR.s, INT.i
+        Protected s.s, i.i
         ;
         ; Prüfe Monat
         If ( Len(TestString$) >= 7 )
-            STR = Mid(TestString$,6,2)
-            INT = Val(STR)
-            If ( INT >= 12 )
-                SetGadgetText(DC::#String_005, ReplaceString(TestString$,STR,"12",0,6,1))
+            s = Mid(TestString$,6,2)
+            ;s = Val(s)
+            If ( i >= 12 )
+                SetGadgetText(DC::#String_005, ReplaceString(TestString$,s,"12",0,6,1))
                 SendMessage_(GadgetID(DC::#String_005), #EM_SETSEL, Len(TestString$), Len(TestString$))
             EndIf                               
         EndIf   
@@ -530,10 +541,10 @@ Module VEngine
         ;
         ; Prüfe Tage
         If ( Len(TestString$) = 10 )
-            STR = Mid(TestString$,9,2)
-            INT = Val(STR)
-            If ( INT >= 31 )
-                SetGadgetText(DC::#String_005, ReplaceString(TestString$,STR,"31",1,8,1))
+            s = Mid(TestString$,9,2)
+            ;i = Val(s)
+            If ( i >= 31 )
+                SetGadgetText(DC::#String_005, ReplaceString(TestString$,s,"31",1,8,1))
                 SendMessage_(GadgetID(DC::#String_005), #EM_SETSEL, Len(TestString$), Len(TestString$))                
             EndIf                               
         EndIf         
@@ -3878,9 +3889,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3109
-; FirstLine = 2000
-; Folding = zGgDaHE+ATC9
+; CursorPosition = 445
+; FirstLine = 409
+; Folding = 8egDaHc+ATC9
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

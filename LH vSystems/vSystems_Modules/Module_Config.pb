@@ -201,6 +201,7 @@ DeclareModule Startup
         Resize_Mutex.i 
         Resize_Thread.i
         Images_Thread.i[51]
+        Images_Threaded.i[51]        
         
         CBMFONT.l                   ; Commodore 64 Font
         C64LoadS8.s                 ; c1541.exe oder dm.exe, um das verzeichnis von C64er Images zu lesen
@@ -262,6 +263,10 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;        
+        ; Version 0.31b
+        ; More work on Thumbnail Loading
+        
         ;        
         ; Version 0.30b
         ; Hinzugefügt %sc als universelle Kommandozeilen übergabe von den Slots aus
@@ -754,8 +759,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 263
-; FirstLine = 239
+; CursorPosition = 267
+; FirstLine = 227
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

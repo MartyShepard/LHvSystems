@@ -147,11 +147,7 @@ Module vImages
                
     EndProcedure         
     Procedure ImageResizeEx_Thread(ImageID.l, w, h, BoxStyle = 0, Color = $000000, Center = #False, Alpha = #False, Level = 255)
-        
-;          If IsThread(Startup::*LHGameDB\Images_Thread[1])             
-;              KillThread( Startup::*LHGameDB\Images_Thread[1] )
-;          EndIf 
-            
+                   
         *ImagesResize.STRUCT_REZIMAGES       = AllocateStructure(STRUCT_REZIMAGES) 
         InitializeStructure(*ImagesResize, STRUCT_REZIMAGES)          
         Protected ResizeThread
@@ -169,7 +165,6 @@ Module vImages
              If IsThread(Startup::*LHGameDB\Images_Thread[1])
                  WaitThread(Startup::*LHGameDB\Images_Thread[1],1100)
              EndIf 
-;           Thread_Resize(*ImagesResize)
         EndIf
     EndProcedure      
     ;******************************************************************************************************************************************
@@ -201,10 +196,8 @@ Module vImages
             EndIf                
             ;
             ; Erstelle eine Kopie und lege diesen handle in die Strukture, Mit Originaler Höhe und Breite              
-            CopyImage(StructImagePB, Startup::*LHImages\CpScreenPB[n])
-            ;If IsImage( Startup::*LHImages\CpScreenPB[n] )  
-                Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])
-            ;EndIf    
+            CopyImage(StructImagePB, Startup::*LHImages\CpScreenPB[n])          
+            Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])           
             
             ;
             ; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
@@ -213,10 +206,8 @@ Module vImages
             EndIf    
             
             ;
-            ; Das Neue Bild in die Structure Koieren
-            ;If IsImage( Startup::*LHImages\CpScreenPB[n] )                
-                Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])
-            ;EndIf    
+            ; Das Neue Bild in die Structure Koieren           
+            Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])               
         Else
             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Kein Bild in der Purebasic"+Str(StructImagePB) )
         EndIf
@@ -224,19 +215,11 @@ Module vImages
     ;******************************************************************************************************************************************
     ;  Hole die Screenshots aus der Datenbank
     ;__________________________________________________________________________________________________________________________________________ 
-    Procedure Screens_GetDB()  
-        
-        Protected RowID.i = Startup::*LHGameDB\GameID
-        
-        For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            
+    Procedure Screens_GetDB()          
+        Protected RowID.i = Startup::*LHGameDB\GameID        
+        For n = 1 To Startup::*LHGameDB\MaxScreenshots            
             Startup::SlotShots(n)\thumb[RowID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID")     
-            
-            Debug Str( ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID") )
-            
-        Next 
-        
-        
+        Next                 
     EndProcedure   
     
     Procedure Screens_Show_Thread(z)
@@ -282,70 +265,24 @@ Module vImages
                     
                     Screens_Copy_ResizeToGadget(nSlot, Startup::*LHImages\NoScreenPB[nSlot], Startup::*LHImages\ScreenGDID[nSlot] )    
                     
-                EndIf    
-                
-                
-                
-                ;                 If ( ImageData = 0)
-                ;                     Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\NoScreenPB[n],Startup::*LHImages\ScreenGDID[n])                              
-                ;                 Else              
-                ;                     
-                ;                     If ( ImageData )
-                ;                         *m = AllocateMemory( ImageData, #PB_Memory_NoClear )
-                ;                         If *m
-                ;                             CatchImage(Startup::*LHImages\OrScreenPB[n], ImageData, MemorySize( ImageData ))                    
-                ;                             Screens_Copy_ResizeToGadget(n.i,Startup::*LHImages\OrScreenPB[n],Startup::*LHImages\ScreenGDID[n],#True) 
-                ;                             FreeMemory(*M) 
-                ;                         EndIf
-                ; 
-                ;                     EndIf    
-                ;                     
-                ;                 EndIf    
-                ;
-                ; Lege eine Kopie jeweils in das Gadget
-                
+                EndIf                   
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], -1)                
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], Startup::*LHImages\CpScreenID[nSlot])                
             EndIf
-            
-            
         Next
         UnlockMutex( Startup::*LHGameDB\Images_Mutex)      
         If (*MemoryID > 1)
             FreeMemory( *MemoryID )            
         EndIf    
         
-    EndProcedure
-    Procedure Screens_Show_Thread_End(n)
-        If ( Startup::*LHGameDB\Images_Thread[n] >= 0)
-            If IsThread( Startup::*LHGameDB\Images_Thread[n] )
-                WaitThread( Startup::*LHGameDB\Images_Thread[n] )              
-                Startup::*LHGameDB\Images_Thread[n] = -1                
-            EndIf
-        EndIf        
-    EndProcedure    
-    
-    Procedure Screens_Show_Thread_EndB(n)
-        If ( Startup::*LHGameDB\Images_Thread[n] >= 0)
-            If IsThread( Startup::*LHGameDB\Images_Thread[n] )
-                KillThread( Startup::*LHGameDB\Images_Thread[n] )
-                Startup::*LHGameDB\Images_Thread[n] = -1
-            EndIf
-        EndIf        
-                
-    EndProcedure
+    EndProcedure                         
         
     ;******************************************************************************************************************************************
     ;  Erster Start/ Lade und Sichere die Scrennshots
     ;__________________________________________________________________________________________________________________________________________     
     Procedure Screens_Show()
 
-        Screens_GetDB() 
-;         Screens_Show_Thread_End(0)
-;         Screens_Show_Thread_End(1)
-;         Screens_Show_Thread_End(2)        
-;         Screens_Show_Thread_End(3)        
-                
+        Screens_GetDB()                     
         For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
             Select nSlot
                 Case 4,8,12,16,20,24,28,32,36,40,44,48,52
@@ -365,13 +302,7 @@ Module vImages
                     Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
                     Delay(1)                     
             EndSelect         
-        Next 
-                
-;         Screens_Show_Thread_EndB(0)        
-;         Screens_Show_Thread_EndB(1) 
-;         Screens_Show_Thread_EndB(2) 
-;         Screens_Show_Thread_EndB(3)    
-        
+        Next          
          Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
     EndProcedure 
     
@@ -1338,9 +1269,9 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 369
-; FirstLine = 280
-; Folding = -----46-
+; CursorPosition = 199
+; FirstLine = 198
+; Folding = -----d+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
