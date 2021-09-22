@@ -2575,8 +2575,30 @@ Module VEngine
         ProcedureReturn sCompArg
         
     EndProcedure               
-    
-  
+    ;****************************************************************************************************************************************************************
+    ; 
+    ;****************************************************************************************************************************************************************    
+    Procedure.s DOS_Argv_GetSlotContent(Args.s, ArgIndex.i)
+        Protected s.s
+        
+        s.s = Mid(Args,ArgIndex,1)                
+        If ( s =  "%" )
+            s.s + Mid(Args,ArgIndex+1,1)
+            If ( s =  "%s" )                         
+                s.s + Mid(Args,ArgIndex+2,1)
+                If ( s =  "%sc" )        
+                    ProcedureReturn s
+                Else
+                    s = Trim(s)
+                    If ( s =  "%s" )
+                        ProcedureReturn s
+                    EndIf    
+                EndIf    
+            EndIf
+        EndIf      
+        ProcedureReturn ""
+        
+    EndProcedure    
     ;****************************************************************************************************************************************************************
     ; Section Set Media Device
     ;****************************************************************************************************************************************************************    
@@ -2607,6 +2629,8 @@ Module VEngine
         ; Medien Gespeichert. Prüfen wir
         ;
         ; Lege die Medien in die Strings Device1$ bis 4
+        
+        Debug Args
         For  ArgIndex = 1 To Len(Args)
             
             s.s = Mid(Args,ArgIndex,1)
@@ -3094,106 +3118,89 @@ Module VEngine
             Args = Trim(Args)
             
             SlotsToUse = CountString(Args,"%sc")    ; Universelles Argument, Kommando übergabe an das programm
+            SlotsToUse + CountString(Args,"%s")        
+             
             If ( SlotsToUse >= 1 )
                 
                 For SlotsIndex = 1 To SlotsToUse
                     
-                   If ( SlotsIndex > 5 )
+                   If ( SlotsIndex > SlotsToUse )
                         Break;
                     EndIf
                     
                     ArgLen = Len(Args)
                     For  ArgIndex = 1 To ArgLen
                         
-                            s.s = Mid(Args,ArgIndex,1)                
-                            If ( s =  "%" )
-                                s.s + Mid(Args,ArgIndex+1,1)
-                                If ( s =  "%s" )
-                                    
-                                    s.s + Mid(Args,ArgIndex+2,1)
-                                    If ( s =  "%sc" )
-                                    
-                                        If     ( Len(Device1$) <> 0 )
-                                            
-                                                If ( Right(Device1$, 1) = Chr( 34 ) ) And ( Left(Device1$, 1) = Chr( 34 ) )
-                                                    Device1$ = Mid( Device1$, 2, Len(Device1$)-2 ) 
-                                                EndIf    
-                                            Args = ReplaceString(Args,"%sc", Device1$,0,ArgIndex,1): Device1$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue 
-                                            
-                                        ElseIf ( Len(Device2$) <> 0 )  
-                                                If ( Right(Device2$, 1) = Chr( 34 ) ) And ( Left(Device2$, 1) = Chr( 34 ) )
-                                                    Device2$ = Mid( Device2$, 2, Len(Device2$)-2 ) 
-                                                EndIf     
-                                            Args = ReplaceString(Args,"%sc", Device2$,0,ArgIndex,1): Device2$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
-                                            
-                                        ElseIf ( Len(Device3$) <> 0 )     
-                                                If ( Right(Device3$, 1) = Chr( 34 ) ) And ( Left(Device3$, 1) = Chr( 34 ) )
-                                                    Device3$ = Mid( Device3$, 2, Len(Device3$)-2 ) 
-                                                EndIf                                              
-                                            Args = ReplaceString(Args,"%sc", Device3$,0,ArgIndex,1): Device3$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
-                                            
-                                        ElseIf ( Len(Device4$) <> 0 )     
-                                                If ( Right(Device4$, 1) = Chr( 34 ) ) And ( Left(Device4$, 1) = Chr( 34 ) )
-                                                    Device4$ = Mid( Device4$, 2, Len(Device4$)-2 ) 
-                                                EndIf                                              
-                                            Args = ReplaceString(Args,"%sc", Device4$,0,ArgIndex,1): Device4$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue                         
-                                        EndIf
-                                     EndIf   
-                                EndIf
-                            EndIf                 
-                     Next                   
-                 Next
-             EndIf
-             
-             SlotsToUse = CountString(Args,"%s")
-             If ( SlotsToUse >= 1 )
-                 
-                 For SlotsIndex = 1 To SlotsToUse
-                     
-                     If ( SlotsIndex > 5 )
-                         Break;
-                     EndIf
-                     
-                     ArgLen = Len(Args)
-                     For  ArgIndex = 1 To ArgLen
-                         
-                         s.s = Mid(Args,ArgIndex,1)                
-                         If ( s =  "%" )
-                             s.s + Mid(Args,ArgIndex+1,1)
-                             If ( s =  "%s" )
-                                 
+                        
+                        If ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%sc" )
+                            
+                            If     ( Len(Device1$) <> 0 )
+                                
+                                If ( Right(Device1$, 1) = Chr( 34 ) ) And ( Left(Device1$, 1) = Chr( 34 ) )
+                                    Device1$ = Mid( Device1$, 2, Len(Device1$)-2 ) 
+                                EndIf    
+                                Args = ReplaceString(Args,"%sc", Device1$,0,ArgIndex,1): Device1$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue 
+                                
+                            ElseIf ( Len(Device2$) <> 0 )
+                                If ( Right(Device2$, 1) = Chr( 34 ) ) And ( Left(Device2$, 1) = Chr( 34 ) )
+                                    Device2$ = Mid( Device2$, 2, Len(Device2$)-2 ) 
+                                EndIf     
+                                Args = ReplaceString(Args,"%sc", Device2$,0,ArgIndex,1): Device2$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
+                                
+                            ElseIf ( Len(Device3$) <> 0 )
+                                If ( Right(Device3$, 1) = Chr( 34 ) ) And ( Left(Device3$, 1) = Chr( 34 ) )
+                                    Device3$ = Mid( Device3$, 2, Len(Device3$)-2 ) 
+                                EndIf                                              
+                                Args = ReplaceString(Args,"%sc", Device3$,0,ArgIndex,1): Device3$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
+                                
+                            ElseIf ( Len(Device4$) <> 0 )
+                                If ( Right(Device4$, 1) = Chr( 34 ) ) And ( Left(Device4$, 1) = Chr( 34 ) )
+                                    Device4$ = Mid( Device4$, 2, Len(Device4$)-2 ) 
+                                EndIf                                              
+                                Args = ReplaceString(Args,"%sc", Device4$,0,ArgIndex,1): Device4$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue                         
+                            EndIf
+                            
+                        ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%s" )
                                  If     ( Len(Device1$) <> 0 )
                                      Args = ReplaceString(Args,"%s", Device1$,0,ArgIndex,1): Device1$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue 
                                      
-                                 ElseIf ( Len(Device2$) <> 0 )     
+                                 ElseIf ( Len(Device2$) <> 0 )
                                      Args = ReplaceString(Args,"%s", Device2$,0,ArgIndex,1): Device2$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
                                      
-                                 ElseIf ( Len(Device3$) <> 0 )     
+                                 ElseIf ( Len(Device3$) <> 0 )
                                      Args = ReplaceString(Args,"%s", Device3$,0,ArgIndex,1): Device3$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
                                      
-                                 ElseIf ( Len(Device4$) <> 0 )     
+                                 ElseIf ( Len(Device4$) <> 0 )
                                      Args = ReplaceString(Args,"%s", Device4$,0,ArgIndex,1): Device4$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue                         
                                  EndIf
-                             EndIf
-                         EndIf                 
-                     Next                   
-                 Next
-             EndIf
-    
+                        ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "" )
+                                 Continue
+                       EndIf         
+                             
+                    Next                   
+                Next
+            EndIf   
              
         EndIf
-        
+        Debug Args
         
         ArgIndex = CountString(Args,"%su")
-        If ( ArgIndex <> 0 )
+        If ( ArgIndex > 0 )
             Args = ReplaceString(Args,"%su", "",0,1,ArgIndex)
         EndIf                   
         ;
         ; Prüfe und ersetze die Restlichen %s die nicht benötigt werden obwohl diese gesetzt sind
-        ArgIndex = CountString(Args,"%s")
-        If ( ArgIndex <> 0 )
-            Args = ReplaceString(Args,"%s", "",0,1,ArgIndex)
+        ArgIndex = CountString(Args,"%sc")
+        If ( ArgIndex > 0 )
+            Args = ReplaceString(Args,"%sc", "",0,1,ArgIndex)
         EndIf
+        
+        ;
+        ; Prüfe und ersetze die Restlichen %s die nicht benötigt werden obwohl diese gesetzt sind     
+        ArgIndex = CountString(Args,"%s")
+        If ( ArgIndex > 0 )
+            Args = ReplaceString(Args,"%s", "",0,1,ArgIndex)
+        EndIf        
         
         Args = Trim(Args)
         
@@ -3889,13 +3896,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 445
-; FirstLine = 409
-; Folding = 8egDaHc+ATC9
+; CursorPosition = 2552
+; FirstLine = 1628
+; Folding = 8egDaHc+QnE5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = L:\Sortet Games\Quake 1\WinPorts\Port Darkplaces\
+; CurrentDirectory = L:\Sortet Games\Doom 3\Windows Doom3 vTotal\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

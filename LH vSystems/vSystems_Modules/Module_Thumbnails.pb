@@ -4,6 +4,10 @@
     Declare     MainThread_2(z)
     Declare     MainThread_3(z)
     Declare     MainThread_4(z)
+    Declare     MainThread_5(z)
+    Declare     MainThread_6(z)
+    Declare     MainThread_7(z)
+    Declare     MainThread_8(z)
     
     Declare.l   GetBig_FromDB(nSlotNum.i)
     Declare.l   GetSml_FromDB(nSlotNum.i)
@@ -2471,6 +2475,63 @@ Module vThumbSys
         UnlockMutex( Startup::*LHGameDB\Images_Mutex[z])                                
     EndProcedure     
     ;*******************************************************************************************************************************************************************
+    ;    
+    Procedure   MainThread_5(z)
+        
+        Protected nSlot.i   
+        
+        If ( Startup::*LHGameDB\Images_Mutex[z] = 0 )
+            Startup::*LHGameDB\Images_Mutex[z] = CreateMutex()
+        EndIf    
+        LockMutex( Startup::*LHGameDB\Images_Mutex[z])
+        
+        Set_Slot( z )           
+        
+        UnlockMutex( Startup::*LHGameDB\Images_Mutex[z])                                
+    EndProcedure  
+    
+    Procedure   MainThread_6(z)
+        
+        Protected nSlot.i   
+        
+        If ( Startup::*LHGameDB\Images_Mutex[z] = 0 )
+            Startup::*LHGameDB\Images_Mutex[z] = CreateMutex()
+        EndIf    
+        LockMutex( Startup::*LHGameDB\Images_Mutex[z])
+        
+        Set_Slot( z )           
+        
+        UnlockMutex( Startup::*LHGameDB\Images_Mutex[z])                                
+    EndProcedure
+    
+    Procedure   MainThread_7(z)
+        
+        Protected nSlot.i   
+        
+        If ( Startup::*LHGameDB\Images_Mutex[z] = 0 )
+            Startup::*LHGameDB\Images_Mutex[z] = CreateMutex()
+        EndIf    
+        LockMutex( Startup::*LHGameDB\Images_Mutex[z])
+        
+        Set_Slot( z )           
+        
+        UnlockMutex( Startup::*LHGameDB\Images_Mutex[z])                                
+    EndProcedure
+    
+    Procedure   MainThread_8(z)
+        
+        Protected nSlot.i   
+        
+        If ( Startup::*LHGameDB\Images_Mutex[z] = 0 )
+            Startup::*LHGameDB\Images_Mutex[z] = CreateMutex()
+        EndIf    
+        LockMutex( Startup::*LHGameDB\Images_Mutex[z])
+        
+        Set_Slot( z )           
+        
+        UnlockMutex( Startup::*LHGameDB\Images_Mutex[z])                                
+    EndProcedure         
+    ;*******************************************************************************************************************************************************************
     ;  
     Procedure.l GetBig_FromDB(nSlotNum.i)
         Protected *Memory
@@ -2509,13 +2570,13 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 114
-; FirstLine = 57
-; Folding = -4AAAAAAAA--
+; CursorPosition = 180
+; FirstLine = 160
+; Folding = -4AAAAAAAA---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = H:\Games _ Adult Archiv\Theme - Game RPG Action\Warcraft - The Chronicles of Alexstraza\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

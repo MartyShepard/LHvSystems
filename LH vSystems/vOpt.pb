@@ -72,8 +72,7 @@
         XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            ; vDiskPath::
         XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            ; vInfoMenu::
         XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"           ; vItem64E::
-        BackupRestart:
-           
+        BackupRestart:       
         vSystem::System_CheckInstance()
         
         Startup::Prepare()                               
@@ -147,16 +146,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 70
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 79
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems32Bit.exe
+; Executable = Release\vSystems64Bit.exe
+; CPU = 1
 ; CurrentDirectory = L:\Sortet Games\Quake 1\vDosbox\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

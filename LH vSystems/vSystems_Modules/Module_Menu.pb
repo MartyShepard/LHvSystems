@@ -2509,19 +2509,19 @@ Module INVMNU
     Procedure Get_TrayMenu(MenuID.i)
                            
         Select MenuID.i              
-            Case 5: vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
-            Case 6: vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
-            Case 8: vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
+            Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
+            Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
+            Case 8:  vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
             Case 11: vDiskPath::ReConstrukt(4, #False); Search for All on Slot 4 
             Case 12: vDiskPath::ReConstrukt(1, #True ); Search for Current Item on Slot 1
             Case 13: vDiskPath::ReConstrukt(2, #True ); Search for Current Item on Slot 2                 
             Case 14: vDiskPath::ReConstrukt(3, #True ); Search for Current Item on Slot 3
             Case 15: vDiskPath::ReConstrukt(4, #True ); Search for Current Item on Slot 4   
             Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow()                  
-            Case 30:DesktopEX::CloseExplorer() 
-            Case 32:DesktopEX::SetTaskBar()
-            Case 35:vEngine::ServiceOption("uxsms", #False)                 
-            Case 34:vEngine::ServiceOption("uxsms", #True) 
+            Case 30: DesktopEX::CloseExplorer() 
+            Case 32: DesktopEX::SetTaskBar()
+            Case 35: vEngine::ServiceOption("uxsms", #False)                 
+            Case 34: vEngine::ServiceOption("uxsms", #True) 
 
                 ; Resetet die Fenster Position
             Case 20
@@ -2542,11 +2542,19 @@ Module INVMNU
                     SetActiveGadget(DC::#ListIcon_001)                
                     ProcedureReturn
                 EndIf
-                Startup::*LHGameDB\WindowHeight = Val(Request::*MsgEx\Return_String)
+                Startup::*LHGameDB\bvSystem_Restart = #True
+                Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
                 ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
-                RunProgram(ProgramFilename())
-                End
-               
+                
+                a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
+                If ( a > 0 )
+                    WriteStringN(a, "Restart..")
+                    RunProgram(ProgramFilename())               
+                    End
+                Else
+                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem baim anlegen der textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+                EndIf    
+
             Case 9 : vFont::SetDB(1) 
             Case 10: vFont::SetDB(2)                 
             Case 98: vUpdate::Update_Check()
@@ -2595,9 +2603,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2551
-; FirstLine = 2288
-; Folding = zY+
+; CursorPosition = 2549
+; FirstLine = 76
+; Folding = DY+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

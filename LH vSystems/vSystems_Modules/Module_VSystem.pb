@@ -714,26 +714,31 @@ Module vSystem
     ;
     ; Prüfng ob es schon gestartet ist
     Procedure.i   System_CheckInstance()
-        
-        FileName.s = GetFilePart( ProgramFilename() )
-        
-        ; VSystems Prüfverfahren          
-        
-        *a = CreateSemaphore_(0, 0, 1, FileName)
-        
-        If ( *a <> 0 ) And ( GetLastError_() = #ERROR_ALREADY_EXISTS )
-            CloseHandle_(*a)                      
+                
+            FileName.s = GetFilePart( ProgramFilename() )            
+            sCurPath.s = GetPathPart( ProgramFilename() )  + "Systeme\Data\VSYSDB\_Restart.lck"
+            ; VSystems Prüfverfahren          
+            If ( FileSize(sCurPath) = 11 )
+                DeleteFile(sCurPath,#PB_FileSystem_Force )
+                System_CheckInstance()
+            Else   
             
-            Request::MSG("", "Programm läuft", "Programm wurde zuvor schon gestartet." + #CR$ + "Pfad: '"+ProgramFilename() , 2, 2, ProgramFilename(), 0, 0, 0)            
-            End             
-        EndIf
-        
+            
+                *a = CreateSemaphore_(0, 0, 1, FileName)
+                            
+                If ( *a <> 0 ) And ( GetLastError_() = #ERROR_ALREADY_EXISTS )
+                    CloseHandle_(*a)                      
+                    
+                    Request::MSG("", "Programm läuft", "Programm wurde zuvor schon gestartet." + #CR$ + "Pfad: '"+ProgramFilename() , 2, 2, ProgramFilename(), 0, 0, 0)            
+                    End             
+                EndIf
+            EndIf
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 727
-; FirstLine = 338
+; CursorPosition = 722
+; FirstLine = 343
 ; Folding = 4-T+
 ; EnableAsm
 ; EnableXP

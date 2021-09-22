@@ -197,10 +197,10 @@ DeclareModule Startup
         isDDS.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG        
         
         ;Images_Thread.i
-        Images_Mutex.i[52]
+        Images_Mutex.i[1024]
         Resize_Mutex.i 
         Resize_Thread.i
-        Images_Thread.i[51]
+        Images_Thread.i[1024]
         Images_Threaded.i[51]        
         
         CBMFONT.l                   ; Commodore 64 Font
@@ -226,7 +226,8 @@ DeclareModule Startup
         VersionNumber.s             ; Version String (Nummer)
         Thread_ProcessHigh.i        ; 
         Thread_ProcessLow.i
-        Thread_ProcessName.s        ; szTaskanem     
+        Thread_ProcessName.s        ; szTaskanem  
+        bvSystem_Restart.i          ; Wenn die Höhe des Fentser angegeben wird und vSystem neustartet, denb Konlikt vermiden das es schon im System Task Existiert
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
                 
     EndStructure           
@@ -263,6 +264,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+         ;        
+        ; Version 0.32b
+        ; Fix Konflikt start
+        ; Fix Commandline Order
+        
         ;        
         ; Version 0.31b
         ; More work on Thumbnail Loading
@@ -700,6 +706,8 @@ Module Startup
          Verify_Directories()
          Verify_DatabaseFiles() 
          
+         *LHGameDB\bvSystem_Restart     = #False
+         
          ; Lösche Das Update Modul
           If FileSize(*LHGameDB\Base_Path + "_UpdateModul_.exe" )
               DeleteFile( *LHGameDB\Base_Path + "_UpdateModul_.exe" )
@@ -759,8 +767,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 267
-; FirstLine = 227
+; CursorPosition = 269
+; FirstLine = 232
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

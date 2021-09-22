@@ -276,34 +276,54 @@ Module vImages
         EndIf    
         
     EndProcedure                         
+    
+    Procedure Screens_Show_A_Thread(*interval)
         
+        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
+            Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")                          
+            Delay(*Interval)
+            Select nSlot
+                Case 4,12,20,28,36,44,52            
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread(),nSlot)     
+                Case 1,9,17,25,33,41,49
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[1] = CreateThread( vThumbSys::@MainThread_2(),nSlot)                                       
+                Case 2,10,18,26,34,42,50
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[2] = CreateThread( vThumbSys::@MainThread_3(),nSlot)                                         
+                Case 3,11,19,27,35,43,51
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
+                Case 8,16,24,32,40,48            
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[5] = CreateThread( vThumbSys::@MainThread_5(),nSlot)
+                Case 5,13,21,29,37,45
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[6] = CreateThread( vThumbSys::@MainThread_6(),nSlot)                      
+                Case 6,14,22,30,38,46
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[7] = CreateThread( vThumbSys::@MainThread_7(),nSlot)  
+                Case 7,15,23,31,39,47
+                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+                    Startup::*LHGameDB\Images_Thread[8] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                     
+            EndSelect         
+        Next  
+        
+    EndProcedure    
     ;******************************************************************************************************************************************
     ;  Erster Start/ Lade und Sichere die Scrennshots
     ;__________________________________________________________________________________________________________________________________________     
     Procedure Screens_Show()
+        
+        Protected IntervalThread.i
+                   
+        IntervalThread = CreateThread(@Screens_Show_A_Thread(), 2)
+        If IntervalThread
+            WaitThread(IntervalThread)
+        EndIf
 
-        Screens_GetDB()                     
-        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
-            Select nSlot
-                Case 4,8,12,16,20,24,28,32,36,40,44,48,52
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread(),nSlot) 
-                    Delay(1)
-                Case 1,5,9,13,17,21,25,29,33,37,41,45,49
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[1] = CreateThread( vThumbSys::@MainThread_2(),nSlot) 
-                    Delay(1)   
-                Case 2,6,10,14,18,22,26,30,34,38,42,46,50
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[2] = CreateThread( vThumbSys::@MainThread_3(),nSlot) 
-                    Delay(1) 
-                Case 3,7,11,15,19,23,27,31,35,39,43,47,51
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
-                    Delay(1)                     
-            EndSelect         
-        Next          
-         Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
+        Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
     EndProcedure 
     
     ;******************************************************************************************************************************************
@@ -320,7 +340,8 @@ Module vImages
             
             Delay(1)
             
-            If IsImage(Startup::*LHImages\NoScreenPB[n])                
+            If IsImage(Startup::*LHImages\NoScreenPB[n])              
+                Debug "START " + Str(n)
                 Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
             EndIf                      
         Next            
@@ -1269,11 +1290,11 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 199
-; FirstLine = 198
-; Folding = -----d+-
+; CursorPosition = 318
+; FirstLine = 271
+; Folding = -----89-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = H:\Games _ Adult Archiv\Theme - Game RPG Action\Warcraft - The Chronicles of Alexstraza\
 ; EnableUnicode
