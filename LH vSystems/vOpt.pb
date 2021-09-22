@@ -146,17 +146,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 79
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CPU = 1
-; CurrentDirectory = L:\Sortet Games\Quake 1\vDosbox\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; CurrentDirectory = Release\
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
