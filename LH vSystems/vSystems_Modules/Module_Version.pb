@@ -2,8 +2,8 @@
 ; Version
 ;
 Title       = "vSystems"
-Version     = "0.32b"                                             ; Nicht ändern
-OldVersion.s= "0.31b"
+Version     = "0.33b"                                             ; Nicht ändern
+OldVersion.s= "0.32b"
 dbSVN       = "db004"                                             ; Diese muss seperat beim ersten erstellen der Datenbank auch stehen
 Build32Bit.i= #False
 Builddate   = FormatDate( "%dd-%mm-%yyyy", #PB_Compiler_Date )
@@ -11,3 +11,4 @@ Builddate   = FormatDate( "%dd-%mm-%yyyy", #PB_Compiler_Date )
 ; CursorPosition = 5
 ; EnableAsm
 ; EnableXP
+; Executable = ..\Release\vSystems64Bit.exe

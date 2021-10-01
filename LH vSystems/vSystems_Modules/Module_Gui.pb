@@ -694,12 +694,12 @@ Module MagicGUI
         *ObjPos\w = WindowWidth(DC::#_Window_001) - 10
         *ObjPos\h = 30        
         *ObjPos\x = 4 
-        *ObjPos\y = WindowHeight(DC::#_Window_001) - 54        
+        *ObjPos\y = WindowHeight(DC::#_Window_001) - 60        
         ObjPosSpace.i = 4
         
         ContainerGadget(DC::#Contain_03, *ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,0)
             *ObjPos\x = 0
-            *ObjPos\y = 0        
+            *ObjPos\y = 6        
             *ObjPos\w = 0
             *ObjPos\h = 0
             
@@ -2242,8 +2242,8 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2109
-; FirstLine = 947
+; CursorPosition = 701
+; FirstLine = 526
 ; Folding = nmH5-
 ; EnableAsm
 ; EnableXP

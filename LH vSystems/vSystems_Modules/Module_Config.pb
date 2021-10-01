@@ -264,7 +264,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
-         ;        
+        ;      
+        
+        ; Version 0.33b
+        ; Design Fix
+        
         ; Version 0.32b
         ; Fix Konflikt start
         ; Fix Commandline Order
