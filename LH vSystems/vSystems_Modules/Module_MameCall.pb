@@ -247,7 +247,7 @@ Module GuruCallBack
     ;__________________________________________________________________________________________________________________________________________        
     Procedure CallBackOver(hwnd, uMsg, TempW, TempH, lParam, SnapHeight.i = 30)
         Protected pt.Point, TitleText$
-        
+                   
         Select Form::IsOverObject(WindowID(hwnd))
                 
             Case 1                                  
@@ -276,6 +276,7 @@ Module GuruCallBack
                             Case #WM_RBUTTONUP
                                 If hwnd = DC::#_Window_001
                                     If WindowHeight(hwnd) <> 30 
+                                        SSTTIP::ToolTipMode(0,DC::#Button_287,vSystem::System_InfoToolTip() )   
                                         ResizeWindow(hwnd,#PB_Ignore,#PB_Ignore,#PB_Ignore,SnapHeight)
                                         
                                         ; Hide Info Window
@@ -286,6 +287,7 @@ Module GuruCallBack
                                         ; Zeigt den Aktullen Title in der Titelseite
                                         SetGadgetText(DC::#Text_005, Startup::*LHGameDB\TitleVersion + vItemTool::Item_GetTitleName())
                                     Else 
+                                        SSTTIP::ToolTipMode(0,DC::#Button_287,vSystem::System_InfoToolTip() )   
                                         ResizeWindow(hwnd,#PB_Ignore,#PB_Ignore,#PB_Ignore,720 + Startup::*LHGameDB\WindowHeight)
                                         
                                         SetGadgetText(DC::#Text_005, Startup::*LHGameDB\TitleVersion)
@@ -436,6 +438,7 @@ Module GuruCallBack
             GetWindowRect_(WindowID(hwndID.i), WR)  
         EndIf        
         
+            
         Select uMsg         
                 ;
                 ;
@@ -539,7 +542,8 @@ Module GuruCallBack
             TempX = WindowX(hwndID.i): TempY = WindowY(hwndID.i): TempW = WindowWidth(hwndID.i): Temph = WindowHeight(hwndID.i)
             GetWindowRect_(WindowID(hwndID.i), WR)  
         EndIf
-        
+             
+            
         Select uMsg         
             Case Startup::*LHGameDB\TaskbarCreate
                 ;
@@ -1532,8 +1536,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 860
-; FirstLine = 643
+; CursorPosition = 289
+; FirstLine = 191
 ; Folding = vcuF9-
 ; EnableAsm
 ; EnableXP

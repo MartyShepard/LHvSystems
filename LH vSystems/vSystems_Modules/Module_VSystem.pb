@@ -14,6 +14,8 @@
     
     Declare.i   System_CheckInstance()
     
+    Declare.s   System_InfoToolTip()
+    
 EndDeclareModule
 
 Module vSystem
@@ -735,11 +737,156 @@ Module vSystem
             EndIf
     EndProcedure
     
+    
+    ;
+    ;
+    ; Just for fun  
+    Procedure.s GetCPUName()
+        Protected sBuffer.s
+        Protected Zeiger1.l, Zeiger2.l, Zeiger3.l, Zeiger4.l
+ 
+          !MOV eax, $80000002
+          !CPUID
+          ; the CPU-Name is now stored in EAX-EBX-ECX-EDX
+          !MOV [p.v_Zeiger1], EAX ; move eax to the buffer
+          !MOV [p.v_Zeiger2], EBX ; move ebx to the buffer
+          !MOV [p.v_Zeiger3], ECX ; move ecx to the buffer
+          !MOV [p.v_Zeiger4], EDX ; move edx to the buffer
+         
+          ;Now move the content of Zeiger (4*4=16 Bytes to a string
+          sBuffer = PeekS(@Zeiger1, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger2, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger3, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger4, 4, #PB_Ascii)
+         
+          ;Second Part of the Name
+          !MOV eax, $80000003
+          !CPUID
+          ; the CPU-Name is now stored in EAX-EBX-ECX-EDX
+          !MOV [p.v_Zeiger1], EAX ; move eax to the buffer
+          !MOV [p.v_Zeiger2], EBX ; move ebx to the buffer
+          !MOV [p.v_Zeiger3], ECX ; move ecx to the buffer
+          !MOV [p.v_Zeiger4], EDX ; move edx to the buffer
+         
+          ;Now move the content of Zeiger (4*4=16 Bytes to a string
+          sBuffer + PeekS(@Zeiger1, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger2, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger3, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger4, 4, #PB_Ascii)
+         
+         
+          ;Third Part of the Name
+          !MOV eax, $80000004
+          !CPUID
+          ; the CPU-Name is now stored in EAX-EBX-ECX-EDX
+          !MOV [p.v_Zeiger1], EAX ; move eax to the buffer
+          !MOV [p.v_Zeiger2], EBX ; move ebx to the buffer
+          !MOV [p.v_Zeiger3], ECX ; move ecx to the buffer
+          !MOV [p.v_Zeiger4], EDX ; move edx to the buffer
+         
+          ;Now move the content of Zeiger (4*4=16 Bytes to a string
+          sBuffer + PeekS(@Zeiger1, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger2, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger3, 4, #PB_Ascii)
+          sBuffer + PeekS(@Zeiger4, 4, #PB_Ascii)
+     
+      ProcedureReturn Trim(sBuffer)
+    EndProcedure
+
+Debug GetCPUName()
+    ;
+    ;
+    ;
+    Procedure.s System_Get_Internal_WIN()
+        Define OsVersion.OSVERSIONINFO
+     
+        Arch.s = "";
+        
+        OsVersion\dwOSVersionInfoSize = SizeOf(OSVERSIONINFO)
+        GetVersionEx_(OsVersion.OSVERSIONINFO)
+        
+        Major.s = Str(OsVersion\dwMajorVersion)
+        Minor.s = Str(OsVersion\dwMinorVersion)  
+        Build.s = Str(OsVersion\dwBuildNumber)          
+        
+        Select OSVersion()
+        ;   Case #PB_OS_Windows_NT3_51          : Arch = "Windows NT (NT 3.5)"
+        ;   Case #PB_OS_Windows_95              : Arch = "Windows'95"
+        ;   Case #PB_OS_Windows_NT_4            : Arch = "Windows NT (NT)"
+        ;   Case #PB_OS_Windows_98              : Arch = "Windows'98"
+        ;   Case #PB_OS_Windows_ME              : Arch = "Windows'98"
+            Case #PB_OS_Windows_2000            : Arch = "Windows 2000"
+            Case #PB_OS_Windows_XP              : Arch = "Windows XP"
+            Case #PB_OS_Windows_Server_2003     : Arch = "Windows Server 2003"
+            Case #PB_OS_Windows_Vista           : Arch = "Windows Vista"
+            Case #PB_OS_Windows_Server_2008     : Arch = "Windows Server 2008"
+            Case #PB_OS_Windows_7               : Arch = "Windows 7"
+            Case #PB_OS_Windows_Server_2008_R2  : Arch = "Windows Server 2008R2"
+            Case #PB_OS_Windows_8               : Arch = "Windows 8"
+            Case #PB_OS_Windows_Server_2012     : Arch = "Windows Server 2012"
+            Case #PB_OS_Windows_8_1             : Arch = "Windows 8.1"
+            Case #PB_OS_Windows_Server_2012_R2  : Arch = "Windows Server 2012R2"
+            Case #PB_OS_Windows_10              : Arch = "Windows 10" : ProcedureReturn Arch
+            Case #PB_OS_Windows_Future          : Arch = "Windows 11+": ProcedureReturn Arch
+        EndSelect
+       
+        ProcedureReturn Arch + " (" + Build + ")"
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.s System_Get_Internal_CPU()
+        
+        ProcedureReturn "Cores " + Str(CountCPUs(#PB_System_CPUs))
+        
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.s System_Get_Internal_GFX()
+        
+            Protected device.DISPLAY_DEVICE
+            Protected settings.DEVMODE
+            
+            device\cb = SizeOf(DISPLAY_DEVICE)
+            settings\dmSize = SizeOf(DEVMODE)
+            
+            EnumDisplayDevices_(#Null,#Null,device,#Null)
+            ProcedureReturn PeekS(@device\DeviceString,128)
+            
+    EndProcedure
+    ;
+    ;
+    ;
+    Procedure.s   System_Get_Internal_MEM()
+               
+        Free.s = MathBytes::Bytes2String(MemoryStatus(#PB_System_FreePhysical))
+        Total.s= MathBytes::Bytes2String(MemoryStatus(#PB_System_TotalPhysical))
+
+        ProcedureReturn  Total + "  ( " + Free + " available )"
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.s   System_InfoToolTip()
+        
+        TooltipString.s = ""
+        TooltipString   = Startup::*LHGameDB\TrayIconTitle + Chr(13) + Chr(13) + 
+                          "CPU: " + Trim( CPUName() ) + Chr(13) +
+                          "CPU: " + System_Get_Internal_CPU() + Chr(13) +                          
+                          "GFX: " + System_Get_Internal_GFX() + Chr(13) +      
+                          "WIN: " + System_Get_Internal_WIN() + Chr(13) +                          
+                          "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) +  
+                          "Developed by Marty Shepard"
+        
+        Debug TooltipString
+        ProcedureReturn TooltipString
+    EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 722
-; FirstLine = 343
-; Folding = 4-T+
+; CursorPosition = 873
+; FirstLine = 498
+; Folding = 4-T5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

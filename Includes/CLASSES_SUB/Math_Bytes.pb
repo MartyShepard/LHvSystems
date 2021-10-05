@@ -265,12 +265,12 @@ Module MathBytes
             If Left(StringField(size$,2,"."), 1) = "0" : size$ = StringField(size$,1,".") : EndIf
             ProcedureReturn size$+" MB"
             
-        Else ; GigaByte
-            Size / 1048576
+        Else
+            Size / 1024/1024
             If Size < 10
                 size$ = StrD(Size, 2) ; '1.23 GB'
             ElseIf Size < 100
-                size$ = StrD(Size, 1) ; '12.3 GB'
+                size$ = StrD(Size, 1) ; '12.3 GB'              
             Else
                 size$ = StrD(Size, 0) ; '123 GB'
             EndIf
@@ -496,8 +496,8 @@ Module MathBytes
    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 199
-; FirstLine = 88
-; Folding = zn+
+; CursorPosition = 42
+; FirstLine = 23
+; Folding = -n+
 ; EnableAsm
 ; EnableXP

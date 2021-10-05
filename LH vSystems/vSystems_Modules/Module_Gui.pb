@@ -270,7 +270,14 @@ Module MagicGUI
                               DI::#_BTN_LBOXL_N,
                               DI::#_BTN_LBOXL_H,
                               DI::#_BTN_SWT_P,
-                              DI::#_BTN_LBOXL_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)                  
+                              DI::#_BTN_LBOXL_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)
+                
+            Case 24
+                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; INFO
+                              DI::#_BTN_INFO_0N,
+                              DI::#_BTN_INFO_0H,
+                              DI::#_BTN_INFO_0P,
+                              DI::#_BTN_INFO_0D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))                    
         EndSelect                 
         
         
@@ -743,6 +750,7 @@ Module MagicGUI
         ; Button 3 - 9 Frei
         SetButton(DC::#Button_001,WindowWidth(DC::#_Window_001) - 30 ,0,"","","",2) ; Close
         SetButton(DC::#Button_002,WindowWidth(DC::#_Window_001) - 60 ,0,"","","",3) ; Minimized  
+        SetButton(DC::#Button_287,WindowWidth(DC::#_Window_001) - 90 ,0,"","","",24) ; About
         
         FORM::TextObject(DC::#Text_005,10,5, WindowWidth(DC::#_Window_001) - 90,20,FontID(Fonts::#_SEGOEUI11N),RGB(113, 147, 165),$1F1F1F,Startup::*LHGameDB\TitleVersion ,0)
         
@@ -1938,6 +1946,12 @@ Module MagicGUI
         
         Protected ToolTipFont.l = Fonts::#_SEGOEUI10N, ToolTipLen.i = 318, ToolTipFontEx.l = Fonts::#_SEGOEUI10N, ToolTipInfo$
         
+        
+        
+        ToolTipInfoTitle$ = ".."
+        ToolTipInfo_Text$ = vSystem::System_InfoToolTip()
+        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_287 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)
+        
         ToolTipInfoTitle$ = "New"
         ToolTipInfo_Text$ = "Enter New Title"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
@@ -2242,8 +2256,8 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 701
-; FirstLine = 526
+; CursorPosition = 1952
+; FirstLine = 792
 ; Folding = nmH5-
 ; EnableAsm
 ; EnableXP

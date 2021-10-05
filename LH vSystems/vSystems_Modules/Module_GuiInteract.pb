@@ -353,7 +353,7 @@ Module Interact
                          
                             ;
                             ; Button Liste (Standard Ansicht)
-                        Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_286
+                        Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_287
                             Select ButtonEX::ButtonExEvent(EvntGadget)  
                                 Case ButtonEX::#ButtonGadgetEx_Pressed
                                     Select EvntGadget
@@ -417,7 +417,14 @@ Module Interact
                                                     ButtonEX::SetState(EvntGadget,1):
                                                     Continue
                                                     
-                                            EndSelect                                        
+                                            EndSelect 
+                                            
+                                           ;
+                                           ; Info Button
+                                        Case DC::#Button_287
+                                            ButtonEX::SetState(EvntGadget,0)
+
+                                            Continue                                            
                                     EndSelect                                          
                             EndSelect                         
                             
@@ -620,8 +627,7 @@ Module Interact
                             Continue
                     EndSelect
                   
-            EndSelect
-            
+            EndSelect                
 
             
         Until ( Startup::*LHGameDB\ProgrammQuit = #True )       
@@ -679,8 +685,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 251
-; FirstLine = 150
+; CursorPosition = 629
+; FirstLine = 594
 ; Folding = --
 ; EnableAsm
 ; EnableXP

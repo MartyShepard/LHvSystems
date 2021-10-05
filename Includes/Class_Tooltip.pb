@@ -327,8 +327,8 @@ Procedure.l Tooltip_TrayIcon(File$, TrayID.i, Window.i, IconDescription$="", Com
 EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 52
-; FirstLine = 12
+; CursorPosition = 118
+; FirstLine = 72
 ; Folding = f-
 ; EnableAsm
 ; EnableXP

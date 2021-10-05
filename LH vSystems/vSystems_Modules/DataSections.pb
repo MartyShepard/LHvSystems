@@ -48,6 +48,7 @@ DeclareModule DI
         
         #_BTN_TAB_N     : #_BTN_TAB_H       : #_BTN_TAB_P       : #_BTN_TAB_D     
         #_BTN_SWT_P     :
+        #_BTN_INFO_0N  : #_BTN_INFO_0H    : #_BTN_INFO_0P    : #_BTN_INFO_0D        
         
     EndEnumeration
     Debug "- Button ImageID #2801 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
@@ -81,6 +82,7 @@ Module DI
     
     CatchImage(#_BTN_CLOSE_0N, ?_BTN_CLOSE_0N): CatchImage(#_BTN_CLOSE_0H, ?_BTN_CLOSE_0H): CatchImage(#_BTN_CLOSE_0P, ?_BTN_CLOSE_0P): CatchImage(#_BTN_CLOSE_0D, ?_BTN_CLOSE_0D)
     CatchImage(#_BTN_MINIM_0N, ?_BTN_MINIM_0N): CatchImage(#_BTN_MINIM_0H, ?_BTN_MINIM_0H): CatchImage(#_BTN_MINIM_0P, ?_BTN_MINIM_0P): CatchImage(#_BTN_MINIM_0D, ?_BTN_MINIM_0D)
+    CatchImage(#_BTN_INFO_0N, ?_BTN_INFO_0N): CatchImage(#_BTN_INFO_0H, ?_BTN_INFO_0H): CatchImage(#_BTN_INFO_0P, ?_BTN_INFO_0P): CatchImage(#_BTN_INFO_0D, ?_BTN_INFO_0D)    
     CatchImage(#_BTN_RESIZ_0N, ?_BTN_RESIZ_0N): CatchImage(#_BTN_RESIZ_0H, ?_BTN_RESIZ_0H): CatchImage(#_BTN_RESIZ_0P, ?_BTN_RESIZ_0P): CatchImage(#_BTN_RESIZ_0D, ?_BTN_RESIZ_0D)
     CatchImage(#_BTN_MENU_N  , ?_BTN_MENU_N  ): CatchImage(#_BTN_MENU_H  , ?_BTN_MENU_H  ): CatchImage(#_BTN_MENU_P  , ?_BTN_MENU_P  ): CatchImage(#_BTN_MENU_D  , ?_BTN_MENU_D  )
     
@@ -136,6 +138,15 @@ Module DI
         IncludeBinary "Data_Images\Buttons\CloseP.png"
         _BTN_CLOSE_0D:
         IncludeBinary "Data_Images\Buttons\CloseD.png"
+        
+        _BTN_INFO_0N:
+        IncludeBinary "Data_Images\Buttons\InfoN.png"
+        _BTN_INFO_0H:
+        IncludeBinary "Data_Images\Buttons\InfoH.png"
+        _BTN_INFO_0P:
+        IncludeBinary "Data_Images\Buttons\InfoP.png"
+        _BTN_INFO_0D:
+        IncludeBinary "Data_Images\Buttons\InfoD.png"
         
         ;//----------------------------------------------------------------------------;Grey4 (Size 83x20)
         _BTN_TAB_N:
@@ -354,8 +365,8 @@ Module DI
 
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 74
-; FirstLine = 15
+; CursorPosition = 148
+; FirstLine = 120
 ; Folding = -
 ; EnableAsm
 ; EnableXP

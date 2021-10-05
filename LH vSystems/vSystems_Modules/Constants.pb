@@ -116,7 +116,7 @@
         #Button_277: #Button_278: #Button_279: #Button_280: #Button_281: #Button_282
         
         ; Info Window
-        #Button_283: #Button_284: #Button_285: #Button_286
+        #Button_283: #Button_284: #Button_285: #Button_286: #Button_287
         
         
     EndEnumeration
@@ -242,7 +242,8 @@ EndDeclareModule
 Module DC
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 19
+; CursorPosition = 118
+; FirstLine = 67
 ; Folding = -
 ; EnableAsm
 ; EnableXP
