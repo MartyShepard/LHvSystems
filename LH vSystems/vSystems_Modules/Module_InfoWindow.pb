@@ -1141,7 +1141,7 @@ Module vInfo
        ; Füge Markierten Text in den Such Dialog
        SendMessage_( GadgetID(EvntGadget) , #EM_EXGETSEL,0, fnt\chrgText )
        
-       If ( fnt\chrgText\cpMax > 0 And fnt\chrgText\cpMin > 0 )
+       ;If ( fnt\chrgText\cpMax > 0 And fnt\chrgText\cpMin > 0 )
            
            SendMessage_( GadgetID(EvntGadget) , #EM_GETSELTEXT,0, @szFindWhat )
            If (szFindWhat)
@@ -1152,7 +1152,7 @@ Module vInfo
                fndrplc\lpstrFindWhat  = @szFindWhat
                fndrplc\wFindWhatLen   = #MAX_PATH
             EndIf        
-       EndIf    
+       ;EndIf    
 
        fndrplc\lpfnHook       = @Find_Callback()
        
@@ -1809,8 +1809,8 @@ EndModule
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1066
-; FirstLine = 692
+; CursorPosition = 1156
+; FirstLine = 718
 ; Folding = -LA+zwf+-H-
 ; EnableAsm
 ; EnableXP

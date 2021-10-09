@@ -266,6 +266,10 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         ;      
         
+        ; Version 0.35b        
+        ; Fix Findwindow ... ups
+        ; Reload Window -> Height Korrigiert
+        
         ; Version 0.33b
         ; Design Fix
         
@@ -771,8 +775,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 269
-; FirstLine = 232
+; CursorPosition = 268
+; FirstLine = 247
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

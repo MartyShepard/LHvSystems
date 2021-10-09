@@ -722,6 +722,7 @@ Module vSystem
             ; VSystems Prüfverfahren          
             If ( FileSize(sCurPath) = 11 )
                 DeleteFile(sCurPath,#PB_FileSystem_Force )
+                Delay(255)
                 System_CheckInstance()
             Else   
             
@@ -884,9 +885,9 @@ Debug GetCPUName()
     EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 873
-; FirstLine = 498
-; Folding = 4-T5-
+; CursorPosition = 724
+; FirstLine = 397
+; Folding = 4-T9-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
