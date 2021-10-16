@@ -2134,7 +2134,15 @@ Module VEngine
                      Startup::*LHGameDB\Settings_Affinity = -1                    
                 EndIf            
                 
-                If Startup::*LHGameDB\Settings_NoBorder = #True                          
+                If Startup::*LHGameDB\Settings_NoBorder = #True   
+                    
+                    If ( Startup::*LHGameDB\Settings_NoBoTime >= 1)
+                        Delay(Startup::*LHGameDB\Settings_NoBoTime)
+                        ;
+                        ; Nur für den Start
+                        Startup::*LHGameDB\Settings_NoBoTime = 0
+                    EndIf    
+                    
                     vSystem::System_NoBorder(*Params\Program)                                  
                 EndIf                
                 
@@ -2148,31 +2156,39 @@ Module VEngine
                 If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )               
                     ProcessEX::LHFreeMem()
                 EndIf
-            
-            CreateThread(@DOS_Thread_OutPut(),*Params)     
-            
-            If Not (ProgramRunning(l_ProcID))
-                DOS_NOP = 0
-            EndIf 
+                
+                If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+                    CreateThread(@DOS_Thread_OutPut(),*Params)     
+                EndIf    
+                
+                If Not (ProgramRunning(l_ProcID))
+                    DOS_NOP = 0
+                EndIf 
+                
+                If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
+                    DOS_NOP = 0
+                EndIf    
             Delay(25)
         Until DOS_NOP = 0    
         
         Delay(1)
-
-        FatalError_A$ = ""
-        FatalError_B$ = ""
         
-        FatalError_A$ = ReadProgramError(l_ProcID,#PB_Ascii)
-        FatalError_B$ = ReadProgramError(l_ProcID,#PB_Ascii)
-        
-        If ( Len(FatalError_A$) >1 )
-            *Params\ExError = 1
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #ERROR.1 : " + FatalError_A$) 
-        EndIf
-        
-        If ( Len(FatalError_B$) >1 )
-            *Params\ExError = 1
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #ERROR.2 : " + FatalError_B$) 
+        If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+            FatalError_A$ = ""
+            FatalError_B$ = ""
+            
+            FatalError_A$ = ReadProgramError(l_ProcID,#PB_Ascii)
+            FatalError_B$ = ReadProgramError(l_ProcID,#PB_Ascii)
+            
+            If ( Len(FatalError_A$) >1 )
+                *Params\ExError = 1            
+                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #ERROR.1 : " + FatalError_A$) 
+            EndIf
+            
+            If ( Len(FatalError_B$) >1 )
+                *Params\ExError = 1
+                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #ERROR.2 : " + FatalError_B$) 
+            EndIf
         EndIf
         
         ProcedureReturn ""        
@@ -2623,6 +2639,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_FreeMemE = #False   ; Free Memory (For 32Bit, 4GB > Over Size 3.2GB) 
         Startup::*LHGameDB\Settings_Schwelle = -1
         Startup::*LHGameDB\Settings_bBlockFW = #False
+        Startup::*LHGameDB\Settings_bNoOutPt = #False;
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
         ;
@@ -2731,7 +2748,29 @@ Module VEngine
                         If ( s =  "%nbb" ) 
                             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: NoBorder (Activ) ( +Remove Style #OverlappedWindow )")  
                             Startup::*LHGameDB\Settings_OvLapped = #True                                
-                        EndIf      
+                        EndIf   
+
+                        For NBIndex = 1 To 9
+                            NBTime.s = Str(NBIndex)                                                        
+                            If ( Mid(Args,ArgIndex+5,1) =  NBTime) And (s =  "%nbcb")
+                                
+                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
+                                s.s + Mid(Args,ArgIndex+5,1)
+                                Break;
+                            ElseIf ( s =  "%nbc"+NBTime Or s =  "%nbb"+NBTime)
+                                
+                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
+                                Break;
+                            ElseIf (s =  "%nb"+NBTime)
+                                
+                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
+                                Break;
+                            EndIf                             
+                        Next
+                                    
                         Args = DOS_TrimArg(Args.s, s)     
                         Break;
                     EndIf    
@@ -2934,6 +2973,38 @@ Module VEngine
             EndIf                                   
         Next ArgIndex   
         
+        ;
+        ;
+        ; Block Programm in Firewall
+        For  ArgIndex = 1 To Len(Args)       
+            s.s = Mid(Args,ArgIndex,1)
+            If ( s = "%" )
+                
+                s.s + Mid(Args,ArgIndex+1,1)
+                If ( s =  "%n" )
+                    
+                    s.s + Mid(Args,ArgIndex+2,1)
+                    If ( s =  "%no" )
+                        
+                        s.s + Mid(Args,ArgIndex+3,1)
+                        If ( s =  "%noo" )
+                            
+                            s.s + Mid(Args,ArgIndex+4,1)
+                            If ( s =  "%noou" )
+                                
+                                s.s + Mid(Args,ArgIndex+5,1)
+                                If ( s =  "%noout" )                                                                      
+                                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
+                                     Startup::*LHGameDB\Settings_bNoOutPt = #True
+                                    Args = DOS_TrimArg(Args.s, s)     
+                                    Break;                                                                                   
+                                EndIf                                                        
+                            EndIf                                                    
+                        EndIf                                                
+                    EndIf                    
+                EndIf                    
+            EndIf    
+        Next ArgIndex   
         
         ;
         ;
@@ -2992,6 +3063,7 @@ Module VEngine
                 EndIf    
             EndIf                                   
         Next ArgIndex          
+        
         
         ;
         ;
@@ -3284,12 +3356,17 @@ Module VEngine
                  Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)  
             EndIf    
             
+            If (Startup::*LHGameDB\Settings_bNoOutPt = #True)    
+                *Params\StError = "";
+            EndIf
+            
             If  ( Len(*Params\StError) >= 1 )     
-                
+                    
                 ReturnCodes = CountString(*Params\StError, Chr(13) )
                 NewLines    = CountString(*Params\StError, Chr(10) )
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
             EndIf    
+
             
             ;
             ; Markiere Item welches gestartet ist
@@ -3896,9 +3973,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2552
-; FirstLine = 1628
-; Folding = 8egDaHc+QnE5
+; CursorPosition = 2752
+; FirstLine = 1873
+; Folding = 8egDaH9-QnE5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

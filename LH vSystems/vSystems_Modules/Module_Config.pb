@@ -171,7 +171,9 @@ DeclareModule Startup
         Settings_FreeMemE.i
         Settings_Schwelle.q         ; Speicherschwelle ab wann der speicher geleert werden
         Settings_bKillPrc.i         ; Killz den process
-        Settings_bBlockFW.i         ; Blocks programs from Inet/ Add Temporay to Firewall       
+        Settings_bBlockFW.i         ; Blocks programs from Inet/ Add Temporay to Firewall     
+        Settings_bNoOutPt.i        
+        Settings_NoBoTime.i         ;NoBorder Time
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -265,6 +267,10 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;      
+        ; Version 0.36b   
+        ; Added Command %noout: Disable and dont show Loggin Output from programs
+        ; Verify for check if Program alive
+        ; Added Timer 0-9 for noborder command (Only for StartTime*255; For Prg's the opens a console window)
         
         ; Version 0.35b        
         ; Fix Findwindow ... ups
@@ -775,8 +781,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 268
-; FirstLine = 247
+; CursorPosition = 272
+; FirstLine = 244
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

@@ -16,6 +16,8 @@
     
     Declare.s   System_InfoToolTip()
     
+    Declare.i   System_ProgrammIsAlive(szTaskName.s)
+    
 EndDeclareModule
 
 Module vSystem
@@ -135,6 +137,40 @@ Module vSystem
         ClearList( PrioRity() )
 
     EndProcedure
+    ;
+    ;
+    ;
+    Procedure.i  System_ProgrammIsAlive(szTaskName.s)
+        
+        Protected bIsAlive.i = #False
+        ;
+        ; Setz und Holt sich die PriorityClass vom Fremden programm
+        NewList RunProg.PROCESSENTRY32()        
+        
+        System_TaskList( RunProg() ) 
+        
+        ResetList( RunProg() )
+                
+        If ( szTaskName )              
+
+            
+            While NextElement( RunProg() )                
+                If ( LCase( szTaskName ) = LCase( PeekS( @RunProg()\szExeFile, 255, #PB_UTF8) ) )
+                    
+                    Debug ""
+                    Debug "Priorität für " + szTaskName
+                    Debug " - ProcessID: " + Str( PeekL (@RunProg()\th32ProcessID) )
+                    
+                    bIsAlive = #True;
+                    Break
+                EndIf                    
+            Wend    
+        EndIf
+
+        ClearList( RunProg() )
+        
+        ProcedureReturn bIsAlive;
+    EndProcedure    
     ;
     ;
     ;
@@ -885,10 +921,9 @@ Debug GetCPUName()
     EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 724
-; FirstLine = 397
-; Folding = 4-T9-
+; CursorPosition = 18
+; Folding = 4-n6-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = K:\! Workbench Virtualization\Maschines _ Quick Test

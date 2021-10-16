@@ -2120,7 +2120,8 @@ Module MagicGUI
                                 "          x can be: digit number from 0 to 63"                      + #CR$ + #CR$ +
                                 "%blockfw= Block Program through the Firewall"                       + #CR$ + #CR$ +                                
                                 "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
-                                "          c: use as unviersal commandline in the Slots"             + #CR$ +                                 
+                                "          c: use as unviersal commandline in the Slots"             + #CR$ +  
+                                "%noout  = Disable and don't show output loggin'"                    + #CR$ + #CR$ +                                   
                                 "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
                                 "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
                                 "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
@@ -2256,8 +2257,8 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1952
-; FirstLine = 792
+; CursorPosition = 2123
+; FirstLine = 960
 ; Folding = nmH5-
 ; EnableAsm
 ; EnableXP
