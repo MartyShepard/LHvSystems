@@ -1947,9 +1947,9 @@ Module MagicGUI
         Protected ToolTipFont.l = Fonts::#_SEGOEUI10N, ToolTipLen.i = 318, ToolTipFontEx.l = Fonts::#_SEGOEUI10N, ToolTipInfo$
         
         
-        
+        vSystem::System_InfoToolTip()
         ToolTipInfoTitle$ = ".."
-        ToolTipInfo_Text$ = vSystem::System_InfoToolTip()
+        ToolTipInfo_Text$ =  Startup::ToolTipSystemInfo.s; vSystem::System_InfoToolTip()
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_287 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "New"
@@ -2257,8 +2257,8 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2123
-; FirstLine = 960
+; CursorPosition = 1949
+; FirstLine = 807
 ; Folding = nmH5-
 ; EnableAsm
 ; EnableXP

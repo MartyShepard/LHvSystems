@@ -71,6 +71,7 @@ EndDeclareModule
 
 DeclareModule Startup
     
+    Global      ToolTipSystemInfo.s
     Declare     DB_Read_Config()
     Declare.s   History(svn = #False, Option = 0)
     ;****************************************************************************************************************************************************
@@ -266,6 +267,9 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.37b          
+        ; Tooltip Info About Zeigt wieviele Einträge vorhanden sind
         ;      
         ; Version 0.36b   
         ; Added Command %noout: Disable and dont show Loggin Output from programs
@@ -781,8 +785,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 272
-; FirstLine = 244
+; CursorPosition = 271
+; FirstLine = 249
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

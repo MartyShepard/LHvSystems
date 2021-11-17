@@ -904,6 +904,13 @@ Debug GetCPUName()
     EndProcedure
     ;
     ;
+    ;
+    Procedure.s    System_Get_Internal_Count()        
+        x = CountGadgetItems(DC::#ListIcon_001)
+         ProcedureReturn Str(x)
+    EndProcedure
+    ;
+    ;
     ;    
     Procedure.s   System_InfoToolTip()
         
@@ -913,15 +920,19 @@ Debug GetCPUName()
                           "CPU: " + System_Get_Internal_CPU() + Chr(13) +                          
                           "GFX: " + System_Get_Internal_GFX() + Chr(13) +      
                           "WIN: " + System_Get_Internal_WIN() + Chr(13) +                          
-                          "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) +  
+                          "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) + 
+                          "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
                           "Developed by Marty Shepard"
         
         Debug TooltipString
+        
+        Startup::ToolTipSystemInfo = TooltipString
         ProcedureReturn TooltipString
     EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 18
+; CursorPosition = 928
+; FirstLine = 619
 ; Folding = 4-n6-
 ; EnableAsm
 ; EnableXP

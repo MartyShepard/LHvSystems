@@ -247,18 +247,21 @@ Module GuruCallBack
     ;__________________________________________________________________________________________________________________________________________        
     Procedure CallBackOver(hwnd, uMsg, TempW, TempH, lParam, SnapHeight.i = 30)
         Protected pt.Point, TitleText$
-                   
+                                         
         Select Form::IsOverObject(WindowID(hwnd))
                 
             Case 1                                  
                  pt\y = (lParam>>16) & $FFFF
                  pt\x = lParam & $FFFF  
                  
+                 
                  If  (pt\x >= 0)  And (pt\y >= 0) And (pt\x <= TempW) And (pt\y <= TempH) 
                     ;
                     ;=============================================================================
                     ;                                 
-                     If (pt\y >= 0) And (pt\y <= SnapHeight)                                                  
+                     If (pt\y >= 0) And (pt\y <= SnapHeight)  
+                         
+                         
                          ;
                          ; Message vom WindowsOS abfangen
                          Select uMsg      
@@ -275,7 +278,9 @@ Module GuruCallBack
                                 
                             Case #WM_RBUTTONUP
                                 If hwnd = DC::#_Window_001
-                                    If WindowHeight(hwnd) <> 30 
+                                    
+                                    
+                                    If WindowHeight(hwnd) <> 30                                         
                                         SSTTIP::ToolTipMode(0,DC::#Button_287,vSystem::System_InfoToolTip() )   
                                         ResizeWindow(hwnd,#PB_Ignore,#PB_Ignore,#PB_Ignore,SnapHeight)
                                         
@@ -301,12 +306,15 @@ Module GuruCallBack
                                 EndIf
                                 
                         EndSelect 
+                        
+                          
                     ;
                     ;=============================================================================
                     ;    
                     ElseIf (pt\y >= (TempH-SnapHeight)) And (pt\y <= TempH)
                         ;
                         ;
+                      
                         Select uMsg
                                 ;
                                 ;
@@ -462,7 +470,10 @@ Module GuruCallBack
                 
             Case #WM_LBUTTONDOWN,#WM_MOUSEMOVE,#WM_LBUTTONDBLCLK, #WM_RBUTTONUP                
                 
+                
                 If ( hwndID.i <> 0 )
+                    
+                    
                     ;
                     ;
                     ; Mouse befindet sich über dem Object
@@ -616,7 +627,8 @@ Module GuruCallBack
                 
             Case #WM_LBUTTONDOWN,#WM_MOUSEMOVE,#WM_LBUTTONDBLCLK, #WM_RBUTTONUP
                 
-                If ( hwndID.i <> 0 )                    
+                If ( hwndID.i <> 0 ) 
+                     
                     ;
                     ;
                     ; Mouse befindet sich über dem Object
@@ -1536,8 +1548,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 289
-; FirstLine = 191
+; CursorPosition = 263
+; FirstLine = 194
 ; Folding = vcuF9-
 ; EnableAsm
 ; EnableXP

@@ -146,11 +146,12 @@ Module Interact
             ;
             ;
             EvntWait = MainCode_StringCallBack(EvntGadget, EvntwParam, EvntWait)                                                     
-                                            
+            
+          
             
             Select EvntWait                                                           
                     
-
+                                                               
                 Case #PB_Event_GadgetDrop                    
                     vWindows::DragnDrop_Support(EvntGadget.i)                    
                                                    
@@ -350,10 +351,24 @@ Module Interact
                                         Continue
                                     EndIf    
                             EndSelect
-                         
+                            
+                               
                             ;
                             ; Button Liste (Standard Ansicht)
                         Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_287
+                            
+                            If Form::IsOverObject(GadgetID(DC::#Button_287)) And ( ToolTipSystemShow = #True )
+                                ToolTipSystemShow = #False
+                                vSystem::System_InfoToolTip()
+                                SSTTIP::ToolTipMode(0,DC::#Button_287,Startup::ToolTipSystemInfo.s)
+                                Debug "True"
+                                Delay(25)
+                            Else
+                                ToolTipSystemShow = #True
+                                Debug "False"
+                                Delay(25)
+                            EndIf
+                            
                             Select ButtonEX::ButtonExEvent(EvntGadget)  
                                 Case ButtonEX::#ButtonGadgetEx_Pressed
                                     Select EvntGadget
@@ -422,8 +437,10 @@ Module Interact
                                            ;
                                            ; Info Button
                                         Case DC::#Button_287
+                                           
                                             ButtonEX::SetState(EvntGadget,0)
-
+  
+                                                
                                             Continue                                            
                                     EndSelect                                          
                             EndSelect                         
@@ -685,8 +702,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 629
-; FirstLine = 594
+; CursorPosition = 359
+; FirstLine = 332
 ; Folding = --
 ; EnableAsm
 ; EnableXP
