@@ -57,7 +57,8 @@
     
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"     ; DB_Create::           
         XIncludeFile ".\vSystems_Modules\Module_Config.pb"              ; Startup:: 
-        XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"        
+        XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"
+        XIncludeFile ".\vSystems_Modules\Module_UnrealHelper.pb"
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    ; DB_Migrate::           
               
         XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                ; Include Modules, Global Code Module (Menu System)              
@@ -147,14 +148,15 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 18
+; CursorPosition = 58
+; FirstLine = 18
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
-; CPU = 1
+; CPU = 5
 ; CurrentDirectory = Release\
 ; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE

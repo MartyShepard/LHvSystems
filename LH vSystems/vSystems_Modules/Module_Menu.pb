@@ -1347,10 +1347,16 @@ Module INVMNU
                 
                     vSystem::System_Compat_MenuItemW(MenuID)            
                     ProcedureReturn 
-            Case 284 To 356
+            Case 284 To 364
                     
                     vSystem::System_Compat_MenuItemE(MenuID) 
-                    ProcedureReturn    
+                    ProcedureReturn   
+                    
+            Case 365 To 375                    
+                    vSystem::System_Unreal_MenuItemC(MenuID)
+                    ProcedureReturn   
+                    
+                    
                 
         EndSelect           
 
@@ -1478,16 +1484,30 @@ Module INVMNU
                 MenuItem(357, "Win2000 SP1 Version Lie")  
                 MenuItem(358, "Win2000 SP2 Version Lie")  
                 MenuItem(359, "Win2000 SP3 Version Lie")  
-                MenuItem(350, "WinXP Version Lie")  
-                MenuItem(351, "WinXP SP2 Version Lie")  
-                MenuItem(352, "WinXP SP3 Version Lie")  
-                MenuItem(353, "Vista SP1 Version Lie")  
-                MenuItem(354, "Vista SP2 Version Lie")             
+                MenuItem(360, "WinXP Version Lie")  
+                MenuItem(361, "WinXP SP2 Version Lie")  
+                MenuItem(362, "WinXP SP3 Version Lie")  
+                MenuItem(363, "Vista SP1 Version Lie")  
+                MenuItem(364, "Vista SP2 Version Lie")             
             CloseSubMenu()             
             ; https://docs.microsoft.com/de-de/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista
         CloseSubMenu()
       
+        MenuBar()
+        OpenSubMenu("Unreal Command")
+            MenuItem(365, "use Direct3D 9 Family")
+            MenuItem(366, "use Direct3D 10 Family")          
+            MenuItem(367, "use Direct3D 11 Family")         
+            MenuItem(368, "Set Language: German")              
+            MenuItem(369, "No Vertical Sync")
+            MenuItem(370, "No Screen Mwssages")
             
+            MenuItem(371, "No Texture Streaming")
+            MenuItem(372, "Seek Free Loading PC Console")
+            MenuItem(373, "Show Build Version")
+            MenuItem(374, "Skip All Notifies")
+            MenuItem(375, "Use All Available Cores")                       
+        CloseSubMenu() 
         MenuBar()
         ;
         ; ============================================================= Ports / Nativ        
@@ -2602,10 +2622,10 @@ Module INVMNU
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2549
-; FirstLine = 76
-; Folding = DY+
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 1354
+; FirstLine = 1307
+; Folding = z5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

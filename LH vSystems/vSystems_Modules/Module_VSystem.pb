@@ -11,16 +11,35 @@
     
     Declare     System_Compat_MenuItemW(MenuID)    
     Declare     System_Compat_MenuItemE(MenuID)
+    Declare     System_Unreal_MenuItemC(MenuID)    
     
     Declare.i   System_CheckInstance()
     
     Declare.s   System_InfoToolTip()
     
     Declare.i   System_ProgrammIsAlive(szTaskName.s)
+    Declare.i   System_GetTasklist();
+    
+   
     
 EndDeclareModule
 
 Module vSystem
+    
+       ;
+    ; Setz und Holt sich die PriorityClass vom Fremden programm
+    Global NewList NoBorderList.PROCESSENTRY32() 
+    Global NewList Process32.PROCESSENTRY32()
+    ;
+    ; SETZ und Holt sich die PriorityClass vom Fremden programm
+    Global NewList RunProg.PROCESSENTRY32() 
+    ;Global NewList Process32.PROCESSENTRY32()
+    ;
+    ; Setz und Holt sich die PriorityClass vom Fremden programm
+    Global NewList RunProg.PROCESSENTRY32()
+    ;
+    ; SETZ und Holt sich die PriorityClass vom Fremden programm
+    Global NewList PrioRity.PROCESSENTRY32()
     
     Global bNBSet.i = #False
     ;    
@@ -60,7 +79,8 @@ Module vSystem
                         
                         AddElement (P32())
                         
-                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))                                               
+                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))
+                        ;Delay( 1 )
                     Wend
                     
                 EndIf
@@ -73,7 +93,20 @@ Module vSystem
     EndProcedure 
     ;
     ;
-    ;    
+    ;
+    Procedure.i System_GetTasklist();
+        
+        ;System_TaskList( PrioRity() )
+        ;System_TaskList( RunProg() ) 
+        ClearList( Process32() )
+        System_TaskList( Process32() ) 
+        ;System_TaskList( Process32() )
+        ;System_TaskList( NoBorderList() ) 
+        
+    EndProcedure
+    ;
+    ;
+    ;        
     Procedure   System_Get_Priority(szTaskName.s, uPID.l)
         
         Protected HiProcess.i
@@ -100,23 +133,23 @@ Module vSystem
         Protected uPID.l, HiProcess.l
         ;
         ; Setz und Holt sich die PriorityClass vom Fremden programm
-        NewList PrioRity.PROCESSENTRY32()        
+        ; NewList PrioRity.PROCESSENTRY32()        
         
-        System_TaskList( PrioRity() ) 
+        ; System_TaskList( PrioRity() ) 
         
-        ResetList( PrioRity() )
+        ResetList( Process32() )
                 
         If ( szTaskName )              
 
             
-            While NextElement( PrioRity() )                
-                If ( LCase( szTaskName ) = LCase( PeekS( @PrioRity()\szExeFile, 255, #PB_UTF8) ) )
+            While NextElement( Process32() )                
+                If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
                     Debug ""
                     Debug "Priorität für " + szTaskName
-                    Debug " - ProcessID: " + Str( PeekL (@PrioRity()\th32ProcessID) )
+                    Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
                     
-                    uPID = PeekL (@PrioRity()\th32ProcessID) 
+                    uPID = PeekL (@Process32()\th32ProcessID) 
                     
                     System_Get_Priority(szTaskName + " = ", uPID )
                     
@@ -134,7 +167,7 @@ Module vSystem
             Wend    
         EndIf
 
-        ClearList( PrioRity() )
+       ; ClearList( PrioRity() )
 
     EndProcedure
     ;
@@ -145,21 +178,21 @@ Module vSystem
         Protected bIsAlive.i = #False
         ;
         ; Setz und Holt sich die PriorityClass vom Fremden programm
-        NewList RunProg.PROCESSENTRY32()        
+        ;NewList RunProg.PROCESSENTRY32()        
         
-        System_TaskList( RunProg() ) 
+        ;System_TaskList( RunProg() ) 
         
-        ResetList( RunProg() )
-                
+        ResetList( Process32() )
+            
         If ( szTaskName )              
 
             
-            While NextElement( RunProg() )                
-                If ( LCase( szTaskName ) = LCase( PeekS( @RunProg()\szExeFile, 255, #PB_UTF8) ) )
+            While NextElement( Process32() )                
+                If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
                     Debug ""
                     Debug "Priorität für " + szTaskName
-                    Debug " - ProcessID: " + Str( PeekL (@RunProg()\th32ProcessID) )
+                    Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
                     
                     bIsAlive = #True;
                     Break
@@ -167,7 +200,7 @@ Module vSystem
             Wend    
         EndIf
 
-        ClearList( RunProg() )
+        ;ClearList( RunProg() )
         
         ProcedureReturn bIsAlive;
     EndProcedure    
@@ -209,9 +242,9 @@ Module vSystem
     ;
     Procedure   System_SetAffinity(szTaskName.s, uCores = -1)
         
-        NewList Process32.PROCESSENTRY32()
+       ; NewList Process32.PROCESSENTRY32()
         
-        System_TaskList( Process32() ) 
+       ; System_TaskList( Process32() ) 
         
         ResetList( Process32() )
         
@@ -231,7 +264,7 @@ Module vSystem
             Wend    
         EndIf
         
-        ClearList( Process32() )
+       ; ClearList( Process32() )
     EndProcedure     
     ;
     ;
@@ -634,29 +667,29 @@ Module vSystem
             
         ;
         ; Setz und Holt sich die PriorityClass vom Fremden programm
-        NewList NoBorderList.PROCESSENTRY32()        
+        ; NewList NoBorderList.PROCESSENTRY32()        
         
-        System_TaskList( NoBorderList() ) 
+        ; System_TaskList( NoBorderList() ) 
         
-        ResetList( NoBorderList() )
+        ResetList( Process32() )
 
         If ( Startup::*LHGameDB\Thread_ProcessName )  
-            ForEach NoBorderList()
+            ForEach Process32()
                 
                 
-                If ( LCase( Startup::*LHGameDB\Thread_ProcessName ) = LCase( PeekS( @NoBorderList()\szExeFile, 255, #PB_UTF8) ) )
+                If ( LCase( Startup::*LHGameDB\Thread_ProcessName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
                     Debug ""
                     Debug "NoBorder für  : " + Startup::*LHGameDB\Thread_ProcessName
-                    Debug "- ProcessID   : " + Str( PeekL (@NoBorderList()\th32ProcessID) )
+                    Debug "- ProcessID   : " + Str( PeekL (@Process32()\th32ProcessID) )
                     
-                    uPID = PeekL (@NoBorderList()\th32ProcessID) 
+                    uPID = PeekL (@Process32()\th32ProcessID) 
                                        
                     HiProcess = OpenProcess_(#PROCESS_SET_INFORMATION, 0, uPID)
                     If ( HiProcess )            
                         Debug "- TH32 ID List: "                        
-                        _NoBorder_Debug( NoBorderList(), Startup::*LHGameDB\Thread_ProcessName, HiProcess)                        
-                        EnumWindows_(@System_EnumWindows(),PeekL (@NoBorderList()\th32ProcessID) )
+                        _NoBorder_Debug( Process32(), Startup::*LHGameDB\Thread_ProcessName, HiProcess)                        
+                        EnumWindows_(@System_EnumWindows(),PeekL (@Process32()\th32ProcessID) )
                         ;Debug "TH32ProcessID Parent============ :"
                         ;EnumWindows_(@System_EnumWindows(),PeekL (@NoBorderList()\th32ParentProcessID))
                         
@@ -673,7 +706,7 @@ Module vSystem
             Next    
         EndIf
 
-        ClearList( NoBorderList() )
+       ; ClearList( NoBorderList() )
         
         
     EndProcedure
@@ -747,7 +780,41 @@ Module vSystem
         UnuseModule Compatibility             
         
     EndProcedure    
-     
+    
+    ;
+    ;
+    ; Aufruf für Unreal Commandlines
+    Procedure   System_Unreal_MenuItemC(MenuID)
+        
+        Protected sCmdString.s
+        
+        UseModule UnrealHelp
+        
+        ResetList(UnrealCommandline())                                     
+        
+        While NextElement(UnrealCommandline())
+            
+            Debug "MenuIdx:" + Str( UnrealCommandline()\MenuIndex) + #TAB$ + LSet( UnrealCommandline()\UDKModus$, 24, Chr(32) ) + "Num: " +  Str( UnrealCommandline()\UDKIDX)
+            
+            If ( UnrealCommandline()\MenuIndex = MenuID )
+                Debug #CR$ + "Benutze: " + UnrealCommandline()\UDKModus$
+                
+                sCmdString = GetGadgetText( DC::#String_103 )
+                If Len( sCmdString ) > 0
+                    sCmdString + Chr(32)
+                EndIf
+                
+                If FindString( sCmdString, "-"+ UnrealCommandline()\UDKModus$, 1) = 0
+                    sCmdString + "-"+UnrealCommandline()\UDKModus$
+                EndIf
+                SetGadgetText( DC::#String_103 , sCmdString)
+                Break
+            EndIf    
+        Wend        
+        
+        UnuseModule UnrealHelp             
+        
+    EndProcedure     
     ;
     ;
     ; Prüfng ob es schon gestartet ist
@@ -931,9 +998,9 @@ Debug GetCPUName()
     EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 928
-; FirstLine = 619
-; Folding = 4-n6-
+; CursorPosition = 82
+; FirstLine = 42
+; Folding = vJACk+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

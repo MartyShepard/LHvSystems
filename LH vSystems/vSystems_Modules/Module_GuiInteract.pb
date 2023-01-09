@@ -131,7 +131,13 @@ Module Interact
         ; initialisierung des Compatibility Modus
         UseModule Compatibility
             DataModes(CompatibilitySystem.CmpOSModus(), CompatibilityEmulation.CmpEmulation())
-        UnuseModule Compatibility        
+        UnuseModule Compatibility  
+            
+        ;
+        ; initialisierung Unreal Helper Modus
+        UseModule UnrealHelp
+            DataModes(UnrealCommandline.CmpUDKModus())
+        UnuseModule UnrealHelp             
         
         AutoOpen()
         
@@ -701,9 +707,9 @@ Module Interact
         
     EndProcedure  
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 359
-; FirstLine = 332
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 138
+; FirstLine = 90
 ; Folding = --
 ; EnableAsm
 ; EnableXP

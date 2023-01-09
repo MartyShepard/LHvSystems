@@ -549,6 +549,7 @@ DeclareModule Request
                   If ( GadgetRect\left = 0 And GadgetRect\right = 0 And GadgetRect\top = 0 And GadgetRect\bottom = 0 )
                       ProcedureReturn 0
                   EndIf    
+                  
                   ProcedureReturn SetCursorPos_((GadgetRect\left + GadgetRect\right) / 2,(GadgetRect\top + GadgetRect\bottom) / 2)       
       EndProcedure 
       
@@ -768,7 +769,7 @@ DeclareModule Request
           
           ;
           ; 
-          Delay(100)
+          Delay( 5 )
           
           If ( ParentID = #Null) 
               ParentID =  0
@@ -1012,7 +1013,7 @@ DeclareModule Request
           EndIf
           ;
           ;==================================================================================================================             
-          Delay(25)
+          Delay( 5 )
           HideWindow(#REXW0,0)                     
           
           Repeat    
@@ -1021,7 +1022,7 @@ DeclareModule Request
               
               
               Select EvntWait                                          
-                  Case #WM_KEYDOWN
+                  Case #WM_KEYUP
                       
                       Select EvntwParam
                           Case 13 
@@ -1312,9 +1313,9 @@ CompilerIf #PB_Compiler_IsMainFile
 
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 904
-; FirstLine = 351
-; Folding = HCA5
+; CursorPosition = 325
+; FirstLine = 217
+; Folding = HC10
 ; EnableAsm
 ; EnableThread
 ; EnableXP

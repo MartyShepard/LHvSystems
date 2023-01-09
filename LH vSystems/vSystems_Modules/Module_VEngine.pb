@@ -837,6 +837,7 @@ Module VEngine
         
         Result = vItemTool::DialogRequest_Def(Startup::*LHGameDB\TitleVersion,"Soll der Eintrag " + GetGadgetItemText(Liste,GetGadgetState(Liste)) + " gelöscht werden")
         If ( Result = #True )
+            
             CurrentPosition = GetGadgetState(Liste)
                         
             Select CurrentPosition
@@ -848,8 +849,7 @@ Module VEngine
                         
             RemoveID = Startup::*LHGameDB\GameID 
             Startup::*LHGameDB\GameID = GetGadgetItemData(Liste,GetGadgetState(Liste))
-            
-            
+                        
             ExecSQL::DeleteRow(DC::#Database_001,"Gamebase",RemoveID)                          
             ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")              
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1) 
@@ -2110,9 +2110,18 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure.s DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)
         
-        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$        
+        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0   
 
         Repeat
+            If ( x = 10000)
+                x = 0
+            EndIf
+            
+            If (x = 0)
+                vSystem::System_GetTasklist();
+                ;Delay(25)
+            EndIf
+            x + 1
             
             ;WindowState = DOS_Thread_HideWindow(*Params\Program, l_ProcID, #SW_HIDE, WindowState)  
                
@@ -2414,8 +2423,7 @@ Module VEngine
     ; Startet Programm (Threaded)
     ;________________________________________________________________________________________________________________________________________________________________               
     Procedure DOS_Thread(*Params.PROGRAM_BOOT) 
-            LockMutex(ProgrammMutex)
-                   
+            LockMutex(ProgrammMutex)    
             Delay(25)
             DOS_Thread_GameMode(*Params.PROGRAM_BOOT)        
             UnlockMutex(ProgrammMutex)
@@ -3342,9 +3350,9 @@ Module VEngine
             _Action1 = CreateThread(@DOS_Thread(),*Params)                      
             
             ;If ( Startup::*LHGameDB\Settings_Asyncron = #False ) 
-                While IsThread(_Action1)   
-                    Delay(25)                
-                    While WindowEvent()                         
+            While IsThread(_Action1)   
+                    Delay(255)
+                    While WindowEvent()                          
                     Wend  
                 Wend                 
             ;EndIf
@@ -3973,8 +3981,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2752
-; FirstLine = 1873
+; CursorPosition = 861
+; FirstLine = 659
 ; Folding = 8egDaH9-QnE5
 ; EnableAsm
 ; EnableXP

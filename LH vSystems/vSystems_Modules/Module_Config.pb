@@ -268,6 +268,16 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.39b          
+        ; CPU Cycles be NoBorder etc.. gesenkt
+        ; Requester Source: #WMKDown gegen #WMkeyup geändert
+        ; Requester Source: Delay Cycles abgesenkt
+        
+        ;
+        ; Version 0.38b          
+        ; ??
+        
+        ;
         ; Version 0.37b          
         ; Tooltip Info About Zeigt wieviele Einträge vorhanden sind
         ;      
@@ -786,7 +796,7 @@ Module Startup
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 271
-; FirstLine = 249
+; FirstLine = 240
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

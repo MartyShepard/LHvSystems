@@ -203,7 +203,7 @@ Module vItemTool
         ; Selektiere die Richtige Window ID. Diese ist wichtig für den Request Dialog
         Select Startup::*LHGameDB\UpdateSection
             Case 2,3                        
-                ChildWindow = DC::#_Window_002
+                ChildWindow = DC::#_Window_002               
             Case 4
                 ChildWindow = DC::#_Window_003
             Default
@@ -761,9 +761,9 @@ Module vItemTool
     EndProcedure         
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 753
-; FirstLine = 181
-; Folding = DAYg-
+; CursorPosition = 226
+; FirstLine = 67
+; Folding = DEYg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
