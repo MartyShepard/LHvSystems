@@ -252,8 +252,8 @@ DeclareModule Startup
     ; ******************************************************************************
     ; Strukture Hält 50 Screenshots   
     Structure STRUCT_MEMIMAGES      
-        thumb.q[50]
-        bsize.q[50]               
+        thumb.q[50000]
+        bsize.q[50000]               
     EndStructure            
     Global Dim SlotShots.STRUCT_MEMIMAGES(50)    
     
@@ -268,6 +268,16 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.40b          
+        ; Kalender eingabe bearbeitet
+        ; Programm Dateirequester Filter bearbeitet
+        ; OS Spezifische Dateinamen behandlung beim Speichern der Bilder
+        ; Clibbaord Aktion für die Bilder (Kopieren und einfügen)       
+        ; Dim Strukture erweitert
+        ; 3 PNG Bilder convert von 32bit nach 8Bit
+        ; Compiled Exes without DPI Awareness (Compile with DPI Awarenss is not good under Breaks Windows 8+)
+        
+        
         ; Version 0.39b          
         ; CPU Cycles be NoBorder etc.. gesenkt
         ; Requester Source: #WMKDown gegen #WMkeyup geändert
@@ -795,8 +805,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 271
-; FirstLine = 240
+; CursorPosition = 277
+; FirstLine = 241
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

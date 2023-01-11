@@ -9,6 +9,8 @@
     Declare Screens_Menu_Save_Images_All()
     Declare Screens_Menu_Delete_Single(CurrentGadget.i)
     Declare Screens_Menu_Delete_All()
+    Declare Screens_Menu_Copy_Image(GadgetID.i)
+    Declare Screens_Menu_Paste_Import(GadgetID.i)
     
     Declare Screens_Import(CurrentGadget.i, FileStream.s = "")
     
@@ -277,10 +279,13 @@ Module vImages
         
     EndProcedure                         
     
-    Procedure Screens_Show_A_Thread(*interval)
+    Procedure Screens_Show_A_Thread(*interval)         
+        ;
+        ; Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID]        
+        ; Vorerst : :SlotShots(nSlot)\thumb Sollte nicht mehr als 50000 Items überschreuiten
         
-        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
-            Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")                          
+        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots                                              
+             Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")                          
             Delay(*Interval)
             Select nSlot
                 Case 4,12,20,28,36,44,52            
@@ -711,8 +716,7 @@ Module vImages
         If ( File$ )
             Screens_Import(GadgetID, File$)
         EndIf         
-    EndProcedure
-    
+    EndProcedure                 
     ;******************************************************************************************************************************************
     ;  Holt das Format aus der DB
     ;__________________________________________________________________________________________________________________________________________     
@@ -749,6 +753,7 @@ Module vImages
             Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage))
             ;Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage) -1)            
             ProcedureReturn Unknown
+           
         EndIf
         ProcedureReturn 0
     EndProcedure  
@@ -768,7 +773,7 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________    
     Procedure Screens_Menu_Save_ImageFormat(File$,ImageData.l,Extension$)
         
-        Protected Result
+        Protected Result              
         
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,0): 
         SetGadgetText(DC::#Text_004, "Speichere: "+ GetFilePart(File$) )                    
@@ -794,6 +799,55 @@ Module vImages
         
         ProcedureReturn File$
     EndProcedure
+    ;******************************************************************************************************************************************
+    ;  Import image über der Ablage
+    ;__________________________________________________________________________________________________________________________________________       
+    Procedure Screens_Menu_Paste_Import(GadgetID.i)
+        
+        Protected Extension$, GenImage.l, *ImageData
+        
+        ClipBoardImage.l = GetClipboardImage(#PB_Any)
+        
+        If IsImage( ClipBoardImage.l )
+            
+            GenImage.l  = GrabImage(ClipBoardImage, #PB_Any,0,0, ImageWidth(ClipBoardImage),ImageHeight(ClipBoardImage))
+            
+            Debug ""
+            Debug "Import Clibboard Image"
+            Debug "Image Weite  : " + Str(ImageWidth(ClipBoardImage))
+            Debug "Image Höhe   : " + Str(ImageHeight(ClipBoardImage))
+            Debug "Image Format : " + Str(ImageFormat(ClipBoardImage))            
+                  
+            For n = 1 To Startup::*LHGameDB\MaxScreenshots
+                If ( GadgetID = Startup::*LHImages\ScreenGDID[n] )                             
+                    
+                    If ( Screens_Overwrite(n) = 0 )
+                        ProcedureReturn 
+                    EndIf    
+                    
+                    HideGadget(DC::#Text_004,0)  
+                    
+                    Startup::*LHGameDB\bisImageDBChanged = #True 
+
+                   *ImageData = EncodeImage(GenImage, #PB_ImagePlugin_PNG)
+
+                    If ( *ImageData > 0)                        
+                        ExecSQL::ImageSet(DC::#Database_002,"GameShot","Shot"+ Str(n) +"_Big","",Startup::*LHGameDB\GameID,1,*ImageData,"BaseGameID"):Delay(1)  
+                    EndIf
+                    
+                    Screens_Copy_ResizeToGadget(n.i,GenImage.l, Startup::*LHImages\ScreenGDID[n]) 
+                    
+                    FreeImage ( ClipBoardImage.l )
+                    FreeImage ( GenImage.l       )
+
+                    Screens_Import_Save_Thumbnail(n)
+                    
+                    Screens_Show(): SetGadgetText(DC::#Text_004,""): HideGadget(DC::#Text_004,1): Break                        
+                EndIf                
+            Next                 
+        EndIf                                       
+        ProcedureReturn                        
+    EndProcedure          
     ;******************************************************************************************************************************************
     ;  Lädt und Importiert die Screenshots über das menu
     ;__________________________________________________________________________________________________________________________________________ 
@@ -824,7 +878,24 @@ Module vImages
         Next
         Delay(250)
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
-    EndProcedure    
+    EndProcedure  
+    
+    ;******************************************************************************************************************************************
+    ;  Lädt und Importiert die Screenshots über das menu
+    ;__________________________________________________________________________________________________________________________________________ 
+    Procedure Screens_Menu_Copy_Image(CurrentGadget.i)
+        
+        Protected Unknown.l, Format.l, Extension$,  Result.i
+        
+        For n = 1 To Startup::*LHGameDB\MaxScreenshots
+            If ( CurrentGadget = Startup::*LHImages\ScreenGDID[n] )                                               
+                SetClipboardImage(Screens_Menu_Get_Original(n))
+                Break
+            EndIf
+        Next
+        Delay(250)
+        SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
+    EndProcedure      
     
     ;******************************************************************************************************************************************
     ;  Sicher und Eportiert die Screenshots über das menu
@@ -1290,11 +1361,11 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 318
-; FirstLine = 271
-; Folding = -----89-
+; CursorPosition = 284
+; FirstLine = 173
+; Folding = vcAUAED5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = H:\Games _ Adult Archiv\Theme - Game RPG Action\Warcraft - The Chronicles of Alexstraza\
+; CurrentDirectory = B:\MAME
 ; EnableUnicode

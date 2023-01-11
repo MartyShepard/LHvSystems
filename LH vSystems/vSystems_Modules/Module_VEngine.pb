@@ -487,38 +487,75 @@ Module VEngine
     ;****************************************************************************************************************************************************************    
     Procedure.i Change_Title_VerifyAscii(TestString$)
         
-        Protected Char.i, AsciiPos.i, Result.i = #False
+        Protected Start.i, Char.i, AsciiPos.i, Result.i = #False
         
         ;For  AsciiPos = 1 To Len(TestString$)           
+        
+        SendMessage_(GadgetID(DC::#String_005), #EM_GETSEL, @Start, 0) 
+        
+        Char = Asc(Right(TestString$,1))
+        
+        Debug "Ascii : " + Chr(Char) + " AsciiPos:" + Str(Start.i)
+     
             
-        Char = Asc(Right(TestString$,1))                             
-        Debug "Ascii : " + Chr(Char) + " AsciiPos:" + Str(Len(TestString$))
+        Select Start
+            Case 0 To 4, 6 To 7, 9 To 10
+                Select Char
+                   Case 48 To 57
+                       Result = #True                                                                        
+                    Default  
+                        TestString$ = ReplaceString(TestString$,Chr(Char),"0",0,Start,1)  
+                EndSelect 
+            AsciiPos = Start
+            
+            Case 5, 8
+                Select Char
+                   Case 47
+                       Result = #True                         
+                       AsciiPos = Start
+                   Default      
+                        Select Char
+                           Case 48 To 57
+                               TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,Start,1) 
+                               AsciiPos = Start+1 
+                           Default    
+                               TestString$ = ReplaceString(TestString$,Chr(Char),"/",0,Start,1)
+                               AsciiPos = Start
+                        EndSelect                        
+                EndSelect
+       EndSelect
+         
         
-        Select Char
-            Case 48 To 57
-                Result = #True                                                                                 
-            Default  
-               TestString$ = ReplaceString(TestString$,Chr(Char),"",0,Len(TestString$),1)                            
-        EndSelect       
+       ; Select Char
+       ;     Case 48 To 57
+       ;         Result = #True                                                                                 
+       ;     Default  
+       ;        TestString$ = ReplaceString(TestString$,Chr(Char),"",0,Len(TestString$),1)                            
+       ; EndSelect       
         
-        Select Result
-            Case #True
-                
-                Select Len(TestString$)
-                    Case 5
-                        TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,5,1)
-                    Case 8   
-                        TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,8,1)                        
-                    Default                            
-                EndSelect       
+       ; Select Result
+       ;     Case #True
+       ;     Select start
+       ;         Case 5,8
+       ;             Debug "Kalender: " + Chr(Char) + " AsciiPos:" + Str(Len(TestString$))
+        ;            TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,start,1)
+        ;    EndSelect                
+        ;        
+        ;        Select Len(TestString$)
+        ;            Case 5
+        ;                TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,5,1)
+        ;            Case 8   
+        ;                TestString$ = ReplaceString(TestString$,Chr(Char),"/"+Chr(Char),0,8,1)                        
+        ;            Default                            
+        ;        EndSelect       
                 
                 ;Break
                 
-            Default
-        EndSelect
+        ;    Default
+        ;EndSelect
         ;Next    
         SetGadgetText(DC::#String_005,TestString$)
-        SendMessage_(GadgetID(DC::#String_005), #EM_SETSEL, Len(TestString$), Len(TestString$))         
+        SendMessage_(GadgetID(DC::#String_005), #EM_SETSEL, AsciiPos, AsciiPos)         
         ProcedureReturn Result            
 
     EndProcedure 
@@ -1593,7 +1630,7 @@ Module VEngine
     ;
     ;**************************************************************************************************************************************************************** 
     Procedure GetFile_Programm(DPGadgetID.i, FileStream.s = "")    
-        Protected TestFile$, TestPath$, TestSize.i,Title$,Char$, Endung$
+        Protected TestFile$, TestPath$, TestSize.i,Title$,Char$, Endung$, Current$
         
         SetActiveGadget(-1)
 
@@ -1612,15 +1649,19 @@ Module VEngine
                     If ( Len( GetGadgetText( DPGadgetID ) ) > 0 )
                         TestPath$ = GetGadgetText(DPGadgetID)
                         TestPath$ = Getfile_Portbale_ModeOut( TestPath$ )
-                        Endung$   + GetFilePart(TestPath$,1) + "|"+ GetFilePart(TestPath$,1) +"."+ GetExtensionPart( TestPath$ ) +"|"
+                        Current$  + GetFilePart(TestPath$,1) + "|"+ GetFilePart(TestPath$,1) +"."+ GetExtensionPart( TestPath$ ) +"|"
                     EndIf 
                     
                     ; Generate Suffix
-                    ;
-                    Endung$ + "Script (*.bat)|*.bat|"                     
-                    Endung$ + "Programm (*.exe)|*.exe|"
-                    Endung$ + "IconLink (*.lnk)|*.lnk|"                     
-                    Endung$ + "Java App (*.jar)|*.jar;"
+                    ;                   
+                    Endung$  + "Filter: Programm (*.exe)|*.exe|"
+                    If (Current$)
+                        Endung$  + "Filter: " + Current$
+                    EndIf    
+                    Endung$  + "Filter: IconLink (*.lnk)|*.lnk|"
+                    Endung$  + "Filter: BatchDatei (*.bat)|*.bat|"
+                    Endung$  + "Filter: BatchDatei (*.cmd)|*.cmd|"                      
+                    Endung$  + "Filter: Java App (*.jar)|*.jar;"
                     
                     FileStream = FFH::GetFilePBRQ("Program",TestPath$, #False, Endung$, 0, #False)
                     Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" FileStream: "+FileStream)
@@ -3981,9 +4022,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 861
-; FirstLine = 659
-; Folding = 8egDaH9-QnE5
+; CursorPosition = 1657
+; FirstLine = 1210
+; Folding = 8+hDan9-QnE5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

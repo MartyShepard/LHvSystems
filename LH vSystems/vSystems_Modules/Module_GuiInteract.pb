@@ -708,8 +708,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 138
-; FirstLine = 90
+; CursorPosition = 685
+; FirstLine = 640
 ; Folding = --
 ; EnableAsm
 ; EnableXP

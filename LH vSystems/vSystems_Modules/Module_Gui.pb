@@ -781,7 +781,14 @@ Module MagicGUI
                     ; #WS_MAXIMIZEBOX   |
                     #WS_MINIMIZEBOX     |
                     #WS_POPUPWINDOW     
-                        
+                    
+                    
+        Debug "DPI Scale X : " + Str( GetDeviceCaps_(GetDC_(0),#LOGPIXELSX) )
+        Debug "DPI Scale Y : " + Str( GetDeviceCaps_(GetDC_(0),#LOGPIXELSY) )
+        dpi_zoom.d = GetDeviceCaps_(GetDC_(0),#LOGPIXELSX)/96
+        
+        Debug "DPI APP Need: " + Str( Zoom.d ) ; 96 is default
+        
         WinGuru::Style(DC::#_Window_001,0 ,0 ,658 ,720 + Startup::*LHGameDB\WindowHeight ,Flags ,RGB(61,61,61) ,#True, #True, #True, #Null ,#True,#False)
         
         
@@ -2257,9 +2264,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1949
-; FirstLine = 807
-; Folding = nmH5-
+; CursorPosition = 789
+; FirstLine = 135
+; Folding = DAEA9
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

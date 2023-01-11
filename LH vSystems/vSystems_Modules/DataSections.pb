@@ -269,13 +269,13 @@ Module DI
         _MNU_CUT:
         IncludeBinary "Data_Images\MENU\MnuCut.PNG"    
         _MNU_COP:
-        IncludeBinary "Data_Images\MENU\MnuCopy.PNG"
+        IncludeBinary "Data_Images\MENU\MnuCopyx8.PNG"
         _MNU_RED:
         IncludeBinary "Data_Images\MENU\MnuRedo.PNG"
         _MNU_UND:
         IncludeBinary "Data_Images\MENU\MnuUndo.PNG"
         _MNU_PAS:
-        IncludeBinary "Data_Images\MENU\MnuPaste.PNG"  
+        IncludeBinary "Data_Images\MENU\MnuPastex8.PNG"  
         _MNU_FND:
         IncludeBinary "Data_Images\MENU\MnuFind.PNG"
         _MNU_CLR:
@@ -291,7 +291,7 @@ Module DI
         _MNU_SVE:
         IncludeBinary "Data_Images\MENU\MnuSave.PNG"
         _MNU_LOD:
-        IncludeBinary "Data_Images\MENU\MnuLoad.PNG"
+        IncludeBinary "Data_Images\MENU\MnuLoadx8.PNG"
         _MNU_PRN:
         IncludeBinary "Data_Images\MENU\MnuPrint.PNG"      
         _MNU_SET:
@@ -365,8 +365,8 @@ Module DI
 
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 148
-; FirstLine = 120
+; CursorPosition = 277
+; FirstLine = 255
 ; Folding = -
 ; EnableAsm
 ; EnableXP

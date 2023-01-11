@@ -2484,10 +2484,14 @@ Module INVMNU
             Case 14: vEngine::Thumbnails_Set(4)                    
             Case 15: vEngine::Thumbnails_Set(5)                    
             Case 16: vEngine::Thumbnails_Set(6)                    
-            Case 17: vEngine::Thumbnails_Set(7)                 
+            Case 17: vEngine::Thumbnails_Set(7)
+            Case 18: vImages::Screens_Menu_Copy_Image(GadgetID.i)
+            Case 19: vImages::Screens_Menu_Paste_Import(GadgetID.i)                
             Default
                 Debug MenuID 
-        EndSelect
+        EndSelect                
+        
+   
     ;*******************************************************************************************************************************************************************         
     EndProcedure    
     Procedure Set_ShotsMenu()
@@ -2497,22 +2501,29 @@ Module INVMNU
         MenuItem(2 , "Dieses Bild Speichern")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuItem(3 , "Alle Bilder Speichern")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuBar()
-        MenuItem(4 , "Dieses Bild Löschen")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
-        MenuItem(5,  "Alle Bilder Löschen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
+        MenuItem(18 , "Bild Kopieren")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
+        MenuItem(19 , "Bild Einfügen")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
         MenuBar()
-        MenuItem(9,  "Splitter Höhe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)        
+        MenuItem(4 , "Dieses Bild Löschen")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
+        MenuItem(5,  "Alle Bilder Löschen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
         MenuBar()
-        MenuItem(8 , "Thumbnail zurücksetzen")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),10, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
-        MenuItem(10, "Grösse für alle setzen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),11, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
+        MenuItem(9,  "Splitter Höhe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)        
         MenuBar()
-        MenuItem(11, "1 Thumbnail Pro Reihe")    :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),13, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
-        MenuItem(12, "2 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
-        MenuItem(13, "3 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),15, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
-        MenuItem(14, "4 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),16, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)                        
-        MenuItem(15, "5 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
-        MenuItem(16, "6 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
-        MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
-                       
+        MenuItem(8 , "Thumbnail zurücksetzen")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),13, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
+        MenuItem(10, "Grösse für alle setzen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
+        MenuBar()
+        MenuItem(11, "1 Thumbnail Pro Reihe")    :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),16, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
+        MenuItem(12, "2 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
+        MenuItem(13, "3 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
+        MenuItem(14, "4 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)                        
+        MenuItem(15, "5 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),20, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
+        MenuItem(16, "6 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+        MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
+        
+        If Not IsImage( GetClipboardImage(#PB_Any) )
+            DisableMenuItem(CLSMNU::*MNU\HandleID[0], 19, 1)
+        EndIf 
+                     
     EndProcedure   
     
     Procedure Get_PopMenu1(MenuID.i, GadgetID.i)
@@ -2563,8 +2574,34 @@ Module INVMNU
                     ProcedureReturn
                 EndIf
                 Startup::*LHGameDB\bvSystem_Restart = #True
+                
+                nHeight.i = Val(Request::*MsgEx\Return_String)  ; Neue Höhe
+                wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
+                sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
+                
+                If ( nHeight = 0)                          
+                    sHeight = 289
+                ElseIf ( nHeight > WHeight)  
+                    sHeight = Abs((wHeight+nHeight) +  sHeight)
+                ElseIf  ( nHeight < WHeight)
+                    sHeight = Abs((wHeight-nHeight) -  sHeight)
+                EndIf   
+                
+                ;Debug "Fenster Höhe ändern: "
+                ;Debug "Manuelle Eingabe: " + Str(Val(Request::*MsgEx\Return_String) )
+                ;Debug "Fensterhöhe     : " + Str(wHeight)
+                ;Debug "Splitterhöhe    : " + Str(GetGadgetState(DC::#Splitter1) )
+                ;Debug "................: "
+                ;Debug "Neue Fensterhöhe: " + Str(wHeight)
+                ;Debug "Neue Splitterhöhe: " + Str(sHeight)
+                ;Debug "................: "               
+                                
                 Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
+                                               
                 ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
+                ; Splitter Höhe
+                ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
+                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
                 
                 a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
                 If ( a > 0 )
@@ -2622,12 +2659,13 @@ Module INVMNU
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 1354
-; FirstLine = 1307
-; Folding = z5-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2596
+; FirstLine = 92
+; Folding = D5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
 ; CurrentDirectory = ..\Release\
+; Debugger = IDE
 ; EnableUnicode

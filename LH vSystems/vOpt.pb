@@ -148,12 +148,11 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 58
-; FirstLine = 18
+; CursorPosition = 80
+; FirstLine = 42
 ; EnableAsm
 ; EnableThread
 ; EnableXP
-; DPIAware
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5

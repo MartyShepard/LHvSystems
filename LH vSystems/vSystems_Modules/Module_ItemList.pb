@@ -78,7 +78,19 @@ Module vItemTool
                 c.c = Asc(Mid(TitleText$,n,1))
                 Select c
                     Case 58
-                        TitleText$ = ReplaceString(TitleText$, Chr(c)," - ",0,n,1)
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," - ",0,n,1); :
+                    Case 60
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," ( ",0,n,1); <
+                    Case 62
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," ) ",0,n,1); >
+                    Case 63
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," _ ",0,n,1); ?
+                    Case 34
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," '' ",0,n,1); "   
+                    Case 47
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," - ",0,n,1); /
+                    Case 92
+                        TitleText$ = ReplaceString(TitleText$, Chr(c)," - ",0,n,1); \                         
                 EndSelect                                                
             Next    
         EndIf    
@@ -761,9 +773,9 @@ Module vItemTool
     EndProcedure         
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 226
-; FirstLine = 67
-; Folding = DEYg-
+; CursorPosition = 88
+; FirstLine = 38
+; Folding = XEYg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
