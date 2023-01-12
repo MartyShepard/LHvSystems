@@ -2538,7 +2538,6 @@ Module INVMNU
     ;
     ;*******************************************************************************************************************************************************************    
     Procedure Get_TrayMenu(MenuID.i)
-                           
         Select MenuID.i              
             Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
             Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
@@ -2548,7 +2547,8 @@ Module INVMNU
             Case 13: vDiskPath::ReConstrukt(2, #True ); Search for Current Item on Slot 2                 
             Case 14: vDiskPath::ReConstrukt(3, #True ); Search for Current Item on Slot 3
             Case 15: vDiskPath::ReConstrukt(4, #True ); Search for Current Item on Slot 4   
-            Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow()                  
+            Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow() 
+            Case 17: VEngine::Database_Remove(1,#True)  
             Case 30: DesktopEX::CloseExplorer() 
             Case 32: DesktopEX::SetTaskBar()
             Case 35: vEngine::ServiceOption("uxsms", #False)                 
@@ -2634,6 +2634,8 @@ Module INVMNU
             MenuItem(7 , "Fenster Höhe Ändern"   ,ImageID( DI::#_MNU_WMH ))
             MenuBar()            
             MenuItem(16, "Info Zurücksetzen"                   ,ImageID( DI::#_MNU_WRS ))            
+            MenuBar() 
+            MenuItem(17, "Lösche Einträge = 1"                   )            
             MenuBar()             
             OpenSubMenu( "Pfade .."                                  ,ImageID( DI::#_MNU_DIR ))                       
             MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
@@ -2656,12 +2658,14 @@ Module INVMNU
         EndIf
         MenuItem(98, "vSystems Update")        
         MenuItem(99, "vSystems Beenden")
+        
+        
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2596
-; FirstLine = 92
+; CursorPosition = 2656
+; FirstLine = 181
 ; Folding = D5-
 ; EnableAsm
 ; EnableXP

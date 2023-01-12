@@ -89,14 +89,31 @@ Module vInfoMenu
    ;**************************************************************************************************************************************************************** 
    Procedure    Cmd_Save(SaveAsNewFile.i = #False)
        
-       Protected szFile.s, szText.s, szFilePath.s, szFileProg.s, szExtension.s , szPattern.s
+       Protected szFile.s, szText.s, szFilePath.s, szFileProg.s, szExtension.s , szPattern.s, szTitle.s =  "Speichern" 
        Protected nEncoding = #PB_Unicode
        
        szFile.s = vEngine::Getfile_Portbale_ModeOut( GetGadgetText( DC::#String_112 ) )
            
            szFilePath.s = GetPathPart( szFile )
            szFileProg.s = GetFilePart( szFile ) 
-           szExtension  = GetExtensionPart( szFile )
+           szExtension  = GetExtensionPart( szFileProg )
+                             
+           ;
+           ; Kein Datei nicht gefunden           
+           If ( FileSize(szFilePath + szFileProg ) = -1 )
+               SaveAsNewFile = #True
+               szTitle = szTitle + " (Datei nicht Gefunden)"
+           EndIf    
+           
+           ;
+           ; Kein Dateinamen im Gadget String oder existiert nicht          
+           If ( Len(szFileProg) = 0 ) Or ( Len(szFilePath) = 0 )
+                   
+                   If ( Len(szFileProg) = 0 )
+                        szFileProg = "Neues Textdokument"
+                    EndIf 
+                    szTitle.s = "Neue Datei " + szTitle
+           EndIf            
            
            If ( SaveAsNewFile = #True )
                
@@ -106,7 +123,7 @@ Module vInfoMenu
                
                szPattern = "Auto (*."+LCase(szExtension)+")|*."+LCase(szExtension)+"|Alle Dateien (*.*)|*.*"
                
-               szFile = SaveFileRequester( "Save ", szFilePath + GetFilePart( szFileProg,1 ), szPattern,0 )
+               szFile = SaveFileRequester( szTitle, szFilePath + GetFilePart( szFileProg,1 ), szPattern,0 )
                
                 If ( szFile )
                     szFilePath.s = GetPathPart( szFile )
@@ -117,7 +134,20 @@ Module vInfoMenu
                             szFileProg + "." + szExtension
                         Case 1 ; Wir gehen davon aus das der User ein Patten drangeängt hat
                     EndSelect        
-                EndIf    
+                    
+                   SetGadgetText( DC::#String_112,szFile + "." + szExtension)                               
+                   Select Startup::*LHGameDB\InfoWindow\bTabNum
+                        Case 1
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)
+                        Case 2
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                    
+                        Case 3
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                    
+                        Case 4
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                   
+                   EndSelect                     
+                EndIf                             
+                
             EndIf
             
            nEncoding    =  vInfo::File_CheckEncode (szFilePath + szFileProg)
@@ -150,7 +180,7 @@ Module vInfoMenu
                        WriteString(hFile, szText, nEncoding)                      
                 EndSelect
                 CloseFile( hFile )    
-            EndIf     
+            EndIf
             
    EndProcedure
    ;**************************************************************************************************************************************************************** 
@@ -392,6 +422,7 @@ Module vInfoMenu
              Case 572: Cmd_WindowsRunning() 
              Case 573: Cmd_UrlOpenWith()
              Case 574: Cmd_Reload    ( vInfo::Tab_GetGadget() )
+             Case 575: vEngine::Text_UpdateDB(): Cmd_Save    ( #False)
                  
              Default
                  Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Edit Item Menu NR: "+ Str(EvntMnu) )
@@ -401,9 +432,9 @@ Module vInfoMenu
     
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 166
-; FirstLine = 37
-; Folding = DACA+
+; CursorPosition = 131
+; FirstLine = 68
+; Folding = DgDA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

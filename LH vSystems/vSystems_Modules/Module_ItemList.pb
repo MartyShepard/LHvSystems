@@ -22,6 +22,7 @@
     Declare.i DialogRequest_Def(Title.s="",Message.s="", ButtonNum = 11)
     Declare.i DialogRequest_Dup(Title.s="",Message.s="",ReturnString.s="")
     Declare.i DialogRequest_Sze(Title.s="",Message.s="",ReturnString.s="")
+    Declare.i DialogRequest_3BT(Title.s="",Message.s="", ButtonNum = 11)
     
     ;
     ; Alle Dialog Rewquester mit Nummenr sollten dien nun bekommen
@@ -239,6 +240,44 @@ Module vItemTool
          ProcedureReturn #False
     EndProcedure     
     
+    ;**********************************************************************************************************************************************************************
+    ;
+    ;______________________________________________________________________________________________________________________________________________________________________    
+     Procedure.i DialogRequest_3BT(Title.s="",Message.s="", ButtonNum = 11)
+         Protected Result, ChildWindow
+         
+        ; Selektiere die Richtige Window ID. Diese ist wichtig für den Request Dialog
+        Select Startup::*LHGameDB\UpdateSection
+            Case 2,3                        
+                ChildWindow = DC::#_Window_002               
+            Case 4
+                ChildWindow = DC::#_Window_003
+            Default
+                ChildWindow = DC::#_Window_001
+        EndSelect  
+        
+        Request::*MsgEx\User_BtnTextL = "Löschen"
+        Request::*MsgEx\User_BtnTextM = "Löschen (Alle)"
+        Request::*MsgEx\User_BtnTextR = "Abbruch"         
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,16,-1,ProgramFilename(),0,0,ChildWindow )
+        Debug Result
+        ;
+        ; Aktivere das Richtige in dem Jeweiligen Fenster
+        Select ChildWindow
+            Case 2,3,4                        
+                SetActiveGadget(DC::#ListIcon_002)
+            Default
+                SetActiveGadget(DC::#ListIcon_001)
+        EndSelect         
+         
+         If Result = 0
+             ProcedureReturn #True
+         ElseIf  Result = 2
+             ProcedureReturn 2
+         EndIf
+         
+         ProcedureReturn #False
+    EndProcedure       
     ;**********************************************************************************************************************************************************************
     ;Dialog Requester für Nummern Eingabe
     ;______________________________________________________________________________________________________________________________________________________________________
@@ -773,9 +812,9 @@ Module vItemTool
     EndProcedure         
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 88
-; FirstLine = 38
-; Folding = XEYg-
+; CursorPosition = 277
+; FirstLine = 117
+; Folding = XIwA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

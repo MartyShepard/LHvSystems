@@ -442,11 +442,8 @@ Module Interact
                                             
                                            ;
                                            ; Info Button
-                                        Case DC::#Button_287
-                                           
+                                        Case DC::#Button_287                                           
                                             ButtonEX::SetState(EvntGadget,0)
-  
-                                                
                                             Continue                                            
                                     EndSelect                                          
                             EndSelect                         
@@ -456,7 +453,15 @@ Module Interact
                                     Debug EvntGadget
                                     ButtonEX::SetState(EvntGadget,ButtonEX::GetState(EvntGadget) )
                                     Select ButtonEX::ButtonExEvent(EvntGadget) 
-                                        Case ButtonEX::#ButtonGadgetEx_Pressed: 
+                                        Case ButtonEX::#ButtonGadgetEx_Pressed:
+                                            
+                                            ;Select EvntGadget
+                                                ;
+                                                ; Einträge Löschen bias auf den ersten
+                                            ;    Case DC::#Button_012
+                                            ;        ButtonEX::SetState(EvntGadget,0): VEngine::Database_Remove(1,#True) 
+                                            ;        Continue                                                    
+                                            ;EndSelect
                                     EndSelect
                                     
                                             Select EvntGadget                                            
@@ -469,7 +474,7 @@ Module Interact
                             EndSelect                                  
                             ;
                             ;Einstellungen
-                            ;                             
+                            ;                   
                         Case DC::#Button_023, DC::#Button_024
                             Select ButtonEX::ButtonExEvent(EvntGadget)  
                                 Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
@@ -707,9 +712,9 @@ Module Interact
         
     EndProcedure  
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 685
-; FirstLine = 640
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 464
+; FirstLine = 425
 ; Folding = --
 ; EnableAsm
 ; EnableXP

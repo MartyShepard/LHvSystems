@@ -1379,10 +1379,11 @@ Module GuruCallBack
                        MenuItem(505, "&Alles auswählen" + Chr(9) +"Strg+A")
                        ;MenuItem(506, "Nichts auswählen")                      
                        ;MenuBar()                    
-                       MenuItem(508, "&Suchen"          + Chr(9) +"Ctrl+F"          ,ImageID( DI::#_MNU_FND ))                     
+                       MenuItem(508, "&Suchen"          + Chr(9) +"Strg+F"          ,ImageID( DI::#_MNU_FND ))                     
                        MenuBar() 
                        MenuItem(507, "&Text Löschen"    + Chr(9) +"Delete"          ,ImageID( DI::#_MNU_CLR ))                       
-                       MenuItem(510, "&Text Speichern"  + Chr(9) +"Ctrl+S"          ,ImageID( DI::#_MNU_UPD )) 
+                       MenuItem(510, "&Text Sichern/Updaten"  + Chr(9) +"Strg+S"   ,ImageID( DI::#_MNU_UPD ))
+                       MenuItem(575, "Text Syncron Speichern"                      ,ImageID( DI::#_MNU_SVE ))                       
                        MenuBar() 
                        MenuItem(527, "Durchsuchen: Programm"                        ,ImageID( DI::#_MNU_EX1 ))   
                        MenuBar()                        
@@ -1548,8 +1549,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 263
-; FirstLine = 194
+; CursorPosition = 1384
+; FirstLine = 1105
 ; Folding = vcuF9-
 ; EnableAsm
 ; EnableXP

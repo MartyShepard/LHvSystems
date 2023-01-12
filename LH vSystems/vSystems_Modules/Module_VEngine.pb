@@ -10,7 +10,7 @@
     Declare     DataBase_Add()    
     Declare     Database_Get(RowID)
     Declare     Database_Set_Title(Str$)
-    Declare     Database_Remove()
+    Declare     Database_Remove(SafeItems.i = 0, Special.i = #False)
     Declare     Database_Set_Release()
     Declare     DataBase_Duplicate() 
     Declare     Update_Changes()    
@@ -74,7 +74,15 @@ Module VEngine
         PrgFlag.l
         ExError.i  
         StError.s
-    EndStructure    
+    EndStructure
+    
+    Structure DELETE_ENTRIES
+        GadgetTextID.i
+        GadgetListID.i
+        ItemEntries.i
+        MaxEntries.i
+        SafeItem.i
+    EndStructure     
     
     Global MainEventMutex = CreateMutex()
     Global ProgrammMutex
@@ -852,13 +860,84 @@ Module VEngine
               Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")        
               
           EndIf    
-     EndProcedure      
+      EndProcedure
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************    
-     Procedure Database_Remove()
+      Procedure Database_Remove_DB(RemoveID.i)
+            ExecSQL::DeleteRow(DC::#Database_001,"Gamebase",RemoveID)                          
+            ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")              
+            ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1) 
+     EndProcedure
+    ;****************************************************************************************************************************************************************
+    ;
+    ;****************************************************************************************************************************************************************          
+    Procedure MarqueeTimer(*x.DELETE_ENTRIES)
+        Protected BracketL$, BracketR$, SpaceLen$, item.i, RemoveID.i
+        
+            SetGadgetState(*x\GadgetListID,*x\MaxEntries)
+        
+            HideGadget(*x\GadgetListID,1)        
+            HideGadget(*x\GadgetTextID,0)
+            
+            SetGadgetColor(*x\GadgetTextID, #PB_Gadget_BackColor, RGB(61,61,61))
+            SetGadgetText(*x\GadgetTextID ,"[ ]")
+            
+            Delay(85)
+            
+            BracketL$ = "["
+            BracketR$ = "]"
+            SpaceLen$ = " " 
+        
+            For i = 0 To 26 Step 3
+                SpaceLen$ = Space(i+1)
+                SetGadgetText(*x\GadgetTextID,BracketL$ + SpaceLen$ + BracketR$): Delay(12)   
+            Next    
+        
+            Delay(5)
+            SetGadgetText(*x\GadgetTextID,BracketL$ + " " + "Lösche: #######" + " " + BracketR$)
+            
+            For item = *x\MaxEntries To *x\SafeItem Step -1               
+                
+                RemoveGadgetItem(*x\GadgetListID,GetGadgetState(*x\GadgetListID))   
+                SetGadgetState(*x\GadgetListID,item-1)
+                
+                RemoveID = Startup::*LHGameDB\GameID
+                Startup::*LHGameDB\GameID = GetGadgetItemData(*x\GadgetListID,GetGadgetState(*x\GadgetListID))
+                
+                Database_Remove_DB(RemoveID.i)
+                
+                TextA$ = "Lösche: "
+                TextB$ = Str(item)
+                TextC$ = RSet(TextB$, 7 , "#")
+                Delay(5)
+                SetGadgetText(*x\GadgetTextID,BracketL$ + " " + TextA$ + TextC$ + " " + BracketR$)
+                
+                If ( CountGadgetItems(*x\GadgetListID) = 0 )
+                    Break
+                EndIf
+            Next           
+            
+            Delay(255)
+            SetGadgetText(*x\GadgetTextID,"[       Finished       ]")
+            Delay(512)
+            
+            For i = 26 To 0 Step -5
+                SpaceLen$ = Space(i+1)
+                SetGadgetText(*x\GadgetTextID,BracketL$ + SpaceLen$ + BracketR$): Delay(9)   
+            Next    
+        
+            Delay(5) 
+            HideGadget(*x\GadgetTextID,1)
+            HideGadget(*x\GadgetListID,0)
+            
+    EndProcedure         
+    ;****************************************************************************************************************************************************************
+    ;
+    ;****************************************************************************************************************************************************************    
+     Procedure Database_Remove(SafeItems.i = 0, Special.i = #False)
          
-        Protected RemoveID.i,  Liste.i =  DC::#ListIcon_001, MaxItems.i, CurrentPosition, Result.i, *LEER
+        Protected RemoveID.i,  Liste.i =  DC::#ListIcon_001, MaxItems.i, CurrentPosition, Result.i, LocalThread.i, *LEER
         
         ;
         ; Wenn das Edit Fenster Aktiv ist, benutze nicht VK_Delete von der Liste
@@ -872,24 +951,40 @@ Module VEngine
             ProcedureReturn
         EndIf
         
-        Result = vItemTool::DialogRequest_Def(Startup::*LHGameDB\TitleVersion,"Soll der Eintrag " + GetGadgetItemText(Liste,GetGadgetState(Liste)) + " gelöscht werden")
-        If ( Result = #True )
+        ;
+        ; Handhabung für den Menüeintrag buas auf ein Eintrag löschen
+        If Special = #False
+            Result = vItemTool::DialogRequest_3BT(Startup::*LHGameDB\TitleVersion,"Soll der Eintrag " + GetGadgetItemText(Liste,GetGadgetState(Liste)) + " gelöscht werden?")
+        Else
+            ; Für den Menü Eintrag um alle bis auf einen Eintrag löschen
+            If ( CountGadgetItems(Liste) > SafeItems ) 
+                Result = vItemTool::DialogRequest_Def(Startup::*LHGameDB\TitleVersion,"Sollen Alle Einträge bis auf den Ersten gelöscht werden?")
+                If ( Result = #True ) 
+                     Result = 2
+                Else
+                    ProcedureReturn 
+                EndIf    
+            Else
+                ProcedureReturn
+            EndIf
+        EndIf
+        
+        If ( Result = #True ) 
             
             CurrentPosition = GetGadgetState(Liste)
                         
             Select CurrentPosition
                 Case CountGadgetItems(Liste) - 1
                      CurrentPosition - 1
-            EndSelect                            
+            EndSelect    
+             
             RemoveGadgetItem(Liste,GetGadgetState(Liste)) 
             SetGadgetState(Liste,CurrentPosition)
                         
             RemoveID = Startup::*LHGameDB\GameID 
             Startup::*LHGameDB\GameID = GetGadgetItemData(Liste,GetGadgetState(Liste))
                         
-            ExecSQL::DeleteRow(DC::#Database_001,"Gamebase",RemoveID)                          
-            ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")              
-            ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1) 
+            Database_Remove_DB(RemoveID.i)
             
             If ( CountGadgetItems(Liste) = 0 )
                 Thread_LoadGameList_Action()
@@ -897,9 +992,53 @@ Module VEngine
                 Database_Get(Startup::*LHGameDB\GameID)
             EndIf 
             vImages::Screens_Show()
+            
+        ElseIf ( Result = 2 ) 
+                       
+            *Delete.DELETE_ENTRIES = AllocateMemory(SizeOf(DELETE_ENTRIES))
+            InitializeStructure(*Delete, DELETE_ENTRIES)
+            
+            *Delete\MaxEntries   = CountGadgetItems(Liste)
+            *Delete\GadgetTextID = DC::#Text_003
+            *Delete\GadgetListID = Liste
+            *Delete\ItemEntries  = 0
+            *Delete\SafeItem     = SafeItems
+                             
+            Debug "Lösche Alle Einträge: " + Str( *Delete\MaxEntries - SafeItems) 
+            
+            ButtonEX::Disable(DC::#Button_010, #True)
+            ButtonEX::Disable(DC::#Button_011, #True)
+            ButtonEX::Disable(DC::#Button_012, #True)
+            ButtonEX::Disable(DC::#Button_013, #True)                            
+            ButtonEX::Disable(DC::#Button_014, #True)            
+            ButtonEX::Disable(DC::#Button_016, #True)
            
-        EndIf
-     EndProcedure    
+            LocalThread = CreateThread(@MarqueeTimer(),*Delete)
+            While IsThread(LocalThread)                           
+                While WindowEvent()                                    
+                Wend
+            Wend 
+                
+            Debug "Lösche Alle Einträge:  - Fertig"
+                         
+            If ( CountGadgetItems(Liste) = 0 )
+                 Thread_LoadGameList_Action()
+             Else
+                 ButtonEX::Disable(DC::#Button_010, #False)
+                 ButtonEX::Disable(DC::#Button_011, #False)
+                 ButtonEX::Disable(DC::#Button_012, #False)
+                 ButtonEX::Disable(DC::#Button_013, #False)                            
+                 ButtonEX::Disable(DC::#Button_014, #False)            
+                 ButtonEX::Disable(DC::#Button_016, #False)                 
+                 Database_Get(Startup::*LHGameDB\GameID)
+           EndIf
+                
+           vImages::Screens_Show()
+           FreeMemory(*Delete)
+        EndIf    
+        
+    EndProcedure
+
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************
@@ -4022,13 +4161,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1657
-; FirstLine = 1210
-; Folding = 8+hDan9-QnE5
+; CursorPosition = 1006
+; FirstLine = 875
+; Folding = 8+hv6dy-DdSg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = L:\Sortet Games\Doom 3\Windows Doom3 vTotal\
+; CurrentDirectory = ..\Release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

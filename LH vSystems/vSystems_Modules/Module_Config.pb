@@ -268,6 +268,12 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.41b  
+        ; Löscheintrag Hinzugefügt um Alle Einträge Löschen
+        ; Speziellen Löscheintrag hinzugefügt - Löschen aller einträge bis auf den ersten
+        ; Info Fenster: Text Syncron Speichern (Speichert den geänderten inhalt in die Datenbank und in die Datei)
+        
+        ;
         ; Version 0.40b          
         ; Kalender eingabe bearbeitet
         ; Programm Dateirequester Filter bearbeitet
@@ -805,7 +811,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 277
+; CursorPosition = 272
 ; FirstLine = 241
 ; Folding = -g-
 ; EnableAsm
