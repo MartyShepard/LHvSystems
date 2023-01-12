@@ -268,6 +268,9 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.42b
+        ; Ups, Bug Fix (Löschen)
+        ;
         ; Version 0.41b  
         ; Löscheintrag Hinzugefügt um Alle Einträge Löschen
         ; Speziellen Löscheintrag hinzugefügt - Löschen aller einträge bis auf den ersten
@@ -811,7 +814,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 272
+; CursorPosition = 271
 ; FirstLine = 241
 ; Folding = -g-
 ; EnableAsm

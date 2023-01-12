@@ -866,8 +866,13 @@ Module VEngine
     ;****************************************************************************************************************************************************************    
       Procedure Database_Remove_DB(RemoveID.i)
             ExecSQL::DeleteRow(DC::#Database_001,"Gamebase",RemoveID)                          
-            ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")              
+            Delay(5)
+            
+            ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")
+            Delay(5)
+            
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1) 
+            Delay(5)
      EndProcedure
     ;****************************************************************************************************************************************************************
     ;
@@ -897,14 +902,15 @@ Module VEngine
             Delay(5)
             SetGadgetText(*x\GadgetTextID,BracketL$ + " " + "Lösche: #######" + " " + BracketR$)
             
-            For item = *x\MaxEntries To *x\SafeItem Step -1               
-                
-                RemoveGadgetItem(*x\GadgetListID,GetGadgetState(*x\GadgetListID))   
+            Startup::*LHGameDB\GameID = GetGadgetItemData(*x\GadgetListID,*x\MaxEntries-1)
+            
+            For item = *x\MaxEntries To *x\SafeItem Step -1                                              
+                RemoveGadgetItem(*x\GadgetListID,item)                                
                 SetGadgetState(*x\GadgetListID,item-1)
                 
                 RemoveID = Startup::*LHGameDB\GameID
                 Startup::*LHGameDB\GameID = GetGadgetItemData(*x\GadgetListID,GetGadgetState(*x\GadgetListID))
-                
+        
                 Database_Remove_DB(RemoveID.i)
                 
                 TextA$ = "Lösche: "
@@ -915,12 +921,12 @@ Module VEngine
                 
                 If ( CountGadgetItems(*x\GadgetListID) = 0 )
                     Break
-                EndIf
+                EndIf                                
             Next           
             
-            Delay(255)
+            Delay(85)
             SetGadgetText(*x\GadgetTextID,"[       Finished       ]")
-            Delay(512)
+            Delay(255)
             
             For i = 26 To 0 Step -5
                 SpaceLen$ = Space(i+1)
@@ -1006,6 +1012,9 @@ Module VEngine
                              
             Debug "Lösche Alle Einträge: " + Str( *Delete\MaxEntries - SafeItems) 
             
+            ButtonEX::Disable(DC::#Button_001, #True)            
+            ButtonEX::Disable(DC::#Button_002, #True) 
+            ButtonEX::Disable(DC::#Button_287, #True)
             ButtonEX::Disable(DC::#Button_010, #True)
             ButtonEX::Disable(DC::#Button_011, #True)
             ButtonEX::Disable(DC::#Button_012, #True)
@@ -1022,8 +1031,14 @@ Module VEngine
             Debug "Lösche Alle Einträge:  - Fertig"
                          
             If ( CountGadgetItems(Liste) = 0 )
-                 Thread_LoadGameList_Action()
+                Thread_LoadGameList_Action()
+                 ButtonEX::Disable(DC::#Button_001, #False)            
+                 ButtonEX::Disable(DC::#Button_002, #False) 
+                 ButtonEX::Disable(DC::#Button_287, #False)                 
              Else
+                 ButtonEX::Disable(DC::#Button_001, #False)            
+                 ButtonEX::Disable(DC::#Button_002, #False) 
+                 ButtonEX::Disable(DC::#Button_287, #False)                 
                  ButtonEX::Disable(DC::#Button_010, #False)
                  ButtonEX::Disable(DC::#Button_011, #False)
                  ButtonEX::Disable(DC::#Button_012, #False)
@@ -4161,8 +4176,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1006
-; FirstLine = 875
+; CursorPosition = 919
+; FirstLine = 856
 ; Folding = 8+hv6dy-DdSg-
 ; EnableAsm
 ; EnableXP
