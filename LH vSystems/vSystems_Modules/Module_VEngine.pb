@@ -74,6 +74,8 @@ Module VEngine
         PrgFlag.l
         ExError.i  
         StError.s
+        ErrorLg.l
+        StdOutL.i
     EndStructure
     
     Structure DELETE_ENTRIES
@@ -2282,19 +2284,40 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure DOS_Thread_OutPut(*Params.PROGRAM_BOOT)
         
-        Protected stdout.s
+        Protected stdout.s, ReturnCodes.i, NewLines.i
         
             If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow ) 
                 
-                *Params\Logging + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8) + #CR$
-                Debug #TAB$ + "Loggin: " + *Params\Logging                
+                *Params\Logging + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
+                
+                Debug #TAB$ + "Standard Output Log: " + *Params\Logging 
+                
+                If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\StdOutL )
+                    WriteStringN(*Params\StdOutL, *Params\Logging )                                                          
+                    *Params\Logging = "";
+                Else
+                    ;
+                    ; Clear *Params\Logging at 200 Lines
+                    NewLines    = CountString(*Params\Logging, Chr(10) )
+                    If ( NewLines > 200 )
+                        *Params\Logging = "";
+                    EndIf                     
+                EndIf                 
+                
+                ;ReturnCodes = CountString(*Params\StError, Chr(13) )   
                 
                 If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
                     stdout = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
                 
                     If ( Len( stdout)  > 0 )
                         *Params\StError + stdout
-                        Debug #TAB$ + "StdOut: " + *Params\StError  
+                        
+                        Debug #TAB$ + "Error Output Log: " + *Params\StError 
+                        
+                        If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\ErrorLg )
+                            WriteStringN(*Params\ErrorLg,*Params\StError)
+                            *Params\StError = ""
+                        EndIf                        
                     EndIf                    
                 EndIf
             EndIf        
@@ -2305,16 +2328,15 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure.s DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)
         
-        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0   
+        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0
 
         Repeat
             If ( x = 10000)
                 x = 0
             EndIf
             
-            If (x = 0)
-                vSystem::System_GetTasklist();
-                ;Delay(25)
+            If (x = 0)  
+                vSystem::System_GetTasklist();               
             EndIf
             x + 1
             
@@ -2359,11 +2381,7 @@ Module VEngine
                 
                 If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )               
                     ProcessEX::LHFreeMem()
-                EndIf
-                
-                If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
-                    CreateThread(@DOS_Thread_OutPut(),*Params)     
-                EndIf    
+                EndIf                 
                 
                 If Not (ProgramRunning(l_ProcID))
                     DOS_NOP = 0
@@ -2371,8 +2389,13 @@ Module VEngine
                 
                 If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
                     DOS_NOP = 0
+                Else
+                    If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+                        ; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)     
+                        DOS_Thread_OutPut(*Params)
+                    EndIf                      
                 EndIf    
-            Delay(25)
+            Delay(5)
         Until DOS_NOP = 0    
         
         Delay(1)
@@ -2843,6 +2866,8 @@ Module VEngine
         Startup::*LHGameDB\Settings_Schwelle = -1
         Startup::*LHGameDB\Settings_bBlockFW = #False
         Startup::*LHGameDB\Settings_bNoOutPt = #False;
+        Startup::*LHGameDB\Settings_GetSmtrc = #True;
+        Startup::*LHGameDB\Settings_bSaveLog = #False;
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
         ;
@@ -2884,44 +2909,14 @@ Module VEngine
         ;
         ;
         ; Block Programm in Firewall
-        For  ArgIndex = 1 To Len(Args)       
-            s.s = Mid(Args,ArgIndex,1)
-            If ( s = "%" )
-                
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%b" )
-                    
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%bl" )
-                        
-                        s.s + Mid(Args,ArgIndex+3,1)
-                        If ( s =  "%blo" )
-                            
-                            s.s + Mid(Args,ArgIndex+4,1)
-                            If ( s =  "%bloc" )
-                                
-                                s.s + Mid(Args,ArgIndex+5,1)
-                                If ( s =  "%block" )
-                                    
-                                    s.s + Mid(Args,ArgIndex+6,1)
-                                    If ( s =  "%blockf" )
-                                        
-                                        s.s + Mid(Args,ArgIndex+7,1)
-                                        If ( s =  "%blockfw" )
-                                            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Block Firewall Net (Activ)")  
-                                            Startup::*LHGameDB\Settings_bBlockFW = #True                        
-                                            Args = DOS_TrimArg(Args.s, s)     
-                                            Break;                        
-                                        EndIf                                                                
-                                    EndIf                                                            
-                                EndIf                                                        
-                            EndIf                                                    
-                        EndIf                                                
-                    EndIf                    
-                EndIf                    
-            EndIf    
-        Next ArgIndex       
-        
+        szCommand.s = "%blockfw"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_bBlockFW = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Block Firewall Net (Activ)")  
+        EndIf         
+            
         ;
         ;
         ; Command: NoBorder
@@ -2981,10 +2976,21 @@ Module VEngine
             EndIf            
         Next ArgIndex 
         
+       ; Einstellung für Get System Metrics
+        If ( Startup::*LHGameDB\Settings_NoBorder = #True )
+            szCommand.s = "%nbgsm"
+            
+            ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+            If ( ArgPos > 0 )
+                Args = DOS_TrimArg(Args.s, szCommand.s) 
+                Startup::*LHGameDB\Settings_GetSmtrc = #False
+            EndIf            
+        EndIf    
+        
         
         ;
         ;
-        ; Command: Set Affinity
+        ; Command: Set Affinity         
             For  ArgIndex = 1 To Len(Args)            
                 s.s = Mid(Args,ArgIndex,1)
                 If ( s = "%" )
@@ -3086,24 +3092,13 @@ Module VEngine
         ;
         ;
         ; Command: Lock Mouse in Window
-            For  ArgIndex = 1 To Len(Args)            
-                s.s = Mid(Args,ArgIndex,1)
-                If ( s = "%" )
-                    s.s + Mid(Args,ArgIndex+1,1)
-                    If ( s =  "%l" )
-                        s.s + Mid(Args,ArgIndex+2,1)
-                        If ( s =  "%lc" )
-                            s.s + Mid(Args,ArgIndex+3,1)
-                            If ( s =  "%lck" )                        
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")                         
-                                Startup::*LHGameDB\Settings_LokMouse = #True 
-                                Args = DOS_TrimArg(Args.s, s) 
-                            EndIf                            
-                            Break;
-                        EndIf    
-                    EndIf
-                EndIf            
-            Next ArgIndex             
+        szCommand.s = "%lck"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_LokMouse = #True 
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")   
+         EndIf                       
         
         ;
         ;
@@ -3178,36 +3173,26 @@ Module VEngine
         
         ;
         ;
-        ; Block Programm in Firewall
-        For  ArgIndex = 1 To Len(Args)       
-            s.s = Mid(Args,ArgIndex,1)
-            If ( s = "%" )
-                
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%n" )
-                    
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%no" )
-                        
-                        s.s + Mid(Args,ArgIndex+3,1)
-                        If ( s =  "%noo" )
-                            
-                            s.s + Mid(Args,ArgIndex+4,1)
-                            If ( s =  "%noou" )
-                                
-                                s.s + Mid(Args,ArgIndex+5,1)
-                                If ( s =  "%noout" )                                                                      
-                                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
-                                     Startup::*LHGameDB\Settings_bNoOutPt = #True
-                                    Args = DOS_TrimArg(Args.s, s)     
-                                    Break;                                                                                   
-                                EndIf                                                        
-                            EndIf                                                    
-                        EndIf                                                
-                    EndIf                    
-                EndIf                    
-            EndIf    
-        Next ArgIndex   
+        ; Disable Output
+        szCommand.s = "%noout"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_bNoOutPt = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
+         EndIf         
+        ;
+        ;
+        ; Redirect Output
+        szCommand.s = "%svlog"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_bSaveLog = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
+         EndIf          
+         
+         
         
         ;
         ;
@@ -3484,6 +3469,75 @@ Module VEngine
 
         
         ProcedureReturn Args
+    EndProcedure
+    ;****************************************************************************************************************************************************************
+    ; Section Log Outpout    
+    ;****************************************************************************************************************************************************************    
+    Procedure DOS_End_Output_SaveLog(SvLogFileIcn$)
+        
+        
+            
+            SvLogNessage$ = ""
+            SvLogErrorMs$ = "Error"  
+            SvLogStdout$  = "stdout"
+            SvFileSaved$  = Startup::*LHGameDB\SubF_Data
+            SvLogginFile$ = ""      
+            SvLogResult  = 0
+            
+            If FileSize( SvFileSaved$ + "error.txt" ) = 54
+                DeleteFile(SvFileSaved$ + "error.txt" ) : SvLogErrorMs$  = ""
+            EndIf
+            
+            If FileSize( SvFileSaved$ + "stdout.txt" ) = 56 
+                DeleteFile(SvFileSaved$ + "stdout.txt" ): SvLogStdout$ = ""                      
+            EndIf 
+            
+            
+            
+            If ( Len(SvLogErrorMs$) > 0 And Len(SvLogStdout$) > 0 )
+                SvLogNessage$ ="Stdout / Error Dateien vorhanden"
+                SvLogResult   = 1
+                
+            ElseIf ( Len(SvLogErrorMs$) = 0 And Len(SvLogStdout$) > 0 )
+                SvLogNessage$ = SvLogStdout$ + " Datei vorhanden"
+                SvLogResult   = 1
+                
+                
+            ElseIf ( Len(SvLogErrorMs$) > 0 And Len(SvLogStdout$) = 0 )
+                SvLogNessage$ = SvLogErrorMs$ + " Datei vorhanden"
+                SvLogResult   = 1
+                
+            ElseIf ( Len(SvLogErrorMs$) = 0 And Len(SvLogStdout$) = 0 )
+                SvLogResult   = 0   
+                
+            EndIf 
+            
+            
+            If ( SvLogResult = 1)
+                Request::*MsgEx\User_BtnTextL = "Ok"
+                               
+                If ( Len(SvLogStdout$) > 0 )                    
+                    Request::*MsgEx\User_BtnTextM = "Stdout Öffnen"
+                    vLogginFile$ = SvFileSaved$ + SvLogStdout$ + ".txt"
+                EndIf  
+                
+                If ( Len(SvLogErrorMs$) > 0 )                    
+                    Request::*MsgEx\User_BtnTextM = "Error Öffnen"
+                    SvLogginFile$ = SvFileSaved$ + SvLogErrorMs$ + ".txt"                    
+                EndIf
+                
+                Request::*MsgEx\User_BtnTextR = "Verzeichnis"                    
+                SvLogResult = Request::MSG(Startup::*LHGameDB\TitleVersion, SvLogNessage$,"Gespeichert in " + SvFileSaved$,16,2,SvLogFileIcn$,0,0,DC::#_Window_001)
+                
+                Select SvLogResult
+                    Case 0; Ok
+                    Case 1; Verzeichniss Öffnen
+                        FFH::ShellExec(GetPathPart( SvFileSaved$ ), "explore")
+                    Case 2; Öffnen
+                        FFH::ShellExec(SvLogginFile$, "open")
+                EndSelect                           
+            EndIf    
+           
     EndProcedure    
     ;****************************************************************************************************************************************************************
     ; Section Programm Starten
@@ -3530,11 +3584,24 @@ Module VEngine
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn
             EndIf              
-            
+                       
             ;
             ; Prüfe Nach Speziellen Kommandos
             *Params\Command         = DOS_Device(*Params\Command, *Params\Program, 0, *Params\PrgPath)
             Debug #CR$+ "Volle Commandline: " +#CR$+ *Params\Command
+            
+            
+           If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )                                            
+                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\SubF_Data + "error.txt")      
+                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\SubF_Data + "stdout.txt")
+            
+                If ( *Params\ErrorLg )
+                    WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )                        
+                EndIf
+                If ( *Params\StdOutL )
+                    WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )                        
+                EndIf            
+            EndIf
             
             ;
             ; Markiere Item welches gestartet ist
@@ -3559,17 +3626,36 @@ Module VEngine
                  Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)  
             EndIf    
             
+            ;
+            ;
+            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )            
+                If ( *Params\ErrorLg )
+                    CloseFile( *Params\ErrorLg )
+                EndIf
+                If ( *Params\StdOutL )
+                    CloseFile( *Params\StdOutL )
+                EndIf
+            EndIf
+            
+            ;
+            ;
             If (Startup::*LHGameDB\Settings_bNoOutPt = #True)    
                 *Params\StError = "";
             EndIf
             
-            If  ( Len(*Params\StError) >= 1 )     
-                    
+            ;
+            ;
+            If  ( Len(*Params\StError) >= 1 ) And ( Startup::*LHGameDB\Settings_bSaveLog = #False )                         
                 ReturnCodes = CountString(*Params\StError, Chr(13) )
                 NewLines    = CountString(*Params\StError, Chr(10) )
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
+            EndIf 
+            
+            ;
+            ; Saved Log? Message to the user
+            If ( Startup::*LHGameDB\Settings_bSaveLog = #True )
+                DOS_End_Output_SaveLog(*Params\PrgPath + *Params\Program)
             EndIf    
-
             
             ;
             ; Markiere Item welches gestartet ist
@@ -4176,13 +4262,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 919
-; FirstLine = 856
-; Folding = 8+hv6dy-DdSg-
+; CursorPosition = 2394
+; FirstLine = 1835
+; Folding = 8+hv6dy-D0kA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = B:\MAME\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

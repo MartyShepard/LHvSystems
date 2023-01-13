@@ -336,6 +336,7 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________  
     Procedure NoScreens_Prepare()        
         
+        Debug "START: NoScreens_Prepare()" 
         Protected n.i
         
         ; Random Modus
@@ -345,8 +346,7 @@ Module vImages
             
             Delay(1)
             
-            If IsImage(Startup::*LHImages\NoScreenPB[n])              
-                Debug "START " + Str(n)
+            If IsImage(Startup::*LHImages\NoScreenPB[n])                              
                 Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
             EndIf                      
         Next            
@@ -1361,8 +1361,8 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 284
-; FirstLine = 173
+; CursorPosition = 338
+; FirstLine = 243
 ; Folding = vcAUAED5
 ; EnableAsm
 ; EnableXP

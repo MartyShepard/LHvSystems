@@ -2112,7 +2112,8 @@ Module MagicGUI
                                 "%a      = Execute and Run the programm Asynchron"                   + #CR$ + #CR$ +                                 
                                 "%nb[cb] = Remove Border from Windowed Programs or Games"            + #CR$ +
                                 "        + Optional c to Center the Window"                          + #CR$ +
-                                "        + Optional b to set real Borderless Window"                 + #CR$ + #CR$ + 
+                                "        + Optional b to set real Borderless Window"                 + #CR$ + 
+                                "%nbgsm  = Don't use System Metrics Calc. with Remove Border"  + #CR$ + #CR$ +
                                 "%lck    = Mouse Locked for Window /Screen Mode (Only with %nb)"     + #CR$ + #CR$ +  
                                 "%fmm[mb]= Force to Free Memory Cache on Programm (Beware!)"         + #CR$ +
                                 "          mb from 1 to 3000. Optional Maximum Mem before Clear."    + #CR$ + #CR$ +                                
@@ -2128,12 +2129,13 @@ Module MagicGUI
                                 "%blockfw= Block Program through the Firewall"                       + #CR$ + #CR$ +                                
                                 "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
                                 "          c: use as unviersal commandline in the Slots"             + #CR$ +  
-                                "%noout  = Disable and don't show output loggin'"                    + #CR$ + #CR$ +                                   
+                                "%noout  = Disable and don't show output Program loggin'"            + #CR$ + 
+                                "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
                                 "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
                                 "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
                                 "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
                                 "          For Program's that has'nt builtin Packer Support."        + #CR$ + 
-                                "          vSystems Uncompress the File & give it to the Program."
+                                "          vSystems Uncompress File & give it to the Program."
                                 
                                
                                  For TxtIndex = 1 To Len(ToolTipInfo_Text$)
@@ -2264,9 +2266,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 789
-; FirstLine = 135
-; Folding = DAEA9
+; CursorPosition = 2137
+; FirstLine = 241
+; Folding = DAEA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

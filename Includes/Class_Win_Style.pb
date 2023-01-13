@@ -1,15 +1,14 @@
 ﻿DeclareModule WinGuru
     
     
-    Declare Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0)
-    
+    Declare Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0)         
     Declare.l ThemeImg(WindowID.l, ImageID.l)
     Declare.l ThemeBox(WindowID.l, W.i, H.i, SetPosX.i, SetPosY.i, BC.l = $1F1F1F, DrawModeFlag.l = #PB_2DDrawing_Default, Gadget_ID = 0)
-    Declare SetTransparenz(WindowID.i,AlphaValue.l = 255)  
-    Declare WindowPosition(WindowID.l,X.i,Y.i,OnSet = #True, OnGetX.i = #False, OnGetY.i = #False, Flags.l = #HWND_TOP)
+    Declare   SetTransparenz(WindowID.i,AlphaValue.l = 255)  
+    Declare   WindowPosition(WindowID.l,X.i,Y.i,OnSet = #True, OnGetX.i = #False, OnGetY.i = #False, Flags.l = #HWND_TOP)
     Declare.i Style(WindowID.i,x.i = 0,y.i = 0,W.i = 1280,H.i = 720,Flags.i = 0, BC.l = $1F1F1F, UseWC.i = #False, UseBox.i = #False, UseGWLEX.i = #False, FlagsEX.l = #Null, UseNOF.i = #False,UseSmart.l = #False, ParentID.i = 0, BoxC.l = $1F1F1F)
     Declare.i StyleSkin(WindowID.i, ImageID.l, x.i = 0, y.i = 0,Flags.i = 0, BC.l = #Black, ParentID.i = 0,UseSmart.l = #False, AttrKey.l = #LWA_COLORKEY, AlphaValue.l = 0)
-    Declare.i  Transform_Resize(hwnd)
+    Declare.i Transform_Resize(hwnd)
     
 EndDeclareModule
 
@@ -38,9 +37,13 @@ Module WinGuru
     ;       
     Procedure Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0)
         
-        Protected Left, Top, HMONITOROLD, TitleHeight.i
+        Protected Left.i = 0, Top.i = 0, HMONITOROLD, TitleHeight.i
+        
         
         Define pt.Point
+        
+        Define Taskbar.AppBarData
+        Taskbar\cbSize = SizeOf(Taskbar)                
         
         If GetCursorPos_(@pt)
             HMONITOR = MonitorFromPoint_(PeekQ(@pt), #MONITOR_DEFAULTTONEAREST)
@@ -54,11 +57,7 @@ Module WinGuru
             Else
                 HMONITOROLD = HMONITOR
             EndIf    
-        EndIf
-        
-        
-        pti.TITLEBARINFO\cbSize = SizeOf(TITLEBARINFO)
-        TitleHeight = pti\rcTitleBar\bottom-pti\rcTitleBar\top        
+        EndIf      
         
         Define mi.MONITORINFOEXA
         
@@ -69,39 +68,72 @@ Module WinGuru
             If HPRIMIRY = HMONITOR
                 SystemParametersInfo_(#SPI_GETWORKAREA,0,@DesktopWorkArea.RECT,0)
                 
-                ProcessEX::TaskListCreate(): iTaskLeiste.l = ProcessEX::TaskListGetPID("explorer.exe")
+                ProcessEX::TaskListCreate()
+                iTaskLeiste.l = ProcessEX::TaskListGetPID("explorer.exe")
+                
                 If (iTaskLeiste.l <> 0)
+                    Debug "..................."                    
                     mi\rcMonitor\left   = DesktopWorkArea\left
                     mi\rcMonitor\right  = DesktopWorkArea\right - DesktopWorkArea\left
                     mi\rcMonitor\top    = DesktopWorkArea\top
                     mi\rcMonitor\bottom = DesktopWorkArea\bottom - DesktopWorkArea\top
+                    Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\left )
+                    Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
+                    Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
+                    Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
+                    Debug "..................."
                     
-                    mi\rcMonitor\right  = mi\rcMonitor\right - GetSystemMetrics_(#SM_CXFIXEDFRAME)*2
-                    mi\rcMonitor\bottom = mi\rcMonitor\bottom - (GetSystemMetrics_(#SM_CYCAPTION) + GetSystemMetrics_(#SM_CYFIXEDFRAME)*2)
+                    ; Windows Options Abfrage "Taskbar Automatisch Ausblenden"
+                    Select SHAppBarMessage_(#ABM_GETSTATE,Taskbar)
+                        Case 1:
+                            Debug "Center: Windows Taskbar ist versteckt"                     
+                            mi\rcMonitor\bottom = mi\rcMonitor\bottom - (GetSystemMetrics_(#SM_CYCAPTION) *2)  + (GetSystemMetrics_(#SM_CYBORDER) /2)
+                            
+                        Case 0    
+                            Debug "Center: Windows Taskbar wird angezeigt"
+                            mi\rcMonitor\right  = mi\rcMonitor\right  - GetSystemMetrics_(#SM_CXFIXEDFRAME) *2
+                            mi\rcMonitor\bottom = mi\rcMonitor\bottom - (GetSystemMetrics_(#SM_CYCAPTION) + GetSystemMetrics_(#SM_CYFIXEDFRAME) *2)                            
+                            
+                    EndSelect
+
+                    Debug "Center mi\rcMonitor\right  :" + Str(mi\rcMonitor\right )
+                    Debug "Center mi\rcMonitor\bottom :" + Str(mi\rcMonitor\bottom )
+                    Debug "..................."                
                 EndIf
             EndIf   
             
             
-            Left = mi\rcMonitor\left + (mi\rcMonitor\right  - mi\rcMonitor\left - W) / 2
-            Top  = mi\rcMonitor\top  + (mi\rcMonitor\bottom - mi\rcMonitor\top  - H) / 2
-           ; Left = mi\rcMonitor\right / 2
-           ; Top  = mi\rcMonitor\bottom / 2            
+                    Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\Left )
+                    Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
+                    Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
+                    Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
+                    Debug "..................."
+                    Debug "Center W  :" + Str(W)
+                    Debug "Center H  :" + Str(H)
+                    Debug "Center mi\rcMonitor\right  - mi\rcMonitor\left - W: " + Str(mi\rcMonitor\right  - mi\rcMonitor\left - W)
+                    Debug "Center mi\rcMonitor\bottom - mi\rcMonitor\top  - H: " + Str(mi\rcMonitor\bottom - mi\rcMonitor\top  - H)
+                    Debug "..................."                    
+                    
+            Left = mi\rcMonitor\Left + (mi\rcMonitor\right  - mi\rcMonitor\left - W) / 2
+            Top  = mi\rcMonitor\top  + (mi\rcMonitor\bottom - mi\rcMonitor\top  - H) / 2         
+            Debug "Center Left :" + Str(left)
+            Debug "Center Top  :" + Str(Top )
+            Debug "..................."             
             
-            ;Left/ 2
-            ;Top / 2 
             If (Top <= -1)
                 Top = 0
             EndIf            
             
-            If (ParentWindowID <> 0): WindowID = ParentWindowID: EndIf    
+            If (ParentWindowID <> 0)
+                WindowID = ParentWindowID
+            EndIf    
+            
             If IsWindow(WindowID.l)
                 SetWindowPos_(WindowID(WindowID.l), #HWND_TOPMOST, Left, Top, 0, 0,#SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE)
                 SetActiveWindow(WindowID.l)
             Else    
                 SetWindowPos_(WindowID.l, #HWND_TOPMOST, Left, Top, 0, 0,#SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE)
             EndIf    
-            
-            
         Else
             ProcedureReturn #False
         EndIf
@@ -359,9 +391,9 @@ EndProcedure
     EndProcedure
 EndModule    
     
-; IDE Options = PureBasic 5.70 LTS (Windows - x64)
-; CursorPosition = 233
-; FirstLine = 149
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 92
+; FirstLine = 63
 ; Folding = H0
 ; EnableAsm
 ; EnableXP

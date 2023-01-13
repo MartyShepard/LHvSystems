@@ -26,7 +26,8 @@ EndDeclareModule
 
 Module vSystem
     
-       ;
+    Global ShowDebugNB.i = #False       ; Deboug Output for NoBorder
+    ;
     ; Setz und Holt sich die PriorityClass vom Fremden programm
     Global NewList NoBorderList.PROCESSENTRY32() 
     Global NewList Process32.PROCESSENTRY32()
@@ -145,9 +146,9 @@ Module vSystem
             While NextElement( Process32() )                
                 If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
-                    Debug ""
-                    Debug "Priorität für " + szTaskName
-                    Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
+                   ; Debug ""
+                   ; Debug "Priorität für " + szTaskName
+                   ; Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
                     
                     uPID = PeekL (@Process32()\th32ProcessID) 
                     
@@ -190,9 +191,9 @@ Module vSystem
             While NextElement( Process32() )                
                 If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
-                    Debug ""
-                    Debug "Priorität für " + szTaskName
-                    Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
+                   ; Debug ""
+                   ; Debug "Priorität für " + szTaskName
+                   ; Debug " - ProcessID: " + Str( PeekL (@Process32()\th32ProcessID) )
                     
                     bIsAlive = #True;
                     Break
@@ -329,50 +330,50 @@ Module vSystem
     ;
     Procedure   System_MemoryFree(szTaskName.s = "")                
         
-        Debug ""
-        Debug "System Memory Free:" 
+       ; Debug ""
+       ; Debug "System Memory Free:" 
         
         ;GlobalMemoryStatus_(Memory.MEMORYSTATUS)
         ;GlobalFree_        (Memory\dwAvailPhys)
         ;GlobalFree_        (Memory\dwAvailVirtual)
         ;GlobalFree_        (Memory\dwAvailPageFile) 
         
-        Debug "System Memory Free #1:" 
+       ; Debug "System Memory Free #1:" 
         NewList Process32.PROCESSENTRY32()
         
         System_TaskList( Process32() )
-        Debug "System Memory Free #2:"         
+       ; Debug "System Memory Free #2:"         
         
         ResetList( Process32() )
-        Debug "System Memory Free #3:"         
+       ; Debug "System Memory Free #3:"         
         If ( szTaskName )           
-            Debug "System Memory Free #4:" 
+        ;    Debug "System Memory Free #4:" 
             While NextElement( Process32() )
                 
                 If ( LCase( szTaskName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )                    
-                    Debug "System Memory Free #6:" 
+         ;           Debug "System Memory Free #6:" 
                     System_MemorySetWorker( Process32(), szTaskName )                      
                     Break                      
                 EndIf    
                 Delay(5)
             Wend                                            
         Else                        
-            Debug "System Memory Free #5:" 
+         ;   Debug "System Memory Free #5:" 
             While NextElement( Process32() )
                 
                 szTaskName = PeekS( @Process32()\szExeFile, 255, #PB_UTF8)
                 
                 If ( szTaskName )                     
-                    Debug "System Memory Free #7:" 
+          ;          Debug "System Memory Free #7:" 
                     System_MemorySetWorker( Process32(), szTaskName ) 
                     Break
                 EndIf   
                 Delay(5)
             Wend
         EndIf        
-        Debug "System Memory Free #8:" 
+        ;Debug "System Memory Free #8:" 
         ClearList( Process32() )
-        Debug "System Memory Free #9:" 
+        ;Debug "System Memory Free #9:" 
     EndProcedure
     
     ;
@@ -415,15 +416,15 @@ Module vSystem
     ;
 
     Procedure   _NoBorder_Debug( List P32.PROCESSENTRY32(), szTaskname.s, PHandle.l)
-        
-        Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
-              " | Handle  : " + Str( PHandle)              + #TAB$ +           
-              " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
-              " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
-              " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
-              " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
-              " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
-              " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
+            Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
+                  " | Handle  : " + Str( PHandle)              + #TAB$ +           
+                  " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
+                  " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
+                  " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
+                  " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
+                  " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
+                  " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
+    
     EndProcedure    
     ;
     ;
@@ -431,67 +432,94 @@ Module vSystem
     ;
     Procedure   _NoBorder_(hwnd)
         
-        Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT 
+        Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT , Desktop.RECT
         
         If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER ) Or ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
+            
+            ;ShowWindow_(hwnd, #SW_SHOWNOACTIVATE);
+            
+            ; GetWindowRect - gibt ein Rechteck IN Bildschirmkoordinaten zurück, während
+            ; GetClientRect ein Rechteck IN Clientkoordinaten zurückgibt.
+
+            ; InvalidateRect erhält ein Rect IN Clientkoordinaten. Wenn Sie Ihren gesamten
+            ; Clientbereich ungültig machen möchten, übergeben Sie NULL an InvalidateRect.
+            ; Sie könnten DAS von GetClientRect zurückgegebene Rect übergeben, aber es ist;
+            ; viel einfacher und klarer, NULL zu übergeben.   
+            
+            GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
+            GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
                        
-            
-            GetClientRect_(hwnd, @Client);
-            GetWindowRect_(hwnd, @Window) 
-            
-            
             W = Window\right - Window\left
             H = Window\bottom - Window\top            
             
-           CY_C = GetSystemMetrics_(#SM_CYCAPTION)
-           CX_B = GetSystemMetrics_(#SM_CXBORDER) *2  ;(2)
-           Cx_E = GetSystemMetrics_(#SM_CXEDGE) *2    ;(4)
-           
-           Debug "-- Client \Links  :" + Str(Client\left )
-           Debug "-- Client \Rechts :" + Str(Client\right )
-           Debug "-- Client \Oben   :" + Str(Client\Top )           
-           Debug "-- Client \Unten  :" + Str(Client\bottom )
-           
-           Debug "-- Window \Links  :" + Str(Window\left )
-           Debug "-- Window \Rechts :" + Str(Window\right )
-           Debug "-- Window \Oben   :" + Str(Window\Top )           
-           Debug "-- Window \Unten  :" + Str(Window\bottom )
-           
-           Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
-           Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
-           Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
+            If ( Startup::*LHGameDB\Settings_GetSmtrc = #True )
+                CY_C = GetSystemMetrics_(#SM_CYCAPTION)
+                CX_B = GetSystemMetrics_(#SM_CXBORDER) *2  ;(2)
+                Cx_E = GetSystemMetrics_(#SM_CXEDGE)   *2  ;(4)
+            EndIf
+           If ( ShowDebugNB = #True)
+               Debug "-- Client \Links  :" + Str(Client\left )
+               Debug "-- Client \Rechts :" + Str(Client\right )
+               Debug "-- Client \Oben   :" + Str(Client\Top )           
+               Debug "-- Client \Unten  :" + Str(Client\bottom )
+               
+               Debug "-- Window \Links  :" + Str(Window\left )
+               Debug "-- Window \Rechts :" + Str(Window\right )
+               Debug "-- Window \Oben   :" + Str(Window\Top )           
+               Debug "-- Window \Unten  :" + Str(Window\bottom )
+               
+               Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
+               Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
+               Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
+               
+               Debug "-- Window\left - Client\left     : " + Str(Window\left - Client\left)
+               Debug "-- Window\bottom - Client\bottom : " + Str(Window\bottom - Client\bottom)
+           EndIf
            
            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)               
-                Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
-            EndIf    
-                
-            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
-                Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
-            EndIf    
-            
-            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
-                Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
-            EndIf  
-            
-            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPEDWINDOW)                                
-                Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW"
-                
-                If ( Startup::*LHGameDB\Settings_OvLapped = #True )                   
+               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
+               If ( ShowDebugNB = #True)
+                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
+               EndIf  
+           EndIf    
+           
+           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
+               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
+               If ( ShowDebugNB = #True)
+                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
+               EndIf
+           EndIf    
+           
+           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
+               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
+               If ( ShowDebugNB = #True)
+                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
+               EndIf
+           EndIf  
+           
+           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPEDWINDOW) 
+               
+                   If ( ShowDebugNB = #True)
+                       Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW"
+                   EndIf
+                   
+               If ( Startup::*LHGameDB\Settings_OvLapped = #True )                   
                     SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPEDWINDOW)   
-                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
-                EndIf 
-                
-            EndIf             
-            
-            MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
+                    If ( ShowDebugNB = #True)
+                         Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
+                   EndIf
+               EndIf 
+               
+           EndIf
+           
+            If ( Startup::*LHGameDB\Settings_GetSmtrc = #True)
+                MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
+             EndIf
             
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
-                SetWindowPos_(hwnd, #HWND_TOPMOST, 0,0,0,0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE)
+                SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
                                
-                WinGuru::Center(hwnd,Client\right-1,Client\bottom-1)
+                WinGuru::Center(hwnd,Client\right,client\bottom)
                 ShowWindow_(hwnd, 5)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
@@ -510,27 +538,36 @@ Module vSystem
         If ( Startup::*LHGameDB\Settings_LokMouse = #True ) And ( hwnd = FGW )
             
                 Protected Current.rect
-            
-                Debug "- Maus Begrent bewegen für handle: " + Str(hwnd)                         
-                Debug "- Fenster/ Screen Aktiv          : " + Str(FGW)   
                 
+                If ( ShowDebugNB = #True)
+                    Debug "- Maus Begrent bewegen für handle: " + Str(hwnd)                         
+                    Debug "- Fenster/ Screen Aktiv          : " + Str(FGW)   
+                EndIf
                 GetWindowRect_(hwnd,Current)    
                 
-                Debug "-- Client \Links  :" + Str(Current\left )
-                Debug "-- Client \Rechts :" + Str(Current\right )
-                Debug "-- Client \Oben   :" + Str(Current\Top )           
-                Debug "-- Client \Unten  :" + Str(Current\bottom ) 
+                If ( ShowDebugNB = #True)
+                    Debug "-- Client \Links  :" + Str(Current\left )
+                    Debug "-- Client \Rechts :" + Str(Current\right )
+                    Debug "-- Client \Oben   :" + Str(Current\Top )           
+                    Debug "-- Client \Unten  :" + Str(Current\bottom ) 
+                EndIf
                 
                 Current\left = Current\left   + 2
                 Current\right = Current\right - 1                
                 
                 ClipCursor_(Current)  
                 
-         Else
-                Debug "- Fenster/ Screen Nicht fokussiert!!" + Str(FGW)   
+            Else          
+                If ( Startup::*LHGameDB\Settings_LokMouse = #True )
+                    If ( ShowDebugNB = #True)
+                        Debug "- Fenster/ Screen Nicht fokussiert!!" + Str(FGW)                       
+                    EndIf    
+                EndIf
          EndIf  
-        
-        Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
+         
+         If ( ShowDebugNB = #True)
+             Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
+         EndIf    
             
        ;     GetClientRect_(hwnd, @Clent);
        ;     GetWindowRect_(hwnd, @Window)
@@ -598,58 +635,61 @@ Module vSystem
         Protected  sWindowTitle.s = "", DbgLog.s = "", fHandle.i, ExtProcessID.l
         
         If IsWindowVisible_(hWnd)
-                           
+            
             *Buffer   = AllocateMemory( 4096 )
             
             length.i  = GetWindowTextLength_(hWnd) + 1;
             If ( length > 1 )
-                                               
+                
                 If ( length > *Buffer )                
                     *Buffer = ReAllocateMemory( *Buffer, length + 1 )
                 EndIf    
-                               
+                
                 If ( length > 1 ) And ( *Buffer > 1)
-                                       
+                    
                     GetWindowText_(hwnd,*Buffer,length)
-                                    
+                    
                     sWindowTitle = PeekS(*Buffer)
-    
+                    
                     If ( sWindowTitle )
                         
                         fHandle = FindWindow_(@sWindowTitle,#Null)
                         
                         GetWindowThreadProcessId_(hwnd, @ExtProcessID)                                                                       
-                        
-                        DbgLog = ""
-                        DbgLog + "(SEARCH )" + #TAB$ +                                   
-                        DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
-                        DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
-                        DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
-                        DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
-                        DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
-
+                        If ( ShowDebugNB = #True)
+                                    DbgLog = ""
+                                    DbgLog + "(SEARCH )" + #TAB$ +                                   
+                                     DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
+                                     DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
+                        EndIf
                         
                         If ( ExtProcessID = ProcessID )
-                            
-                                DbgLog = ""  + #CR$       
-                                DbgLog + "(FOUNDED)" + #TAB$ +   
-                                DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
-                                DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
-                                DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
-                                DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
-                                DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
-                                DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
+                            If ( ShowDebugNB = #True)
+                                        DbgLog = ""  + #CR$       
+                                        DbgLog + "(FOUNDED)" + #TAB$ +   
+                                         DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
+                                         DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
+                                         DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
                                 Debug DbgLog + #CR$
-                                                                
-                                _NoBorder_(hwnd)                                                                
-                                ProcedureReturn #False 
-                            EndIf    
-                        Else                            
+                            EndIf                                    
+                            _NoBorder_(hwnd)                                                                
+                            ProcedureReturn #False 
+                        EndIf    
+                        
+                    Else                            
+                        If ( ShowDebugNB = #True)                        
                             Debug DbgLog + #CR$  + #CR$                         
-                        EndIf
-                     EndIf                                                                                        
-                EndIf    
-            EndIf
+                        EndIf    
+                    EndIf
+                EndIf                                                                                        
+            EndIf    
+        EndIf
         ProcedureReturn #True       
     EndProcedure
     ;
@@ -659,8 +699,6 @@ Module vSystem
     Procedure   System_NoBorder(szTaskName.s = "")   
         
         Startup::*LHGameDB\Thread_ProcessName = szTaskName
-        
-        Debug ""
         
         Protected uPID.l, HiProcess.l, hwnd.l
                         
@@ -675,20 +713,19 @@ Module vSystem
 
         If ( Startup::*LHGameDB\Thread_ProcessName )  
             ForEach Process32()
-                
-                
                 If ( LCase( Startup::*LHGameDB\Thread_ProcessName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
                     
-                    Debug ""
-                    Debug "NoBorder für  : " + Startup::*LHGameDB\Thread_ProcessName
-                    Debug "- ProcessID   : " + Str( PeekL (@Process32()\th32ProcessID) )
+                   ; Debug ""
+                   ; Debug "NoBorder für  : " + Startup::*LHGameDB\Thread_ProcessName
+                   ; Debug "- ProcessID   : " + Str( PeekL (@Process32()\th32ProcessID) )
                     
                     uPID = PeekL (@Process32()\th32ProcessID) 
                                        
                     HiProcess = OpenProcess_(#PROCESS_SET_INFORMATION, 0, uPID)
-                    If ( HiProcess )            
-                        Debug "- TH32 ID List: "                        
-                        _NoBorder_Debug( Process32(), Startup::*LHGameDB\Thread_ProcessName, HiProcess)                        
+                    If ( HiProcess )                                    
+                        If ( ShowDebugNB = #True)
+                            _NoBorder_Debug( Process32(), Startup::*LHGameDB\Thread_ProcessName, HiProcess)                        
+                        EndIf    
                         EnumWindows_(@System_EnumWindows(),PeekL (@Process32()\th32ProcessID) )
                         ;Debug "TH32ProcessID Parent============ :"
                         ;EnumWindows_(@System_EnumWindows(),PeekL (@NoBorderList()\th32ParentProcessID))
@@ -696,11 +733,8 @@ Module vSystem
                         ;Debug "HiProcess           ============ :"
                         ;EnumWindows_(@System_EnumWindows(),HiProcess)
                         CloseHandle_( HiProcess ) 
-                    EndIf
-                    
-                                        
+                    EndIf               
                     Break
-
                 EndIf
                 Delay( 2 )
             Next    
@@ -896,8 +930,7 @@ Module vSystem
      
       ProcedureReturn Trim(sBuffer)
     EndProcedure
-
-Debug GetCPUName()
+   
     ;
     ;
     ;
@@ -996,12 +1029,16 @@ Debug GetCPUName()
         Startup::ToolTipSystemInfo = TooltipString
         ProcedureReturn TooltipString
     EndProcedure
+    
+    
+    Procedure.i   System_DPI_Helper()
+   EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 82
-; FirstLine = 42
-; Folding = vJACk+
+; CursorPosition = 476
+; FirstLine = 257
+; Folding = TAsDg+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = K:\! Workbench Virtualization\Maschines _ Quick Test
+; CurrentDirectory = I:\Games _ Adult Archiv\Theme - The Klub\

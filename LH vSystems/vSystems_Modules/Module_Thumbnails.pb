@@ -1218,22 +1218,22 @@ Module vThumbSys
     Procedure   Thumbnail_SetGadgetState(ThumbnailNum.i)
         
         ;Delay(2)
-        Debug "SetGadgetState " + Str( ThumbnailNum )
+        ;Debug "SetGadgetState " + Str( ThumbnailNum )
         SetGadgetState(Startup::*LHImages\ScreenGDID[ThumbnailNum], -1)                
         SetGadgetState(Startup::*LHImages\ScreenGDID[ThumbnailNum], Startup::*LHImages\CpScreenID[ThumbnailNum])  
         
         ; Get information about the image 
         GetObject_(ImageID(Startup::*LHImages\NoScreenPB[ThumbnailNum]), SizeOf(BITMAP), @bmp.BITMAP) 
         
-        With bmp             
-            Debug "Slot           :" + Str( ThumbnailNum )
-            Debug "\bmWidth       :" + Str( \bmWidth) 
-            Debug "\bmHeight      :" + Str( \bmHeight)
-            Debug "\bmWidthBytes  :" + Str( \bmWidthBytes)
-            Debug "\bmBitsPixel   :" + Str( \bmBitsPixel)
-            Debug "\bmBits        :" + Str( \bmBits)
-            Debug "----------------------------------------"               
-        EndWith
+        ;With bmp             
+        ;    Debug "Slot           :" + Str( ThumbnailNum )
+        ;    Debug "\bmWidth       :" + Str( \bmWidth) 
+        ;    Debug "\bmHeight      :" + Str( \bmHeight)
+        ;    Debug "\bmWidthBytes  :" + Str( \bmWidthBytes)
+        ;    Debug "\bmBitsPixel   :" + Str( \bmBitsPixel)
+        ;    Debug "\bmBits        :" + Str( \bmBits)
+        ;    Debug "----------------------------------------"               
+        ;EndWith
         
     EndProcedure
     ;*******************************************************************************************************************************************************************
@@ -1241,7 +1241,7 @@ Module vThumbSys
      Procedure  Thumbnail_UseDefaultImage(ThumbnailNum.i)
 
          ;Delay(2)
-         Debug "Resize_Gadget " + Str( ThumbnailNum )
+         ;Debug "Resize_Gadget " + Str( ThumbnailNum )
          
          Resize_Gadget(ThumbnailNum, Startup::*LHImages\NoScreenPB[ThumbnailNum], Startup::*LHImages\ScreenGDID[ThumbnailNum] )          
            
@@ -2357,7 +2357,7 @@ Module vThumbSys
     ;          
     Procedure   Set_Slot( nSlotNum.i )
         
-            Debug "Lege die Screenshots IN die Slots: " + Str(nSlotNum)
+            ;Debug "Lege die Screenshots IN die Slots: " + Str(nSlotNum)
 
             Select nSlotNum
                 Case 1 : Calc_Thumbnail1()
@@ -2570,9 +2570,9 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 180
-; FirstLine = 160
-; Folding = -4AAAAAAAA---
+; CursorPosition = 1433
+; FirstLine = 79
+; Folding = DGAAAAAAAA---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

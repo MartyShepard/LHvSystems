@@ -175,6 +175,8 @@ DeclareModule Startup
         Settings_bBlockFW.i         ; Blocks programs from Inet/ Add Temporay to Firewall     
         Settings_bNoOutPt.i        
         Settings_NoBoTime.i         ;NoBorder Time
+        Settings_GetSmtrc.i         ;GetSystemmetrics Options
+        Settings_bSaveLog.i         ;Disabled Outputlog and Redirect to StdOut.txt
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -814,8 +816,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 271
-; FirstLine = 241
+; CursorPosition = 178
+; FirstLine = 156
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP
