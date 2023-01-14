@@ -170,8 +170,7 @@ Module Interact
                     EndIf                         
                             
                 Case #WM_KEYUP                                               
-                    Select EvntwParam
-
+                    Select EvntwParam 
                         ;
                         ; Beim Loslassen der Taste wird die grössse gespeichert
                         Case #VK_F5, 102, 104,103 ; Grösser
@@ -713,8 +712,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 464
-; FirstLine = 425
+; CursorPosition = 172
+; FirstLine = 138
 ; Folding = --
 ; EnableAsm
 ; EnableXP

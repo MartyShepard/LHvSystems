@@ -2112,8 +2112,11 @@ Module MagicGUI
                                 "%a      = Execute and Run the programm Asynchron"                   + #CR$ + #CR$ +                                 
                                 "%nb[cb] = Remove Border from Windowed Programs or Games"            + #CR$ +
                                 "        + Optional c to Center the Window"                          + #CR$ +
-                                "        + Optional b to set real Borderless Window"                 + #CR$ + 
-                                "%nbgsm  = Don't use System Metrics Calc. with Remove Border"  + #CR$ + #CR$ +
+                                "        + Optional b to set real Borderless Window"                 + #CR$ +
+                                "        # Screenshot Capture Enbaled: Press Scroll Key"             + #CR$ +                                 
+                                "        # On Capture you hear a Beep Sound"                         + #CR$ +
+                                "%nbgsm  = Don't use System Metrics Calc. with Remove Border"        + #CR$ + #CR$ +
+                                "%nosht  = Disable Screen Shot Capture with Remove Border"           + #CR$ +
                                 "%lck    = Mouse Locked for Window /Screen Mode (Only with %nb)"     + #CR$ + #CR$ +  
                                 "%fmm[mb]= Force to Free Memory Cache on Programm (Beware!)"         + #CR$ +
                                 "          mb from 1 to 3000. Optional Maximum Mem before Clear."    + #CR$ + #CR$ +                                
@@ -2266,8 +2269,8 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2137
-; FirstLine = 241
+; CursorPosition = 2118
+; FirstLine = 250
 ; Folding = DAEA+
 ; EnableAsm
 ; EnableXP

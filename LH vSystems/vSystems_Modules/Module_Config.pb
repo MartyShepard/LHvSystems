@@ -177,6 +177,7 @@ DeclareModule Startup
         Settings_NoBoTime.i         ;NoBorder Time
         Settings_GetSmtrc.i         ;GetSystemmetrics Options
         Settings_bSaveLog.i         ;Disabled Outputlog and Redirect to StdOut.txt
+        Settings_NBNoShot.i         ;Disable Screenshot Capture Support
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -231,7 +232,12 @@ DeclareModule Startup
         VersionNumber.s             ; Version String (Nummer)
         Thread_ProcessHigh.i        ; 
         Thread_ProcessLow.i
-        Thread_ProcessName.s        ; szTaskanem  
+        Thread_ProcessName.s        ; szTaskanem
+        NBWindowhwnd.l              ; Handle des Fremden Fensters
+        NBWindow.RECT
+        NBClient.RECT
+        NBWindowKey.i 
+        NBWindowAppName.s
         bvSystem_Restart.i          ; Wenn die Höhe des Fentser angegeben wird und vSystem neustartet, denb Konlikt vermiden das es schon im System Task Existiert
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
                 
@@ -269,6 +275,19 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.44b       
+        ; Möglichkeit ein Schnappschuss von dem Fensterhinhalt zu machen. Nur in Verbindung mit "No Border"
+        ; (Screenshot werden im Unterverzeichns von ".\System\SHOT\" gespeichert). Voreingestellte Taste ist
+        ;  "Rollen / Scroll". (Erst mal). Als hinweis wird beim "Speichern" wird ein Ton abgespielt.)
+        ; "%nbsht" als argument hinzugefügt. Damit wird die ScreenShot Capture funktion deaktiviert
+        ; Ein paar Code änderungen ...
+        
+        ;
+        ; Version 0.43b
+        ; "%nbgsm" als argument hinzugefügt. Nur in Verbindung mit "No Border". System Metrics wierden nicht beachtet
+        ; "%svlvg" als argument hinzugefügt. Leitet die Program Ausgabe in eine Text Datei
+        
         ;
         ; Version 0.42b
         ; Ups, Bug Fix (Löschen)
@@ -816,8 +835,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 178
-; FirstLine = 156
+; CursorPosition = 283
+; FirstLine = 252
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

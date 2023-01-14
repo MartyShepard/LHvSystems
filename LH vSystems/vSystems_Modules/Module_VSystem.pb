@@ -5,6 +5,7 @@
     Declare     System_MemoryFree(szTaskName.s = "")
     Declare     System_SetAffinity(szTaskName.s, uCores = -1)
     Declare     System_NoBorder(szTaskName.s = "")
+    Declare     System_NoBorder_Handle_Reset()    
     
     Declare.i   System_GetCurrentMemoryUsage()
     Declare.i   System_GetMemoryUsage(ProcID)
@@ -19,6 +20,8 @@
     
     Declare.i   System_ProgrammIsAlive(szTaskName.s)
     Declare.i   System_GetTasklist();
+    
+    Declare.i   Capture_Screenshot(ProgrammName.s)
     
    
     
@@ -448,7 +451,11 @@ Module vSystem
             
             GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
             GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
-                       
+            
+            Startup::*LHGameDB\NBWindowhwnd = hwnd;
+            Startup::*LHGameDB\NBWindow =  Window.RECT;
+            Startup::*LHGameDB\NBClient =  Client.RECT;         
+            
             W = Window\right - Window\left
             H = Window\bottom - Window\top            
             
@@ -678,7 +685,7 @@ Module vSystem
                                          DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
                                 Debug DbgLog + #CR$
                             EndIf                                    
-                            _NoBorder_(hwnd)                                                                
+                            _NoBorder_(hwnd)                              
                             ProcedureReturn #False 
                         EndIf    
                         
@@ -745,6 +752,19 @@ Module vSystem
         
     EndProcedure
     
+    Procedure   System_NoBorder_Handle_Reset()
+            Startup::*LHGameDB\NBWindowhwnd   = 0;
+            
+            Startup::*LHGameDB\NBWindow\left  = 0;
+            Startup::*LHGameDB\NBWindow\top   = 0;
+            Startup::*LHGameDB\NBWindow\right = 0;
+            Startup::*LHGameDB\NBWindow\bottom= 0;            
+            
+            Startup::*LHGameDB\NBClient\left  = 0;
+            Startup::*LHGameDB\NBClient\top   = 0;
+            Startup::*LHGameDB\NBClient\right = 0;
+            Startup::*LHGameDB\NBClient\bottom= 0;
+    EndProcedure
     ;
     ;
     ; Aufruf des Compatibility Mode to the Commandline über dem menu
@@ -1029,15 +1049,58 @@ Module vSystem
         Startup::ToolTipSystemInfo = TooltipString
         ProcedureReturn TooltipString
     EndProcedure
-    
-    
+         
     Procedure.i   System_DPI_Helper()
-   EndProcedure
+    EndProcedure    
+    
+    Procedure.i   Capture_Screenshot(ProgrammName.s)
+        
+        If  ( Startup::*LHGameDB\NBWindowhwnd > 0 )
+            
+            Debug "Capture Screenshot"
+            
+            Protected Window.RECT, Client.RECT, Directory.s =  Startup::*LHGameDB\Base_Path + "Systeme\", ImageFileName.s 
+            
+            
+            hImage = CreateImage(#PB_Any,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom)  
+            hDC    = StartDrawing(ImageOutput(hImage))
+            
+            PrgDC = GetDC_(Startup::*LHGameDB\NBWindowhwnd) 
+            BitBlt_(hDC,0,0,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom,PrgDC,0,0,#SRCCOPY) 
+            StopDrawing() 
+            
+            ReleaseDC_(Startup::*LHGameDB\NBWindowhwnd,PrgDC)
+            
+            ;
+            ; SaveImage (Format PNG)
+            ;
+            ; Genreate FileName
+            
+            Delay(1)
+            
+            Select FileSize( Directory.s + "SHOT")
+                Case -1: CreateDirectory( Directory.s + "SHOT" )                    
+            EndSelect        
+            Date$ = FormatDate("%yyyy_%mm_%dd", Date())
+            Time$ = FormatDate("%hh_%ii_%ss"  , Date())
+                        
+            ImageFileName.s = Directory.s + "SHOT\" + ProgrammName.s + " - " + Date$ + " - " + Time$ + ".png"
+                       
+            SaveImage(hImage, ImageFileName,#PB_ImagePlugin_PNG)
+            Beep_(200,300)
+            Beep_(450,100)            
+            FreeImage(hImage)
+            
+            Debug "Captured: " + ImageFileName
+            ProcedureReturn                                    
+        EndIf
+    EndProcedure        
+   
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 476
-; FirstLine = 257
-; Folding = TAsDg+
+; CursorPosition = 1081
+; FirstLine = 504
+; Folding = TAsHA6
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

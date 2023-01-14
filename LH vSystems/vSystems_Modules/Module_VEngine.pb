@@ -88,7 +88,7 @@ Module VEngine
     
     Global MainEventMutex = CreateMutex()
     Global ProgrammMutex
-    
+      
     ;****************************************************************************************************************************************************************
     ; Enable Disbale Services
     ;****************************************************************************************************************************************************************    
@@ -2360,7 +2360,8 @@ Module VEngine
                      Startup::*LHGameDB\Settings_Affinity = -1                    
                 EndIf            
                 
-                If Startup::*LHGameDB\Settings_NoBorder = #True   
+                If Startup::*LHGameDB\Settings_NoBorder = #True 
+                    
                     
                     If ( Startup::*LHGameDB\Settings_NoBoTime >= 1)
                         Delay(Startup::*LHGameDB\Settings_NoBoTime)
@@ -2849,6 +2850,7 @@ Module VEngine
         Protected s.s, Device1$, Device2$, Device3$, Device4$, DevPosition1 = -1, DevPosition2 = -1, DevPosition3 = -1, DevPosition4 = -1, CommandPos.i = -1, NoQuotes.i = -1, nq.s,  ArcSupport.i = -1
         
         Startup::*LHGameDB\Settings_NoBorder = #False
+        Startup::*LHGameDB\Settings_NBNoShot = #False
         Startup::*LHGameDB\Settings_Minimize = -1 ; -1 = Commando Wurde nicht angebeben.
         Startup::*LHGameDB\Settings_Asyncron = #False
         Startup::*LHGameDB\Settings_aProcess = #False
@@ -2868,6 +2870,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_bNoOutPt = #False;
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
+
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
         ;
@@ -2987,6 +2990,17 @@ Module VEngine
             EndIf            
         EndIf    
         
+        
+        ;
+        ; Einstellung: Dekativere Screenhsot Capture
+        If ( Startup::*LHGameDB\Settings_NoBorder = #True )                    
+            szCommand.s = "%nosht"
+            ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+            If ( ArgPos > 0 )
+                Args = DOS_TrimArg(Args.s, szCommand.s) 
+                Startup::*LHGameDB\Settings_NBNoShot  = #True
+            EndIf  
+        EndIf
         
         ;
         ;
@@ -3570,6 +3584,12 @@ Module VEngine
             *Params\PrgPath         = GetPathPart(*Params\Program)
             *Params\Program         = GetFilePart(*Params\Program)
             
+            If ( Startup::*LHGameDB\Settings_NBNoShot = #False )
+                ; Reset NoBorder Handle Vars
+                VSystem::System_NoBorder_Handle_Reset()
+                Startup::*LHGameDB\NBWindowKey = #False
+            EndIf
+            
             If (Len(*Params\Program) = 0 )
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn
@@ -3610,13 +3630,34 @@ Module VEngine
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
             _Action1 = CreateThread(@DOS_Thread(),*Params)                      
-            
+
             ;If ( Startup::*LHGameDB\Settings_Asyncron = #False ) 
-            While IsThread(_Action1)   
-                    Delay(255)
-                    While WindowEvent()                          
-                    Wend  
-                Wend                 
+
+            While IsThread(_Action1)                
+                Delay(1)         
+                ;
+                ; Capture Screen Shot
+                If  ( Startup::*LHGameDB\NBWindowhwnd > 0  And Startup::*LHGameDB\NBWindowKey = #False) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                                     
+                      RegisterHotKey_(  WindowID(DC::#_Window_001), 1, #Null, #VK_SCROLL)
+                      Startup::*LHGameDB\NBWindowKey = #True
+                      Debug " RegisterHotKey and Handle " + Str(Startup::*LHGameDB\NBWindowhwnd)
+                EndIf                            
+                
+                ProgramEventID = WaitWindowEvent()
+                If ( ProgramEventID = #WM_HOTKEY )
+                  Select EventwParam()
+                    Case 1
+                        If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
+                            vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
+                        EndIf    
+                    Case 2
+                    Case 3                     
+                    EndSelect
+                EndIf                              
+                While WindowEvent()
+                Wend  
+            Wend  
+                         
             ;EndIf
             ;
             ; Minimiert vSystems/ Setzt den Zustand des programms Wieder her. Minimiren befindet sich Modul 
@@ -3659,7 +3700,17 @@ Module VEngine
             
             ;
             ; Markiere Item welches gestartet ist
-            vItemTool::Item_Process_UnLoaded()            
+            vItemTool::Item_Process_UnLoaded()   
+            
+            ;
+            ; NoBorder, Screenshot Aktiv
+            If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )    
+                UnregisterHotKey_( WindowID(DC::#_Window_001) , 1)
+                VSystem::System_NoBorder_Handle_Reset()
+                Startup::*LHGameDB\NBWindowKey = #False                 
+            EndIf   
+            
+           
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Versteckt/ Öffnet die Screenshots
@@ -4262,9 +4313,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2394
-; FirstLine = 1835
-; Folding = 8+hv6dy-D0kA-
+; CursorPosition = 3649
+; FirstLine = 3045
+; Folding = 8+hv6dy-T0kA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

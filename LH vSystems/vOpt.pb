@@ -147,16 +147,16 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 36
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 3
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = B:\MAME\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; CurrentDirectory = I:\Games _ Adult Archiv\Theme - Game RPG Action\She Will Punish Them Modded\
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
