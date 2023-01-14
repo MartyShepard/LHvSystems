@@ -2609,35 +2609,75 @@ Module INVMNU
                     RunProgram(ProgramFilename())               
                     End
                 Else
-                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem baim anlegen der textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem beim Anlegen der Textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
                 EndIf    
 
             Case 9 : vFont::SetDB(1) 
             Case 10: vFont::SetDB(2)                 
             Case 98: vUpdate::Update_Check()
-            Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
+                
+            Case 18:
+                File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt"
+                If FileSize(File) <> -1
+                    FFH::ShellExec(File, "open")
+                Else
+                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+                EndIf    
+                
+            Case 19: 
+                File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt"
+                If FileSize(File) <> -1
+                    FFH::ShellExec(File, "open")
+                Else
+                   Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+                EndIf 
+                
+            Case 21:
+                Path.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
+                If FileSize(Path) = -2
+                    FFH::ShellExec(Path, "explore")
+                Else
+                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+                EndIf
+                
+            Case 22:
+                Path.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+                If FileSize(Path) = -2
+                    FFH::ShellExec(Path, "explore")
+                Else
+                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+                EndIf                 
+                
+           Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
+                    
         EndSelect       
     EndProcedure
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
         If IsWindow(DC::#_Window_001)                            
                    
-            MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1")
-            MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2")       
-            MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3")
-            MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4")
+            MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       )
+            MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       )       
+            MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       )
+            MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       )
             MenuBar()           
-            MenuItem(9 , "Schriftart: Title..."  ,ImageID( DI::#_MNU_FDL ))
-            MenuItem(10, "Schriftart: Liste..."  ,ImageID( DI::#_MNU_FDL )) 
+            MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
+            MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
             MenuBar()                   
-            MenuItem(20, "Fenster Zurücksetzen"  ,ImageID( DI::#_MNU_WMS ))                                        
-            MenuItem(7 , "Fenster Höhe Ändern"   ,ImageID( DI::#_MNU_WMH ))
+            MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
+            MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
             MenuBar()            
-            MenuItem(16, "Info Zurücksetzen"                   ,ImageID( DI::#_MNU_WRS ))            
+            MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))            
             MenuBar() 
-            MenuItem(17, "Lösche Einträge = 1"                   )            
-            MenuBar()             
-            OpenSubMenu( "Pfade .."                                  ,ImageID( DI::#_MNU_DIR ))                       
+            MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
+            MenuBar()  
+            MenuItem(18, "Log Datei Öffnen: stdout"                 ,ImageID( DI::#_MNU_CLR ))
+            MenuItem(19, "Log Datei Öffnen: error"                  ,ImageID( DI::#_MNU_CLR ))
+            MenuItem(22, "Log Verzeichnis Öffnen"                   ,ImageID( DI::#_MNU_EX1 ))             
+            MenuBar()            
+            MenuItem(21, "Capture Verzeichnis Öffnen"               ,ImageID( DI::#_MNU_EX1 ))
+            MenuBar()              
+            OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
             MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
             MenuItem(6 , "Alle Prüfen & Reparieren (Slot 2)"        ,ImageID( DI::#_MNU_RAL ))                       
             MenuItem(8 , "Alle Prüfen & Reparieren (Slot 3)"        ,ImageID( DI::#_MNU_RAL ))                       
@@ -2649,23 +2689,23 @@ Module INVMNU
             MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
             CloseSubMenu()       
             MenuBar()            
-            MenuItem(34, "Enable : Aero/Uxsms"   ,ImageID( DI::#_MNU_AEE ))
+            MenuItem(34, "Enable : Aero/Uxsms"                      ,ImageID( DI::#_MNU_AEE ))
             MenuBar()
-            MenuItem(30, "Disable: Explorer"     ,ImageID( DI::#_MNU_EXD ))         
-            MenuItem(32, "Disable: Taskbar"      ,ImageID( DI::#_MNU_TBD ))                      
-            MenuItem(35, "Disable: Aero/Uxsms"   ,ImageID( DI::#_MNU_AED ))              
-            MenuBar()            
+            MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
+            MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
+            MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
+            MenuBar()                         
         EndIf
         MenuItem(98, "vSystems Update")        
         MenuItem(99, "vSystems Beenden")
+        
         
         
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2656
-; FirstLine = 181
+; CursorPosition = 2642
 ; Folding = D5-
 ; EnableAsm
 ; EnableXP

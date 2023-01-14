@@ -155,7 +155,7 @@
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = I:\Games _ Adult Archiv\Theme - Game RPG Action\She Will Punish Them Modded\
+; CurrentDirectory = B:\MAME\
 ; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display

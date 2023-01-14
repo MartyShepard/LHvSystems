@@ -6,6 +6,7 @@
     Declare     Cmd_TabRen(EvntGadget, Standard.i = #False)
     Declare     Cmd_ResetWindow()
     Declare     Cmd_DockSettings(nOption)
+    Declare     Cmd_ShellFileOpen(File.s) 
     
 EndDeclareModule
 
@@ -342,6 +343,10 @@ Module vInfoMenu
         Startup::*LHGameDB\InfoWindow\sUrlAdresse = ""        
         Startup::*LHGameDB\InfoWindow\bURLOpnWith = #True                
     EndProcedure
+    
+    Procedure   Cmd_ShellFileOpen(File.s)                
+        FFH::ShellExec(File.s, "open")                        
+    EndProcedure
     ;****************************************************************************************************************************************************************
    ; Info Window Menu
    ;****************************************************************************************************************************************************************     
@@ -432,9 +437,9 @@ Module vInfoMenu
     
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 131
-; FirstLine = 68
-; Folding = DgDA+
+; CursorPosition = 347
+; FirstLine = 57
+; Folding = DgAA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

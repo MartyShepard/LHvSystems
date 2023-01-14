@@ -3488,60 +3488,44 @@ Module VEngine
     ; Section Log Outpout    
     ;****************************************************************************************************************************************************************    
     Procedure DOS_End_Output_SaveLog(SvLogFileIcn$)
-        
-        
+                            
+            Protected  SvLogMessage$ = "", SvLogErrorMs$ = "error" , SvLogStdout$  = "stdout", SvFileSaved$  = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+            Protected  SvLogginFile$ = "", SvLogResult   = 0       , SvLogErrorSz.q= 0       , SvLogStdOutSz.q= 0 
+                                    
+            SvLogErrorSz = FileSize( SvFileSaved$ + SvLogErrorMs$ )
+            Select SvLogErrorSz
+                Case 0 To 60
+                    DeleteFile(SvFileSaved$ + SvLogErrorMs$ )
+                Default
+                    SvLogResult   + 1
+                    SvLogMessage$ = SvLogErrorMs$ + " Datei vorhanden"
+            EndSelect       
+                                    
+            SvLogStdOutSz= FileSize( SvFileSaved$ + SvLogStdout$ )
+            Select SvLogErrorSz
+                Case 0 To 60
+                    DeleteFile(SvFileSaved$ + SvLogStdout$ )
+                Default
+                    SvLogResult   + 2
+                    SvLogMessage$ = SvLogStdout$ + " Datei vorhanden"
+            EndSelect             
+                       
+            If ( SvLogResult = 3 )
+                SvLogMessage$ ="Stdout / Error Dateien vorhanden"
+            EndIf    
             
-            SvLogNessage$ = ""
-            SvLogErrorMs$ = "Error"  
-            SvLogStdout$  = "stdout"
-            SvFileSaved$  = Startup::*LHGameDB\SubF_Data
-            SvLogginFile$ = ""      
-            SvLogResult  = 0
-            
-            If FileSize( SvFileSaved$ + "error.txt" ) = 54
-                DeleteFile(SvFileSaved$ + "error.txt" ) : SvLogErrorMs$  = ""
-            EndIf
-            
-            If FileSize( SvFileSaved$ + "stdout.txt" ) = 56 
-                DeleteFile(SvFileSaved$ + "stdout.txt" ): SvLogStdout$ = ""                      
-            EndIf 
-            
-            
-            
-            If ( Len(SvLogErrorMs$) > 0 And Len(SvLogStdout$) > 0 )
-                SvLogNessage$ ="Stdout / Error Dateien vorhanden"
-                SvLogResult   = 1
-                
-            ElseIf ( Len(SvLogErrorMs$) = 0 And Len(SvLogStdout$) > 0 )
-                SvLogNessage$ = SvLogStdout$ + " Datei vorhanden"
-                SvLogResult   = 1
-                
-                
-            ElseIf ( Len(SvLogErrorMs$) > 0 And Len(SvLogStdout$) = 0 )
-                SvLogNessage$ = SvLogErrorMs$ + " Datei vorhanden"
-                SvLogResult   = 1
-                
-            ElseIf ( Len(SvLogErrorMs$) = 0 And Len(SvLogStdout$) = 0 )
-                SvLogResult   = 0   
-                
-            EndIf 
-            
-            
-            If ( SvLogResult = 1)
-                Request::*MsgEx\User_BtnTextL = "Ok"
+                       
+            If ( SvLogResult > 1)               
                                
-                If ( Len(SvLogStdout$) > 0 )                    
-                    Request::*MsgEx\User_BtnTextM = "Stdout Öffnen"
-                    vLogginFile$ = SvFileSaved$ + SvLogStdout$ + ".txt"
-                EndIf  
+                Select  SvLogResult                   
+                    Case 2:  Request::*MsgEx\User_BtnTextM = "Stdout Öffnen": SvFileSaved$ + SvLogErrorMs$ + ".txt"    
+                    Default: Request::*MsgEx\User_BtnTextM = "Error Öffnen" : SvFileSaved$ + SvLogStdout$  + ".txt"
+                EndSelect
                 
-                If ( Len(SvLogErrorMs$) > 0 )                    
-                    Request::*MsgEx\User_BtnTextM = "Error Öffnen"
-                    SvLogginFile$ = SvFileSaved$ + SvLogErrorMs$ + ".txt"                    
-                EndIf
-                
+                Request::*MsgEx\User_BtnTextL = "Ok"                 
                 Request::*MsgEx\User_BtnTextR = "Verzeichnis"                    
-                SvLogResult = Request::MSG(Startup::*LHGameDB\TitleVersion, SvLogNessage$,"Gespeichert in " + SvFileSaved$,16,2,SvLogFileIcn$,0,0,DC::#_Window_001)
+                SvLogResult = Request::MSG(Startup::*LHGameDB\TitleVersion, SvLogMessage$,"Gespeichert in " + SvFileSaved$,16,2,SvLogFileIcn$,0,0,DC::#_Window_001)
+                
                 
                 Select SvLogResult
                     Case 0; Ok
@@ -3610,10 +3594,18 @@ Module VEngine
             *Params\Command         = DOS_Device(*Params\Command, *Params\Program, 0, *Params\PrgPath)
             Debug #CR$+ "Volle Commandline: " +#CR$+ *Params\Command
             
-            
-           If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )                                            
-                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\SubF_Data + "error.txt")      
-                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\SubF_Data + "stdout.txt")
+            ;
+            ; Log Datei anlegen?
+            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )
+                
+                ;
+                ; Verzeichnis Anlegen
+                Select FileSize( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\")
+                    Case -1: CreateDirectory( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" )                    
+                EndSelect 
+                
+                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt")      
+                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt")
             
                 If ( *Params\ErrorLg )
                     WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )                        
@@ -4313,13 +4305,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3649
-; FirstLine = 3045
+; CursorPosition = 3492
+; FirstLine = 2889
 ; Folding = 8+hv6dy-T0kA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\MAME\
+; CurrentDirectory = I:\Games _ Adult Archiv\Theme - The Klub\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

@@ -276,6 +276,11 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.45b
+        ; Code Routine für Log Output geändert
+        ; Tray Menü Einträge für den zugriff auf Log und Screenshot Dateien hinzugefügt
+        
+        ;
         ; Version 0.44b       
         ; Möglichkeit ein Schnappschuss von dem Fensterhinhalt zu machen. Nur in Verbindung mit "No Border"
         ; (Screenshot werden im Unterverzeichns von ".\System\SHOT\" gespeichert). Voreingestellte Taste ist
@@ -835,7 +840,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 283
+; CursorPosition = 280
 ; FirstLine = 252
 ; Folding = -g-
 ; EnableAsm
