@@ -325,7 +325,8 @@ Module Interact
                                 Case #PB_EventType_MouseMove 
                                     ;
                                     ; Verändere die Höhe der ListIcon                                    
-                                    ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))                                                                       
+                                    ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
+                                    Debug "Gadget Höhe: " + GadgetHeight(DC::#Contain_02)
                                     Continue
                                     
                                 Case #PB_EventType_LeftButtonUp
@@ -712,8 +713,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 172
-; FirstLine = 138
+; CursorPosition = 328
+; FirstLine = 293
 ; Folding = --
 ; EnableAsm
 ; EnableXP

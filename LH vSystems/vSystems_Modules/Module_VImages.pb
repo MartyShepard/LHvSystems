@@ -1344,16 +1344,18 @@ Module vImages
             
             HideGadget(DC::#Text_004,0)
             SetGadgetText(DC::#Text_004,"Resize Thumnails Size  Width:" + Startup::*LHGameDB\wScreenShotGadget+ " Height:" + Startup::*LHGameDB\hScreenShotGadget)
+            Debug "Resize Thumnails Size  Width:" + Str(Startup::*LHGameDB\wScreenShotGadget) + " Height:" + Str(Startup::*LHGameDB\hScreenShotGadget)
             vImages::Screens_SetThumbnails()            
             vImages::Screens_Show()
             ;vImages::Thumbnails_SetReDraw(#True)
             SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
+            Delay(DelayTime)
         EndIf        
     EndProcedure    
     ;******************************************************************************************************************************************
     ;  Ändere Thumbnail Grösse. 
     ;__________________________________________________________________________________________________________________________________________        
-    Procedure Screens_SzeThumbnails_Reset()        
+    Procedure Screens_SzeThumbnails_Reset()     
         Startup::*LHGameDB\wScreenShotGadget = 202
         Startup::*LHGameDB\hScreenShotGadget = 142        
         Screens_ChgThumbnails(0,#False)      
@@ -1361,11 +1363,11 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 338
-; FirstLine = 243
-; Folding = vcAUAED5
+; CursorPosition = 1358
+; FirstLine = 666
+; Folding = -cAWAEv0
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\MAME
+; CurrentDirectory = ..\release\
 ; EnableUnicode

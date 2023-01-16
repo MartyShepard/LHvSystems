@@ -962,14 +962,14 @@ Module GuruCallBack
                ;==================================================================================================================
                ;               
            Case #WM_VSCROLL
-               Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_VSCROLL       " + Str(#PB_Compiler_Line)) 
+               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_VSCROLL       " + Str(#PB_Compiler_Line)) 
                ;SendMessage_( GadgetID( *sc\gadget), msg, #SB_THUMBTRACK,#SB_THUMBPOSITION)
            Case #WM_HSCROLL
-               Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_HSCROLL       " + Str(#PB_Compiler_Line))                      
+               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_HSCROLL       " + Str(#PB_Compiler_Line))                      
            Case #SB_THUMBTRACK
-               Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBTRACK    " + Str(#PB_Compiler_Line))                                           
+               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBTRACK    " + Str(#PB_Compiler_Line))                                           
            Case #SB_THUMBPOSITION
-               Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBPOSITION " + Str(#PB_Compiler_Line))
+               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBPOSITION " + Str(#PB_Compiler_Line))
                ;
                ;==================================================================================================================
                ;                                 
@@ -1549,9 +1549,9 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1384
-; FirstLine = 1105
-; Folding = vcuF9-
+; CursorPosition = 971
+; FirstLine = 723
+; Folding = vcuF0-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

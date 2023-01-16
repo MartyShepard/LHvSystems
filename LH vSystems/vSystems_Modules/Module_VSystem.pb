@@ -574,65 +574,7 @@ Module vSystem
          
          If ( ShowDebugNB = #True)
              Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
-         EndIf    
-            
-       ;     GetClientRect_(hwnd, @Clent);
-       ;     GetWindowRect_(hwnd, @Window)
-            
-       ;     W = Window\right - Window\left
-       ;     H = Window\bottom - Window\top
-            
-       ;     If ( BorderAutoXY = 0 )
-       ;         Window\left = BorderX                                                
-       ;         Window\top = BorderY                     
-       ;     EndIf    
-            
-      ;      If ( BorderW.i <> 0)
-      ;          W = Window\right - Window\left
-      ;      EndIf                   
-            
-      ;      If ( BorderH.i <> 0)
-      ;          H = Window\bottom - Window\top
-      ;      EndIf            
-            
-      ;      If ( BorderAutoXY <> 0 )
-      ;          TitleBarH = GetSystemMetrics_(#SM_CYCAPTION)
-      ;          Border    = GetSystemMetrics_(#SM_CXBORDER) *2  ;(2)
-      ;          CxEdge    = GetSystemMetrics_(#SM_CXEDGE) *2    ;(4)
-      ;      EndIf
-            
-            
-      ;      If ( HideTheWindow = 1 )
-      ;          ShowWindow_(hwnd,HideFlag)   
-      ;      EndIf    
-            
-      ;      MoveWindow_(hwnd, Window\left,  Window\top - TitleBarH +  ( TitleBarH + Border + CxEdge) - ( Border + CxEdge), W - ( CxEdge + Border),H - ( TitleBarH + Border + CxEdge) ,1)
-            
-      ;      SetWindowLongPtr_(hwnd,#GWL_STYLE,GetWindowLongPtr_(hwnd,#GWL_STYLE)&~(#WS_DLGFRAME|#WS_CAPTION | #WS_THICKFRAME | #WS_MINIMIZE | #WS_MAXIMIZE | #WS_SYSMENU))
-      ;      SetWindowLongPtr_(hwnd,#GWL_EXSTYLE,GetWindowLongPtr_(hwnd,#GWL_EXSTYLE)&~(#WS_EX_DLGMODALFRAME | #WS_EX_CLIENTEDGE | #WS_EX_STATICEDGE))                      
-                        
-            
-      ;      Select WindowTop
-      ;          Case 0: WindowTop = #HWND_TOP
-      ;          Case 1: WindowTop = #HWND_TOPMOST    
-      ;      EndSelect             
-            
-      ;      SetWindowPos_(hwnd, WindowTop, 0,0,0,0, #SWP_NOMOVE | #SWP_NOSIZE)
-            ;
-            ; Neu, Nicht für Half Life
-                    
-      ;      GetWindowRect_(hwnd, @ClientRect) 
-      ;      ClientPoint.POINT 
-      ;      ClientToScreen_(hwnd, @ClientPoint)             
-      ;      WinGuru::Center(hwnd.l,ClientRect\right,ClientRect\bottom)
-             
-      ;      If ( HideTheWindow = 1 )
-      ;          ShowWindow_(ProgWindow,ViewFlag)
-      ;      EndIf             
-      ;  Else
-            ;Debug "Fensterrahmen: Nein"
-      ;  EndIf
-                
+         EndIf                                
     EndProcedure  
     ;
     ;
@@ -858,12 +800,34 @@ Module vSystem
                     sCmdString + Chr(32)
                 EndIf
                 
-                If FindString( sCmdString, "-"+ UnrealCommandline()\UDKModus$, 1) = 0
-                    sCmdString + "-"+UnrealCommandline()\UDKModus$
-                EndIf
-                SetGadgetText( DC::#String_103 , sCmdString)
-                Break
-            EndIf    
+                If ( UnrealCommandline()\bCharSwitch = 2 )
+                    
+                    szUnrealExecCommand$ = UnrealCommandline()\UDKModus$
+                    If FindString( sCmdString, "-" + "ExecCmds=", 1) = 0
+                        sCmdString + "-ExecCmds=" + Chr(34) + szUnrealExecCommand$ + Chr(34)                                                
+                    Else
+                        If FindString( sCmdString, szUnrealExecCommand$, 1) = 0                         
+                           sCmdString = ReplaceString( sCmdString, "-ExecCmds="+Chr(34), "-ExecCmds="+Chr(34)+szUnrealExecCommand$+",")
+                        EndIf    
+                        
+                    EndIf 
+                    SetGadgetText( DC::#String_103 , sCmdString)
+                    Break
+                Else                                              
+                    
+                    If ( UnrealCommandline()\bCharSwitch = #True )
+                        If FindString( sCmdString, "-"+ UnrealCommandline()\UDKModus$, 1) = 0
+                            sCmdString + "-"+UnrealCommandline()\UDKModus$
+                        EndIf
+                    Else
+                        If FindString( sCmdString, UnrealCommandline()\UDKModus$, 1) = 0
+                            sCmdString + UnrealCommandline()\UDKModus$
+                        EndIf  
+                    EndIf    
+                    SetGadgetText( DC::#String_103 , sCmdString)
+                    Break
+                EndIf    
+            EndIf   
         Wend        
         
         UnuseModule UnrealHelp             
@@ -1098,9 +1062,9 @@ Module vSystem
    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1081
-; FirstLine = 504
-; Folding = TAsHA6
+; CursorPosition = 809
+; FirstLine = 161
+; Folding = TAAgAz
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

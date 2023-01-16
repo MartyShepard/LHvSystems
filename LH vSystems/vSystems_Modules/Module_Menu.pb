@@ -1352,7 +1352,7 @@ Module INVMNU
                     vSystem::System_Compat_MenuItemE(MenuID) 
                     ProcedureReturn   
                     
-            Case 365 To 375                    
+            Case 365 To ( 365 + UnrealHelp::GetMaxItems()-1 )                    
                     vSystem::System_Unreal_MenuItemC(MenuID)
                     ProcedureReturn   
                     
@@ -1495,18 +1495,29 @@ Module INVMNU
       
         MenuBar()
         OpenSubMenu("Unreal Command")
-            MenuItem(365, "use Direct3D 9 Family")
-            MenuItem(366, "use Direct3D 10 Family")          
-            MenuItem(367, "use Direct3D 11 Family")         
-            MenuItem(368, "Set Language: German")              
-            MenuItem(369, "No Vertical Sync")
-            MenuItem(370, "No Screen Mwssages")
+        UseModule UnrealHelp
+        Debug "Open Unreal Menü"           
+        MxItem = GetMaxItems()-1
+        For unItem = 0 To MxItem
             
-            MenuItem(371, "No Texture Streaming")
-            MenuItem(372, "Seek Free Loading PC Console")
-            MenuItem(373, "Show Build Version")
-            MenuItem(374, "Skip All Notifies")
-            MenuItem(375, "Use All Available Cores")                       
+            NextElement(UnrealCommandline())
+                            
+            If UnrealCommandline()\bMenuSubBeg = #True                 
+                OpenSubMenu(UnrealCommandline()\UDK_Description$)                
+                Continue
+            ElseIf UnrealCommandline()\bMenuSubEnd = #True
+                CloseSubMenu()
+                Continue
+            ElseIf UnrealCommandline()\bMenuBar = #True                 
+                MenuBar()
+                Continue                
+            EndIf    
+            
+            MenuItem(UnrealCommandline()\MenuIndex, UnrealCommandline()\UDK_Description$)                                                  
+                            
+            Debug "Adding Unreal Menü " + UnrealCommandline()\UDK_Description$
+        Next
+        UnuseModule UnrealHelp                      
         CloseSubMenu() 
         MenuBar()
         ;
@@ -2476,6 +2487,7 @@ Module INVMNU
             Case 4: vImages::Screens_Menu_Delete_Single(GadgetID.i)
             Case 5: vImages::Screens_Menu_Delete_All()
             Case 8: vImages::Screens_SzeThumbnails_Reset()
+                    vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*1, #True)
             Case 9: VEngine::Splitter_SetAll()
             Case 10: vEngine::Thumbnails_SetAll()
             Case 11: vEngine::Thumbnails_Set(1)
@@ -2484,9 +2496,14 @@ Module INVMNU
             Case 14: vEngine::Thumbnails_Set(4)                    
             Case 15: vEngine::Thumbnails_Set(5)                    
             Case 16: vEngine::Thumbnails_Set(6)                    
-            Case 17: vEngine::Thumbnails_Set(7)
+           ; Case 17: vEngine::Thumbnails_Set(7)
             Case 18: vImages::Screens_Menu_Copy_Image(GadgetID.i)
             Case 19: vImages::Screens_Menu_Paste_Import(GadgetID.i)                
+            Case 20: vEngine::Splitter_SetHeight(0)
+            Case 21: vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*1, #True)
+            Case 22: vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*2, #True)                
+            Case 23: vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*3, #True)                
+            Case 24: vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*4, #True)                
             Default
                 Debug MenuID 
         EndSelect                
@@ -2498,27 +2515,35 @@ Module INVMNU
         
         MenuItem(1 , "Bild Laden...")           :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 0, #MF_BYPOSITION, ImageID( DI::#_MNU_LOD ),0) 
         MenuBar()
-        MenuItem(2 , "Dieses Bild Speichern")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
-        MenuItem(3 , "Alle Bilder Speichern")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
+        MenuItem(2 , "Dieses Bild Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
+        MenuItem(3 , "Alle Bilder Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuBar()
-        MenuItem(18 , "Bild Kopieren")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
-        MenuItem(19 , "Bild Einfügen")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
+        MenuItem(18 , "Bild Kopieren")          :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
+        MenuItem(19 , "Bild Einfügen")          :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
         MenuBar()
-        MenuItem(4 , "Dieses Bild Löschen")      :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
-        MenuItem(5,  "Alle Bilder Löschen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
+        MenuItem(4 , "Dieses Bild Löschen")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
+        MenuItem(5,  "Alle Bilder Löschen")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
         MenuBar()
-        MenuItem(9,  "Splitter Höhe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)        
+        MenuItem(20, "Splitter Höhe Einstellen"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)
+        MenuItem(9,  "...Gleiche Höhe für alle"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 12, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)          
         MenuBar()
-        MenuItem(8 , "Thumbnail zurücksetzen")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),13, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
-        MenuItem(10, "Grösse für alle setzen")       :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
+        MenuItem(8 , "Thumbnail zurücksetzen")  :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
+        MenuItem(10, "...Gleiche Höhe für alle"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),15, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
         MenuBar()
-        MenuItem(11, "1 Thumbnail Pro Reihe")    :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),16, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
-        MenuItem(12, "2 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
-        MenuItem(13, "3 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
-        MenuItem(14, "4 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)                        
-        MenuItem(15, "5 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),20, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
-        MenuItem(16, "6 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
-        MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
+        MenuItem(11, "1x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
+        MenuItem(12, "2x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
+        MenuItem(13, "3x1 Thumbnail Größe (*)") :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
+        MenuItem(14, "4x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),20, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)
+        MenuItem(15, "5x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
+        MenuItem(16, "6x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+        MenuBar()
+        OpenSubMenu( "Thumbnail Größen Option .." )        :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),24, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+             MenuItem(21 , "1 Thumbnail Pro Reihe")
+             MenuItem(22 , "2 Thumbnail Pro Reihe")
+             MenuItem(23 , "3 Thumbnail Pro Reihe")             
+             MenuItem(24 , "4 Thumbnail Pro Reihe")             
+        CloseSubMenu()               
+        ;MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
         
         If Not IsImage( GetClipboardImage(#PB_Any) )
             DisableMenuItem(CLSMNU::*MNU\HandleID[0], 19, 1)
@@ -2567,25 +2592,27 @@ Module INVMNU
             Case 3 :Startup::*LHGameDB\SortMode = 2: VEngine::Thread_LoadGameList_Sort()
             Case 4 :Startup::*LHGameDB\SortMode = 3: VEngine::Thread_LoadGameList_Sort() 
                 
-            Case 7                
-                r = vItemTool::DialogRequest_Add("","",Str(Startup::*LHGameDB\WindowHeight))              
+            Case 7                               
+                r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
                 If ( r = 1 )                   
                     SetActiveGadget(DC::#ListIcon_001)                
                     ProcedureReturn
                 EndIf
                 Startup::*LHGameDB\bvSystem_Restart = #True
                 
-                nHeight.i = Val(Request::*MsgEx\Return_String)  ; Neue Höhe
-                wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
-                sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
+                vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
+                VEngine::Splitter_SetAll()
+               ; vEngine::Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+               ; wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
+               ; sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
                 
-                If ( nHeight = 0)                          
-                    sHeight = 289
-                ElseIf ( nHeight > WHeight)  
-                    sHeight = Abs((wHeight+nHeight) +  sHeight)
-                ElseIf  ( nHeight < WHeight)
-                    sHeight = Abs((wHeight-nHeight) -  sHeight)
-                EndIf   
+               ; If ( nHeight = 0)                          
+               ;     sHeight = 289
+               ; ElseIf ( nHeight > WHeight)  
+               ;     sHeight = Abs((wHeight+nHeight) +  sHeight)
+               ; ElseIf  ( nHeight < WHeight)
+               ;     sHeight = Abs((wHeight-nHeight) -  sHeight)
+               ; EndIf   
                 
                 ;Debug "Fenster Höhe ändern: "
                 ;Debug "Manuelle Eingabe: " + Str(Val(Request::*MsgEx\Return_String) )
@@ -2597,13 +2624,17 @@ Module INVMNU
                 ;Debug "................: "               
                                 
                 Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
-                                               
+
+                
                 ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
                 ; Splitter Höhe
-                ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
-                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
+                ;ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
+                ;ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
+                
+                
                 
                 a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
+                Delay( 5 )
                 If ( a > 0 )
                     WriteStringN(a, "Restart..")
                     RunProgram(ProgramFilename())               
@@ -2705,8 +2736,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2642
-; Folding = D5-
+; CursorPosition = 1507
+; FirstLine = 1468
+; Folding = z5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

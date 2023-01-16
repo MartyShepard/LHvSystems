@@ -1204,7 +1204,7 @@ Module vThumbSys
             ; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
                 If ( Resize = #True )                 
                     ImageResizeEx_Thread(Startup::*LHImages\CpScreenPB[n],PbGadget_w,PbGadget_h, 1, GetGadgetColor(DC::#Contain_10,#PB_Gadget_BackColor) ,#True, #True, 255, n) 
-                    Delay(25)
+                    ;Delay(25)
                 EndIf               
             ;
             ; Das Neue Bild in die Structure Koieren           
@@ -2557,26 +2557,28 @@ Module vThumbSys
         
         *Thumbnail = AllocateMemory(SizeOf(POINT))
         Select nSizeOption
-            Case 1: *Thumbnail\x  = 649: *Thumbnail\y = 520
-            Case 2: *Thumbnail\x  = 313: *Thumbnail\y = 243
-            Case 3: *Thumbnail\x  = 205: *Thumbnail\y = 163                         
+            Case 1: *Thumbnail\x  = 624: *Thumbnail\y = 495                ;Case 1: *Thumbnail\x  = 649: *Thumbnail\y = 520
+            Case 2: *Thumbnail\x  = 310: *Thumbnail\y = 240                ;Case 2: *Thumbnail\x  = 313: *Thumbnail\y = 243
+            Case 3: *Thumbnail\x  = 202: *Thumbnail\y = 142                ;Case 3: *Thumbnail\x  = 205: *Thumbnail\y = 163                         
             Case 4: *Thumbnail\x  = 153: *Thumbnail\y = 119
             Case 5: *Thumbnail\x  = 122: *Thumbnail\y = 99
             Case 6: *Thumbnail\x  = 101: *Thumbnail\y = 81
             Case 7: *Thumbnail\x  = 86:  *Thumbnail\y = 69                         
         EndSelect
         
+        Debug "Set Thumbnail Size :" + Str(*Thumbnail\x) + "x" + Str( *Thumbnail\y)
+        
         ProcedureReturn *Thumbnail
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1433
-; FirstLine = 79
-; Folding = DGAAAAAAAA---
+; CursorPosition = 2561
+; FirstLine = 1484
+; Folding = vPAAAAAAAA+--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = H:\Games _ Adult Archiv\Theme - Game RPG Action\Warcraft - The Chronicles of Alexstraza\
+; CurrentDirectory = ..\release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

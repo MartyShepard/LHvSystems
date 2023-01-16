@@ -28,7 +28,8 @@
     Declare     Switcher_Pres_List(Obj.i)    
     
     Declare     Splitter_SetGet(Get = #True, Height = 289)  
-    Declare     Splitter_SetAll()
+    Declare     Splitter_SetAll(NoAsk = #False)
+    Declare     Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
        
     Declare     DOS_Prepare()
     Declare.i   DOS_Open_Directory(nOption, bCheck = #False)
@@ -45,8 +46,8 @@
     Declare.i   Text_GetDB_Check()
     Declare     Text_UpdateDB()
     
-    Declare      Thumbnails_SetAll()
-    Declare      Thumbnails_Set(nSize.i)
+    Declare     Thumbnails_SetAll()
+    Declare     Thumbnails_Set(nSize.i)
 
     
 
@@ -2560,14 +2561,13 @@ Module VEngine
             Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
             Delay(25)            
         EndIf    
-        
-       
+             
         
         If ( l_ProcID.l = 0 ) Or ( Startup::*LHGameDB\Settings_Asyncron = #True ) Or (IsProgram(l_ProcID) = 0)
             ProcedureReturn
         EndIf
         
-       
+         
             
         h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, ProgramID(l_ProcID))          
      
@@ -2842,13 +2842,11 @@ Module VEngine
         ProcedureReturn ""
         
     EndProcedure    
+    
     ;****************************************************************************************************************************************************************
-    ; Section Set Media Device
+    ; Section Einstellungen setzen
     ;****************************************************************************************************************************************************************    
-    Procedure.s DOS_Device(Args.s, CheckPrg.s, sSlot.i = 0, FullPath.s = "")
-        
-        Protected s.s, Device1$, Device2$, Device3$, Device4$, DevPosition1 = -1, DevPosition2 = -1, DevPosition3 = -1, DevPosition4 = -1, CommandPos.i = -1, NoQuotes.i = -1, nq.s,  ArcSupport.i = -1
-        
+    Procedure  DOS_Prepare_Argument_Settings()
         Startup::*LHGameDB\Settings_NoBorder = #False
         Startup::*LHGameDB\Settings_NBNoShot = #False
         Startup::*LHGameDB\Settings_Minimize = -1 ; -1 = Commando Wurde nicht angebeben.
@@ -2870,7 +2868,18 @@ Module VEngine
         Startup::*LHGameDB\Settings_bNoOutPt = #False;
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
-
+        Startup::*LHGameDB\Settings_hkeyKill = #True;        
+    EndProcedure
+    ;****************************************************************************************************************************************************************
+    ; Section Set Media Device
+    ;****************************************************************************************************************************************************************    
+    
+    
+    Procedure.s DOS_Device(Args.s, CheckPrg.s, sSlot.i = 0, FullPath.s = "")
+        
+        Protected s.s, Device1$, Device2$, Device3$, Device4$, DevPosition1 = -1, DevPosition2 = -1, DevPosition3 = -1, DevPosition4 = -1, CommandPos.i = -1, NoQuotes.i = -1, nq.s,  ArcSupport.i = -1
+        
+        DOS_Prepare_Argument_Settings()
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
         ;
@@ -3205,7 +3214,16 @@ Module VEngine
              Startup::*LHGameDB\Settings_bSaveLog = #True
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
          EndIf          
-         
+         ;
+        ;
+        ; Disable Hotkey
+        szCommand.s = "%nhkeyt"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_hkeyKill = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Terminate Programm (Ausgeschaltet)")  
+         EndIf          
          
         
         ;
@@ -3487,7 +3505,7 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ; Section Log Outpout    
     ;****************************************************************************************************************************************************************    
-    Procedure DOS_End_Output_SaveLog(SvLogFileIcn$)
+    Procedure DOS_Output_SaveLog(SvLogFileIcn$)
                             
             Protected  SvLogMessage$ = "", SvLogErrorMs$ = "error" , SvLogStdout$  = "stdout", SvFileSaved$  = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
             Protected  SvLogginFile$ = "", SvLogResult   = 0       , SvLogErrorSz.q= 0       , SvLogStdOutSz.q= 0 
@@ -3538,11 +3556,41 @@ Module VEngine
            
     EndProcedure    
     ;****************************************************************************************************************************************************************
+    ; Section Log Outpout Anlgen   
+    ;****************************************************************************************************************************************************************      
+    Procedure DOS_Output_CreateLog(*Params.PROGRAM_BOOT)
+            ;
+            ; Log Datei anlegen?
+            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )
+                
+                ;
+                ; Verzeichnis Anlegen
+                Select FileSize( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\")
+                    Case -1: CreateDirectory( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" )                    
+                EndSelect 
+                
+                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt")      
+                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt")
+            
+                If ( *Params\ErrorLg )
+                    WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )                        
+                EndIf
+                If ( *Params\StdOutL )
+                    WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )                        
+                EndIf            
+            EndIf        
+    EndProcedure
+    ;****************************************************************************************************************************************************************
     ; Section Programm Starten
     ;****************************************************************************************************************************************************************
     Procedure DOS_Prepare()
         
         Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i
+        
+        ;
+        ; Hotkey Varibale Terminate Program
+        Protected hKey_Terminate.i = #False
+        
         *Params.PROGRAM_BOOT = AllocateMemory(SizeOf(PROGRAM_BOOT))
         InitializeStructure(*Params, PROGRAM_BOOT)
         
@@ -3596,53 +3644,56 @@ Module VEngine
             
             ;
             ; Log Datei anlegen?
-            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )
-                
-                ;
-                ; Verzeichnis Anlegen
-                Select FileSize( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\")
-                    Case -1: CreateDirectory( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" )                    
-                EndSelect 
-                
-                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt")      
-                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt")
-            
-                If ( *Params\ErrorLg )
-                    WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )                        
-                EndIf
-                If ( *Params\StdOutL )
-                    WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )                        
-                EndIf            
-            EndIf
+            DOS_Output_CreateLog(*Params)
             
             ;
             ; Markiere Item welches gestartet ist
             vItemTool::Item_Process_Loaded()
             
+            
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
-            _Action1 = CreateThread(@DOS_Thread(),*Params)                      
-
-            ;If ( Startup::*LHGameDB\Settings_Asyncron = #False ) 
-
+            _Action1 = CreateThread(@DOS_Thread(),*Params)                                             
+            
             While IsThread(_Action1)                
-                Delay(1)         
+                Delay(1) 
                 ;
                 ; Capture Screen Shot
                 If  ( Startup::*LHGameDB\NBWindowhwnd > 0  And Startup::*LHGameDB\NBWindowKey = #False) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                                     
-                      RegisterHotKey_(  WindowID(DC::#_Window_001), 1, #Null, #VK_SCROLL)
-                      Startup::*LHGameDB\NBWindowKey = #True
-                      Debug " RegisterHotKey and Handle " + Str(Startup::*LHGameDB\NBWindowhwnd)
+                    RegisterHotKey_(  WindowID(DC::#_Window_001), 1, #Null, #VK_SCROLL)
+                    Startup::*LHGameDB\NBWindowKey = #True
+                    Debug "Register HotKey to Cpature Screenshot (Handle " + Str(Startup::*LHGameDB\NBWindowhwnd) + ")"
                 EndIf                            
                 
+                If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
+                    If IsProgram( Startup::*LHGameDB\Thread_ProcessLow ) And (hKey_Terminate = #False)
+                        RegisterHotKey_(  WindowID(DC::#_Window_001), 2, #MOD_ALT, #VK_SCROLL)
+                        hKey_Terminate = #True
+                        Debug "Register HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"                    
+                    EndIf
+                EndIf   
+            
+            
+            
                 ProgramEventID = WaitWindowEvent()
-                If ( ProgramEventID = #WM_HOTKEY )
-                  Select EventwParam()
+                If ( ProgramEventID = #WM_HOTKEY )                                                                              
+                    Select EventwParam()
+                            
                     Case 1
                         If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
+                            Beep_(257,150)
                             vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
-                        EndIf    
-                    Case 2
+                            Continue
+                        EndIf
+                        
+                    Case 2  
+                        If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
+                            If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                                KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                                Break
+                            EndIf 
+                        EndIf
+                        
                     Case 3                     
                     EndSelect
                 EndIf                              
@@ -3687,7 +3738,7 @@ Module VEngine
             ;
             ; Saved Log? Message to the user
             If ( Startup::*LHGameDB\Settings_bSaveLog = #True )
-                DOS_End_Output_SaveLog(*Params\PrgPath + *Params\Program)
+                DOS_Output_SaveLog(*Params\PrgPath + *Params\Program)
             EndIf    
             
             ;
@@ -3701,6 +3752,10 @@ Module VEngine
                 VSystem::System_NoBorder_Handle_Reset()
                 Startup::*LHGameDB\NBWindowKey = #False                 
             EndIf   
+            
+            If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
+                UnregisterHotKey_( WindowID(DC::#_Window_001) , 2)
+            EndIf    
             
            
     EndProcedure
@@ -3750,62 +3805,143 @@ Module VEngine
         EndIf                
     EndProcedure   
 
+    ;****************************************************************************************************************************************************************
+    ; Ändert die Splitterhöhe 
+    ;****************************************************************************************************************************************************************
+    Procedure Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+        ;
+        ; Current Splitter height
+        Protected CHSplit.i = GadgetHeight(DC::#Contain_02)
+        
+        ;
+        ; Current Listview Height
+        Protected CHListe.i = GadgetHeight(DC::#ListIcon_001)
+               
+        ; 
+        Protected StepPxl.i = 3, NewHeight.i = 0, x.i = 0
+        
+        ;
+        ; Thumbnail Screenhot Height
+        Protected CHThumb.i = Startup::*LHGameDB\hScreenShotGadget + StepPxl
+        If ( ThumbnailMode = #True )
+            CHThumb = SetHeight + StepPxl
+        EndIf
+        
+        ;
+        ; Maximum Splitter Height/ Auch Übergabe der neuen Fensterhöhe
+        Protected MxSplit.i =   ( WindowHeight(DC::#_Window_001 ) - 62) - GadgetY(DC::#ListIcon_001,#PB_Gadget_WindowCoordinate )
+        If ( NewWindowHeight )
+            Debug "Splitter_SetHeight : *LHGameDB\WindowHeight " + Str(Startup::*LHGameDB\WindowHeight)
+            Debug "Splitter_SetHeight : SetWindowHeight        " + Str(SetWindowHeight)
+            
+            If (Startup::*LHGameDB\WindowHeight = SetWindowHeight)
+                ProcedureReturn 
+                
+            ElseIf (SetWindowHeight = 0)
+                MxSplit = 434
+                
+            ElseIf (SetWindowHeight => Startup::*LHGameDB\WindowHeight)
+                MxSplit  + SetWindowHeight
+                SetHeight = CHSplit + SetWindowHeight
+                
+            Else
+                MxSplit  - SetWindowHeight
+                SetHeight = SetWindowHeight - CHSplit 
+            EndIf
+            
+        EndIf
+        
+        If ( ThumbnailMode = #False ) And ( NewWindowHeight = #False )
+        ;
+        ; Frage
+            r  = vItemTool::DialogRequest_Num("Neue Höhe einstellen","Höhe Aktuell   : " + Str(CHSplit) + Chr(13) + 
+                                                                 "Höhe Maximum   : " + Str(MxSplit) + Chr(13) + 
+                                                                 "Thumbnail Größe: " + Str(CHThumb) ,Str(CHSplit))
+            If ( r = 1 )
+                ProcedureReturn 
+            EndIf
+            
+        
+            SetHeight = Val(Request::*MsgEx\Return_String)                     
+         EndIf   
+
+        NewHeight = SetHeight
+                
+        If ( NewHeight > MxSplit )
+            ;
+            ; Das Fenster (die Liste ist zu klein)
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Thumbnail Splitter Einstellung","Für diese Einstellung ist die Fensterhöhe zu klein.",1,1,"",0,0,DC::#_Window_001 )            
+            ProcedureReturn
+            
+            ;
+            ; Begrenze durch die Thumbnail Grösse                                    
+            x = MxSplit - CHThumb
+                
+            NewHeight = x                
+            
+        ElseIf ( NewHeight = MxSplit )            
+            NewHeight = MxSplit
+        Else                     
+            
+            If ( ThumbnailMode )                
+                x =  (MxSplit - CHListe) / CHThumb
+                If ( x = 0 )
+                    x + 1
+                EndIf
+                
+                NewHeight =  MxSplit - (CHThumb * x)
+            Else                
+                NewHeight = SetHeight
+            EndIf    
+        EndIf                        
+        
+        SetGadgetState(DC::#Splitter1,NewHeight) 
+        ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02)) 
+        
+        ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(NewHeight),Startup::*LHGameDB\GameID)
+        ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(NewHeight),1)            
+       
+    EndProcedure    
     
     ;****************************************************************************************************************************************************************
     ; Ändert die Splitterhöhe für ALLE einträge
     ;****************************************************************************************************************************************************************
-    Procedure Splitter_SetAll()
+    Procedure Splitter_SetAll(NoAsk = #False)
         
-        Protected Rows.i , result.i, oHeight.i, nHeight.s, strIndex.i, c.c, SetHeight.s, RowID.i
+        Protected Rows.i , result.i, oHeight.i, nHeight.s, strIndex.i, c.c, SetHeight.i, RowID.i
         
+        If (NoAsk = #False)
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Splitter Höhe Einstellen","Für alle Einträge die gleiche Höhe einstellen wie von dem Markierten Eintrag?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+            If Result = 1
+                ProcedureReturn
+            EndIf 
+        EndIf    
         ; Anzahl der Items in der DB Prüfen
         Rows = ExecSQL::CountRows(DC::#Database_001,"Gamebase")  
-                
+        
         Select Rows
             Case 0
             Default
-                oHeight = ExecSQL::iRow(DC::#Database_001,"Gamebase","SplitHeight",0,Startup::*LHGameDB\GameID,"",1)
-                result  = vItemTool::DialogRequest_Num("SplitterHeight","Use the default current Splitterheight for all entry's?" + Chr(13) + "Standard Höhe ist: 289",Str(oHeight))
+                SetHeight = (ExecSQL::iRow(DC::#Database_001,"Gamebase","SplitHeight",0,Startup::*LHGameDB\GameID,"",1))
                 
-                If ( result = 0 )
+                ResetList(ExecSQL::_IOSQL())   
+                
+                HideGadget(DC::#Text_004,0)
+                
+                For RowID = 1 To Rows              
+                    NextElement(ExecSQL::_IOSQL())   
                     
-                    nHeight = Request::*MsgEx\Return_String
+                    SetGadgetText(DC::#Text_004,"Ändere Splitterhöhe ID: " + Str(RowID) + "/" + Str(Rows))
                     
-                    If ( Val(nHeight) = oHeight )
-                       ; Ich denke das wird nicht benötigt
-                       ; ProcedureReturn
-                    EndIf
-                    
-                    If ( Len(nHeight) <> 0 )                         
-                        For strIndex = 0 To Len(nHeight)                            
-                            c = Asc( Left(nHeight,strIndex) )
-                            Select c
-                                Case 48 To 57
-                                    SetHeight.s + Mid(nHeight,strIndex,1)
-                                Default                                    
-                            EndSelect                            
-                        Next                                            
-                        
-                        ResetList(ExecSQL::_IOSQL())   
-                        
-                        HideGadget(DC::#Text_004,0)
-                        
-                        For RowID = 1 To Rows              
-                            NextElement(ExecSQL::_IOSQL())   
-                            
-                            SetGadgetText(DC::#Text_004,"Ändere Splitterhöhe ID: " + Str(RowID) + "/" + Str(Rows))
-                            
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", SetHeight,ExecSQL::_IOSQL()\nRowID)                             
-                        Next
-                        
-                        ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", SetHeight,1)
-                        Splitter_SetGet(#True) 
-                        HideGadget(DC::#Text_004,1)
-                    EndIf                        
-                EndIf                                   
+                    ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(SetHeight),ExecSQL::_IOSQL()\nRowID)                             
+                Next
+                
+                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(SetHeight),1)
+                ; Splitter_SetGet(#True) 
+                HideGadget(DC::#Text_004,1)                                
         EndSelect                
-        
-    EndProcedure  
+    
+EndProcedure  
     ;****************************************************************************************************************************************************************
     ; Ändert die Thumbnail Weite und Höhe für alle Einträge
     ;****************************************************************************************************************************************************************
@@ -3813,6 +3949,10 @@ Module VEngine
         
         Protected Rows.i , result.i, oHeight.i, oWidth.i, nHeight.s, strIndex.i, c.c, SetHeight.s, RowID.i
         
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Thumbnail Größe  Einstellen","Für alle Einträge die gleiche größe einstellen wie von dem Markierten Eintrag?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+        If Result = 1
+            ProcedureReturn
+        EndIf         
         ; Anzahl der Items in der DB Prüfen
         Rows = ExecSQL::CountRows(DC::#Database_002,"GameShot")  
                 
@@ -3821,8 +3961,8 @@ Module VEngine
             Default
              oWidth  = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsW",0,Startup::*LHGameDB\GameID,"",1)
              oHeight = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsH",0,Startup::*LHGameDB\GameID,"",1)
-             Debug oWidth
-             Debug oHeight
+             Debug "Thumbnails_SetAll(): " +Str(oWidth)
+             Debug "Thumbnails_SetAll(): " +Str(oHeight)
                                                               
              ResetList(ExecSQL::_IOSQL())                                                   
              HideGadget(DC::#Text_004,0)
@@ -3835,6 +3975,7 @@ Module VEngine
                  ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str( oHeight),ExecSQL::_IOSQL()\nRowID) 
                  SetGadgetText(DC::#Text_004,"Change Thumbnail Size: "+Str(oWidth)+"x"+Str( oHeight) +" ( "+ Str(RowID) + "/" + Str(Rows) + ")")
                  
+                 Debug "Thumbnails_SetAll(): Row ID" + Str(RowID) 
                  
              Next                                   
              HideGadget(DC::#Text_004,1)
@@ -3848,6 +3989,8 @@ Module VEngine
         Protected szInfo.s
         
         For RowID = 1 To Rows
+            
+            Debug "Thumbnails_Thr(*Thumbnail.POINT)"
             
             NextElement(ExecSQL::_IOSQL())                                                         
             
@@ -3936,6 +4079,8 @@ Module VEngine
                 vImages::Screens_ChgThumbnails(0,#True,0, 257)
                 
                 vImages::Thumbnails_SetReDraw(#True)
+                
+                Splitter_SetHeight(*Thumbnail\y, #True)
         EndSelect  
     EndProcedure
    
@@ -4305,13 +4450,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3492
-; FirstLine = 2889
-; Folding = 8+hv6dy-T0kA-
+; CursorPosition = 3658
+; FirstLine = 2890
+; Folding = 8+hv6dy-BY+H5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = I:\Games _ Adult Archiv\Theme - The Klub\
+; CurrentDirectory = N:\Tosec Mame Emulation\Arcade\Atari Batman\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

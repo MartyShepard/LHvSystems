@@ -178,6 +178,7 @@ DeclareModule Startup
         Settings_GetSmtrc.i         ;GetSystemmetrics Options
         Settings_bSaveLog.i         ;Disabled Outputlog and Redirect to StdOut.txt
         Settings_NBNoShot.i         ;Disable Screenshot Capture Support
+        Settings_hkeyKill.i         ;Disbale/Enable Hotkey für das Beenden eines Programs
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -275,6 +276,12 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.46b
+        ; Thumbnail und Splitter ausgearbeitet
+        ; HotKey für das Beenden (quasi Taskill) des gestarteten Programm hunzugefügt
+        ; Hoitkey ist: ALT und SCROLL/Rollen
+        
         ;
         ; Version 0.45b
         ; Code Routine für Log Output geändert
@@ -840,8 +847,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 280
-; FirstLine = 252
+; CursorPosition = 180
+; FirstLine = 138
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP
