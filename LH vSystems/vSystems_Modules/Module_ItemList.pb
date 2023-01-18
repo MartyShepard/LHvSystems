@@ -15,6 +15,8 @@
     Declare   Item_Process_Loaded()
     Declare   Item_Process_UnLoaded()
     
+    Declare.i File_GetFiles(Path.s)
+    
     
     ;
     ; Wird auch im Modul vEngine benutzt
@@ -810,11 +812,20 @@ Module vItemTool
         
         
     EndProcedure         
+    ;**********************************************************************************************************************************************************************
+    ;
+    ;______________________________________________________________________________________________________________________________________________________________________
+    Procedure.i File_GetFiles(Path.s)
+            FFS::GetContent(Path, #False, #True, #False, "", "*.png",0, #False, 0 )
+            FFS::SortContent()
+            ResetList(FFS::FullFileSource())
+            ProcedureReturn ListSize( FFS::FullFileSource() )           
+    EndProcedure
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 277
-; FirstLine = 117
-; Folding = XIwA-
+; CursorPosition = 817
+; FirstLine = 156
+; Folding = XAAA5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

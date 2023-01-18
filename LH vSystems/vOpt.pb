@@ -64,6 +64,7 @@
         XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                ; Include Modules, Global Code Module (Menu System)              
               
         XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       ; vFont::
+        XIncludeFile ".\vSystems_Modules\Module_KeyShortCut.pb"         ; vKeys::        
         XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            ; vItemTool::
         XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          ; vThumbSys::
         XIncludeFile ".\vSystems_Modules\Module_VImages.pb"             ; vImage::
@@ -147,17 +148,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 67
-; FirstLine = 21
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 66
+; FirstLine = 30
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems32Bit.exe
+; Executable = Release\vSystems64Bit.exe
 ; CPU = 5
-; CurrentDirectory = B:\BLACKTAIL\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; CurrentDirectory = B:\MAME\
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

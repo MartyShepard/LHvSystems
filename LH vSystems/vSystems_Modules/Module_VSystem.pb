@@ -84,6 +84,7 @@ Module vSystem
                         AddElement (P32())
                         
                         CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))
+                        Debug "System_TaskList( List P32.PROCESSENTRY32() )"
                         ;Delay( 1 )
                     Wend
                     
@@ -437,6 +438,14 @@ Module vSystem
         
         Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT , Desktop.RECT
         
+            GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
+            GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
+            
+            Startup::*LHGameDB\NBWindowhwnd = hwnd;
+            Startup::*LHGameDB\NBWindow =  Window.RECT;
+            Startup::*LHGameDB\NBClient =  Client.RECT;            
+
+            
         If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER ) Or ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
             
             ;ShowWindow_(hwnd, #SW_SHOWNOACTIVATE);
@@ -448,14 +457,7 @@ Module vSystem
             ; Clientbereich ungültig machen möchten, übergeben Sie NULL an InvalidateRect.
             ; Sie könnten DAS von GetClientRect zurückgegebene Rect übergeben, aber es ist;
             ; viel einfacher und klarer, NULL zu übergeben.   
-            
-            GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
-            GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
-            
-            Startup::*LHGameDB\NBWindowhwnd = hwnd;
-            Startup::*LHGameDB\NBWindow =  Window.RECT;
-            Startup::*LHGameDB\NBClient =  Client.RECT;         
-            
+                                              
             W = Window\right - Window\left
             H = Window\bottom - Window\top            
             
@@ -519,6 +521,8 @@ Module vSystem
                
            EndIf
            
+
+            
             If ( Startup::*LHGameDB\Settings_GetSmtrc = #True)
                 MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
              EndIf
@@ -570,8 +574,8 @@ Module vSystem
                         Debug "- Fenster/ Screen Nicht fokussiert!!" + Str(FGW)                       
                     EndIf    
                 EndIf
-         EndIf  
-         
+         EndIf                  
+            
          If ( ShowDebugNB = #True)
              Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
          EndIf                                
@@ -602,6 +606,7 @@ Module vSystem
                     
                     If ( sWindowTitle )
                         
+                         
                         fHandle = FindWindow_(@sWindowTitle,#Null)
                         
                         GetWindowThreadProcessId_(hwnd, @ExtProcessID)                                                                       
@@ -616,6 +621,7 @@ Module vSystem
                         EndIf
                         
                         If ( ExtProcessID = ProcessID )
+                            
                             If ( ShowDebugNB = #True)
                                         DbgLog = ""  + #CR$       
                                         DbgLog + "(FOUNDED)" + #TAB$ +   
@@ -651,7 +657,7 @@ Module vSystem
         
         Protected uPID.l, HiProcess.l, hwnd.l
                         
-            
+             
         ;
         ; Setz und Holt sich die PriorityClass vom Fremden programm
         ; NewList NoBorderList.PROCESSENTRY32()        
@@ -663,7 +669,7 @@ Module vSystem
         If ( Startup::*LHGameDB\Thread_ProcessName )  
             ForEach Process32()
                 If ( LCase( Startup::*LHGameDB\Thread_ProcessName ) = LCase( PeekS( @Process32()\szExeFile, 255, #PB_UTF8) ) )
-                    
+                   
                    ; Debug ""
                    ; Debug "NoBorder für  : " + Startup::*LHGameDB\Thread_ProcessName
                    ; Debug "- ProcessID   : " + Str( PeekL (@Process32()\th32ProcessID) )
@@ -1062,10 +1068,10 @@ Module vSystem
    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 809
-; FirstLine = 161
-; Folding = TAAgAz
+; CursorPosition = 445
+; FirstLine = 189
+; Folding = fEgHAz
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = I:\Games _ Adult Archiv\Theme - The Klub\
+; CurrentDirectory = B:\MAME\

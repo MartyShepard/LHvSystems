@@ -179,6 +179,9 @@ DeclareModule Startup
         Settings_bSaveLog.i         ;Disabled Outputlog and Redirect to StdOut.txt
         Settings_NBNoShot.i         ;Disable Screenshot Capture Support
         Settings_hkeyKill.i         ;Disbale/Enable Hotkey für das Beenden eines Programs
+        Settings_hkeyShot.i         ;Hotkey Modifier
+        vKeyActivShot.i             ;Temporäre Var für den Loop
+        vKeyActivKill.i             ;Temporäre Var für den Loop
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -236,8 +239,7 @@ DeclareModule Startup
         Thread_ProcessName.s        ; szTaskanem
         NBWindowhwnd.l              ; Handle des Fremden Fensters
         NBWindow.RECT
-        NBClient.RECT
-        NBWindowKey.i 
+        NBClient.RECT 
         NBWindowAppName.s
         bvSystem_Restart.i          ; Wenn die Höhe des Fentser angegeben wird und vSystem neustartet, denb Konlikt vermiden das es schon im System Task Existiert
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
@@ -276,6 +278,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.47b        
+        ; Rekationszeit zwischen dem Starten des Programs und dem Registrieren des Capture Hotkeys
+        ; Tray Menu erweiter. Ansicht der Capture und öffnen des Boildes mit dem Standard Programm
+        
         ;
         ; Version 0.46b
         ; Thumbnail und Splitter ausgearbeitet
@@ -847,8 +854,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 180
-; FirstLine = 138
+; CursorPosition = 283
+; FirstLine = 250
 ; Folding = -g-
 ; EnableAsm
 ; EnableXP

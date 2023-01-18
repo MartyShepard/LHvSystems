@@ -2116,6 +2116,7 @@ Module MagicGUI
                                 "        # Screenshot Capture Enbaled: Press Scroll Key"             + #CR$ +                                 
                                 "        # On Capture you hear a Beep Sound"                         + #CR$ +
                                 "%nbgsm  = Don't use System Metrics Calc. with Remove Border"        + #CR$ + #CR$ +
+                                "%nbkeym = Use Shift with Scroll-Lock Key as Modifier"               + #CR$ +
                                 "%nosht  = Disable Screen Shot Capture with Remove Border"           + #CR$ +
                                 "%lck    = Mouse Locked for Window /Screen Mode (Only with %nb)"     + #CR$ + #CR$ +  
                                 "%fmm[mb]= Force to Free Memory Cache on Programm (Beware!)"         + #CR$ +
@@ -2269,9 +2270,9 @@ Module MagicGUI
         EndIf
     EndProcedure    
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2136
-; FirstLine = 133
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 2118
+; FirstLine = 252
 ; Folding = DAEA+
 ; EnableAsm
 ; EnableXP

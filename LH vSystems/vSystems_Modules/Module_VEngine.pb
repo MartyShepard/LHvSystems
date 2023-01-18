@@ -2329,19 +2329,34 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure.s DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)
         
-        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0
+        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0, y.i= 0
 
         Repeat
             If ( x = 10000)
                 x = 0
+                
             EndIf
             
             If (x = 0)  
                 vSystem::System_GetTasklist();               
             EndIf
-            x + 1
             
-            ;WindowState = DOS_Thread_HideWindow(*Params\Program, l_ProcID, #SW_HIDE, WindowState)  
+            ;
+            ;
+            ;Das sollte die Reaktionszeit mit dem erreichen des hwnd und deem Registrieren des Hotkey für das Bildschirm Speichern verbessern
+            If ( Startup::*LHGameDB\Settings_NoBorder = #True)
+                If (x = 3)  
+                    For y = 0 To 130
+                        Delay(3)    
+                        If (Startup::*LHGameDB\NBWindowhwnd <> 0)
+                            Break;
+                        EndIf                    
+                    Next
+                EndIf
+            EndIf
+            
+            x + 1
+
                
                 If ( Startup::*LHGameDB\Settings_Affinity >= 0   ) Or
                    ( Startup::*LHGameDB\Settings_NoBorder = #True) Or
@@ -2362,16 +2377,16 @@ Module VEngine
                 EndIf            
                 
                 If Startup::*LHGameDB\Settings_NoBorder = #True 
-                    
-                    
+                                       
                     If ( Startup::*LHGameDB\Settings_NoBoTime >= 1)
                         Delay(Startup::*LHGameDB\Settings_NoBoTime)
+                        
                         ;
                         ; Nur für den Start
                         Startup::*LHGameDB\Settings_NoBoTime = 0
                     EndIf    
                     
-                    vSystem::System_NoBorder(*Params\Program)                                  
+                    vSystem::System_NoBorder(*Params\Program)    
                 EndIf                
                 
                 If Startup::*LHGameDB\Settings_FreeMemE = #True            
@@ -2868,7 +2883,10 @@ Module VEngine
         Startup::*LHGameDB\Settings_bNoOutPt = #False;
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
-        Startup::*LHGameDB\Settings_hkeyKill = #True;        
+        Startup::*LHGameDB\Settings_hkeyKill = #True ;
+        
+        Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
+        Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop        
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Section Set Media Device
@@ -3001,7 +3019,7 @@ Module VEngine
         
         
         ;
-        ; Einstellung: Dekativere Screenhsot Capture
+        ; Einstellung: Deaktiviere Screenhsot Capture
         If ( Startup::*LHGameDB\Settings_NoBorder = #True )                    
             szCommand.s = "%nosht"
             ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
@@ -3010,6 +3028,20 @@ Module VEngine
                 Startup::*LHGameDB\Settings_NBNoShot  = #True
             EndIf  
         EndIf
+        
+        ;
+        ; Einstellung: Für die Auswahl der Taste für die Spoeichgeruihg des Screenshots
+        If ( Startup::*LHGameDB\Settings_NoBorder = #True ) 
+            If ( Startup::*LHGameDB\Settings_NBNoShot  = #False )                
+                szCommand.s = "%nbkeym"
+                Startup::*LHGameDB\Settings_hkeyShot  = #Null
+                ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+                If ( ArgPos > 0 )
+                    Args = DOS_TrimArg(Args.s, szCommand.s) 
+                    Startup::*LHGameDB\Settings_hkeyShot  = #MOD_SHIFT
+                EndIf   
+            EndIf  
+        EndIf        
         
         ;
         ;
@@ -3586,11 +3618,7 @@ Module VEngine
     Procedure DOS_Prepare()
         
         Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i
-        
-        ;
-        ; Hotkey Varibale Terminate Program
-        Protected hKey_Terminate.i = #False
-        
+               
         *Params.PROGRAM_BOOT = AllocateMemory(SizeOf(PROGRAM_BOOT))
         InitializeStructure(*Params, PROGRAM_BOOT)
         
@@ -3619,7 +3647,6 @@ Module VEngine
             If ( Startup::*LHGameDB\Settings_NBNoShot = #False )
                 ; Reset NoBorder Handle Vars
                 VSystem::System_NoBorder_Handle_Reset()
-                Startup::*LHGameDB\NBWindowKey = #False
             EndIf
             
             If (Len(*Params\Program) = 0 )
@@ -3654,54 +3681,42 @@ Module VEngine
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
             _Action1 = CreateThread(@DOS_Thread(),*Params)                                             
-            
+
+            ;
+            ; ======================================================================================== Loop
             While IsThread(_Action1)                
-                Delay(1) 
-                ;
-                ; Capture Screen Shot
-                If  ( Startup::*LHGameDB\NBWindowhwnd > 0  And Startup::*LHGameDB\NBWindowKey = #False) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                                     
-                    RegisterHotKey_(  WindowID(DC::#_Window_001), 1, #Null, #VK_SCROLL)
-                    Startup::*LHGameDB\NBWindowKey = #True
-                    Debug "Register HotKey to Cpature Screenshot (Handle " + Str(Startup::*LHGameDB\NBWindowhwnd) + ")"
-                EndIf                            
+                Delay(1)                                                       
+                vKeys::Init_Capture()
                 
-                If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
-                    If IsProgram( Startup::*LHGameDB\Thread_ProcessLow ) And (hKey_Terminate = #False)
-                        RegisterHotKey_(  WindowID(DC::#_Window_001), 2, #MOD_ALT, #VK_SCROLL)
-                        hKey_Terminate = #True
-                        Debug "Register HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"                    
-                    EndIf
-                EndIf   
-            
-            
-            
+                Delay(1)
+                vKeys::Init_Terminate()                        
+                
                 ProgramEventID = WaitWindowEvent()
-                If ( ProgramEventID = #WM_HOTKEY )                                                                              
+                If ( ProgramEventID = #WM_HOTKEY )
                     Select EventwParam()
                             
-                    Case 1
-                        If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
-                            Beep_(257,150)
-                            vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
-                            Continue
-                        EndIf
-                        
-                    Case 2  
-                        If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
-                            If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                                KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                                Break
-                            EndIf 
-                        EndIf
-                        
-                    Case 3                     
+                        Case 1
+                            If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
+                                Beep_(257,150)
+                                vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
+                            EndIf
+                            
+                        Case 2  
+                            If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
+                                If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                                    KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                                    Break
+                                EndIf 
+                            EndIf
+                            
+                        Case 3                     
                     EndSelect
                 EndIf                              
-                While WindowEvent()
-                Wend  
+                ;While WindowEvent()
+                ;Wend  
             Wend  
-                         
-            ;EndIf
+            ; ======================================================================================== Loop
+            
             ;
             ; Minimiert vSystems/ Setzt den Zustand des programms Wieder her. Minimiren befindet sich Modul 
             ; DOS_Thread_GameMode(*Params.PROGRAM_BOOT)
@@ -3749,8 +3764,7 @@ Module VEngine
             ; NoBorder, Screenshot Aktiv
             If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )    
                 UnregisterHotKey_( WindowID(DC::#_Window_001) , 1)
-                VSystem::System_NoBorder_Handle_Reset()
-                Startup::*LHGameDB\NBWindowKey = #False                 
+                VSystem::System_NoBorder_Handle_Reset()               
             EndIf   
             
             If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
@@ -4450,13 +4464,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3658
-; FirstLine = 2890
-; Folding = 8+hv6dy-BY+H5
+; CursorPosition = 2381
+; FirstLine = 1818
+; Folding = 8+hv6dyfDMuH5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = N:\Tosec Mame Emulation\Arcade\Atari Batman\
+; CurrentDirectory = B:\MAME\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

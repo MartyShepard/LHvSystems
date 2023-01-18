@@ -1363,8 +1363,8 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1358
-; FirstLine = 666
+; CursorPosition = 1362
+; FirstLine = 665
 ; Folding = -cAWAEv0
 ; EnableAsm
 ; EnableXP

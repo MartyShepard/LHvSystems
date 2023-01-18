@@ -2679,14 +2679,85 @@ Module INVMNU
                     Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
                 EndIf                 
                 
+            Case 200 To 300
+                FFH::ShellExec(GetMenuItemText(CLSMNU::*MNU\HandleID[0], MenuID), "open")
+                
+            Case 23
+                ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"                
+                ShotSize.i = 0
+                
+                ShotSize = vItemTool::File_GetFiles(ShotPath)
+                If  (ShotSize > 0 )
+                    
+                    Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Löschen?","Alle Snapshot Dateie(n) löschen? ("+Str(ShotSize)+") " + #CR$ + "Pfad: " + ShotPath,11,2,"",0,0,DC::#_Window_001)
+                    If (Result = 0)                
+                        While NextElement(FFS::FullFileSource())
+                            Delay( 5 )
+                            DeleteFile( FFS::FullFileSource()\FileName )
+                        Wend
+                    EndIf    
+                    ClearList( FFS::FullFileSource() )
+                    
+                    Delay( 5 )
+                    ShotSize = vItemTool::File_GetFiles(ShotPath)
+                    If ( ShotSize > 0 )
+                        Request::MSG(Startup::*LHGameDB\TitleVersion, "Fehler", "Konnte alle Snapshot Dateie(n) nicht löschen" ,2,1,"",0,0,DC::#_Window_001 )
+                    Else
+                        Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
+                    EndIf
+                EndIf                    
+
            Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
                     
         EndSelect       
     EndProcedure
+    ;*******************************************************************************************************************************************************************    
+    Procedure Set_TrayMenu_LoggUtil()    
+        Protected LognPath.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+        
+        MenuItem(22, "Log Verzeichnis Öffnen"                   ,ImageID( DI::#_MNU_EX1 )) 
+        
+        If ( FileSize(LognPath) <> -2 )      
+            DisableMenuItem( CLSMNU::*MNU\HandleID[0], 22, 1)
+        Else
+            MenuItem(18, "Log Datei Öffnen: stdout"                 ,ImageID( DI::#_MNU_CLR ))
+            MenuItem(19, "Log Datei Öffnen: error"                  ,ImageID( DI::#_MNU_CLR ))
+        EndIf    
+        
+    EndProcedure
+
+    ;*******************************************************************************************************************************************************************    
+    Procedure Set_TrayMenu_ShotUtil()
+        
+        Protected ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
+        Protected ShotSize.i = 0
+               
+        If ( FileSize(ShotPath) <> -2 )
+            MenuItem(21, "Capture Verzeichnis Öffnen"              ,ImageID( DI::#_MNU_EX1 ))            
+            DisableMenuItem( CLSMNU::*MNU\HandleID[0], 21, 1)            
+        Else                        
+            ShotSize = vItemTool::File_GetFiles(ShotPath)  
+            
+            MenuItem(21, "Capture Verzeichnis Öffnen (" + Str(ShotSize) + ")",ImageID( DI::#_MNU_EX1 ))                
+                       
+            If ( ShotSize > 0 )
+                OpenSubMenu("Capture Dateien ...")
+                While NextElement(FFS::FullFileSource())
+                    
+                    MenuItem(200, FFS::FullFileSource()\FileName) 
+                    
+                    Debug "FullPath : " +FFS::FullFileSource()\FileName
+                Wend
+                CloseSubMenu()    
+                ClearList( FFS::FullFileSource() )                
+                MenuItem(23, "Capture Dateien Löschen"              ) 
+            EndIf
+        EndIf    
+        EndProcedure    
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
+
         If IsWindow(DC::#_Window_001)                            
-                   
             MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       )
             MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       )       
             MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       )
@@ -2702,11 +2773,9 @@ Module INVMNU
             MenuBar() 
             MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
             MenuBar()  
-            MenuItem(18, "Log Datei Öffnen: stdout"                 ,ImageID( DI::#_MNU_CLR ))
-            MenuItem(19, "Log Datei Öffnen: error"                  ,ImageID( DI::#_MNU_CLR ))
-            MenuItem(22, "Log Verzeichnis Öffnen"                   ,ImageID( DI::#_MNU_EX1 ))             
-            MenuBar()            
-            MenuItem(21, "Capture Verzeichnis Öffnen"               ,ImageID( DI::#_MNU_EX1 ))
+            Set_TrayMenu_LoggUtil()   
+            MenuBar()              
+            Set_TrayMenu_ShotUtil()
             MenuBar()              
             OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
             MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
@@ -2730,14 +2799,17 @@ Module INVMNU
         MenuItem(98, "vSystems Update")        
         MenuItem(99, "vSystems Beenden")
         
+
+
+            
         
         
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1507
-; FirstLine = 1468
+; CursorPosition = 2703
+; FirstLine = 2425
 ; Folding = z5-
 ; EnableAsm
 ; EnableXP
