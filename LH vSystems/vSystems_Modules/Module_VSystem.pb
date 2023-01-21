@@ -81,11 +81,8 @@ Module vSystem
                     
                     While CallFunction (#PROCESS32LIB, "Process32Next", SnapShot, @Proc32)
                         
-                        AddElement (P32())
-                        
-                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))
-                        Debug "System_TaskList( List P32.PROCESSENTRY32() )"
-                        ;Delay( 1 )
+                        AddElement (P32())                        
+                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))                                             
                     Wend
                     
                 EndIf
@@ -438,26 +435,26 @@ Module vSystem
         
         Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT , Desktop.RECT
         
-            GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
-            GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
-            
-            Startup::*LHGameDB\NBWindowhwnd = hwnd;
-            Startup::*LHGameDB\NBWindow =  Window.RECT;
-            Startup::*LHGameDB\NBClient =  Client.RECT;            
-
-            
+        GetClientRect_(hwnd, @Client); Ohne Fenster Rahmen
+        GetWindowRect_(hwnd, @Window); Mit Fensteer Rahmen
+        
+        Startup::*LHGameDB\NBWindowhwnd = hwnd;
+        Startup::*LHGameDB\NBWindow =  Window.RECT;
+        Startup::*LHGameDB\NBClient =  Client.RECT;            
+        
+        
         If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER ) Or ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
             
             ;ShowWindow_(hwnd, #SW_SHOWNOACTIVATE);
             
             ; GetWindowRect - gibt ein Rechteck IN Bildschirmkoordinaten zurück, während
             ; GetClientRect ein Rechteck IN Clientkoordinaten zurückgibt.
-
+            
             ; InvalidateRect erhält ein Rect IN Clientkoordinaten. Wenn Sie Ihren gesamten
             ; Clientbereich ungültig machen möchten, übergeben Sie NULL an InvalidateRect.
             ; Sie könnten DAS von GetClientRect zurückgegebene Rect übergeben, aber es ist;
             ; viel einfacher und klarer, NULL zu übergeben.   
-                                              
+            
             W = Window\right - Window\left
             H = Window\bottom - Window\top            
             
@@ -466,80 +463,80 @@ Module vSystem
                 CX_B = GetSystemMetrics_(#SM_CXBORDER) *2  ;(2)
                 Cx_E = GetSystemMetrics_(#SM_CXEDGE)   *2  ;(4)
             EndIf
-           If ( ShowDebugNB = #True)
-               Debug "-- Client \Links  :" + Str(Client\left )
-               Debug "-- Client \Rechts :" + Str(Client\right )
-               Debug "-- Client \Oben   :" + Str(Client\Top )           
-               Debug "-- Client \Unten  :" + Str(Client\bottom )
-               
-               Debug "-- Window \Links  :" + Str(Window\left )
-               Debug "-- Window \Rechts :" + Str(Window\right )
-               Debug "-- Window \Oben   :" + Str(Window\Top )           
-               Debug "-- Window \Unten  :" + Str(Window\bottom )
-               
-               Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
-               Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
-               Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
-               
-               Debug "-- Window\left - Client\left     : " + Str(Window\left - Client\left)
-               Debug "-- Window\bottom - Client\bottom : " + Str(Window\bottom - Client\bottom)
-           EndIf
-           
-           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
-               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
-               If ( ShowDebugNB = #True)
-                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
-               EndIf  
-           EndIf    
-           
-           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
-               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
-               If ( ShowDebugNB = #True)
-                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
-               EndIf
-           EndIf    
-           
-           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
-               SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
-               If ( ShowDebugNB = #True)
-                   Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
-               EndIf
-           EndIf  
-           
-           If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPEDWINDOW) 
-               
-                   If ( ShowDebugNB = #True)
-                       Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW"
-                   EndIf
-                   
-               If ( Startup::*LHGameDB\Settings_OvLapped = #True )                   
+            If ( ShowDebugNB = #True)
+                Debug "-- Client \Links  :" + Str(Client\left )
+                Debug "-- Client \Rechts :" + Str(Client\right )
+                Debug "-- Client \Oben   :" + Str(Client\Top )           
+                Debug "-- Client \Unten  :" + Str(Client\bottom )
+                
+                Debug "-- Window \Links  :" + Str(Window\left )
+                Debug "-- Window \Rechts :" + Str(Window\right )
+                Debug "-- Window \Oben   :" + Str(Window\Top )           
+                Debug "-- Window \Unten  :" + Str(Window\bottom )
+                
+                Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
+                Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
+                Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
+                
+                Debug "-- Window\left - Client\left     : " + Str(Window\left - Client\left)
+                Debug "-- Window\bottom - Client\bottom : " + Str(Window\bottom - Client\bottom)
+            EndIf
+            
+            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
+                If ( ShowDebugNB = #True)
+                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
+                EndIf  
+            EndIf    
+            
+            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
+                If ( ShowDebugNB = #True)
+                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
+                EndIf
+            EndIf    
+            
+            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
+                If ( ShowDebugNB = #True)
+                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
+                EndIf
+            EndIf  
+            
+            If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPEDWINDOW) 
+                
+                If ( ShowDebugNB = #True)
+                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW"
+                EndIf
+                
+                If ( Startup::*LHGameDB\Settings_OvLapped = #True )                   
                     SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPEDWINDOW)   
                     If ( ShowDebugNB = #True)
-                         Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
-                   EndIf
-               EndIf 
-               
-           EndIf
-           
-
+                        Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
+                    EndIf
+                EndIf 
+                
+            EndIf
+            
+            
             
             If ( Startup::*LHGameDB\Settings_GetSmtrc = #True)
                 MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
-             EndIf
+            EndIf
             
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
                 SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
-                               
+                
                 WinGuru::Center(hwnd,Client\right,client\bottom)
                 ShowWindow_(hwnd, 5)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
-                                                
+                
             Else    
                 SetWindowPos_(hwnd, #HWND_TOPMOST, 0,0,0,0, #SWP_NOMOVE | #SWP_NOSIZE)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
-                              
+                
             EndIf                        
             ProcedureReturn 
         EndIf
@@ -548,37 +545,37 @@ Module vSystem
         FGW.l=GetForegroundWindow_()         
         If ( Startup::*LHGameDB\Settings_LokMouse = #True ) And ( hwnd = FGW )
             
-                Protected Current.rect
-                
-                If ( ShowDebugNB = #True)
-                    Debug "- Maus Begrent bewegen für handle: " + Str(hwnd)                         
-                    Debug "- Fenster/ Screen Aktiv          : " + Str(FGW)   
-                EndIf
-                GetWindowRect_(hwnd,Current)    
-                
-                If ( ShowDebugNB = #True)
-                    Debug "-- Client \Links  :" + Str(Current\left )
-                    Debug "-- Client \Rechts :" + Str(Current\right )
-                    Debug "-- Client \Oben   :" + Str(Current\Top )           
-                    Debug "-- Client \Unten  :" + Str(Current\bottom ) 
-                EndIf
-                
-                Current\left = Current\left   + 2
-                Current\right = Current\right - 1                
-                
-                ClipCursor_(Current)  
-                
-            Else          
-                If ( Startup::*LHGameDB\Settings_LokMouse = #True )
-                    If ( ShowDebugNB = #True)
-                        Debug "- Fenster/ Screen Nicht fokussiert!!" + Str(FGW)                       
-                    EndIf    
-                EndIf
-         EndIf                  
+            Protected Current.rect
             
-         If ( ShowDebugNB = #True)
-             Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
-         EndIf                                
+            If ( ShowDebugNB = #True)
+                Debug "- Maus Begrent bewegen für handle: " + Str(hwnd)                         
+                Debug "- Fenster/ Screen Aktiv          : " + Str(FGW)   
+            EndIf
+            GetWindowRect_(hwnd,Current)    
+            
+            If ( ShowDebugNB = #True)
+                Debug "-- Client \Links  :" + Str(Current\left )
+                Debug "-- Client \Rechts :" + Str(Current\right )
+                Debug "-- Client \Oben   :" + Str(Current\Top )           
+                Debug "-- Client \Unten  :" + Str(Current\bottom ) 
+            EndIf
+            
+            Current\left = Current\left   + 2
+            Current\right = Current\right - 1                
+            
+            ClipCursor_(Current)  
+            
+        Else          
+            If ( Startup::*LHGameDB\Settings_LokMouse = #True )
+                If ( ShowDebugNB = #True)
+                    Debug "- Fenster/ Screen Nicht fokussiert!!" + Str(FGW)                       
+                EndIf    
+            EndIf
+        EndIf                  
+        
+        If ( ShowDebugNB = #True)
+            Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
+        EndIf                                
     EndProcedure  
     ;
     ;
@@ -688,10 +685,10 @@ Module vSystem
                         ;Debug "HiProcess           ============ :"
                         ;EnumWindows_(@System_EnumWindows(),HiProcess)
                         CloseHandle_( HiProcess ) 
-                    EndIf               
-                    Break
+                        Break
+                    EndIf                                   
                 EndIf
-                Delay( 2 )
+                ;Delay( 2 )
             Next    
         EndIf
 
@@ -1068,8 +1065,8 @@ Module vSystem
    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 445
-; FirstLine = 189
+; CursorPosition = 681
+; FirstLine = 414
 ; Folding = fEgHAz
 ; EnableAsm
 ; EnableXP

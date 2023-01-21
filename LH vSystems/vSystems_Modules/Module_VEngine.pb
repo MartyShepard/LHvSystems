@@ -14,6 +14,8 @@
     Declare     Database_Set_Release()
     Declare     DataBase_Duplicate() 
     Declare     Update_Changes()    
+    Declare     Database_Set_ProgramArgs(StringID.i)
+    Declare     Database_Set_ProgramTitle(StringID.i)    
     
     Declare     GadObjects_ClrRve_MediaOnly()
     
@@ -502,7 +504,7 @@ Module VEngine
         
         ;For  AsciiPos = 1 To Len(TestString$)           
         
-        SendMessage_(GadgetID(DC::#String_005), #EM_GETSEL, @Start, 0) 
+        SendMessage_(GadgetID(DC::#String_005), #EM_GETSEL, @Start, 0)            
         
         Char = Asc(Right(TestString$,1))
         
@@ -700,6 +702,58 @@ Module VEngine
          SetGadgetText(DC::#String_006,Str$)  
          SetGadgetText(DC::#String_007,Cli$)  
     EndProcedure
+    ;****************************************************************************************************************************************************************
+    ;Wird in der Routine MainCode_StringCallBack ausgeführt
+    ;****************************************************************************************************************************************************************   
+    Procedure Database_Set_ProgramArgs(StringID.i)
+        
+        Protected id.i, szArgs.s, szText.s        
+        ;
+        ; Hole die Aktuelle ID unter dem Konfigurieten Program
+        id = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","",Startup::*LHGameDB\GameID,"",1))         
+        If ( id = 0 )
+            ProcedureReturn 
+        EndIf  
+        
+        ;
+        ; Hole dazu das Aktuelle Argument (Konfiguration) aus der DB
+        szArgs = ExecSQL::nRow(DC::#Database_001,"Programs","Args_Default","",id,"",1)
+        
+        ;
+        ; Update
+        szText = GetGadgetText(StringID)                       
+        ExecSQL::UpdateRow( DC::#Database_001,"Programs", "Args_Default"   , szText,id) 
+        
+        Debug "Update: Database_Set_ProgramArgs() " + szText
+         
+    EndProcedure    
+    
+    ;****************************************************************************************************************************************************************
+    ;Wird in der Routine MainCode_StringCallBack ausgeführt
+    ;****************************************************************************************************************************************************************   
+    Procedure Database_Set_ProgramTitle(StringID.i)
+        
+        Protected id.i, szArgs.s, szText.s        
+        ;
+        ; Hole die Aktuelle ID unter dem Konfigurieten Program
+        id = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","",Startup::*LHGameDB\GameID,"",1))
+        If ( id = 0 )
+            ProcedureReturn 
+        EndIf    
+        
+        ;
+        ; Hole dazu das Aktuelle Argument (Konfiguration) aus der DB
+        szArgs = ExecSQL::nRow(DC::#Database_001,"Programs","Program_Description","",id,"",1)
+        
+        ;
+        ; Update
+        szText = GetGadgetText(StringID)                       
+        ExecSQL::UpdateRow( DC::#Database_001,"Programs", "Program_Description"   , szText,id) 
+        
+        Debug "Update: Database_Set_ProgramTitle() " + StrszText
+         
+    EndProcedure     
+    
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************    
@@ -1501,6 +1555,13 @@ Module VEngine
     EndProcedure        
     
     Procedure Switcher_Pres_NoItems()
+        Protected szMem.i
+        ;
+        ; Alternativ Text fürs Datum 
+        szMem = AllocateMemory(10)
+        PokeS(szMem, "2000/01/01", -1, #PB_Unicode)
+        ;
+        
         
         If ( GetGadgetState(DC::#ListIcon_001) = -1 )
             If ( Startup::*LHGameDB\SwitchNoItems = -1 )
@@ -1522,7 +1583,8 @@ Module VEngine
                     ButtonEX::Disable(DC::#Button_010, #False)
                 EndIf
                 
-                Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Disabled")                                    
+                Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Disabled") 
+                FreeMemory(szMem)
                 ProcedureReturn -1
             EndIf    
             
@@ -1537,7 +1599,9 @@ Module VEngine
                 ButtonEX::Disable(DC::#Button_013, #False)            
                 ButtonEX::Disable(DC::#Button_014, #False)
                 ButtonEX::Disable(DC::#Button_016, #False)
-                Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Enabled")                
+                Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Enabled")
+                SendMessage_(GadgetID(DC::#String_005), #EM_SETCUEBANNER, 0, szMem)   
+                
                 ProcedureReturn  1
             EndIf    
         EndIf
@@ -2125,8 +2189,7 @@ Module VEngine
                 ; Release
             Case DC::#String_005
                 Title$ = GetGadgetText(GadgetID)                               
-                Database_Get_Set_Release(Title$,#False)
-
+                Database_Get_Set_Release(Title$,#False)              
             Default  
         EndSelect        
     EndProcedure    
@@ -2197,6 +2260,9 @@ Module VEngine
             PrgDesc$ = ExecSQL::nRow(DC::#Database_001,"Programs","ExShort_Name","",id,"",1) 
         EndIf
         
+        
+        Database_Set_ProgramTitle(DC::#String_006)          
+        Database_Set_ProgramArgs(DC::#String_007)      
         
         SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),FsTitle$ ,0)
         SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),Pltform$ ,1)
@@ -2330,89 +2396,72 @@ Module VEngine
     Procedure.s DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)
         
         Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0, y.i= 0
-
+        
         Repeat
             If ( x = 10000)
-                x = 0
-                
+                x = 0                
             EndIf
             
             If (x = 0)  
                 vSystem::System_GetTasklist();               
+            EndIf                       
+            x + 1                        
+            
+            If ( Startup::*LHGameDB\Settings_Affinity >= 0   ) Or
+               ( Startup::*LHGameDB\Settings_NoBorder = #True) Or
+               ( Startup::*LHGameDB\Settings_FreeMemE = #True)                 
             EndIf
             
-            ;
-            ;
-            ;Das sollte die Reaktionszeit mit dem erreichen des hwnd und deem Registrieren des Hotkey für das Bildschirm Speichern verbessern
-            If ( Startup::*LHGameDB\Settings_NoBorder = #True)
-                If (x = 3)  
-                    For y = 0 To 130
-                        Delay(3)    
-                        If (Startup::*LHGameDB\NBWindowhwnd <> 0)
-                            Break;
-                        EndIf                    
-                    Next
-                EndIf
-            EndIf
             
-            x + 1
-
-               
-                If ( Startup::*LHGameDB\Settings_Affinity >= 0   ) Or
-                   ( Startup::*LHGameDB\Settings_NoBorder = #True) Or
-                   ( Startup::*LHGameDB\Settings_FreeMemE = #True)                 
-                EndIf
-    
-                
-                If ( Startup::*LHGameDB\Settings_Affinity >= 0 )               
-                     If ( Startup::*LHGameDB\Settings_Affinity = 999 )   
-                         ;
-                         ; 999 - Forciere alle CPU's
-                         vSystem::System_SetAffinity(*Params\Program)
-                     Else
-                         vSystem::System_SetAffinity(*Params\Program, Startup::*LHGameDB\Settings_Affinity+1)
-                     EndIf
-                     ; Aktivere den Patch nur einmal
-                     Startup::*LHGameDB\Settings_Affinity = -1                    
-                EndIf            
-                
-                If Startup::*LHGameDB\Settings_NoBorder = #True 
-                                       
-                    If ( Startup::*LHGameDB\Settings_NoBoTime >= 1)
-                        Delay(Startup::*LHGameDB\Settings_NoBoTime)
-                        
-                        ;
-                        ; Nur für den Start
-                        Startup::*LHGameDB\Settings_NoBoTime = 0
-                    EndIf    
-                    
-                    vSystem::System_NoBorder(*Params\Program)    
-                EndIf                
-                
-                If Startup::*LHGameDB\Settings_FreeMemE = #True            
-                   vSystem::System_MemoryFree(*Params\Program) 
-                   ; TODO
-                   ; Schwellenwert angabe                 
-                EndIf   
-                
-                
-                If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )               
-                    ProcessEX::LHFreeMem()
-                EndIf                 
-                
-                If Not (ProgramRunning(l_ProcID))
-                    DOS_NOP = 0
-                EndIf 
-                
-                If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
-                    DOS_NOP = 0
+            If ( Startup::*LHGameDB\Settings_Affinity >= 0 )               
+                If ( Startup::*LHGameDB\Settings_Affinity = 999 )   
+                    ;
+                    ; 999 - Forciere alle CPU's
+                    vSystem::System_SetAffinity(*Params\Program)
                 Else
-                    If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
-                        ; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)     
-                        DOS_Thread_OutPut(*Params)
-                    EndIf                      
+                    vSystem::System_SetAffinity(*Params\Program, Startup::*LHGameDB\Settings_Affinity+1)
+                EndIf
+                ; Aktivere den Patch nur einmal
+                Startup::*LHGameDB\Settings_Affinity = -1                    
+            EndIf                                         
+            
+            If Startup::*LHGameDB\Settings_FreeMemE = #True            
+                vSystem::System_MemoryFree(*Params\Program) 
+                ; TODO
+                ; Schwellenwert angabe                 
+            EndIf   
+            
+            
+            If Startup::*LHGameDB\Settings_NoBorder = #True 
+                
+                If ( Startup::*LHGameDB\Settings_NoBoTime >= 1)
+                    Delay(Startup::*LHGameDB\Settings_NoBoTime)
+                    
+                    ;
+                    ; Nur für den Start
+                    Startup::*LHGameDB\Settings_NoBoTime = 0
                 EndIf    
-            Delay(5)
+                
+                vSystem::System_NoBorder(*Params\Program)    
+            EndIf 
+            
+            If ( vSystem::System_GetCurrentMemoryUsage() > 10485760 )               
+                ProcessEX::LHFreeMem()
+            EndIf                 
+            
+            If Not (ProgramRunning(l_ProcID))
+                DOS_NOP = 0
+            EndIf 
+            
+            If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
+                DOS_NOP = 0
+            Else
+                If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+                    ; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)     
+                    DOS_Thread_OutPut(*Params)
+                EndIf                      
+            EndIf    
+            Delay(25)
         Until DOS_NOP = 0    
         
         Delay(1)
@@ -4464,9 +4513,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2381
-; FirstLine = 1818
-; Folding = 8+hv6dyfDMuH5
+; CursorPosition = 2264
+; FirstLine = 1756
+; Folding = 8+P+34J-N5+eg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

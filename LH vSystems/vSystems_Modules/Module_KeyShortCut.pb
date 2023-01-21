@@ -22,7 +22,7 @@ Module vKeys
             
             Startup::*LHGameDB\vKeyActivShot = #True
             
-            Debug "REGISTER HotKey to Capture Screenshot (Handle " + Str(Startup::*LHGameDB\NBWindowhwnd) + ")"
+            Debug "Init_Capture(): REGISTER HotKey to Capture Screenshot (Handle " + Str(Startup::*LHGameDB\NBWindowhwnd) + ")"
         EndIf         
     EndProcedure            
     ;
@@ -37,7 +37,7 @@ Module vKeys
                 
                 Startup::*LHGameDB\vKeyActivKill = #True
                 
-                Debug "REGISTER HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"                                    
+                Debug "Init_Terminate() REGISTER HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"                                    
             EndIf
         EndIf        
     EndProcedure

@@ -1,40 +1,4 @@
-﻿DeclareModule GuruCallBack
-    
-    Declare.l CallBackEvnts(hwnd, uMsg, wParam, lParam)
-    Declare   PostEvents_Resize(hwnd.i)
-    Declare.i PostEvents_Close(hwnd.i) 
-    Declare.i StringGadgetCallBack(hwnd, msg, wParam, lParam) 
-    Declare StringGadgetSetCallback(pbnr, parent, xyz = 0)
-    
-    Declare.i ListGadgetSetCallback(pbnr, parent, xyz = 0)
-    Declare ListGadgetCallBack(hwnd, msg, wParam, lParam) 
-    
-    Declare.i SplitGadgetSetCallback(pbnr, parent, xyz = 0)
-    Declare SplitGadgetCallBack(hwnd, msg, wParam, lParam)  
-    
-    Declare.i ScrollAreaGadgetSetCallback(pbnr, parent, xyz = 0)
-    Declare ScrollAreaGadgetCallBack(hwnd, msg, wParam, lParam)  
-    
-    Declare.l CallBackEvnts_Edit(hwnd, uMsg, wParam, lParam)
-    
-    Declare.i EditGadgetCallBack(hwnd, msg, wParam, lParam) 
-    Declare EditGadgetSetCallback(pbnr, parent, xyz = 0)
-    
-    Declare     Window_Get_ClientSize(hWnd, nWidth, nHeight)
-    
-   
-    
-    
-    Global isMediaMouseBack.i = #False
-    
-   Enumeration #PB_EventType_FirstCustomValue  
-       #PB_EventType_StrgReturn
-       #PB_EventType_StrgEscape
-       #PB_EventType_StrgUp
-       #PB_EventType_StrgDown
-   EndEnumeration
-   
-EndDeclareModule
+﻿
 
 Module GuruCallBack
           
@@ -1549,9 +1513,7 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 971
-; FirstLine = 723
-; Folding = vcuF0-
+; Folding = XO-j+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

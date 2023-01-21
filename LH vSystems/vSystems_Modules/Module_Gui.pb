@@ -1949,7 +1949,62 @@ Module MagicGUI
         ProcedureReturn ChildWindowID
     EndProcedure   
     
-    Procedure Set_Tooltypes()
+    Procedure.s Set_Tooltype_Args()
+        Protected ToolTipInfo_Text$ = ""
+        
+            ToolTipInfo_Text$ = #CR$ +
+                                "Edit the Commandline directly here. Supportet Keynames are:"       + #CR$ + #CR$ +                                                                  
+                                "%m      = Minimize vSystems"                                        + #CR$ +
+                                "%a      = Execute and Run the programm Asynchron"                   + #CR$ + #CR$ +                                 
+                                "%nb[cb] = Remove Border from Windowed Programs or Games"            + #CR$ +
+                                "        + Optional c to Center the Window"                          + #CR$ +
+                                "        + Optional b to set real Borderless Window"                 + #CR$ +
+                                "        # Screenshot Capture Enbaled: Press Scroll Key"             + #CR$ +                                 
+                                "        # On Capture you hear a Beep Sound"                         + #CR$ +
+                                "%nbgsm  = Don't use System Metrics Calc. with Remove Border"        + #CR$ + #CR$ +
+                                "%nbkeym = Use Shift with Scroll-Lock Key as Modifier"               + #CR$ +
+                                "%nosht  = Disable Screen Shot Capture with Remove Border"           + #CR$ +
+                                "%lck    = Mouse Locked for Window /Screen Mode (Only with %nb)"     + #CR$ + #CR$ +  
+                                "%fmm[mb]= Force to Free Memory Cache on Programm (Beware!)"         + #CR$ +
+                                "          mb from 1 to 3000. Optional Maximum Mem before Clear."    + #CR$ + #CR$ +                                
+                                "%tb     = Game Compatibilty: Disable Taskbar"                       + #CR$ +
+                                "%ex     = Game Compatibilty: Disable Explorer"                      + #CR$ +                                
+                                "%ux     = Game Compatibilty: Disable Aero Support"                  + #CR$ + #CR$ +  
+                                "%c[arg] = Windows Compatibility Mode. Argument is:"                 + #CR$ +
+                                "          Win95, Win98, WinXP, WinXPSp3, VistaRTM, RunAsAdmin"      + #CR$ +
+                                "          It exists more switches. This is not completely!"         + #CR$ + #CR$ + 
+                                "%cpu[x] = Adjust CPU Affinity from 0-63 (0 is 1 etc.. )"            + #CR$ +
+                                "          x can be: f to force all Cpu Units"                       + #CR$ +
+                                "          x can be: digit number from 0 to 63"                      + #CR$ + #CR$ +
+                                "%blockfw= Block Program Executable through the Firewall"            + #CR$ + #CR$ +                                
+                                "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
+                                "          c: use as unviersal commandline in the Slots"             + #CR$ +  
+                                "%noout  = Disable and don't show output Program loggin'"            + #CR$ + 
+                                "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
+                                "%nhkeyt = Disable Taskill Program Hotkey [Alt+Scroll]"              + #CR$ + #CR$ +                                
+                                "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
+                                "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
+                                "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
+                                "          For Program's that has'nt builtin Packer Support."        + #CR$ + 
+                                "          vSystems Uncompress File & give it to the Program."
+                                
+                               
+                                 For TxtIndex = 1 To Len(ToolTipInfo_Text$)
+                                     
+                                     char.c = Asc(Mid(ToolTipInfo_Text$,TxtIndex,1))
+                                     Select char
+                                         Case 'a' To 'z'
+                                              sOut$ + UCase( Chr( char ) )
+                                         Case 'A' To 'Z'
+                                              sOut$ + LCase( Chr( char ) )
+                                         Default
+                                             sOut$ + Chr( char )
+                                       EndSelect
+                                   Next
+                                   
+           ProcedureReturn  sOut$                      
+    EndProcedure    
+    Procedure   Set_Tooltypes()
         
         Protected ToolTipFont.l = Fonts::#_SEGOEUI10N, ToolTipLen.i = 318, ToolTipFontEx.l = Fonts::#_SEGOEUI10N, ToolTipInfo$
         
@@ -2006,8 +2061,9 @@ Module MagicGUI
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_006 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
         ToolTipInfoTitle$ = "Configure the Program Commandline"
-        ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open and select a window with Programs to Edit the Commandline"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_007 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfo_Text$ = Set_Tooltype_Args()
+        ToolTipInfo_Text$ + #CR$ + #CR$+ "fOR dETAILED cOMMANDLINE eDIT, dOUBLEKLICK tHIS sTRING"
+        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_007 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)
         
         ToolTipInfoTitle$ = "Media Device 0 (Drag'n'Drop Supportet)"
         ToolTipInfo_Text$ = "Full Path to Rom/Media File. This will be controlled by '%s' in the commandline." + #CR$ +
@@ -2105,58 +2161,11 @@ Module MagicGUI
             ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open and select a other path."
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_102 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
+            
             ToolTipInfoTitle$ = "The Commandline"
-            ToolTipInfo_Text$ = #CR$ +
-                                "Edit the Commandline directly here. Supportet Keynames are:"       + #CR$ + #CR$ +                                                                  
-                                "%m      = Minimize vSystems"                                        + #CR$ +
-                                "%a      = Execute and Run the programm Asynchron"                   + #CR$ + #CR$ +                                 
-                                "%nb[cb] = Remove Border from Windowed Programs or Games"            + #CR$ +
-                                "        + Optional c to Center the Window"                          + #CR$ +
-                                "        + Optional b to set real Borderless Window"                 + #CR$ +
-                                "        # Screenshot Capture Enbaled: Press Scroll Key"             + #CR$ +                                 
-                                "        # On Capture you hear a Beep Sound"                         + #CR$ +
-                                "%nbgsm  = Don't use System Metrics Calc. with Remove Border"        + #CR$ + #CR$ +
-                                "%nbkeym = Use Shift with Scroll-Lock Key as Modifier"               + #CR$ +
-                                "%nosht  = Disable Screen Shot Capture with Remove Border"           + #CR$ +
-                                "%lck    = Mouse Locked for Window /Screen Mode (Only with %nb)"     + #CR$ + #CR$ +  
-                                "%fmm[mb]= Force to Free Memory Cache on Programm (Beware!)"         + #CR$ +
-                                "          mb from 1 to 3000. Optional Maximum Mem before Clear."    + #CR$ + #CR$ +                                
-                                "%tb     = Game Compatibilty: Disable Taskbar"                       + #CR$ +
-                                "%ex     = Game Compatibilty: Disable Explorer"                      + #CR$ +                                
-                                "%ux     = Game Compatibilty: Disable Aero Support"                  + #CR$ + #CR$ +  
-                                "%c[arg] = Windows Compatibility Mode. Argument is:"                 + #CR$ +
-                                "          Win95, Win98, WinXP, WinXPSp3, VistaRTM, RunAsAdmin"      + #CR$ +
-                                "          It exists more switches. This is not completely!"         + #CR$ + #CR$ + 
-                                "%cpu[x] = Adjust CPU Affinity from 0-63 (0 is 1 etc.. )"            + #CR$ +
-                                "          x can be: f to force all Cpu Units"                       + #CR$ +
-                                "          x can be: digit number from 0 to 63"                      + #CR$ + #CR$ +
-                                "%blockfw= Block Program Executable through the Firewall"            + #CR$ + #CR$ +                                
-                                "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
-                                "          c: use as unviersal commandline in the Slots"             + #CR$ +  
-                                "%noout  = Disable and don't show output Program loggin'"            + #CR$ + 
-                                "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
-                                "%nhkeyt = Disable Taskill Program Hotkey [Alt+Scroll]"              + #CR$ + #CR$ +                                
-                                "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
-                                "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
-                                "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
-                                "          For Program's that has'nt builtin Packer Support."        + #CR$ + 
-                                "          vSystems Uncompress File & give it to the Program."
-                                
-                               
-                                 For TxtIndex = 1 To Len(ToolTipInfo_Text$)
-                                     
-                                     char.c = Asc(Mid(ToolTipInfo_Text$,TxtIndex,1))
-                                     Select char
-                                         Case 'a' To 'z'
-                                              sOut$ + UCase( Chr( char ) )
-                                         Case 'A' To 'Z'
-                                              sOut$ + LCase( Chr( char ) )
-                                         Default
-                                             sOut$ + Chr( char )
-                                       EndSelect
-                                   Next
+            ToolTipInfo_Text$ = Set_Tooltype_Args()
                                    
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_103 ,sOut$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)  
+            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_103 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)  
         EndIf
         
         If ( ChildWindowID = DC::#_Window_003 ) Or ( ChildWindowID = DC::#_Window_002 )
@@ -2270,10 +2279,10 @@ Module MagicGUI
         EndIf
     EndProcedure    
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 2118
-; FirstLine = 252
-; Folding = DAEA+
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2064
+; FirstLine = 964
+; Folding = D4Nu-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

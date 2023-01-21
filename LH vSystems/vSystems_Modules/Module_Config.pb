@@ -69,6 +69,40 @@ DeclareModule vWindows
     Declare DragnDrop_Support(DropGadget.i)
 EndDeclareModule
 
+DeclareModule GuruCallBack
+    
+    Declare.l CallBackEvnts(hwnd, uMsg, wParam, lParam)
+    Declare   PostEvents_Resize(hwnd.i)
+    Declare.i PostEvents_Close(hwnd.i) 
+    Declare.i StringGadgetCallBack(hwnd, msg, wParam, lParam) 
+    Declare StringGadgetSetCallback(pbnr, parent, xyz = 0)
+    
+    Declare.i ListGadgetSetCallback(pbnr, parent, xyz = 0)
+    Declare ListGadgetCallBack(hwnd, msg, wParam, lParam) 
+    
+    Declare.i SplitGadgetSetCallback(pbnr, parent, xyz = 0)
+    Declare SplitGadgetCallBack(hwnd, msg, wParam, lParam)  
+    
+    Declare.i ScrollAreaGadgetSetCallback(pbnr, parent, xyz = 0)
+    Declare ScrollAreaGadgetCallBack(hwnd, msg, wParam, lParam)  
+    
+    Declare.l CallBackEvnts_Edit(hwnd, uMsg, wParam, lParam)
+    
+    Declare.i EditGadgetCallBack(hwnd, msg, wParam, lParam) 
+    Declare EditGadgetSetCallback(pbnr, parent, xyz = 0)
+    
+    Declare Window_Get_ClientSize(hWnd, nWidth, nHeight)
+
+    Global isMediaMouseBack.i = #False
+    
+   Enumeration #PB_EventType_FirstCustomValue  
+       #PB_EventType_StrgReturn
+       #PB_EventType_StrgEscape
+       #PB_EventType_StrgUp
+       #PB_EventType_StrgDown
+   EndEnumeration
+   
+EndDeclareModule
 DeclareModule Startup
     
     Global      ToolTipSystemInfo.s
@@ -279,9 +313,14 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.48b
+        ; Rekationszeit zwischen dem Starten des Programs und dem Registrieren des Capture Hotkeys (Fixed)
+        ; Schnelle Änderung des Titles vom Program sowie schnelle änderung des Arguments hinzugefügt
+        
+        ;
         ; Version 0.47b        
         ; Rekationszeit zwischen dem Starten des Programs und dem Registrieren des Capture Hotkeys
-        ; Tray Menu erweiter. Ansicht der Capture und öffnen des Boildes mit dem Standard Programm
+        ; Tray Menu erweiter. Ansicht der Capture und öffnen des Bildes mit dem Standard Programm
         
         ;
         ; Version 0.46b
@@ -854,9 +893,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 283
-; FirstLine = 250
-; Folding = -g-
+; CursorPosition = 322
+; FirstLine = 206
+; Folding = -B-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

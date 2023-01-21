@@ -26,21 +26,34 @@ Module Interact
                 ;
                 ; Unterstützung für (Doppel) Mausklick in Strings um eine neues Fenster Öffnen
                 ; Kann nicht an das Haupt/StringCallback gebunden Werden. WaitWindowEvent() und WatiWindow() Kollidieren
-            Case #WM_LBUTTONDBLCLK                
+            Case #WM_LBUTTONDBLCLK 
                 Select GadgetID.i                        
-                     Case DC::#String_003                   : vWindows::OpenWindow_Sys1() :VEngine::ListBox_GetData_LeftMouse(#True)
-                     Case DC::#String_004                   : vWindows::OpenWindow_Sys1(1):VEngine::ListBox_GetData_LeftMouse(#True)                                        
-                     Case DC::#String_006, DC::#String_007  : vWindows::OpenWindow_Sys2() :VEngine::ListBox_GetData_LeftMouse(#True)                          
-                     Case DC::#String_008 To DC::#String_011: VEngine::GetFile_Media(GadgetID.i)                      
-                     Case DC::#String_107: vWindows::OpenWindow_Sys64(DC::#String_008,GadgetID) 
-                     Case DC::#String_108: vWindows::OpenWindow_Sys64(DC::#String_009,GadgetID)
-                     Case DC::#String_109: vWindows::OpenWindow_Sys64(DC::#String_010,GadgetID)
-                     Case DC::#String_110: vWindows::OpenWindow_Sys64(DC::#String_011,GadgetID)
-                EndSelect                                              
+                    Case DC::#String_003                    : vWindows::OpenWindow_Sys1() :VEngine::ListBox_GetData_LeftMouse(#True)
+                    Case DC::#String_004                    : vWindows::OpenWindow_Sys1(1):VEngine::ListBox_GetData_LeftMouse(#True)                                        
+                    Case DC::#String_006,   DC::#String_007 : vWindows::OpenWindow_Sys2() :VEngine::ListBox_GetData_LeftMouse(#True)                          
+                    Case DC::#String_008 To DC::#String_011 :                              VEngine::GetFile_Media(GadgetID.i)                      
+                    Case DC::#String_107                    : vWindows::OpenWindow_Sys64(DC::#String_008,GadgetID) 
+                    Case DC::#String_108                    : vWindows::OpenWindow_Sys64(DC::#String_009,GadgetID)
+                    Case DC::#String_109                    : vWindows::OpenWindow_Sys64(DC::#String_010,GadgetID)
+                    Case DC::#String_110                    : vWindows::OpenWindow_Sys64(DC::#String_011,GadgetID)
+                EndSelect
+                
+            Case #WM_CHAR
+                Select EvntwParam
+                    Case #VK_RETURN
+                        If ( GadgetID = DC::#String_006)
+                            vEngine::Database_Set_ProgramTitle(GadgetID)    
+                        EndIf                        
+                        If ( GadgetID = DC::#String_007)
+                            vEngine::Database_Set_ProgramArgs(GadgetID)    
+                        EndIf                       
+                EndSelect
         EndSelect            
         ProcedureReturn EvntWait
     EndProcedure
-    
+    ;******************************************************************************************************************************************
+    ; 
+    ;__________________________________________________________________________________________________________________________________________   
     Procedure AutoOpen()
                 ;
                 ; Hole die Auto Öffnen Einstellung
@@ -58,9 +71,8 @@ Module Interact
                 EndIf 
      EndProcedure   
     ;******************************************************************************************************************************************
-    ;    
-    ;__________________________________________________________________________________________________________________________________________     
-   
+    ; 
+    ;__________________________________________________________________________________________________________________________________________
     Procedure MainCode() 
                   
         Protected TrayIcon.l, ShotX.i, ShotY.i     
@@ -69,7 +81,8 @@ Module Interact
         ; Add a Systray Icon
         
         SSTTIP::Tooltip_TrayIcon(ProgramFilename(), DC::#TRAYICON001, DC::#_Window_001, Startup::*LHGameDB\TrayIconTitle) 
-      
+        
+       ;StringSetCallback(DC::#String_007, 0)
         
         ; Drag'n Drop für die Dateien/ Siehe WaitWindowEvent()
         ;
@@ -142,6 +155,8 @@ Module Interact
         AutoOpen()
         
         Startup::*LHGameDB\bFirstBootUp = #False
+        
+
         Repeat
             
             
@@ -247,15 +262,14 @@ Module Interact
                                 vInfo::Modify_Reset()
                                 VEngine::ListBox_GetData_KeyBoard(EvntwParam)
                                 VEngine::ListBox_GetData_LeftMouse()
-                                Debug "Up/Down"
+                                Debug "MainCode() Up/Down"
                                 Continue
                             EndIf                                                                               
                             
                         Default
                             If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-                                Debug "Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
                             EndIf    
-                            Debug "Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
+                            Debug "MainCode() Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
                     EndSelect     
                     
                     ;
@@ -305,7 +319,7 @@ Module Interact
                                     VEngine::Change_Title(EvntGadget)
                                     Continue
                             EndSelect
-                            
+                                                   
                         Case DC::#Calendar
                             Select EvntType
                                 Case #PB_EventType_Change 
@@ -326,7 +340,6 @@ Module Interact
                                     ;
                                     ; Verändere die Höhe der ListIcon                                    
                                     ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
-                                    Debug "Gadget Höhe: " + GadgetHeight(DC::#Contain_02)
                                     Continue
                                     
                                 Case #PB_EventType_LeftButtonUp
@@ -367,11 +380,9 @@ Module Interact
                                 ToolTipSystemShow = #False
                                 vSystem::System_InfoToolTip()
                                 SSTTIP::ToolTipMode(0,DC::#Button_287,Startup::ToolTipSystemInfo.s)
-                                Debug "True"
                                 Delay(25)
                             Else
                                 ToolTipSystemShow = #True
-                                Debug "False"
                                 Delay(25)
                             EndIf
                             
@@ -450,7 +461,6 @@ Module Interact
                             
                             Select EvntType
                                 Case #PB_EventType_RightClick
-                                    Debug EvntGadget
                                     ButtonEX::SetState(EvntGadget,ButtonEX::GetState(EvntGadget) )
                                     Select ButtonEX::ButtonExEvent(EvntGadget) 
                                         Case ButtonEX::#ButtonGadgetEx_Pressed:
@@ -713,11 +723,11 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 328
-; FirstLine = 293
+; CursorPosition = 49
+; FirstLine = 15
 ; Folding = --
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = B:\MAME\
 ; EnableUnicode
