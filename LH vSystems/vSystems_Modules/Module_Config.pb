@@ -173,6 +173,14 @@ DeclareModule Startup
         szlastPath.s
     EndStructure
     
+    Structure FILE_MONITORING
+        Directory.s
+        LogPath.s
+        LogFile.s
+        LogHandle.i
+        LatestLog.s
+    EndStructure
+    
     Structure STRUCT_LH_DATABASE        
         TitleVersion.s{255}         ;Version und Title        
         Base_Path.s{4096}           ;Programm Verzeichis        
@@ -213,7 +221,8 @@ DeclareModule Startup
         Settings_bSaveLog.i         ;Disabled Outputlog and Redirect to StdOut.txt
         Settings_NBNoShot.i         ;Disable Screenshot Capture Support
         Settings_hkeyKill.i         ;Disbale/Enable Hotkey für das Beenden eines Programs
-        Settings_hkeyShot.i         ;Hotkey Modifier
+        Settings_hkeyShot.i         ;Hotkey Modifier für das Aufnehmen der Screenshots
+        Settings_fMonitor.i         ;Sepaerates Aktivieren des Monitoring der Datei Aktivität wenn das Spiel/Programm gestartet wird
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         
@@ -223,6 +232,9 @@ DeclareModule Startup
                                     ;Siehe dazu die Message im Callback
         SortMode.i                  ;Sortier Modus für die Hauptliste (1 > Tile, 2 > Platform, 3 > Sprache, 4 > Emulator)
         ProgrammQuit.i              ;True oder False
+        
+        FileMonitoring.i            ;Acrivate/DeActivateed with #True/False
+        Monitoring.FILE_MONITORING  ;
         
         hSplitterDef.i              ;Die Splitter Standard Höhe
         hSplitterSav.i              ;Die Alten Höhe
@@ -312,6 +324,15 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.49b
+        ; Überwachung der Datei und Verzeichnis Aktivität für C:\ hinzugefügt
+        ; - Hintergrund: Neben Programmen sichern Spiele, Ports, Emulatoren Dateien im Home Verzeichnis des Users
+        ;   meist "C:\User\xxxx\...." oder auch Programdata/ Programme/ Programme (x86).
+        ;   Das Überwachen dient leiglich dazu die Verzeichnisse ausfindig zu machen. So kann man diese Später
+        ;   Sichern und so über die Verzeichnisse den Überblick behalten. Welches Programm/Spiel/Port Emulator
+        ;   wo und was gesichert/geändert oder entfernt hat.
+        ; - Wird im TrayMenu aktiviert oder über die Arguments Zeile mit "%wmon"
         ;
         ; Version 0.48b
         ; Rekationszeit zwischen dem Starten des Programs und dem Registrieren des Capture Hotkeys (Fixed)
@@ -800,6 +821,9 @@ Module Startup
          *LHGameDB\bRegHotKey           = #False
          
          *LHGameDB\bUpdateProcess       = #False
+         
+         *LHGameDB\Monitoring\LogFile   = "StdWatch.txt"
+         *LHGameDB\Monitoring\LogPath   = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"       
 
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
@@ -893,8 +917,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 322
-; FirstLine = 206
+; CursorPosition = 334
+; FirstLine = 295
 ; Folding = -B-
 ; EnableAsm
 ; EnableXP

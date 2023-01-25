@@ -14,7 +14,7 @@
         XIncludeFile "..\INCLUDES\Class_Win_Form.pb"
         XIncludeFile "..\INCLUDES\Class_Win_Style.pb"         
         XIncludeFile "..\INCLUDES\Class_Win_Desk.pb"
-               
+                       
         XIncludeFile "..\INCLUDES\Class_ListIcon_Sort.pb"          
         XIncludeFile "..\INCLUDES\Class_Tooltip.pb"
         
@@ -41,6 +41,7 @@
         XIncludeFile "..\INCLUDES\CLASSES_EMU\FileFormat_DiskImageC64.pb"        
         
         XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
+        
         UseZipPacker(): UseLZMAPacker()
 
         InitKeyboard() 
@@ -56,7 +57,8 @@
         XIncludeFile ".\vSystems_Modules\Module_Firewall.pb"        
     
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"     ; DB_Create::           
-        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              ; Startup:: 
+        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              ; Startup::
+        XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"          ; Monitor::    
         XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"
         XIncludeFile ".\vSystems_Modules\Module_UnrealHelper.pb"
         XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    ; DB_Migrate::           
@@ -148,9 +150,9 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 81
-; FirstLine = 57
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 60
+; FirstLine = 33
 ; EnableAsm
 ; EnableThread
 ; EnableXP
@@ -158,7 +160,7 @@
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
 ; CurrentDirectory = B:\MAME\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

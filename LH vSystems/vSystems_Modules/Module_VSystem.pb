@@ -21,9 +21,7 @@
     Declare.i   System_ProgrammIsAlive(szTaskName.s)
     Declare.i   System_GetTasklist();
     
-    Declare.i   Capture_Screenshot(ProgrammName.s)
-    
-   
+    Declare.i   Capture_Screenshot(ProgrammName.s) 
     
 EndDeclareModule
 
@@ -1062,12 +1060,13 @@ Module vSystem
             ProcedureReturn                                    
         EndIf
     EndProcedure        
-   
+    ;
+    ;
+    ;    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 681
-; FirstLine = 414
-; Folding = fEgHAz
+; CursorPosition = 23
+; Folding = DAAAAx
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

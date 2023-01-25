@@ -2706,7 +2706,22 @@ Module INVMNU
                         Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
                     EndIf
                 EndIf                    
-
+                
+           Case 24
+                If ( Startup::*LHGameDB\FileMonitoring = #False )
+                    Monitoring::Activate("C:\")
+                Else
+                    Monitoring::DeActivate()
+                EndIf
+                
+          Case 25
+                File.s = Startup::*LHGameDB\Monitoring\LatestLog
+                If FileSize(File) <> -1
+                    FFH::ShellExec(File, "open")
+                Else
+                   Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+               EndIf 
+               
            Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
                     
         EndSelect       
@@ -2753,7 +2768,23 @@ Module INVMNU
                 MenuItem(23, "Capture Dateien Löschen"              ) 
             EndIf
         EndIf    
-        EndProcedure    
+    EndProcedure  
+    ;*******************************************************************************************************************************************************************    
+    Procedure Set_TrayMenu_Monitor()        
+                
+        If ( Startup::*LHGameDB\FileMonitoring = #False )
+            MenuItem(24, "Start: Disk Monitoring"  )            
+            SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 0) 
+        Else
+            MenuItem(24, "Stop: Disk Monitoring"  )             
+            SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 1) 
+        EndIf          
+        
+        If ( FileSize(Startup::*LHGameDB\Monitoring\LatestLog) <> -1 ) And (Startup::*LHGameDB\Monitoring\LogHandle = 0)
+            MenuItem(25, "Open Monitoring Log File"                     )           
+        EndIf    
+        
+    EndProcedure    
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
 
@@ -2776,6 +2807,8 @@ Module INVMNU
             Set_TrayMenu_LoggUtil()   
             MenuBar()              
             Set_TrayMenu_ShotUtil()
+            MenuBar()
+            Set_TrayMenu_Monitor()
             MenuBar()              
             OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
             MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
@@ -2808,9 +2841,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2703
-; FirstLine = 2425
-; Folding = z5-
+; CursorPosition = 2775
+; FirstLine = 2474
+; Folding = z54-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

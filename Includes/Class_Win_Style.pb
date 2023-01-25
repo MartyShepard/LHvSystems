@@ -392,9 +392,9 @@ EndProcedure
 EndModule    
     
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 92
-; FirstLine = 63
-; Folding = H0
+; CursorPosition = 251
+; FirstLine = 177
+; Folding = n0
 ; EnableAsm
 ; EnableXP
 ; EnableUnicode

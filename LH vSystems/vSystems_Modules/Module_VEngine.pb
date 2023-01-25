@@ -2933,6 +2933,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
         Startup::*LHGameDB\Settings_hkeyKill = #True ;
+        Startup::*LHGameDB\Settings_fMonitor = #False; 
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop        
@@ -3295,7 +3296,7 @@ Module VEngine
              Startup::*LHGameDB\Settings_bSaveLog = #True
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
          EndIf          
-         ;
+        ;
         ;
         ; Disable Hotkey
         szCommand.s = "%nhkeyt"          
@@ -3304,8 +3305,18 @@ Module VEngine
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_hkeyKill = #True
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Terminate Programm (Ausgeschaltet)")  
-         EndIf          
+        EndIf          
          
+        ;
+        ;
+        ; Aktiveren Monitoring
+        szCommand.s = "%wmon"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_fMonitor = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Monitoring Disk Activity")  
+        EndIf        
         
         ;
         ;
@@ -3697,6 +3708,7 @@ Module VEngine
                 ; Reset NoBorder Handle Vars
                 VSystem::System_NoBorder_Handle_Reset()
             EndIf
+             
             
             If (Len(*Params\Program) = 0 )
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
@@ -3726,6 +3738,13 @@ Module VEngine
             ; Markiere Item welches gestartet ist
             vItemTool::Item_Process_Loaded()
             
+            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
+                 ;
+                 ; Aktviere MONITOR Disk Activity
+                 Monitoring::DeActivate()
+                 Delay( 5 )
+                 Monitoring::Activate("C:\")
+            EndIf             
             
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
@@ -3733,7 +3752,10 @@ Module VEngine
 
             ;
             ; ======================================================================================== Loop
-            While IsThread(_Action1)                
+            While IsThread(_Action1) 
+                
+
+                
                 Delay(1)                                                       
                 vKeys::Init_Capture()
                 
@@ -3765,6 +3787,13 @@ Module VEngine
                 ;Wend  
             Wend  
             ; ======================================================================================== Loop
+            
+            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
+                ;
+                ; Aktviere Monitor Disk Activity
+                Monitoring::DeActivate()
+                Startup::*LHGameDB\Settings_fMonitor = #False
+            EndIf
             
             ;
             ; Minimiert vSystems/ Setzt den Zustand des programms Wieder her. Minimiren befindet sich Modul 
@@ -4513,13 +4542,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2264
-; FirstLine = 1756
-; Folding = 8+P+34J-N5+eg-
+; CursorPosition = 3743
+; FirstLine = 3121
+; Folding = 8+P+34J-N5-eg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\MAME\
+; CurrentDirectory = I:\Games _ Adult Archiv\Theme - Game RPG Action\She Will Punish Them Modded\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier
