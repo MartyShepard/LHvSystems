@@ -103,6 +103,44 @@ DeclareModule GuruCallBack
    EndEnumeration
    
 EndDeclareModule
+
+DeclareModule vItemC64E
+    
+    
+    Declare.i DSK_Image_Refresh()
+    Declare.i DSK_LoadOldFilename()
+    Declare.s DSK_SetCharSet(OldFileName$)
+    Declare.i DSK_LoadImage(GadgetID.i,DestGadgetID.i, DropLoad = 0);<< C64LoadS8_TXID Variabel wird hier erstellt
+    Declare.i DSK_FormatCheck(D64_Image$)
+    Declare.i DSK_OpenCBM_Tools(Tool$ = "rename")
+    
+    Declare.i Image_Create()
+    Declare.i Image_CopyFile_FromImageToHD()
+    Declare.i Image_CopyFile_FromHDToImage(FileRequester = #True)
+    
+    Declare.i Item_GetPrograms()
+    Declare.i Item_ChangeFont()
+    Declare.i Item_Auto_Select()
+    Declare.s Item_Select_List()
+    Declare   Item_GetPrograms()  
+    Declare.i Item_Side_AutoChange()
+    Declare.i Item_Side_SetAktiv(C64LoadS8_Side)
+    
+    Declare.i DragnDrop_Load(Files$,GadgetID.i,DestGadgetID.i)
+    
+    Declare.i DSK_OpenCBM_Init()
+    Declare.i DSK_OpenCBM_Directory()
+    Declare.i DSK_OpenCBM_Refresh()
+    Declare.i DSK_OpenCBM_Format()
+    Declare.i DSK_OpenCBM_Val()    
+    Declare.i DSK_OpenCBM_Copy_LocalFile_To_1541(FileRequester.i = #True)   
+    
+    Declare.i DSK_Image_TransferToPCHD(TrackOnly = #False)
+    Declare.i DSK_Image_TransferTo1541()
+    
+    Global vItemC64E_CanClose.i = #False 
+EndDeclareModule
+
 DeclareModule Startup
     
     Global      ToolTipSystemInfo.s
@@ -223,6 +261,7 @@ DeclareModule Startup
         Settings_hkeyKill.i         ;Disbale/Enable Hotkey für das Beenden eines Programs
         Settings_hkeyShot.i         ;Hotkey Modifier für das Aufnehmen der Screenshots
         Settings_fMonitor.i         ;Sepaerates Aktivieren des Monitoring der Datei Aktivität wenn das Spiel/Programm gestartet wird
+        Settings_MameHelp.i         ;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen      
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         
@@ -324,6 +363,14 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.50b
+        ; Cue Banner für ein paar String Einstellungs Fenster
+        ; Format Routine für den C64 Datei Manager geändert
+        ; Zusatz Datei laden geändert
+        ; MAME Kommandozeile Hilfe für Leer Stehende Slot(s) aber mit Konfigurierten Image Angabe (%mmhlp)
+        ; Tooltypes bearbeitet.
+        
         ;
         ; Version 0.49b
         ; Überwachung der Datei und Verzeichnis Aktivität für C:\ hinzugefügt
@@ -917,9 +964,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 334
-; FirstLine = 295
-; Folding = -B-
+; CursorPosition = 371
+; FirstLine = 273
+; Folding = 5D+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

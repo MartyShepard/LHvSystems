@@ -1,39 +1,4 @@
-﻿DeclareModule vItemC64E
-    
-    
-    Declare.i DSK_Image_Refresh()
-    Declare.i DSK_LoadOldFilename()
-    Declare.s DSK_SetCharSet(OldFileName$)
-    Declare.i DSK_LoadImage(GadgetID.i,DestGadgetID.i, DropLoad = 0);<< C64LoadS8_TXID Variabel wird hier erstellt
-    Declare.i DSK_FormatCheck(D64_Image$)
-    Declare.i DSK_OpenCBM_Tools(Tool$ = "rename")
-    
-    Declare.i Image_Create()
-    Declare.i Image_CopyFile_FromImageToHD()
-    Declare.i Image_CopyFile_FromHDToImage(FileRequester = #True)
-    
-    Declare.i Item_GetPrograms()
-    Declare.i Item_ChangeFont()
-    Declare.i Item_Auto_Select()
-    Declare.s Item_Select_List()
-    Declare   Item_GetPrograms()  
-    Declare.i Item_Side_AutoChange()
-    Declare.i Item_Side_SetAktiv(C64LoadS8_Side)
-    
-    Declare.i DragnDrop_Load(Files$,GadgetID.i,DestGadgetID.i)
-    
-    Declare.i DSK_OpenCBM_Init()
-    Declare.i DSK_OpenCBM_Directory()
-    Declare.i DSK_OpenCBM_Refresh()
-    Declare.i DSK_OpenCBM_Format()
-    Declare.i DSK_OpenCBM_Val()    
-    Declare.i DSK_OpenCBM_Copy_LocalFile_To_1541(FileRequester.i = #True)   
-    
-    Declare.i DSK_Image_TransferToPCHD(TrackOnly = #False)
-    Declare.i DSK_Image_TransferTo1541()
-    
-    Global vItemC64E_CanClose.i = #False 
-EndDeclareModule
+﻿
 
 Module vItemC64E        
     
@@ -2438,6 +2403,7 @@ Module vItemC64E
     ;______________________________________________________________________________________________________________________________________________________________________     
     Procedure.i DSK_LoadImage(GadgetID.i,DestGadgetID.i, DropLoad = 0)
         
+        ; Lädt die Disk
         Request::SetDebugLog("DatabaseID: "+Str( Startup::*LHGameDB\GameID)+"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))    
         
         
@@ -2452,7 +2418,7 @@ Module vItemC64E
         DSK_SaveOldFilename()    
         
         ;
-        ; Lädt die Disk
+        ; Holt den kompleten Pfadnamen
         D64_Image$  = VEngine::Getfile_Portbale_ModeOut(GetGadgetText(GadgetID.i))
             If ( DSK_ExistsFile(D64_Image$) = #False)
                 ProcedureReturn #False
@@ -4103,9 +4069,7 @@ Module vItemC64E
 ;     EndProcedure       
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 468
-; FirstLine = 413
-; Folding = vbH+58f-+-QB1fz
+; Folding = 4tDf90vf-foA7v6
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

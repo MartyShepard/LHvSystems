@@ -1982,7 +1982,8 @@ Module MagicGUI
                             "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
                             "%nhkeyt = Disable Taskill Program Hotkey [Alt+Scroll]"              + #CR$ + #CR$ +                                
                             "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
-                            "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ +                                 
+                            "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ + #CR$ + 
+                            "%mmhlp  = Only For M.A.M.E. Commandline Helper"                     + #CR$ + #CR$ +
                             "%pk     = Packed Files Support for Programs with %s"                + #CR$ + 
                             "          For Program's that has'nt builtin Packer Support."        + #CR$ + 
                             "          vSystems Uncompress File & give it to the Program."
@@ -2014,49 +2015,49 @@ Module MagicGUI
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_287 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "New"
-        ToolTipInfo_Text$ = "Enter New Title"
+        ToolTipInfo_Text$ = "Neuen Eintrag Erstellen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Duplicate"
-        ToolTipInfo_Text$ = "Duplicate Current Entry"
+        ToolTipInfo_Text$ = "Eintrag Duplizieren"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Delete"
-        ToolTipInfo_Text$ = "Delete Current Entry"
+        ToolTipInfo_Text$ = "Aktuellen Eintrag Löschen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_012 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Edit"
-        ToolTipInfo_Text$ = "Edit Settings For The Current Entry"
+        ToolTipInfo_Text$ = "Akutellen Eintrag Bearbeiten"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_013 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Start"
-        ToolTipInfo_Text$ = "Start the Game/Port/Emulator That You Have Edited In The Settings."
+        ToolTipInfo_Text$ = "Spiel/ Port/ Emulator/ Programm Starten."
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_014 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         ;
         ;
         ;
         ToolTipInfoTitle$ = "Title (Drag'n'Drop Supportet)"
-        ToolTipInfo_Text$ = "Edit Title. You can Drag'n'Drop a File or Text. If you Drag a File, you get the Filename without Extension"
+        ToolTipInfo_Text$ = "Titel Bearbeiten. (Alternativ Drag'n'Drop eine Datei oder Text)"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_001 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         
         ToolTipInfoTitle$ = "Title"
-        ToolTipInfo_Text$ = "Edit Subtitle"
+        ToolTipInfo_Text$ = "Optional: Untertitel Bearbeiten"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_002 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)          
         
         ToolTipInfoTitle$ = "Language"
-        ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open a Window and select a Language"
+        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für die Sprache zu öffnen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_003 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "System Choice"
-        ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open a Window and select a Platform/System"
+        ToolTipInfoTitle$ = "Platform/ System"
+        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für die Platform/ Systeme zu öffnen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_004 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
         
-        ToolTipInfoTitle$ = "Release Data"
-        ToolTipInfo_Text$ = "Edit the Release Date."
+        ToolTipInfoTitle$ = "Release Date"
+        ToolTipInfo_Text$ = "Datum Bearbeiten"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_005 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Configure the Program"
-        ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open a Window and select a Configured Program"
+        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für das Programm zu öffnen und erweiterte Einstellungen vorzunehmen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_006 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
         ToolTipInfoTitle$ = "Configure the Program Commandline"
@@ -2078,64 +2079,64 @@ Module MagicGUI
         ToolTipInfoTitle$ = "Media Device 3 (Drag'n'Drop Supportet)"        
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Autoload Program for WinVice"
-        ToolTipInfo_Text$ = "Doubleclick in the String or Select the Disk Icon to Open a Disk Manager"
+        ToolTipInfoTitle$ = "Autoload Program (WinVice/Hoxs64)"
+        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird. Hint: Für 7z Images füge %pk zu der Komandozeile hinzu"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_107 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
         
-        ToolTipInfoTitle$ = "Autoload Program for Hoxs64"
-        ToolTipInfo_Text$ = "Doubleclick in the String or Select the Disk Icon to Open a Disk Manager"
+        ToolTipInfoTitle$ = "Autoload Program (WinVice/Hoxs64)"
+        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird. Hint: Für 7z Images füge %pk zu der Komandozeile hinzu"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_108 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         ;
         ;
         ;
         ToolTipInfoTitle$ = "Language"
-        ToolTipInfo_Text$ = "Press to open a Window and select a Languages"
+        ToolTipInfo_Text$ = "Öffnet das Fenster mit der Auswahl für die Sprache"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_020 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)        
         
         ToolTipInfoTitle$ = "System Choice"
-        ToolTipInfo_Text$ = "Press to open a Window and select a Platform"
+        ToolTipInfo_Text$ = "Öffnet das Fenster mit der Auswahl für das System"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_021 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
         
         ToolTipInfoTitle$ = "Configure the Program"
-        ToolTipInfo_Text$ = "Press to open a Window and select a Configured Program"
+        ToolTipInfo_Text$ = "Öffnet das Fenster mit eingestellten Programmen"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_022 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Save Changes (CTRL-S)"
-        ToolTipInfo_Text$ = "Save the Current Changes. Except Language, Platform and Program. These were already Saved when selecting from the window."
+        ToolTipInfo_Text$ = "Speichert die Aktuellen einstellungen."
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_023 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Close (ESC)"
-        ToolTipInfo_Text$ = "Close this window and goes back to the Game List. Alternatively, you can press the key Escape."
+        ToolTipInfo_Text$ = "Schließt die Bearbeitung und kehrt zur Liste zurück. (Keine Speicherung)"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_024 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
         ToolTipInfoTitle$ = "Sort: Title"
-        ToolTipInfo_Text$ = "Sort the list by Titles" +Chr(9)+"ShortKey: F1"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Titeln" +Chr(9)+"ShortKey: F1"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_025 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
         
         ToolTipInfoTitle$ = "Sort: Platform"
-        ToolTipInfo_Text$ = "Sort the list by Platform/Systems" +Chr(9)+"ShortKey: F2"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Systemen" +Chr(9)+"ShortKey: F2"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_026 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)   
         
         ToolTipInfoTitle$ = "Sort: Language"
-        ToolTipInfo_Text$ = "Sort the list by Language" +Chr(9)+"ShortKey: F3"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Sprache" +Chr(9)+"ShortKey: F3"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_027 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
         ToolTipInfoTitle$ = "Sort: Program"
-        ToolTipInfo_Text$ = "Sort the list by Preogram/ Emulator/ Port" +Chr(9)+"ShortKey: F4"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Programmen" +Chr(9)+"ShortKey: F4"
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_028 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
-        ToolTipInfoTitle$ = "Thumbnail: (Drag'n'Drop Supportet)"
-        ToolTipInfo_Text$ = "Supportet Images:"+ Chr(13) + 
+        ToolTipInfoTitle$ = "Thumbnail: (Drag'n'Drop Unterstützung)"
+        ToolTipInfo_Text$ = "Unterstützte Bild Formate:"+ Chr(13) + 
                             "BMP, GIF (Not Anim), ICO, JPG, PCX, PNG, TGA, TIFF" + Chr(13) + 
                             "Amiga  :  IFF, ILBM" + Chr(13) + 
                             "Texture:  DDS" + Chr(13) +  Chr(13) + 
-                            "Press Left Doubleclick to Show the Picture" + Chr(13) + 
-                            "Increase the Thumbnail Size (+)"+Chr(9)+"ShortKey: F5" + Chr(13) +
-                            "Decrease the Thumbnail Size (-)"+Chr(9)+"ShortKey: F6" + Chr(13) +
-                            "Adjust the Width   Increase (+)"+Chr(9)+"ShortKey: Numpad 4" + Chr(13) +                            
-                            "Adjust the Width   decrease (-)"+Chr(9)+"ShortKey: Numpad 6" + Chr(13) +                            
-                            "Adjust the Height  Increase (+)"+Chr(9)+"ShortKey: Numpad 8" + Chr(13) +                            
-                            "Adjust the height  decrease (-)"+Chr(9)+"ShortKey: Numpad 2"                           
+                            "Doppleklick auf das Bild Zeigt um es anzuzeigen" + Chr(13) + 
+                            "Thumbnail Größe vergrößern  (+)"+Chr(9)+"ShortKey: F5" + Chr(13) +
+                            "Thumbnail Größe verkleinern (-)"+Chr(9)+"ShortKey: F6" + Chr(13) +
+                            "Thumbnail Weite verfeinern: Größer  (+)"+Chr(9)+"ShortKey: Numpad 4" + Chr(13) +                            
+                            "Thumbnail Weite verfeinern: Kleiner (-)"+Chr(9)+"ShortKey: Numpad 6" + Chr(13) +                            
+                            "Thumbnail Höhe  verfeinern: Größer  (+)"+Chr(9)+"ShortKey: Numpad 8" + Chr(13) +                            
+                            "Thumbnail Höhe  verfeinern: Kleiner (-)"+Chr(9)+"ShortKey: Numpad 2"                           
         SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Contain_10 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)         
     EndProcedure    
     Procedure Set_Tooltypes_Ext(ChildWindowID.i)
@@ -2145,23 +2146,23 @@ Module MagicGUI
         If ( ChildWindowID = DC::#_Window_003 )
             
             ToolTipInfoTitle$ = "Programm Description"
-            ToolTipInfo_Text$ = "Edit the Programm Description"
+            ToolTipInfo_Text$ = "Beschreibung des Programms"
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_100 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Short Description"
-            ToolTipInfo_Text$ = "Edit Short Description. Appears in the Game List."
+            ToolTipInfo_Text$ = "Kurz Beschreibung. (Erscheint in der Liste)"
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_104 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Program and Path (Drag'n'Drop Supportet)"
-            ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open and select a Programm. The WorkPath will be filled automatically. "
+            ToolTipInfo_Text$ = "Doppelklick in diesen String öffnet ein Auswahl Requester für Programme"
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_101 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Workpath (Drag'n'Drop Supportet)"
-            ToolTipInfo_Text$ = "Press and Doubleklick the Left Mouse Button in the String to open and select a other path."
+            ToolTipInfo_Text$ = "Doppelklick in diesen String öffnet ein Auswahl Requester für den Arbeitspfad"
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_102 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             
-            ToolTipInfoTitle$ = "The Commandline"
+            ToolTipInfoTitle$ = "vSystems Kommandozeilen Intetrface"
             ToolTipInfo_Text$ = Set_Tooltype_Args()
                                    
             SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_103 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)  
@@ -2169,29 +2170,29 @@ Module MagicGUI
         
         If ( ChildWindowID = DC::#_Window_003 ) Or ( ChildWindowID = DC::#_Window_002 )
             ToolTipInfoTitle$ = "New"
-            ToolTipInfo_Text$ = "Enter New Entry"
+            ToolTipInfo_Text$ = "Neuer Eintrag"
             SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_203 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Duplicate"
-            ToolTipInfo_Text$ = "Duplicate Current Entry"
+            ToolTipInfo_Text$ = "Markierten Eintrag Duplizieren"
             SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_204 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Delete"
-            ToolTipInfo_Text$ = "Delete Current Entry"
+            ToolTipInfo_Text$ = "Markierten Eintrag Löschen"
             SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_205 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             Select ChildWindowID
                 Case DC::#_Window_002
                     ToolTipInfoTitle$ = "Rename"
-                    ToolTipInfo_Text$ = "Rename the Current Entry"
+                    ToolTipInfo_Text$ = "Markierten Eintrag umbennen"
                 Case DC::#_Window_003
                     ToolTipInfoTitle$ = "Save Changes"
-                    ToolTipInfo_Text$ = "Saved the Current chnages to the Database"                   
+                    ToolTipInfo_Text$ = "Aktuelle Änderungen Speichern"                   
             EndSelect            
             SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_206 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Close and Take"
-            ToolTipInfo_Text$ = "Close this window and take the current Entry to the Game"
+            ToolTipInfo_Text$ = "Fenster Schließen und Aktuelle änderungen übernehmen"
             SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_207 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
         EndIf
@@ -2279,9 +2280,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1989
-; FirstLine = 886
-; Folding = D4Nu-
+; CursorPosition = 2059
+; FirstLine = 750
+; Folding = D-Hg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

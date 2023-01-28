@@ -50,6 +50,8 @@
     
     Declare     Thumbnails_SetAll()
     Declare     Thumbnails_Set(nSize.i)
+    
+    Declare.i   FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
 
     
 
@@ -1555,11 +1557,46 @@ Module VEngine
     EndProcedure        
     
     Procedure Switcher_Pres_NoItems()
-        Protected szMem.i
+        Protected szMemDate.i, szMemSysm.i, szMemLang.i, szMemFile.i
+        Structure SZDATE
+            c.a[20]
+        EndStructure 
+                
+        Structure SZSYSM
+            c.a[30]
+        EndStructure 
+        
+        Structure SZLANG
+            c.a[14]
+        EndStructure          
+        
+        Structure SZFILE
+            c.a[30]
+        EndStructure   
+        
+        Protected  *szMemDate.SZDATE,*szMemSysm.SZSYSM,*szMemLang.SZLANG,*szMemFile.SZFILE
+
+        *szMemDate = AllocateMemory(20) 
+        *szMemSysm = AllocateMemory(30)        
+        *szMemLang = AllocateMemory(14)         
+        *szMemFile = AllocateMemory(30)
+      
         ;
-        ; Alternativ Text fürs Datum 
-        szMem = AllocateMemory(10)
-        PokeS(szMem, "2000/01/01", -1, #PB_Unicode)
+        ; Alternativ Text für die Sprache System
+        ;szMemLang = AllocateMemory(7)
+        PokeS(*szMemLang, "English", -1, #PB_Unicode)           
+        ;
+        ; Alternativ Text für  das System
+        ;szMemSysm = AllocateMemory(26):
+        PokeS(*szMemSysm, "PC Windows/ DOS", -1, #PB_Unicode)        
+        ;
+        ; Alternativ Text fürs Datum         
+        ;szMemDate = AllocateMemory(10)
+        PokeS(*szMemDate, "2000/01/01", -1, #PB_Unicode)
+        ;
+        ; Alternativ Text Für die ZusatzDatei
+        ;szMemFile = AllocateMemory(100)
+        PokeS(*szMemFile, "Optional File", -1, #PB_Unicode)        
         ;
         
         
@@ -1584,7 +1621,10 @@ Module VEngine
                 EndIf
                 
                 Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Disabled") 
-                FreeMemory(szMem)
+                FreeMemory(*szMemLang)
+                FreeMemory(*szMemSysm)
+                FreeMemory(*szMemDate)
+                FreeMemory(*szMemFile)                
                 ProcedureReturn -1
             EndIf    
             
@@ -1600,8 +1640,19 @@ Module VEngine
                 ButtonEX::Disable(DC::#Button_014, #False)
                 ButtonEX::Disable(DC::#Button_016, #False)
                 Request::SetDebugLog("Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + "- Buttons Enabled")
-                SendMessage_(GadgetID(DC::#String_005), #EM_SETCUEBANNER, 0, szMem)   
                 
+                SendMessage_(GadgetID(DC::#String_003), #EM_SETCUEBANNER, 0, *szMemLang)                 
+                SendMessage_(GadgetID(DC::#String_004), #EM_SETCUEBANNER, 0, *szMemSysm)                   
+                SendMessage_(GadgetID(DC::#String_005), #EM_SETCUEBANNER, 0, *szMemDate)
+                SendMessage_(GadgetID(DC::#String_107), #EM_SETCUEBANNER, 0, *szMemFile) 
+                SendMessage_(GadgetID(DC::#String_108), #EM_SETCUEBANNER, 0, *szMemFile)                
+                SendMessage_(GadgetID(DC::#String_109), #EM_SETCUEBANNER, 0, *szMemFile)                
+                SendMessage_(GadgetID(DC::#String_110), #EM_SETCUEBANNER, 0, *szMemFile)                
+                
+                FreeMemory(*szMemLang)
+                FreeMemory(*szMemSysm)
+                FreeMemory(*szMemDate)
+                FreeMemory(*szMemFile)                 
                 ProcedureReturn  1
             EndIf    
         EndIf
@@ -2736,31 +2787,63 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ; Section Set Media Device, Adding File(s)
     ;****************************************************************************************************************************************************************
-    Procedure.s DOS_Device_GetInternalFile(Device.s, Drive.i, CheckPrg.s)
+    Procedure.s DOS_Device_GetInternalFile(Device.s, Drive.i, CheckPrg.s) ; Drive = veraltetet
         
-        Protected InternalFile$, StringObject.i, Hold.i               
-                 
-                If IsWindow(DC::#_Window_005)           ; C64 File Manager
-                   ; Select  Drive
-                ;Case 1: 
-                    InternalFile$ = GetGadgetText( DC::#String_100 )                           
-                 ;       Case 2: InternalFile$ = GetGadgetText( DC::#String_108 )
-                 ;       Case 3: InternalFile$ = GetGadgetText( DC::#String_109 )
-                 ;       Case 4: InternalFile$ = GetGadgetText( DC::#String_110 )                                                        
-                 ;   EndSelect                                                
-                Else    
-                    InternalFile$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","FileDev"+Str(Drive-1),"",Startup::*LHGameDB\GameID,"",1):                    
-                EndIf    
-                
-                If ( Len( InternalFile$ ) ! 0 )
-                    If ( "HOXS64.EXE" = UCase( CheckPrg ) )
-                        ProcedureReturn Device.s +Chr(34)+ " " +Chr(34)+ ":" + InternalFile$ 
-                    Else    
-                        ProcedureReturn Device.s + ":" +InternalFile$   
-                    EndIf                 
+        Protected SubFile.s       
+        
+        If IsWindow(DC::#_Window_005)           ; C64 File Manager                                   
+            ;
+            ; Im Einstellungs Fenster hole aktuell den Dateinamen aus den unteren 4 Strings
+            ; Die Gadget Nummer darf nicht geändert !!
+            For szInput = DC::#String_107 To DC::#String_110
+                SubFile = GetGadgetText( szInput )
+                If Len( SubFile ) = 0
+                    Continue
+                Else
+                    Break
                 EndIf
-                
-        ProcedureReturn Device.s           
+            Next
+            
+        Else   
+            
+            If ( Startup::*LHGameDB\Switch = 0) ; Haupt List Fenster ist Aktiv
+                For szInput = 1 To 4
+                    SubFile = ExecSQL::nRow(DC::#Database_001,"Gamebase","FileDev"+Str(szInput-1),"",Startup::*LHGameDB\GameID,"",1):
+                    If Len( SubFile ) = 0
+                        Continue
+                    Else
+                        Break
+                    EndIf    
+                Next
+            Else
+                ;
+                ; Im Einstellungs Fenster hole aktuell den Dateinamen aus den unteren 4 Strings
+                ; Die Gadget Nummer darf nicht geändert !!
+                For szInput = DC::#String_107 To DC::#String_110
+                    SubFile = GetGadgetText( szInput )
+                    If Len( SubFile ) = 0
+                        Continue
+                    Else
+                        Break
+                    EndIf
+                Next
+            EndIf    
+            
+            
+        EndIf    
+        
+        ;
+        ;
+        ; HOXS64 benutzt Anfürhungstriche während vide keine benutzt ????
+        If ( Len( SubFile ) ! 0 )
+            If ( "HOXS64.EXE" = UCase( CheckPrg ) )
+                ProcedureReturn Device +Chr(34)+ " " +Chr(34)+ ":" + SubFile 
+            Else    
+                ProcedureReturn Device + ":" +SubFile   
+            EndIf                 
+        EndIf
+        
+        ProcedureReturn Device           
         
     EndProcedure 
     
@@ -2862,8 +2945,10 @@ Module VEngine
         EndIf 
         Args = Trim( Args )
         ProcedureReturn Args
-    EndProcedure  
-    
+    EndProcedure      
+    ;
+    ;
+    ;
     Procedure.s Compat_GetCmdString(StartIndex, CmdLen, Switches.s )
                         
         Protected sCompArg.s, sComIndex, char.c
@@ -2881,7 +2966,100 @@ Module VEngine
         Next 
         ProcedureReturn sCompArg
         
-    EndProcedure               
+    EndProcedure  
+    ;
+    ;
+    ;
+    Procedure.s DOS_Argv_MameHelp(Args.s)
+        
+        ;
+        ; Komandozeilen Hilfe für MAME. 
+        ; z.b hat man -flop1 %s -flop2 %s -hard %s in der Argument zeile aber in den Slots ist nun das Harddisk Image nicht drinne
+        ; lädt Mame nicht und man muss wieder umkonfigueren. Diese Routine soll überflüssige Mame befehle entfernen.
+        Structure MameCommands
+            CMD.s
+            POS.i
+            NUM.i
+        EndStructure
+
+        
+        NewList MameCommands.MameCommands()
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop1"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop2"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop3"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop4"
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop5"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop6"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop7"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop8"         
+        AddElement(MameCommands()): MameCommands()\CMD = "-flop"    ; (auch -flop1-8?)        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard1"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard2"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard3"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard4"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard5"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard6"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard7"        
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard8"
+        AddElement(MameCommands()): MameCommands()\CMD = "-hard"    ;   (auch -hard1-8?)
+        AddElement(MameCommands()): MameCommands()\CMD = "-cdrom"   ;        
+        
+        Protected  szArgsCopy.s = Args, Count.i, Medium.s, DevCount.i = -1, MameCount.i = -1
+        
+        ResetList( MameCommands() )
+        Count = CountString(szArgsCopy, Chr(45))
+        
+        PosCont.i = 0
+        NrCount.i = -1
+        
+        For sz = 1 To Count
+            ForEach MameCommands()                
+                
+                Pos = FindString( szArgsCopy, MameCommands()\CMD, PosCont+1)
+                
+                If (Pos > 0)
+                    PosCont = Pos
+                    NrCount + 1
+                    MameCommands()\POS = PosCont
+                    MameCommands()\NUM = NrCount  ; 
+                EndIf                    
+            Next
+        Next
+            
+        For x = 0 To 3            
+            Medium = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev"+Str(x),"",Startup::*LHGameDB\GameID,"",1):  
+            If ( Len(Medium) > 0 )
+                DevCount + 1
+            EndIf    
+        Next    
+        
+        ResetList( MameCommands() )
+        ForEach MameCommands() 
+            If ( MameCommands()\POS > 0 )
+                MameCount + 1
+            EndIf
+        Next
+       
+        If (DevCount < MameCount)              
+            ResetList( MameCommands() )
+                                    
+            ForEach MameCommands() 
+                If ( MameCommands()\NUM = MameCount )                    
+                    Args = ReplaceString( Args, MameCommands()\CMD, "", #PB_String_CaseSensitive, MameCommands()\POS)
+                    MameCount - 1
+                    ResetList( MameCommands() )
+                EndIf
+                               
+                If ( MameCount = -1 ) Or ( DevCount = MameCount)
+                    Break
+                EndIf                        
+            Next                        
+        EndIf                      
+        
+        FreeList( MameCommands() )
+        
+        ProcedureReturn Args        
+    EndProcedure
     ;****************************************************************************************************************************************************************
     ; 
     ;****************************************************************************************************************************************************************    
@@ -2933,7 +3111,8 @@ Module VEngine
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
         Startup::*LHGameDB\Settings_hkeyKill = #True ;
-        Startup::*LHGameDB\Settings_fMonitor = #False; 
+        Startup::*LHGameDB\Settings_fMonitor = #False;
+        Startup::*LHGameDB\Settings_MameHelp = #False;         
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop        
@@ -3194,108 +3373,97 @@ Module VEngine
                 EndIf           
             Next ArgIndex 
             
-        ;
-        ;
-        ; Command: Lock Mouse in Window
-        szCommand.s = "%lck"          
-        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
-        If ( ArgPos > 0 )
-             Args = DOS_TrimArg(Args.s, szCommand.s) 
-             Startup::*LHGameDB\Settings_LokMouse = #True 
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")   
-         EndIf                       
+                      
         
-        ;
-        ;
-        ; Command: Minimize        
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%m" )
-                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Minimze (Activ)")                    
-                    Startup::*LHGameDB\Settings_Minimize = #True
-                    Args = DOS_TrimArg(Args.s, s) 
-                EndIf    
-            EndIf
-        Next ArgIndex 
                   
         ;
         ;
         ; Command: Asyncron                
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%a" )
-                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Asyncron (Activ)")                         
-                    Startup::*LHGameDB\Settings_Asyncron = #True
-                    Args = DOS_TrimArg(Args.s, s) 
-                EndIf    
-            EndIf                                   
-        Next ArgIndex 
+        ;For  ArgIndex = 1 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%a" )
+        ;            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Asyncron (Activ)")                         
+        ;            Startup::*LHGameDB\Settings_Asyncron = #True
+        ;            Args = DOS_TrimArg(Args.s, s) 
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex 
+        
         
         
         ;
         ;
         ; Command: NoQuotes                
-        For  ArgIndex = 0 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%n" )
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%nq" )                    
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Dont Use Double Quotes (Activ)")      
-                        NoQuotes = 1
-                        Args = DOS_TrimArg(Args.s, s) 
-                    EndIf
-                EndIf    
-            EndIf                                   
-        Next ArgIndex   
+        ;For  ArgIndex = 0 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%n" )
+        ;            s.s + Mid(Args,ArgIndex+2,1)
+        ;            If ( s =  "%nq" )                    
+        ;                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Dont Use Double Quotes (Activ)")      
+        ;                NoQuotes = 1
+        ;                Args = DOS_TrimArg(Args.s, s) 
+        ;            EndIf
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex   
+        
         
         ;
         ;
         ; Command: Archive Support               
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%p" )
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%pk" )                    
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
-                        ArcSupport = 1
-                        Args = DOS_TrimArg(Args.s, s) 
-                    EndIf
-                EndIf    
-            EndIf                                   
-        Next ArgIndex   
+        ;For  ArgIndex = 1 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%p" )
+        ;            s.s + Mid(Args,ArgIndex+2,1)
+        ;            If ( s =  "%pk" )                    
+        ;                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
+        ;                ArcSupport = 1
+        ;                Args = DOS_TrimArg(Args.s, s) 
+        ;            EndIf
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex   
         
         ;
         ;
-        ; Disable Output
-        szCommand.s = "%noout"          
+        ; Command: Minimize        
+        ;For  ArgIndex = 1 To Len(Args)
+            
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%m" )
+        ;            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Minimze (Activ)")                    
+        ;            Startup::*LHGameDB\Settings_Minimize = #True
+        ;            Args = DOS_TrimArg(Args.s, s) 
+        ;        EndIf    
+        ;    EndIf
+        ;Next ArgIndex 
+        
+
+                             
+        
+       
+        ;
+        ;
+        ; Aktiveren des Mame Helper
+        szCommand.s = "%mmhlp"          
         ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
-             Startup::*LHGameDB\Settings_bNoOutPt = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
-         EndIf         
-        ;
-        ;
-        ; Redirect Output
-        szCommand.s = "%svlog"          
-        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
-        If ( ArgPos > 0 )
-             Args = DOS_TrimArg(Args.s, szCommand.s) 
-             Startup::*LHGameDB\Settings_bSaveLog = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
-         EndIf          
+             Startup::*LHGameDB\Settings_MameHelp = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mame Help")  
+        EndIf  
+                        
         ;
         ;
         ; Disable Hotkey
@@ -3309,6 +3477,28 @@ Module VEngine
          
         ;
         ;
+        ; Disable Output
+        szCommand.s = "%noout"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_bNoOutPt = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
+        EndIf  
+                 
+        ;
+        ;
+        ; Redirect Output
+        szCommand.s = "%svlog"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_bSaveLog = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
+         EndIf   
+         
+        ;
+        ;
         ; Aktiveren Monitoring
         szCommand.s = "%wmon"          
         ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
@@ -3316,65 +3506,155 @@ Module VEngine
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_fMonitor = #True
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Monitoring Disk Activity")  
-        EndIf        
-        
+        EndIf     
+         
+        ;
+        ;
+        ; Command: Lock Mouse in Window
+        szCommand.s = "%lck"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_LokMouse = #True 
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")   
+        EndIf          
+         
+        ; Zwei Buchstaben ============================================================================================================================================         
+        ;
+        ;
+        ; Command: Hide, Unhide Explorer 
+        szCommand.s = "%ex"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_Explorer = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")    
+        EndIf         
+        ;
+        ;
+        ; Command: NoQuotes  
+        szCommand.s = "%nq"         
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             NoQuotes = 1
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Dont Use Double Quotes (Activ)")  
+        EndIf 
+         
+        ;
+        ;
+        ; Command: Archive Support   
+        szCommand.s = "%pk"         
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             ArcSupport = 1
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+         EndIf 
+         
         ;
         ;
         ; Command: Hide, Unhide Taskbar 
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%t" )
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%tb" )                    
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
-                        Startup::*LHGameDB\Settings_Taskbar = #True
-                        Args = DOS_TrimArg(Args.s, s) 
-                    EndIf
-                EndIf    
-            EndIf                                   
-        Next ArgIndex  
+        szCommand.s = "%tb"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_Taskbar = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+        EndIf 
+                
+        ;
+        ;
+        ; Command: Hide, Unhide Explorer 
+        szCommand.s = "%ux"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_DwmUxsms = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+        EndIf  
+        
+        ; Einzelne Buchstaben ============================================================================================================================================
+        ;
+        ;
+        ; Command: Minimize    
+        szCommand.s = "%m"         
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_Minimize = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Minimze (Activ)") 
+        EndIf          
+        ;
+        ;
+        ; Command: Asyncron 
+        szCommand.s = "%a"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_Asyncron = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Asyncron (Activ)")      
+        EndIf          
+        ;
+        ;
+        ; Command: Hide, Unhide Taskbar 
+        ;For  ArgIndex = 1 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%t" )
+        ;            s.s + Mid(Args,ArgIndex+2,1)
+        ;            If ( s =  "%tb" )                    
+        ;                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
+        ;                Startup::*LHGameDB\Settings_Taskbar = #True
+        ;                Args = DOS_TrimArg(Args.s, s) 
+        ;            EndIf
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex  
+        
         
         ;
         ;
         ; Command: Hide, Unhide Explorer 
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%e" )
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%ex" )                    
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
-                        Startup::*LHGameDB\Settings_Explorer = #True
-                        Args = DOS_TrimArg(Args.s, s) 
-                    EndIf
-                EndIf    
-            EndIf                                   
-        Next ArgIndex        
+        ;For  ArgIndex = 1 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%e" )
+        ;            s.s + Mid(Args,ArgIndex+2,1)
+        ;            If ( s =  "%ex" )                    
+        ;                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
+        ;                Startup::*LHGameDB\Settings_Explorer = #True
+        ;                Args = DOS_TrimArg(Args.s, s) 
+        ;            EndIf
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex        
+        
+        
         
         ;
         ;
         ; Command: Hide, Unhide Explorer 
 
-        For  ArgIndex = 1 To Len(Args)
-            
-            s.s = Mid(Args,ArgIndex,1)                
-            If ( s =  "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%u" )
-                    s.s + Mid(Args,ArgIndex+2,1)
-                    If ( s =  "%ux" )                    
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
-                        Startup::*LHGameDB\Settings_DwmUxsms = #True
-                        Args = DOS_TrimArg(Args.s, s) 
-                    EndIf
-                EndIf    
-            EndIf                                   
-        Next ArgIndex          
+        ;For  ArgIndex = 1 To Len(Args)
+        ;    
+        ;    s.s = Mid(Args,ArgIndex,1)                
+        ;    If ( s =  "%" )
+        ;        s.s + Mid(Args,ArgIndex+1,1)
+        ;        If ( s =  "%u" )
+        ;            s.s + Mid(Args,ArgIndex+2,1)
+        ;            If ( s =  "%ux" )                    
+        ;                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")      
+        ;                Startup::*LHGameDB\Settings_DwmUxsms = #True
+        ;                Args = DOS_TrimArg(Args.s, s) 
+        ;            EndIf
+        ;        EndIf    
+        ;    EndIf                                   
+        ;Next ArgIndex          
         
         
         ;
@@ -3479,92 +3759,181 @@ Module VEngine
             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Adding Files Support : =======================================") 
             
             If ( Len(Device1$) >= 1 )
-               
-                Device1$ = Getfile_Portbale_ModeOut(Device1$):  If ( ArcSupport  = 1 ): Device1$ = DOS_PKARC(Device1$, 1): EndIf :Device1$ = DOS_Device_GetInternalFile(Device1$, 1, CheckPrg): If (NoQuotes = -1 ): Device1$ = DOS_Device_VerifySpace(Device1$) :EndIf   
+                
+                Device1$ = Getfile_Portbale_ModeOut(Device1$)
+                
+                If ( ArcSupport  = 1 )
+                    Device1$ = DOS_PKARC(Device1$, 1)
+                EndIf
+                
+                Device1$ = DOS_Device_GetInternalFile(Device1$, 1, CheckPrg)
+                
+                If (NoQuotes = -1 )
+                    Device1$ = DOS_Device_VerifySpace(Device1$)
+                EndIf   
                 Debug "Loaded Slot 1 Dir /File : " + Device1$
             EndIf
             
+            
             If ( Len(Device2$) >= 1 )
-                Device2$ = Getfile_Portbale_ModeOut(Device2$):  If ( ArcSupport  = 1 ): Device2$ = DOS_PKARC(Device2$, 2): EndIf :Device2$ = DOS_Device_GetInternalFile(Device2$, 2, CheckPrg):  If (NoQuotes = -1 ): Device2$ = DOS_Device_VerifySpace(Device2$) :EndIf              
+                Device2$ = Getfile_Portbale_ModeOut(Device2$)
+                
+                If ( ArcSupport  = 1 )
+                    Device2$ = DOS_PKARC(Device2$, 2)
+                EndIf
+                
+                Device2$ = DOS_Device_GetInternalFile(Device2$, 2, CheckPrg)
+                If (NoQuotes = -1 )
+                    Device2$ = DOS_Device_VerifySpace(Device2$)
+                EndIf              
+                
                 Debug "Loaded Slot 2 Dir /File : " + Device2$
+                
             EndIf
             
+            
             If ( Len(Device3$) >= 1 )
-                Device3$ = Getfile_Portbale_ModeOut(Device3$):  If ( ArcSupport  = 1 ): Device3$ = DOS_PKARC(Device3$, 3): EndIf :Device3$ = DOS_Device_GetInternalFile(Device3$, 3, CheckPrg):  If (NoQuotes = -1 ): Device3$ = DOS_Device_VerifySpace(Device3$) :EndIf               
+                Device3$ = Getfile_Portbale_ModeOut(Device3$)
+                
+                If ( ArcSupport  = 1 )
+                    Device3$ = DOS_PKARC(Device3$, 3)
+                EndIf
+                
+                Device3$ = DOS_Device_GetInternalFile(Device3$, 3, CheckPrg)
+                If (NoQuotes = -1 )
+                    Device3$ = DOS_Device_VerifySpace(Device3$)
+                EndIf               
+                
                 Debug "Loaded Slot 3 Dir /File : " + Device3$
             EndIf
             
             If ( Len(Device4$) >= 1 )            
-                Device4$ = Getfile_Portbale_ModeOut(Device4$):  If ( ArcSupport  = 1 ): Device4$ = DOS_PKARC(Device4$, 4): EndIf :Device4$ = DOS_Device_GetInternalFile(Device4$, 4, CheckPrg):  If (NoQuotes = -1 ): Device4$ = DOS_Device_VerifySpace(Device4$) :EndIf                 
+                Device4$ = Getfile_Portbale_ModeOut(Device4$)
+                
+                If ( ArcSupport  = 1 )
+                    Device4$ = DOS_PKARC(Device4$, 4)
+                EndIf :Device4$ = DOS_Device_GetInternalFile(Device4$, 4, CheckPrg)
+                
+                If (NoQuotes = -1 )
+                    Device4$ = DOS_Device_VerifySpace(Device4$)
+                EndIf                 
+                
                 Debug "Loaded Slot 4 Dir /File : " + Device4$
             EndIf 
             
             Args = Trim(Args)
             
+            ;
+            ;
+            ; Mame/ Mess Helper.
+            If ( Startup::*LHGameDB\Settings_MameHelp = #True )
+                Args = DOS_Argv_MameHelp(Args.s)
+            endif    
+            ;
+            ;
+            
             SlotsToUse = CountString(Args,"%sc")    ; Universelles Argument, Kommando übergabe an das programm
             SlotsToUse + CountString(Args,"%s")        
-             
+            
             If ( SlotsToUse >= 1 )
                 
                 For SlotsIndex = 1 To SlotsToUse
                     
-                   If ( SlotsIndex > SlotsToUse )
+                    If ( SlotsIndex > SlotsToUse )
                         Break;
                     EndIf
                     
                     ArgLen = Len(Args)
                     For  ArgIndex = 1 To ArgLen
                         
-                        
+                        ;
+                        ; Routine für das Ausleen von Argumenten in den Media Slots
                         If ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%sc" )
                             
                             If     ( Len(Device1$) <> 0 )
                                 
                                 If ( Right(Device1$, 1) = Chr( 34 ) ) And ( Left(Device1$, 1) = Chr( 34 ) )
                                     Device1$ = Mid( Device1$, 2, Len(Device1$)-2 ) 
-                                EndIf    
-                                Args = ReplaceString(Args,"%sc", Device1$,0,ArgIndex,1): Device1$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue 
+                                EndIf
+                                
+                                Args = ReplaceString(Args,"%sc", Device1$,0,ArgIndex,1)
+                                Device1$ = "" 
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue 
                                 
                             ElseIf ( Len(Device2$) <> 0 )
                                 If ( Right(Device2$, 1) = Chr( 34 ) ) And ( Left(Device2$, 1) = Chr( 34 ) )
                                     Device2$ = Mid( Device2$, 2, Len(Device2$)-2 ) 
                                 EndIf     
-                                Args = ReplaceString(Args,"%sc", Device2$,0,ArgIndex,1): Device2$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
+                                
+                                Args = ReplaceString(Args,"%sc", Device2$,0,ArgIndex,1)
+                                Device2$ = ""  
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue
                                 
                             ElseIf ( Len(Device3$) <> 0 )
                                 If ( Right(Device3$, 1) = Chr( 34 ) ) And ( Left(Device3$, 1) = Chr( 34 ) )
                                     Device3$ = Mid( Device3$, 2, Len(Device3$)-2 ) 
                                 EndIf                                              
-                                Args = ReplaceString(Args,"%sc", Device3$,0,ArgIndex,1): Device3$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
+                                
+                                Args = ReplaceString(Args,"%sc", Device3$,0,ArgIndex,1)
+                                Device3$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue
                                 
                             ElseIf ( Len(Device4$) <> 0 )
                                 If ( Right(Device4$, 1) = Chr( 34 ) ) And ( Left(Device4$, 1) = Chr( 34 ) )
                                     Device4$ = Mid( Device4$, 2, Len(Device4$)-2 ) 
                                 EndIf                                              
-                                Args = ReplaceString(Args,"%sc", Device4$,0,ArgIndex,1): Device4$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue                         
+                                
+                                Args = ReplaceString(Args,"%sc", Device4$,0,ArgIndex,1)
+                                Device4$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue                         
                             EndIf
                             
                         ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%s" )
-                                 If     ( Len(Device1$) <> 0 )
-                                     Args = ReplaceString(Args,"%s", Device1$,0,ArgIndex,1): Device1$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue 
-                                     
-                                 ElseIf ( Len(Device2$) <> 0 )
-                                     Args = ReplaceString(Args,"%s", Device2$,0,ArgIndex,1): Device2$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
-                                     
-                                 ElseIf ( Len(Device3$) <> 0 )
-                                     Args = ReplaceString(Args,"%s", Device3$,0,ArgIndex,1): Device3$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue
-                                     
-                                 ElseIf ( Len(Device4$) <> 0 )
-                                     Args = ReplaceString(Args,"%s", Device4$,0,ArgIndex,1): Device4$ = ""  : ArgIndex = 0: ArgLen = Len(Args): Continue                         
-                                 EndIf
+                            If     ( Len(Device1$) <> 0 )
+                                Args = ReplaceString(Args,"%s", Device1$,0,ArgIndex,1)
+                                Device1$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue 
+                                
+                            ElseIf ( Len(Device2$) <> 0 )
+                                Args = ReplaceString(Args,"%s", Device2$,0,ArgIndex,1)
+                                Device2$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue
+                                
+                            ElseIf ( Len(Device3$) <> 0 )
+                                Args = ReplaceString(Args,"%s", Device3$,0,ArgIndex,1)
+                                Device3$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue
+                                
+                            ElseIf ( Len(Device4$) <> 0 )
+                                Args = ReplaceString(Args,"%s", Device4$,0,ArgIndex,1)
+                                Device4$ = ""
+                                ArgIndex = 0
+                                ArgLen = Len(Args)
+                                Continue                         
+                            EndIf
+                            
                         ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "" )
-                                 Continue
-                       EndIf         
-                             
+                            Continue
+                        EndIf         
+                        
                     Next                   
                 Next
             EndIf   
-             
+            
         EndIf
         Debug Args
         
@@ -4533,22 +4902,255 @@ EndProcedure
         EndIf          
         
     EndProcedure        
+    ;
+    ;
+    ; Return Codes als Identifikation zur Weiterleitung
+    ; -1 : Kein Unterstützung
+    ; 64 : C64er Images
+    ;
+    Procedure.i     FileManageR_MediumDecmp(szMedium.s, PackPluginID.i )
+        
+        Protected Count.i = 0, PackedData.s, PackedFile.s, PackedPath.s, PackedExts.s, PackedSize.q
+        Protected isC64.i = 0   ; Commodore 64/128
+        Protected isWAD.i = 0   ; Doom Wads
+        Protected isAMI.i = 0   ; Commodore Amiga
+        Protected isPK3.i = 0   ;
+        
+        Protected RtCode.i= -1  
+        
+        
+        If OpenPack(DC::#PackFile, szMedium, PackPluginID ) 
+            
+            If ExaminePack( DC::#PackFile )
+                
+                While NextPackEntry( DC::#PackFile )
+
+                    If ( Len(PackEntryName( DC::#PackFile )) >= 1)        
+                        Count + 1 
+                                                
+                        PackedData = PackEntryName( DC::#PackFile )     ; Könnte datei oder Verzeichnis xsein
+                        PackedSize = PackEntrySize( DC::#PackFile )     ; Size
+                        Debug "FileManager - Medium Decompress: [" + Str(Count) + "] " + PackedData
+                        Debug "FileManager - Medium Decompress: [" + Str(Count) + "] " + Str(PackedSize)
+                        
+                        If Right( PackedData , 1) = "/"
+                            PackedPath = PackedData
+                            Debug "FileManager - Medium Verzeichnis [" + Str(Count) + "] " + PackedPath +#CR$
+                            
+                        Else
+                            PackedPath = PackedData
+                            PackedFile = GetFilePart( PackedData, #PB_FileSystem_NoExtension )
+                            PackedExts = GetExtensionPart( PackedData )
+                            Debug "FileManager - Medium Voller Pfad [" + Str(Count) + "] " + PackedPath                            
+                            Debug "FileManager - Medium Datei       [" + Str(Count) + "] " + PackedFile
+                            Debug "FileManager - Medium Erweiterung [" + Str(Count) + "] " + PackedExts +#CR$                                                     
+                        EndIf                    
+                    EndIf 
+                    
+                    Select UCase ( PackedExts )
+                        Case  "D64", "D71", "D81","T64","D80", "D82", "G64", "LNX", "X64", "G71","TAP","CRT", "PRG", "P00"
+                            isC64 + 1: RtCode = 64
+                        Case "WAD"
+                            isWAD + 1: RtCode = -1
+                        Case "ADF", "ADZ", "DMS"
+                            isAMI + 1: RtCode = -1
+                        Case "PK3"    
+                            isPK3 + 1: RtCode = -1
+                        Default 
+                            RtCode = -1
+                    EndSelect        
+                    
+                Wend   
+            EndIf    
+                        
+            ClosePack( DC::#PackFile ) 
+            ProcedureReturn RtCode
+        EndIf    
+        
+        
+        
+    EndProcedure    
+    ;
+    ;
+    ;
+    Procedure.i     FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
+        
+        Protected szMedium.s, szFormat.s, RtCode.i = 1
+        
+        If ( Len(GetGadgetText(GadgetID)) = 0 )                                   ;
+             Request::MSG(Startup::*LHGameDB\TitleVersion, "Keine Datei Im Slot!","Im dem Datei Slot befindet sich keine Datei" ,2,2,"",0,0,DC::#_Window_001)
+             ProcedureReturn 
+        EndIf        
+        
+        szMedium  = Getfile_Portbale_ModeOut(GetGadgetText(GadgetID.i))
+        szFormat  = GetExtensionPart(szMedium)
+        
+             
+        Select FileSize( szMedium ) 
+            Case -1     ; Datei wurde nicht gefunden.
+                        ;
+                        ; Fehler Message
+                Request::MSG(Startup::*LHGameDB\TitleVersion, "Datei nicht gefunden!","Die Datei "+ Chr(34) + GetFilePart( szMedium, #PB_FileSystem_NoExtension ) + Chr(34) + " wurde nicht gefunden" ,2,2,"",0,0,DC::#_Window_001)
+                ProcedureReturn  
+                
+            Case -2     ; Datei ist ein Verzeichnis.
+                        ;
+                        ;  Verzeichnis ...                     
+            Default
+                If (Len(szFormat) = 0)
+                    ;
+                    ; Kein Format ()
+                EndIf                 
+                
+        EndSelect    
+        
+        ;
+        ;
+        ; Auf Packer Prüfen
+        Select UCase ( szFormat )
+            Case "LZ"
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_BriefLZ )
+                
+            Case "ZIP"               
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Zip     )               
+                
+            Case "7Z"                
+                RtCode = FileManageR_MediumDecmp( szMedium.s,  #PB_PackerPlugin_Lzma   )               
+                
+            Case "TAR"
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Tar     )                
+                
+            Case "RAR"
+                ;
+                ; Ja super ... da muss man wieder war machen ...
+                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","RAR wird Nativ (noch) nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
+                ProcedureReturn 
+        EndSelect
+        
+        Select RtCode
+                ;
+                ; Return Code 64 öffent das C64er Image Fenster, da sich im gepackten image C64er Image Befindet
+            Case 64
+                vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
+                ProcedureReturn 
+                
+            Default
+                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Der Inhalt der [ "+ szFormat +" ] Datei wird noch nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
+                ProcedureReturn 
+                
+        EndSelect        
+        ;
+        ;
+        ; Prüfe Medium 
+        Select UCase ( szFormat )
+                
+            Case  "D64", "D71", "D81","T64","D80", "D82", "G64", "LNX", "X64", "G71","TAP","CRT", "PRG", "P00" 
+                vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
+                ProcedureReturn 
+                
+            Default
+                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","[ "+ szFormat +" ] wird für den Internen Datei Manager nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
+                ProcedureReturn
+                
+        EndSelect
+        
+    EndProcedure    
     
-    
-    
+  ;**********************************************************************************************************************************************************************
+    ;        
+    ;______________________________________________________________________________________________________________________________________________________________________       
+;     Procedure.s DSK_Uncompress_ZIP(D64_Image$, PowerPacker.i)
+;         Protected PowerPackFile$, PPFileName$,  PPSWildcat$, PPFilesize.q, TMPWildcat$
+;         
+;         
+;         If OpenFile( DC::#TMPFile , D64_Image$)
+;            CloseFile( DC::#TMPFile )
+;       EndIf
+;         
+;       If OpenPack(DC::#PackFile, D64_Image$, PowerPacker ) 
+;           
+;           If ExaminePack( DC::#PackFile )
+;               
+;               While NextPackEntry( DC::#PackFile )
+;                   
+;                        If (Len(PackEntryName( DC::#PackFile )) = 0) And ( PackEntrySize( DC::#PackFile ) = 0 )
+;                            ; 
+;                            ; No Filename and Items
+;                            ClosePack(#PB_All): ProcedureReturn
+;                        EndIf 
+;                        
+;                        ;
+;                        ;Use the First Filename
+;                        If ( Len(PackEntryName( DC::#PackFile )) >= 1)  
+;                                                       
+;                            PowerPackFile$ = PackEntryName( DC::#PackFile )
+;                            PPFileName$    = GetFilePart( PackEntryName( DC::#PackFile ), 1)
+;                            PPSWildcat$    = GetExtensionPart( PackEntryName( DC::#PackFile ) )
+;                            PPFilesize     = PackEntrySize( DC::#PackFile )
+;                            
+;                            Debug #CRLF$
+;                            Request::SetDebugLog("Powerpacked File: "+ PowerPackFile$ + "  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))  
+;                            Request::SetDebugLog("Powerpacked Size: "+ PackEntrySize( DC::#PackFile ) + "  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))                              
+;                        
+;                            Select UCase ( PPSWildcat$)
+;                                Case  "D64", "D71", "D81","T64", "D80", "D82", "G64", "LNX", "X64", "G71", "TAP", "CRT", "PRG", "P00"                                                   
+;                                    
+;                                    
+;                                    PPFileName$ = "_DecompC64File"                                     
+;                                    PPFileName$ = GetTemporaryDirectory() + PPFileName$ + "." + PPSWildcat$
+;                                    
+;                                    Request::SetDebugLog("ZIP Found & Extract : "+ PowerPackFile$ +"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))     
+;                                    
+;                                    *PackeMemory = AllocateMemory( PPFilesize )
+;                                    UncompressPackMemory( DC::#PackFile, *PackeMemory, MemorySize( *PackeMemory ),  PowerPackFile$)
+;                                    ClosePack(#PB_All)   
+;                                    
+;                                    Define SaveFile = CreateFile(#PB_Any, PPFileName$,#PB_File_SharedRead|#PB_File_SharedWrite)           
+;                                    If ( SaveFile )
+;                                       WriteData(SaveFile, *PackeMemory, PPFilesize)
+;                                       CloseFile(SaveFile)     
+;                                    EndIf  
+;                                    FreeMemory(*PackeMemory)
+;                                    
+;                                    
+;                                   ; PPFilesize = UncompressPackFile( DC::#PackFile ,PPFileName$, PowerPackFile$ )
+;                                                                                                   
+;                                                                       
+;                                    If ( FileSize(PPFileName$) ! PPFilesize ) Or ( PPFilesize = -1)                                                                           
+;                                        Message1$ = "W.T.F: "
+;                                        Message2$ = "There was a error to uncompress File " + #CRLF$ + GetFilePart( D64_Image$ ) + #CRLF$ + "Extract Error: " + PowerPackFile$ + " ("+Str(PPFilesize)+")"
+;                                        
+;                                        Request::MSG(Startup::*LHGameDB\TitleVersion, Message1$, Message2$ ,2,2,"",0,0,DC::#_Window_005)
+;                                        ProcedureReturn ""
+;                                    EndIf 
+;                                    
+;                                    C64_PackedImage$ = PPFileName$
+;                                    Request::SetDebugLog("Compressed Image Packed  : "+Chr(34)+D64_Image$      +Chr(34)+"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))  
+;                                    Request::SetDebugLog("Compressed Image UnPacked: "+Chr(34)+C64_PackedImage$+Chr(34)+"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))
+;                                    ProcedureReturn PPFileName$
+;                                Default
+;                                    Continue
+;                            EndSelect                                                   
+;                            ; Löschen nicht vergessen
+;                       EndIf 
+;                     Wend
+;                 EndIf
+;             EndIf
+;       
+;    EndProcedure    
 EndModule    
 
 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3743
-; FirstLine = 3121
-; Folding = 8+P+34J-N5-eg-
+; CursorPosition = 3017
+; FirstLine = 2439
+; Folding = 8-P+34J-t9-0A-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = I:\Games _ Adult Archiv\Theme - Game RPG Action\She Will Punish Them Modded\
+; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Commodore Amiga\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

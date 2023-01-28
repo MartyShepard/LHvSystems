@@ -2,8 +2,11 @@
     
         
     ;
-    ; ToolTIPEx
-    Declare TooltTip(WindowID, ObjectID, Text$ , Title$, TIcon=0, TextWidth=500, ToolTipMode=0, TF=0,BallonType=#False,CFrt=$00FFFFFF, CBck=$00FF0000); - ToolTipMode: 0-Normal, 1-Purebasic Default, 2-Chnage Text,3-Hide, 4-Remove, 5-Show   
+    ;
+    ; ToolTipMode: 0-Normal, 1-Purebasic Default, 2-Chnage Text,3-Hide, 4-Remove, 5-Show      
+    Declare TooltTip(WindowID, ObjectID, Text$ , Title$, TIcon=0, TextWidth=500, ToolTipMode=0, TF=0,BallonType=#False,CFrt=$00FFFFFF, CBck=$00FF0000, YPosition = 0)
+ 
+    
     Declare.s ToolTipMode(Modus=1,ToolTipID=0,Text$="")
     Declare ToolTipFont(ToolTipID,FontType.l)
     Declare.l Tooltip_TrayIcon(File$, TrayID.i, Window.i, IconDescription$="", Command.i = 0) 
@@ -207,7 +210,7 @@ EndProcedure
 ; -  BallonType  = Ja,Nein
 ; -  CFrt        = Front Farbe
 ; -  CBck        = Back  Farbe               
-Procedure TooltTip(WindowID, ObjectID, Text$ , Title$, TIcon=0, TextWidth=500, ToolTipMode=0, TF=0,BallonType=#False,CFrt=$00FFFFFF, CBck=$00FF0000); 
+Procedure TooltTip(WindowID, ObjectID, Text$ , Title$, TIcon=0, TextWidth=500, ToolTipMode=0, TF=0,BallonType=#False,CFrt=$00FFFFFF, CBck=$00FF0000, YPosition = 0); 
     
     Protected ToolTip.i
     
@@ -265,7 +268,7 @@ Procedure TooltTip(WindowID, ObjectID, Text$ , Title$, TIcon=0, TextWidth=500, T
                 SendMessage_(ToolTip, #TTM_SETTITLE,TIcon,@Title$)
             EndIf
             
-            SetWindowPos_(ToolTip.i, #HWND_TOPMOST,0, 0, 0, 0,#SWP_NOMOVE | #SWP_NOSIZE | #SWP_NOACTIVATE)    
+            SetWindowPos_(ToolTip.i, #HWND_TOPMOST,0, YPosition, 0, 0, #SWP_NOSIZE | #SWP_NOACTIVATE)    
             
             For i = 0 To 4096
                 If *TT\Tool_Tip[i] = 0
@@ -327,8 +330,8 @@ Procedure.l Tooltip_TrayIcon(File$, TrayID.i, Window.i, IconDescription$="", Com
 EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 118
-; FirstLine = 72
+; CursorPosition = 270
+; FirstLine = 189
 ; Folding = f-
 ; EnableAsm
 ; EnableXP

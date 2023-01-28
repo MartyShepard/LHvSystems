@@ -1009,7 +1009,7 @@ Module vSystem
                           "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
                           "Developed by Marty Shepard"
         
-        Debug TooltipString
+        ;Debug "System_InfoToolTip() :" + TooltipString
         
         Startup::ToolTipSystemInfo = TooltipString
         ProcedureReturn TooltipString
@@ -1065,8 +1065,9 @@ Module vSystem
     ;    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 23
-; Folding = DAAAAx
+; CursorPosition = 1011
+; FirstLine = 134
+; Folding = DAAAAz
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -505,16 +505,16 @@ Module Interact
                             EndSelect
                             ;
                             ;
-                            ; Disk Image Handling
+                            ; Disk Image Handling/ Datei Manager
                             ; 
                         Case DC::#Button_103 To DC::#Button_106       
                             Select ButtonEX::ButtonExEvent(EvntGadget)  
                                 Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
                                     Select EvntGadget
-                                        Case DC::#Button_103:  vWindows::OpenWindow_Sys64(DC::#String_008,DC::#String_107):Continue
-                                        Case DC::#Button_104:  vWindows::OpenWindow_Sys64(DC::#String_009,DC::#String_108):Continue
-                                        Case DC::#Button_105:  vWindows::OpenWindow_Sys64(DC::#String_010,DC::#String_109):Continue                                            
-                                        Case DC::#Button_106:  vWindows::OpenWindow_Sys64(DC::#String_011,DC::#String_110):Continue                                            
+                                        Case DC::#Button_103:  vEngine::FileManageR_MediumCheck(DC::#String_008,DC::#String_107):Continue
+                                        Case DC::#Button_104:  vEngine::FileManageR_MediumCheck(DC::#String_009,DC::#String_108):Continue
+                                        Case DC::#Button_105:  vEngine::FileManageR_MediumCheck(DC::#String_010,DC::#String_109):Continue                                            
+                                        Case DC::#Button_106:  vEngine::FileManageR_MediumCheck(DC::#String_011,DC::#String_110):Continue                                            
                                     EndSelect                                                                                                      
                             EndSelect                                             
                             ;
@@ -723,8 +723,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 49
-; FirstLine = 15
+; CursorPosition = 513
+; FirstLine = 470
 ; Folding = --
 ; EnableAsm
 ; EnableXP
