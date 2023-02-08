@@ -16,7 +16,7 @@
     
     Declare.i   System_CheckInstance()
     
-    Declare.s   System_InfoToolTip()
+    Declare.s   System_InfoToolTip(LCDInfo.i = #False)
     
     Declare.i   System_ProgrammIsAlive(szTaskName.s)
     Declare.i   System_GetTasklist();
@@ -629,6 +629,7 @@ Module vSystem
                                 Debug DbgLog + #CR$
                             EndIf                                    
                             _NoBorder_(hwnd)                              
+                            Startup::*LHGameDB\Thread_ProcessId = ExtProcessID
                             ProcedureReturn #False 
                         EndIf    
                         
@@ -980,12 +981,15 @@ Module vSystem
     ;
     ;
     ;
-    Procedure.s   System_Get_Internal_MEM()
+    Procedure.s   System_Get_Internal_MEM(LCDInfo.i = #True)
                
         Free.s = MathBytes::Bytes2String(MemoryStatus(#PB_System_FreePhysical))
         Total.s= MathBytes::Bytes2String(MemoryStatus(#PB_System_TotalPhysical))
-
-        ProcedureReturn  Total + "  ( " + Free + " available )"
+        
+        If ( LCDInfo.i = #True )
+            ProcedureReturn  Total + "  ( " + Free + " Frei )"
+        EndIf    
+        ProcedureReturn  Total + "  ( " + Free + " Verfügabar )"
     EndProcedure
     ;
     ;
@@ -997,21 +1001,28 @@ Module vSystem
     ;
     ;
     ;    
-    Procedure.s   System_InfoToolTip()
+    Procedure.s   System_InfoToolTip(LCDInfo.i = #False)
         
-        TooltipString.s = ""
-        TooltipString   = Startup::*LHGameDB\TrayIconTitle + Chr(13) + Chr(13) + 
-                          "CPU: " + Trim( CPUName() ) + Chr(13) +
-                          "CPU: " + System_Get_Internal_CPU() + Chr(13) +                          
-                          "GFX: " + System_Get_Internal_GFX() + Chr(13) +      
-                          "WIN: " + System_Get_Internal_WIN() + Chr(13) +                          
-                          "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) + 
-                          "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
-                          "Developed by Marty Shepard"
+        If ( LCDInfo = #False )
+            TooltipString.s = ""
+            TooltipString   = Startup::*LHGameDB\TrayIconTitle + Chr(13) + Chr(13) + 
+                              "CPU: " + Trim( CPUName() ) + Chr(13) +
+                              "CPU: " + System_Get_Internal_CPU() + Chr(13) +                          
+                              "GFX: " + System_Get_Internal_GFX() + Chr(13) +      
+                              "WIN: " + System_Get_Internal_WIN() + Chr(13) +                          
+                              "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) + 
+                              "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
+                              "Developed by Marty Shepard"
+            
+            Startup::ToolTipSystemInfo = TooltipString
+        EndIf
         
-        ;Debug "System_InfoToolTip() :" + TooltipString
-        
-        Startup::ToolTipSystemInfo = TooltipString
+        If ( LCDInfo = #True )  And ( LCD::Mono_IsConnected() )                     
+             LCD::Mono_SetText(0, Startup::*LHGameDB\TitleSimpled )
+             LCD::Mono_SetText(1,  System_Get_Internal_MEM(#True) )             
+             LCD::Update()
+        EndIf
+
         ProcedureReturn TooltipString
     EndProcedure
          
@@ -1065,9 +1076,9 @@ Module vSystem
     ;    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1011
-; FirstLine = 134
-; Folding = DAAAAz
+; CursorPosition = 1022
+; FirstLine = 414
+; Folding = DAiDgz
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

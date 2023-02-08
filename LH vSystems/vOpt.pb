@@ -38,13 +38,15 @@
         
         XIncludeFile "..\INCLUDES\CLASSES_SUB\Math_Bytes.pb"
         
-        XIncludeFile "..\INCLUDES\CLASSES_EMU\FileFormat_DiskImageC64.pb"        
-        
+        XIncludeFile "..\INCLUDES\CLASSES_EMU\FileFormat_DiskImageC64.pb"     
+                  
         XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
+        
+        XIncludeFile ".\vSystems_Modules\Module_LogitechLCD.pb"   
         
         UseZipPacker(): UseLZMAPacker()
 
-        InitKeyboard() 
+        InitKeyboard()
         
         ;SetThemeAppProperties_(0)
         ;
@@ -150,17 +152,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 59
-; FirstLine = 21
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 48
+; FirstLine = 19
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = ..\release\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Apple Macintosh 1\
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

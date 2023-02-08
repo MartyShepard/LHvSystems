@@ -3111,11 +3111,13 @@ Module VEngine
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
         Startup::*LHGameDB\Settings_hkeyKill = #True ;
+        Startup::*LHGameDB\Settings_hkeyMMBT = #True 
         Startup::*LHGameDB\Settings_fMonitor = #False;
         Startup::*LHGameDB\Settings_MameHelp = #False;         
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
-        Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop        
+        Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
+        Startup::*LHGameDB\vKeyActivMMBT = #False       ; Einstellung für den Loop         
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Section Set Media Device
@@ -3828,7 +3830,7 @@ Module VEngine
             ; Mame/ Mess Helper.
             If ( Startup::*LHGameDB\Settings_MameHelp = #True )
                 Args = DOS_Argv_MameHelp(Args.s)
-            endif    
+            EndIf    
             ;
             ;
             
@@ -4040,7 +4042,7 @@ Module VEngine
                     WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )                        
                 EndIf            
             EndIf        
-    EndProcedure
+        EndProcedure               
     ;****************************************************************************************************************************************************************
     ; Section Programm Starten
     ;****************************************************************************************************************************************************************
@@ -4118,7 +4120,8 @@ Module VEngine
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
             _Action1 = CreateThread(@DOS_Thread(),*Params)                                             
-
+            
+            
             ;
             ; ======================================================================================== Loop
             While IsThread(_Action1) 
@@ -4128,20 +4131,24 @@ Module VEngine
                 Delay(1)                                                       
                 vKeys::Init_Capture()
                 
+                ;Delay(1)
+                ;vKeys::Init_MM3DFocus()                  
+                
                 Delay(1)
                 vKeys::Init_Terminate()                        
-                
-                ProgramEventID = WaitWindowEvent()
+                               
+
+                ProgramEventID = WaitWindowEvent()             
                 If ( ProgramEventID = #WM_HOTKEY )
                     Select EventwParam()
                             
-                        Case 1
+                        Case 10
                             If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
                                 Beep_(257,150)
                                 vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
                             EndIf
                             
-                        Case 2  
+                        Case 20  
                             If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
                                 If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
                                     KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
@@ -4149,9 +4156,11 @@ Module VEngine
                                 EndIf 
                             EndIf
                             
-                        Case 3                     
+                        Case 30 
+                            If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )                               
+                            EndIf                            
                     EndSelect
-                EndIf                              
+                EndIf                     
                 ;While WindowEvent()
                 ;Wend  
             Wend  
@@ -4210,12 +4219,12 @@ Module VEngine
             ;
             ; NoBorder, Screenshot Aktiv
             If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )    
-                UnregisterHotKey_( WindowID(DC::#_Window_001) , 1)
+                UnregisterHotKey_( WindowID(DC::#_Window_001) , 10)
                 VSystem::System_NoBorder_Handle_Reset()               
             EndIf   
             
             If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
-                UnregisterHotKey_( WindowID(DC::#_Window_001) , 2)
+                UnregisterHotKey_( WindowID(DC::#_Window_001) , 20)
             EndIf    
             
            
@@ -5143,14 +5152,14 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 3017
-; FirstLine = 2439
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 4134
+; FirstLine = 3549
 ; Folding = 8-P+34J-t9-0A-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Commodore Amiga\
+; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Apple Macintosh 1\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

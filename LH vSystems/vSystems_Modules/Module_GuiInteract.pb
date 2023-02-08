@@ -82,6 +82,19 @@ Module Interact
         
         SSTTIP::Tooltip_TrayIcon(ProgramFilename(), DC::#TRAYICON001, DC::#_Window_001, Startup::*LHGameDB\TrayIconTitle) 
         
+        ; Logitech 
+        Logitech_Common::GetLCorePath()
+        LCD::Init(Startup::*LHGameDB\TitleVersion, LCD::GetLCD_DLL_Path())  
+        If LCD::Color_IsConnected()
+            ;
+            ;
+            ; I dont have Color
+        ElseIf LCD::Mono_IsConnected()
+            LCD::Mono_SetText(0, Startup::*LHGameDB\TitleSimpled )
+            LCD::Update()                   
+        EndIf        
+        
+        
        ;StringSetCallback(DC::#String_007, 0)
         
         ; Drag'n Drop für die Dateien/ Siehe WaitWindowEvent()
@@ -159,6 +172,7 @@ Module Interact
 
         Repeat
             
+            vSystem::System_InfoToolTip(#True)    
             
             EvntWait = WaitWindowEvent(): EvntWindow = EventWindow(): EvntGadget = EventGadget(): EvntType   = EventType()
             EvntMenu = EventMenu()      : EvntwParam = EventwParam(): EvntlParam = EventlParam(): EvntData   = EventData()                                              
@@ -281,7 +295,7 @@ Module Interact
                                  Continue
                              EndIf
                      EndSelect
-                     
+                                          
                 Case #WM_KEYDOWN
                     
                     If ( GetAsyncKeyState_(#VK_CONTROL) & 32768 = 32768 And GetAsyncKeyState_(#VK_S) & 32768 = 32768 And Startup::*LHGameDB\Switch = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)                                 
@@ -669,7 +683,8 @@ Module Interact
 
             
         Until ( Startup::*LHGameDB\ProgrammQuit = #True )       
-                
+        
+        LCD::Free()
         HideGadget(DC::#Text_004,0)
         SetGadgetText(DC::#Text_004,"Beende... [" + Str(RowID) + "/" + Str(Rows))   
         
@@ -723,8 +738,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 513
-; FirstLine = 470
+; CursorPosition = 174
+; FirstLine = 141
 ; Folding = --
 ; EnableAsm
 ; EnableXP

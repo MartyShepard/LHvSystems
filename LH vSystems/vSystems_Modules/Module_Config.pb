@@ -220,7 +220,8 @@ DeclareModule Startup
     EndStructure
     
     Structure STRUCT_LH_DATABASE        
-        TitleVersion.s{255}         ;Version und Title        
+        TitleVersion.s{255}         ;Version und Title
+        TitleSimpled.s{255}         ;Version und Title (Einfach)
         Base_Path.s{4096}           ;Programm Verzeichis        
         Base_Game.s{1024}           ;Dtatabase Datei
         Base_Pict.s{1024}           ;Databasee Datei, Covers,Screenshots
@@ -260,10 +261,12 @@ DeclareModule Startup
         Settings_NBNoShot.i         ;Disable Screenshot Capture Support
         Settings_hkeyKill.i         ;Disbale/Enable Hotkey für das Beenden eines Programs
         Settings_hkeyShot.i         ;Hotkey Modifier für das Aufnehmen der Screenshots
+        Settings_hkeyMMBT.i         ;Hotkey Modifier für das Aufnehmen der Screenshots        
         Settings_fMonitor.i         ;Sepaerates Aktivieren des Monitoring der Datei Aktivität wenn das Spiel/Programm gestartet wird
         Settings_MameHelp.i         ;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen      
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
+        vKeyActivMMBT.i             ;Temporäre Var für den Loop        
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -322,6 +325,7 @@ DeclareModule Startup
         Thread_ProcessHigh.i        ; 
         Thread_ProcessLow.i
         Thread_ProcessName.s        ; szTaskanem
+        Thread_ProcessId.i
         NBWindowhwnd.l              ; Handle des Fremden Fensters
         NBWindow.RECT
         NBClient.RECT 
@@ -669,6 +673,10 @@ Module Startup
             ProcedureReturn  Version
         EndIf
         
+        If ( Option = 3 )
+            ProcedureReturn   Title + " " + Version
+        EndIf        
+        
         ProcedureReturn Title + " " + Version + " "+ "(Build: " + Builddate +")"
         
     EndProcedure
@@ -842,6 +850,7 @@ Module Startup
          *LHGameDB\DateFormat           = "%yyyy/%mm/%dd"
          *LHGameDB\PortablePath         = *LHGameDB\Base_Path
          *LHGameDB\TitleVersion         = History()
+         *LHGameDB\TitleSimpled         = History(#False,3)
          *LHGameDB\BaseSVNCurrent       = History(#True)                                     ; The Database Version, for Update and changes
          *LHGameDB\TrayIconTitle        = History(#False,1)  
          *LHGameDB\VersionNumber        = History(#False,2) 
@@ -964,8 +973,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 371
-; FirstLine = 273
+; CursorPosition = 852
+; FirstLine = 632
 ; Folding = 5D+
 ; EnableAsm
 ; EnableXP
