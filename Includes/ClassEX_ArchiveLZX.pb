@@ -1038,40 +1038,40 @@ Module PackLZX
         *p\shift    = *p\global_shift
         
         ;
-        ;
-        ;/* fix the control word If necessary */
-        Debug "/* fix the control word If necessary */" + #CRLF$         
-        If ( *p\shift < 0 )         
-            
+        ;       
+        Debug "/* fix the control word If necessary */"
+        
+        If ( *p\shift < 0 )                     
             *p\shift = Read_Literal_Shift(*p)
         EndIf        
                 
         ;
-        ;
-        ; /* Read the decrunch method */
+        ;       
         Debug "/* Read the decrunch method */" + #CRLF$        
-        *p\decrunch_method = *p\control & 7
-        *p\control         = *p\control >> 3
         
-        *p\shift - 3
-        If ( *p\shift < 0)  ;If ( ( *p\shift = (*p\shift - 3) ) < 0)  
+        *p\decrunch_method = *p\control & 7
+        *p\control         >> 3
+        
+        *p\shift          - 3
+        
+        If ( *p\shift < 0)                          ;If ( ( *p\shift = (*p\shift - 3) ) < 0)  
             Read_Literal_Shift(*p)
         EndIf
         
         ;
         ;
-        ; /* Read And build the offset huffman table */
-        Debug "/* Read And build the offset huffman table */" + #CRLF$        
-        If( (Not *p\abort) And ( *p\decrunch_method = 3) )
+        Debug "/* Read And build the offset huffman table */"      
+        If( (*p\abort = 0) And ( *p\decrunch_method = 3) )
             
             For temp = 0 To 7                
                 
                 *p\OffsetLen\c[temp] =  *p\control & 7                 
-                *p\control >> 3
+                *p\control           >> 3
                 
-                Debug "Offset = " + RSet( Str( *p\OffsetLen\c[temp] ),2,"0") +  " - Char:" + Chr(*p\OffsetLen\c[temp]) + ": Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )
+                ;Debug "Offset = " + RSet( Str( *p\OffsetLen\c[temp] ),2,"0") +  " - Char:" + Chr(*p\OffsetLen\c[temp]) + ": Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )
                 
-                *p\shift - 3  
+                *p\shift             - 3  
+                
                 If  ( *p\shift < 0)                                      
                     Read_Literal_Shift(*p)                    
                 EndIf    
@@ -1091,31 +1091,31 @@ Module PackLZX
         If ( *p\abort = 0 )
             
             *p\decrunch_length = (*p\control & 255) << 16
-            *p\control = *p\control >> 8
+            *p\control         >> 8
                        
                  *p\shift - 8
             If ( *p\shift < 0 )                             ;If ( ( *p\shift = ( *p\shift - 8) ) < 0 )                              
                     Read_Literal_Shift(*p)                                
             EndIf    
-            Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )    
+          ;  Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )    
             
             *p\decrunch_length = *p\decrunch_length + (*p\control & 255) << 8
-            *p\control = *p\control >> 8
+            *p\control         >> 8
             
                  *p\shift - 8          
             If ( *p\shift < 0 )                             ; If ( ( *p\shift = ( *p\shift - 8) ) < 0 )                              
                     Read_Literal_Shift(*p)                                
             EndIf 
-            Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                   
+           ; Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                   
             
             *p\decrunch_length = *p\decrunch_length + (*p\control & 255)
-            *p\control = *p\control >> 8            
+            *p\control         >> 8            
             
                  *p\shift - 8
             If ( *p\shift < 0 )                            ; If ( ( *p\shift = ( *p\shift - 8) ) < 0 )            
                     Read_Literal_Shift(*p)                                
-            EndIf
-            Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                   
+           EndIf                
+          ;  Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                   
                 
         EndIf    
         
@@ -1135,21 +1135,24 @@ Module PackLZX
                 For temp = 0 To 20-1            ;  For(temp = 0; temp < 20; temp++)
                     
                     *p\Huffm20Len\c[temp] = *p\control & 15                    
-                    *p\control            = *p\control >> 4
+                    *p\control            >> 4
                     
                          *p\shift - 4
                     If ( *p\shift < 0 )                            ; if((shift -= 4) < 0)         
                             Read_Literal_Shift(*p)                                
                     EndIf
-                    Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " -- Temp: " + Str(temp) + " - Huffm20 Len: " + Str( *p\Huffm20Len\c[temp] ) + " :: Char: " + Chr( *p\Huffm20Len\c[temp])   
+                        
+                  ;  Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " -- Temp: " + Str(temp) + " - Huffm20 Len: " + Str( *p\Huffm20Len\c[temp] ) + " :: Char: " + Chr( *p\Huffm20Len\c[temp])   
                     
                 Next
+                
                 Debug "Make Decode Table Huffman20" + #CRLF$                 
+                
                 *p\abort = Make_decode_table(*p, 20, 6, *p\OffsetLen, *p\OffsetTbl, *p\Huffm20Len, *p\Huffm20TBL,  *p\LiteralLen, *p\LiteralTBL, 1)
                 
                 If (*p\abort = 1)
                     Debug "/* argh! table is corrupt! */"
-                    Break;                                  /* argh! table is corrupt! */
+                    Break
                 EndIf
                 
 
@@ -1159,19 +1162,17 @@ Module PackLZX
                     
                     If ( *p\symbol >= 20 )      ;If((symbol = huffman20_table[control & 63]) >= 20)
                         
-                        Repeat  ;/* symbol is longer than 6 bits */
-                            
+                        ;Debug "/* symbol is longer than 6 bits */"
+                        Repeat
+                                                        
                             *p\symbol  =  *p\Huffm20TBL\c[((*p\control >> 6) & 1) + ( *p\symbol << 1)]
                             
-                            *p\shift - 1
-                            If ( *p\shift > 0)
-                                
-                                Read_Literal_Shift_24(*p)
-                                                                                                 
-                            EndIf
-                            ;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )  
+                            *p\shift   - 1
+                            If ( *p\shift > 0)                                
+                                Read_Literal_Shift_24(*p)                                                                                                 
+                            EndIf 
                             
-                              *p\control =  *p\control >> 1
+                            *p\control >> 1
                             
                         Until (*p\symbol >= 20) 
                         
@@ -1183,14 +1184,13 @@ Module PackLZX
                         
                     EndIf
                     
-                    *p\control =  *p\control >> temp
+                    *p\control >> temp
                     
-                    *p\shift - temp
+                    *p\shift    - temp
                     If ( *p\shift < 0 )                            ;    if((shift -= temp) < 0)      
                             Read_Literal_Shift(*p)                                
                     EndIf
-                    ;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                        
-                    
+
                     Select *p\symbol
                         Case 17, 18
                             
@@ -1204,48 +1204,51 @@ Module PackLZX
                                    *p\count = 19;                                                                    
                             EndIf
                                                        
-                            *p\count    = *p\count + ( *p\control & *Table_Three\table[temp] ) + fix    ; count += (control & table_three[temp]) + fix; 
-                            *p\control  = *p\control >> temp
+                            *p\count    + ( *p\control & *Table_Three\table[temp] ) + fix    ; count += (control & table_three[temp]) + fix; 
+                            *p\control  >> temp
                             
-                            *p\shift - temp
+                            *p\shift    - temp
                             If ( *p\shift < 0 )                            ;    if((shift -= temp) < 0)      
                                     Read_Literal_Shift(*p)                                
                             EndIf
-                            ;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )                             
+                         
                             
-                            While ( (pos < max_symbol ) And ( *p\count > 0) )
-                                *p\count - 1
-                                
-                                *p\LiteralLen\c[pos] = 0                                
-                                pos + 1                                
+                            While (pos < max_symbol ); And ( *p\count = 0) )
+                                pos                  + 1
+                                *p\LiteralLen\c[pos] = 0                                    
+                                *p\count             - 1 
+                                If  ( *p\count = 0 )
+                                    Break
+                                EndIf
                             Wend                            
                             
                         Case 19
                             
-                            *p\count = (*p\control & 1) + 3 + fix
+                            *p\count    = (*p\control & 1) + 3 + fix
                             
-                            *p\shift - 1
+                            *p\shift    - 1
                             If ( *p\shift > 0)                                
                                 Read_Literal_Shift_24(*p)                                                                                                 
                             EndIf
-                            ;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )   
-                            *p\control = *p\control  >> 1
+
+                            *p\control >> 1
                             
                             
-                            *p\symbol = *p\Huffm20TBL\c[ *p\control & 63]
+                            *p\symbol   = *p\Huffm20TBL\c[ *p\control & 63]
                                                         
                             If (*p\symbol >= 20)       ;If((symbol = huffman20_table[control & 63]) >= 20)
                                 
-                                Repeat      ;/* symbol is longer than 6 bits */
+                                ;Debug "/* symbol is longer than 6 bits */"
+                                Repeat      
                                     
-                                    *p\symbol = *p\Huffm20TBL\c[ ( (*p\control >> 6) & 1) + (*p\symbol << 1) ]
+                                    *p\symbol   = *p\Huffm20TBL\c[ ( (*p\control >> 6) & 1) + (*p\symbol << 1) ]
                                     
-                                    *p\shift - 1
+                                    *p\shift    - 1
                                     If ( *p\shift > 0)                                        
                                          Read_Literal_Shift_24(*p)                                                                                                  
-                                    EndIf
-                                    ;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )   
-                                    *p\control = *p\control  >> 1                                    
+                                    EndIf       
+                                     
+                                    *p\control  >> 1                                    
                                                                         
                                 Until (*p\symbol >= 20)
                                 
@@ -1255,43 +1258,44 @@ Module PackLZX
                                 temp = *p\Huffm20Len\c[*p\symbol]
                                 
                             EndIf    
-                            
-                            
-                            *p\control =  *p\control >> temp
+                                                        
+                            *p\control >> temp
                     
-                            *p\shift - temp
-                            If ( *p\shift < 0 )                            ;    if((shift -= temp) < 0)      
+                            *p\shift    - temp
+                            If ( *p\shift < 0 )   
                                 Read_Literal_Shift(*p)                                
                             EndIf                                                 
-                           
-                            *p\symbol =  *Table_Four\table[ *p\LiteralLen\c[pos] + 17 - *p\symbol ]    ;symbol = table_four[literal_len[pos] + 17 - symbol]
                             
-                            While ( (pos < max_symbol ) And ( *p\count > 0) )
-                                *p\count - 1
-                                
-                                *p\LiteralLen\c[pos] = 0                                
-                                pos + 1                                
-                            Wend 
+                             ; C : symbol = table_four[literal_len[pos] + 17 - symbol]   
+                            *p\symbol =  *Table_Four\table[ *p\LiteralLen\c[pos] + 17 - *p\symbol ]
+                            
+                            While (pos < max_symbol ); And ( *p\count = 0) )
+                                pos                  + 1
+                                *p\LiteralLen\c[pos] = 0                                    
+                                *p\count             - 1 
+                                If  ( *p\count = 0 )
+                                    Break
+                                EndIf
+                            Wend                              
                             
                         Default
-
-                            *p\symbol =  *Table_Four\table[ *p\LiteralLen\c[pos] + 17 - *p\symbol ]    ;symbol = table_four[literal_len[pos] + 17 - symbol] 
                             
-                            Debug "Symbol " + Str(*p\symbol ) + "Position " + Str(pos)
-                            
-                            *p\LiteralLen\c[pos] = *p\symbol
-                            pos + 1
-                            
+                            ; C : symbol = table_four[literal_len[pos] + 17 - symbol]                              
+                            *p\symbol            =  *Table_Four\table[*p\LiteralLen\c[pos] + 17 - *p\symbol]                            
+                            *p\LiteralLen\c[pos] = *p\symbol                          
+                            pos                  + 1 
+                                                         
                     EndSelect        
                     
-                    Debug " Repeat: Position " + RSet( Str( pos ),5, " ") + ": Max Symbol: " + Str( max_symbol ) + " Control: " + RSet( Str( *p\control ), 20, " ") + ": Shift: " + Str( *p\shift )
-                Until ( pos > max_symbol-1 )    
+                    Debug "Repeat: Position "+ Str(pos) +": Max Symbol: "+ Str(max_symbol) +": Control: "+ Str(*p\control) +": Shift: "+ Str(*p\shift)
+                    
+                Until ( Bool( pos < max_symbol) = 0)    
                 
                 
                 fix - 1
                 max_symbol + 512  
                 
-                Debug " Fix : " + Str( fix ) + ": Max Symbol: " + Str(max_symbol )  
+               ; Debug " Fix : " + Str( fix ) + ": Max Symbol: " + Str(max_symbol )  
             
             Until  (max_symbol > 768+1)
             
@@ -1387,144 +1391,115 @@ Module PackLZX
             
             If ( *p\symbol >= 768 )
                 
-                ;Debug "Decrunch " + Str( *p\symbol )
+                 *p\control >> 12
                 
-                *p\control + *p\control >> 12
-                *p\shift   - 12
-                
-                If ( *p\shift < 0 )
+                 *p\shift   - 12                
+                 If ( *p\shift < 0 )
                     Read_Literal_Shift(*p)
-                EndIf    
-                
-                ;Debug "Control A: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )
-                
-                ; /* literal is longer than 12 bits */
-                Repeat
+                 EndIf    
+                                
+                 ; Debug "/* literal is longer than 12 bits */"
+                 
+                 Repeat
                     
                     *p\symbol = *p\LiteralTBL\c[ (*p\control & 1) + (*p\symbol << 1) ]
-                    *p\shift  - 1
                     
+                    *p\shift  - 1                    
                     If ( *p\shift = 0 )
                         Read_Literal_Shift_24(*p)
                     EndIf    
                     
-                    *p\control = *p\control >> 1
+                    *p\control >> 1
                     
-                Until ( *p\symbol >= 768 )  
-                
-                ;Debug "Control B: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + "Symbol  B: " + Str( *p\symbol )
+                 Until ( *p\symbol >= 768 )  
             Else
                 
                 *p\temp     = *p\LiteralLen\c[*p\symbol]
-                *p\control  = *p\control >> *p\temp
-                *p\shift    - *p\temp
+                *p\control  >> *p\temp
                 
+                *p\shift    - *p\temp                
                 If ( *p\shift < 0 )
                     Read_Literal_Shift(*p)
-                EndIf 
-                
-                ;Debug "Control C: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " - Temp: " +Str(*p\temp ) + " Symbol  B: "+ Str( *p\symbol )               
+                EndIf             
             EndIf
             
             If ( *p\symbol < 256 )
-                
-                
+                                
                 *p\destination\a + *p\symbol
-                *p\destination + 1
-                
-                ;Debug "Destination: " + Str( *p\destination) 
-                ;Debug "Control D  : " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " - Temp: " +Str(*p\temp )
-                ;Debug "Symbol  C  : " + Str( *p\symbol )                    
+                *p\destination   + 1            
                                 
             Else
                 
-                *p\symbol = *p\symbol - 256
+                *p\symbol - 256
                 *p\temp   = *p\symbol & 31
                 *p\count  = *Table_Two\table[*p\temp]
                 *p\temp   = *Table_One\table[*p\temp]
-                
-                ;Debug "Move On  : " + Str( *p\symbol ) + ": Count: " + Str( *p\count ) + " - Temp: " +Str(*p\temp )
-                
+                                
                 If ( (*p\temp >= 3) And (*p\decrunch_method = 3) )
                     
-                    *p\temp     = *p\temp - 3
-                    *p\count    = *p\count + ( (*p\control & *Table_Three\table[*p\temp]) << 3)
-                    *p\control  = *p\control >> *p\temp
+                    *p\temp     - 3
                     
-                    *p\shift    - *p\temp
+                    *p\count    + ((*p\control & *Table_Three\table[ *p\temp ] ) << 3)
+                    *p\control  >> *p\temp
                     
+                    *p\shift    - *p\temp                    
                     If ( *p\shift  < 0)                        
                         Read_Literal_Shift(*p)
                     EndIf    
                     
                     *p\temp     = *p\OffsetTbl\c[*p\control & 127]
-                    *p\count    = *p\count + *p\temp
+                    *p\count    + *p\temp
                     *p\temp     = *p\OffsetLen\c[*p\temp]
-                    
-                    ;Debug "Control E: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " - Temp: " +Str(*p\temp )
                 Else    
-                    *p\count    = *p\count + *p\control & *Table_Three\table[*p\temp]
+                    
+                    *p\count + *p\control & *Table_Three\table[ *p\temp ]
+                    
                     If ( *p\count = 0 )
                          *p\count = *p\last_offset
-                     EndIf
-                     
-                     ;Debug "Count: " + Str( *p\count ) + " - last_offset: " +Str(*p\last_offset )
-                     
+                     EndIf                    
                 EndIf    
+
+                *p\control >> *p\temp
                 
-                
-                ;Debug "GO"
-                *p\control  = *p\control >> *p\temp
-                
-                *p\shift    - *p\temp
-                
+                *p\shift    - *p\temp                
                  If ( *p\shift  < 0)                        
                       Read_Literal_Shift(*p)
                  EndIf
                  
                  *p\last_offset =  *p\count
-                 *p\temp        = (*p\symbol >> 5) & 15
-                 *p\count       =  *Table_Two\table[*p\temp] + 3
+                 *p\temp        =  *p\symbol >> 5
+                 
+                 *p\count       =  *Table_Two\table[*p\temp & 15] + 3
                  *p\temp        =  *Table_One\table[*p\temp]
-                 *p\count       =  *p\count + (*p\control & *Table_Three\table[*p\temp ])
                  
-                 *p\control  = *p\control >> *p\temp
+                 *p\count       + (*p\control & *Table_Three\table[*p\temp ])
                  
-                *p\shift    - *p\temp
+                 *p\control     >> *p\temp
+                 
+                 *p\shift       - *p\temp
                 
                  If ( *p\shift  < 0)                        
                       Read_Literal_Shift(*p)
                  EndIf
+                    
+                 ;(decrunch_buffer + last_offset < destination) ?  destination - last_offset : destination + 65536 - last_offset;                                     
                  
-                  ;Debug "GO Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift ) + " - Temp: " +Str(*p\temp ) + " Symbol: "+ Str( *p\symbol )  
-   
-                  ;(decrunch_buffer + last_offset < destination) ?  destination - last_offset : destination + 65536 - last_offset;
-                 
-                 Debug *DecrBuffer + *p\last_offset 
-                 Debug *p\destination 
-                 Debug *p\destination - *p\last_offset
-                 Debug *p\destination + 65536 - *p\last_offset
-                 
-                  If ( ( *DecrBuffer + *p\last_offset) < *p\destination )                      
+                 If ( ( *DecrBuffer + *p\last_offset) < *p\destination )     
+                    ; If PeekA(*p\destination - *p\last_offset) = 0
+                    ;     Continue
+                    ; EndIf
                      *string\c[0] = PeekA(*p\destination - *p\last_offset)
+
                   Else
                      *string\c[0] = PeekA(*p\destination + 65536 - *p\last_offset)
                  EndIf
-                 
-                 
-                 Repeat
-                     
-                     ;*string        + 1
-                     *p\count  - 1
+                                  
+                 Repeat                     
+                     ;*string         + 1
+                     *p\count         - 1
                      *p\destination\a = *string\c[0] 
-                     *p\destination  + 1
-                      
-                     
-                     ;*string        + 1
-                     ;*p\destination + 1
-                     ;*p\destination = *p\destination + *string
-                     ;*p\count  - 1
-                                          
+                     *p\destination   + 1
+                                                                
                  Until *p\count = 0
                                 
             EndIf    
@@ -1633,11 +1608,21 @@ Module PackLZX
                         *p\temp = *read_buffer;
                         
                         If( count = (  *p\temp -  *p\source + 16384) )                              
+                            
                             Debug "/* copy the remaining overrun To the start of the buffer */"                            
+                            
                             Repeat                                
-                                *p\temp = *p\temp + *source
-                                *p\source  = *p\source + 1
-                                count - 1
+                                ;
+                                ;
+                                ; *temp++ = *source++;
+                                
+                                ;*p\temp = *p\temp + *source
+                                ;*p\source  = *p\source + 1
+                                
+                                *p\temp\a + *p\source\a
+                                *p\source + 1
+                                *p\temp   + 1                                
+                                count     - 1
                             Until ( count = 0 )
                         EndIf
                         
@@ -1659,10 +1644,9 @@ Module PackLZX
                         *p\temp   = *ReadBuffer 
                         *p\source = *ReadBuffer
                         
-                        *p\pack_size =  *p\pack_size -  count     ;  pack_size -= count;
+                        *p\pack_size -  count     ;  pack_size -= count;
                         
                         *p\temp =  count        ;  temp += count;
-                        *p\temp =  *p\temp
                         
                         If (  *p\source <=  *p\temp )
                             Break; /* argh! no more data! */                        
@@ -1682,17 +1666,13 @@ Module PackLZX
                     EndIf    
                     
                     Debug "/* unpack some Data */"
-                    ;Debug "A: Destination: [" + Str(*p\destination)+ "]"
                     If ( *p\destination >= ( *DecrBuffer + 258 + 65536 ))   
                         
-                        ;Debug "B: Destination: [" + Str(*p\destination)+ "]"
                         If (count = ( *p\destination -  *DecrBuffer - 65536 ))
                             
-                            ;Debug "C: Destination: [" + Str(*p\destination)+ "] Decrunch ["+Str(*DecrBuffer)+"] Temp ["+Str(*p\temp)+"]"
                             *p\destination = *DecrBuffer 
                             *p\temp = *p\destination + 65536
                             
-                            ;Debug "D: Destination: [" + Str(*p\destination)+ "] Decrunch ["+Str(*DecrBuffer)+"] Temp ["+Str(*p\temp)+"]"
                             Debug "/* copy the overrun to the start of the buffer */"
                             
                             Repeat                                                               
@@ -1701,25 +1681,12 @@ Module PackLZX
                                 ;
                                 ;  *destination++ = *temp++;
                                 ;
-                                ;*p\destination + 1 
-                                ;*p\temp + 1
-                                ;*p\destination = *p\destination\a + 1
-                                ;*p\destination = *p\temp     
                                 
-                                ;*p\destination   = *p\temp
-                                ;*p\destination + 1
-                                ;*p\temp        + 1
                                 *p\destination\a + *p\temp\a
                                 *p\destination  + 1
                                 *p\temp + 1
                                 
-                                ;*p\destination = *p\temp                                  
-                                ;*p\temp        + *p\temp + 1
-                                ;*p\destination\a + 1
-                                ;*p\temp        + *p\destination
-                                
-                                ;*p\temp + 1
-                                count   - 1                 
+                                count   - 1                
                             Until count = 0
                             
                             *p\pos  = *p\destination                                                        
@@ -2212,9 +2179,9 @@ CompilerIf #PB_Compiler_IsMainFile
     
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1510
-; FirstLine = 579
-; Folding = -fAAg-t-
+; CursorPosition = 1285
+; FirstLine = 698
+; Folding = -fAQw-t-
 ; EnableAsm
 ; EnableXP
 ; EnablePurifier
