@@ -1164,9 +1164,7 @@ Module PackLZX
                         temp = 6;
                         
                     Else
-                        
-                        temp = *p\Huffm20Len\c[*p\symbol]
-                        
+                        temp = *p\Huffm20Len\c[*p\symbol]                        
                     EndIf
                     
                     *p\control >> temp
@@ -1344,6 +1342,9 @@ Module PackLZX
             Debug "========================================================================= ; DEMO ;"
             
     EndProcedure
+    ;
+    ;
+    ;
     Procedure .i    Decrunch(*p.LZX_LITERAL, *DecrBuffer.decrunch_buffer)
         
         Protected *Table_One.TBL_ONE     : *Table_One   = ?TABLE_ONE        
@@ -1583,7 +1584,7 @@ Module PackLZX
                         Debug "/* have we exhausted the current Read buffer? */"
                         *p\temp = *read_buffer;
                         
-                        If( count = (  *p\temp -  *p\source + 16384) )                              
+                        If ( count = (*p\temp -  *p\source + 16384) )                              
                             
                             Debug "/* copy the remaining overrun To the start of the buffer */"                            
                             
@@ -1596,16 +1597,18 @@ Module PackLZX
                                 *p\source + 1
                                 *p\temp   + 1                                
                                 count     - 1
+                                
                             Until ( count = 0 )
                         EndIf
                         
-                        ; *source = *read_buffer;
+                        *p\source = *read_buffer
                         count =  *p\source -  *p\temp + 16384;
                         
                         *p\pack_size   = \SizePacked
                         
                         If (  *p\pack_size <  count)
-                            count =  *p\pack_size                             ; /* make sure we don't read too much */
+                            Debug "/* make sure we don't read too much */"
+                            count =  *p\pack_size
                         EndIf    
                         
                         FileSeek(*UnLZX\pbData, \SeekPosition - count )                       
@@ -1614,12 +1617,10 @@ Module PackLZX
                             *ReadBuffer\c[x] = ReadAsciiCharacter(*UnLZX\pbData)                                                        
                         Next
                         
-                        *p\temp   = *ReadBuffer 
-                        *p\source = *ReadBuffer
-                        
-                        *p\pack_size -  count     ;  pack_size -= count;
-                        
-                        *p\temp =  count        ;  temp += count;
+                        *p\temp     = *ReadBuffer 
+                        *p\source   = *ReadBuffer                        
+                        *p\pack_size- count             ;  pack_size -= count;                        
+                        *p\temp     = count             ;  temp += count;
                         
                         If (  *p\source <=  *p\temp )
                             Debug "/* argh! no more data! */ "
@@ -2151,9 +2152,9 @@ CompilerIf #PB_Compiler_IsMainFile
     
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1499
-; FirstLine = 1245
-; Folding = -fA+z-t-
+; CursorPosition = 1662
+; FirstLine = 1402
+; Folding = -fA+z+t-
 ; EnableAsm
 ; EnableXP
 ; EnablePurifier
