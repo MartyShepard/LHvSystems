@@ -86,6 +86,7 @@ Module PackLZX
         File.s
         Full.s
         Size.q
+        Dest.s
         pbData.l
         sum.i                ; ist die Globale Varibale sum und nutzt "variable temp" in crc_calc      
         crc.i                ; Abgleich und Vergleich
@@ -315,7 +316,7 @@ Module PackLZX
         Data.i 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
         Data.i 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
         Data.i 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        Data.i 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0        
+        Data.i 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0       
     EndDataSection 
     
     Structure TBL_ONE
@@ -347,7 +348,7 @@ Module PackLZX
     EndStructure
     
     Structure HUF_TBL
-        Tbl.i[96]
+        Tbl.i[97]
     EndStructure   
     
     Structure LIT_LEN               ; unsigned char literal_len[768];
@@ -686,68 +687,69 @@ Module PackLZX
     ;
     Procedure       Make_Decode_Table_A_Offset(*p.LZX_LITERAL, *Decode.LZX_DECODE, number_symbols, table_size, *length.OFF_LEN, *table.OFF_TBL)
         
-        Debug "Decode Table Offset (B):"
-        While ( (*p\abort = 0) And (*Decode\bit_num <= table_size) )
-            
-            For symbol = 0 To number_symbols-1                      ;For(symbol = 0; symbol < number_symbols; symbol++)
-                
-                If ( *length\Len[symbol] = *Decode\bit_num )
-                    
-                    Debug "Decode Table Offset:                              /* reverse the order of the position's bits */"
-                    *Decode\reverse = *Decode\pos
-                    Debug "Decode Table Offset: reverse " + Str(*Decode\reverse)
-                    
-                    *Decode\leaf    = 0
-                    *Decode\fill    = table_size
-                    
-                    Debug "Decode Table Offset:                              /* reverse the position */"
-                    
-                    Repeat
-                        
-                        *Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1);                        
-                        *Decode\reverse >> 1
-                        
-                        *Decode\fill - 1  
-                        If *Decode\fill = 0
-                        	Break
-                        EndIf
-                        
-                    Until (*Decode\fill = 0) ;While(--fill)                  
-                    
-                    
-                    *Decode\pos + *Decode\bit_mask
-                    
-                    If (*Decode\pos  > *Decode\table_mask)
-                    	
-                    Debug "Decode Table Offset: /* we will overrun the table! abort! */"
-                        *p\abort = 1
-                        Break
-                    EndIf
-                    
-                    *Decode\fill        =  *Decode\bit_mask
-                    *Decode\next_symbol = 1 << *Decode\bit_num                    
-                    
-                    Debug "Decode Table Offset: next_symbol " + Str(*Decode\next_symbol)
-                    
-                    Repeat
-                        
-                        *table\Tbl[*Decode\leaf] = symbol                        
-                        *Decode\leaf =  *Decode\leaf + *Decode\next_symbol
-                        
-                        *Decode\fill - 1
-                        If *Decode\fill = 0
-                        	Break
-                        EndIf                        
-                        
-                    Until (*Decode\fill = 0)  ;While(--fill)                      
-                EndIf 
-                    Debug "Decode Table Offset: Symbol "+Str(symbol)+" - Bitmask "+Str( *Decode\bit_mask )+" - Position "+Str(*Decode\pos)
-  
-            Next
-            
-            *Decode\bit_mask >> 1            
-            *Decode\bit_num  + 1           
-        Wend 
+    	Debug "Decode Table Offset (B):"
+    	While ( (*p\abort = 0) And (*Decode\bit_num <= table_size) )
+    		
+    		For symbol = 0 To number_symbols-1                      ;For(symbol = 0; symbol < number_symbols; symbol++)
+    			
+    			If ( *length\Len[symbol] = *Decode\bit_num )
+    				
+    				Debug "Decode Table Offset:                              /* reverse the order of the position's bits */"
+    				*Decode\reverse = *Decode\pos
+    				Debug "Decode Table Offset: reverse " + Str(*Decode\reverse)
+    				
+    				*Decode\leaf    = 0
+    				*Decode\fill    = table_size
+    				
+    				Debug "Decode Table Offset:                              /* reverse the position */"
+    				
+    				While (*Decode\fill ! 0) 
+    					
+    					*Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1);                        
+    					*Decode\reverse >> 1
+    					
+    					*Decode\fill - 1  
+    					If *Decode\fill = 0
+    						Break
+    					EndIf
+    					
+    				Wend ;While(--fill)                  
+    				
+    				
+    				*Decode\pos + *Decode\bit_mask
+    				
+    				If (*Decode\pos  > *Decode\table_mask)
+    					
+    					Debug "Decode Table Offset: /* we will overrun the table! abort! */"
+    					*p\abort = 1
+    					Break
+    				EndIf
+    				
+    				*Decode\fill        =  *Decode\bit_mask
+    				*Decode\next_symbol = 1 << *Decode\bit_num                    
+    				
+    				Debug "Decode Table Offset: next_symbol " + Str(*Decode\next_symbol)
+    				
+    				While (*Decode\fill ! 0)
+    					
+    					*table\Tbl[*Decode\leaf] = symbol                        
+    					*Decode\leaf =  *Decode\leaf + *Decode\next_symbol
+    					
+    					*Decode\fill - 1
+    					If *Decode\fill = 0
+    						Break
+    					EndIf                        
+    					
+    				Wend ;While(--fill)    
+    				
+    			EndIf 
+    			Debug "Decode Table Offset: Symbol "+Str(symbol)+" - Bitmask "+Str( *Decode\bit_mask )+" - Position "+Str(*Decode\pos)
+    			
+    		Next
+    		
+    		*Decode\bit_mask >> 1            
+    		*Decode\bit_num  + 1           
+    	Wend 
         
         
     EndProcedure 
@@ -756,65 +758,71 @@ Module PackLZX
     ;
     Procedure       Make_Decode_Table_B_Offset(*p.LZX_LITERAL, *Decode.LZX_DECODE, number_symbols, table_size, *length.OFF_LEN, *table.OFF_TBL)
         
-        Debug "Decode Table Offset (B):"
-        While ( ( *p\abort = 0 ) And ( *Decode\bit_num <= 16) )
-            
-            ;For(symbol = 0; symbol < number_symbols; symbol++)
-            For symbol = 0 To number_symbols-1
-                
-                If ( *length\Len[symbol] = *Decode\bit_num )
-                    
-                    Debug "Decode Table Offset:                              /* reverse the order of the position's bits */"
-                    *Decode\reverse = *Decode\pos >> 16
-                    
-                    *Decode\leaf    = 0
-                    *Decode\fill    = table_size
-                    
-                    Debug "Decode Table Offset:                              /* reverse the position */"
-                    Repeat
-                        
-                        *Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1)                                
-                        *Decode\reverse >> 1
-                        
-                        *Decode\fill    - 1  
-                    Until (*Decode\fill = 0) ;While(--fill) 
-                    
-                    ;For(fill = 0; fill < bit_num - table_size; fill++)                            
-                    fill.i = *Decode\fill
-                    
-                    For fill = 0 To ( *Decode\bit_num - table_size)-1
-                        
-                        *Decode\fill = fill
-                        
-                        If ( *table\Tbl[*Decode\leaf] = 0 )
-                            
-                            *table\Tbl[ ( *Decode\next_symbol << 1 ) ] = 0
-                            *table\Tbl[ ( *Decode\next_symbol << 1)+1] = 0
-                            *table\Tbl[   *Decode\leaf ]               =  *Decode\next_symbol
-                            
-                            *Decode\next_symbol + 1
-                            
-                        EndIf 
-                        
-                        *Decode\leaf = *table\Tbl[*Decode\leaf] << 1
-                        *Decode\leaf + (*Decode\pos >> ( 15 - *Decode\fill) ) & 1
-                        
-                    Next    
-                    
-                    *table\Tbl[*Decode\leaf] = symbol                    
-                    *Decode\pos            + *Decode\bit_mask
-                    
-                    If ( *Decode\pos >  *Decode\table_mask )
-                    Debug "Decode Table Offset:                              /* we will overrun the table! abort! */"
-                        *p\abort = 1
-                        Break
-                    EndIf
-                    
-                EndIf          
-            Next
-            *Decode\bit_mask >> 1            
-            *Decode\bit_num  + 1                            
-        Wend               
+    	Debug "Decode Table Offset (B):"
+    	While ( ( *p\abort = 0 ) And ( *Decode\bit_num <= 16) )
+    		
+    		;For(symbol = 0; symbol < number_symbols; symbol++)
+    		For symbol = 0 To number_symbols-1
+    			
+    			If ( *length\Len[symbol] = *Decode\bit_num )
+    				
+    				Debug "Decode Table Offset:                              /* reverse the order of the position's bits */"
+    				*Decode\reverse = *Decode\pos >> 16
+    				
+    				*Decode\leaf    = 0
+    				*Decode\fill    = table_size
+    				
+    				Debug "Decode Table Offset:                              /* reverse the position */"
+    				
+    				While (*Decode\fill ! 0)
+    					
+    					*Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1)                                
+    					*Decode\reverse >> 1
+    					
+    					*Decode\fill    - 1  
+    				Wend ;While(--fill) 
+    				
+    				;For(fill = 0; fill < bit_num - table_size; fill++)                            
+    				fill.i = *Decode\fill
+    				
+    				For fill = 0 To ( *Decode\bit_num - table_size)-1
+    					
+    					*Decode\fill = fill
+    					
+    					If ( *table\Tbl[*Decode\leaf] = 0 )
+    						
+    						*table\Tbl[ ( *Decode\next_symbol << 1 ) ] = 0
+    						*table\Tbl[ ( *Decode\next_symbol << 1)+1] = 0
+    						*table\Tbl[   *Decode\leaf ]               =  *Decode\next_symbol
+    						
+    						*Decode\next_symbol + 1
+    						
+    					EndIf 
+    					
+    					*Decode\leaf = *table\Tbl[*Decode\leaf] << 1
+    					*Decode\leaf + (*Decode\pos >> ( 15 - *Decode\fill) ) & 1
+    					
+    				Next    
+    				
+    				*table\Tbl[*Decode\leaf] = symbol                    
+    				*Decode\pos            + *Decode\bit_mask
+    				
+    				If ( *Decode\pos >  *Decode\table_mask )
+    					Debug "Decode Table Offset:                              /* we will overrun the table! abort! */"
+    					*p\abort = 1
+    					Break
+    				EndIf
+    				
+    			EndIf          
+    		Next
+    		*Decode\bit_mask >> 1            
+    		*Decode\bit_num  + 1                            
+    	Wend
+    	
+    	For u = 0 To 95
+    		Debug "[" +Str(u) +"] " + Str(*table\Tbl[u]) 
+    	Next     	
+    
     EndProcedure 
     ;
     ;
@@ -823,9 +831,7 @@ Module PackLZX
                             
     	Debug "Decode Table Huffman (A):"
     	
-    	;For u = 0 To 95
-    ;		*table\Tbl[u] = 0
-   ; 	Next 
+
     	
         While ( (*p\abort = 0) And (*Decode\bit_num <= table_size) )
             
@@ -842,13 +848,13 @@ Module PackLZX
                     
                     Debug "Decode Table Huffman:                              /* reverse the position */"
                     
-                    Repeat
+                   While (*Decode\fill ! 0)
                         
                         *Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1);                        
                         *Decode\reverse >> 1
                         
                         *Decode\fill - 1  
-                    Until (*Decode\fill = 0) ;While(--fill)                  
+                    Wend ;While(--fill)                  
                     
                     
                     *Decode\pos + *Decode\bit_mask
@@ -864,14 +870,14 @@ Module PackLZX
                     
                     Debug "Decode Table Huffman: next_symbol " + Str(*Decode\next_symbol)
                     
-                    Repeat
+                    While (*Decode\fill ! 0)
                         
                         *table\Tbl[*Decode\leaf] = symbol                        
                         *Decode\leaf =  *Decode\leaf + *Decode\next_symbol
                         
                         *Decode\fill - 1
                         
-                    Until (*Decode\fill = 0)  ;While(--fill)                      
+                    Wend  ;While(--fill)                      
                 EndIf 
                     Debug "Decode Table Huffman: Symbol "+Str(symbol)+" - Bitmask "+Str( *Decode\bit_mask )+" - Position "+Str(*Decode\pos)
   
@@ -906,13 +912,13 @@ Module PackLZX
     				
     				
     				Debug "Decode Table Huffman:                              /* reverse the position */"
-    				Repeat
+    				While (*Decode\fill ! 0)
     					
     					*Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1)                                
     					*Decode\reverse >> 1
     					
     					*Decode\fill    - 1  
-    				Until (*Decode\fill = 0) ;While(--fill) 
+    				Wend ;While(--fill) 
     				
     				
     				;For(fill = 0; fill < bit_num - table_size; fill++)                            
@@ -960,60 +966,65 @@ Module PackLZX
     ;
     Procedure       Make_Decode_Table_A_Literal(*p.LZX_LITERAL, *Decode.LZX_DECODE, number_symbols, table_size, *length.LIT_LEN, *table.LIT_TBL)
                
-        Debug "Decode Table Literal (A):"
-        While ( (*p\abort = 0) And (*Decode\bit_num <= table_size) )
-            
-            For symbol = 0 To number_symbols-1                      ;For(symbol = 0; symbol < number_symbols; symbol++)
-                
-                If ( *length\Len[symbol] = *Decode\bit_num )
-                    
-                    Debug "Decode Table Literal:                              /* reverse the order of the position's bits */"
-                    *Decode\reverse = *Decode\pos
-                    Debug "Decode Table Literal: reverse " + Str(*Decode\reverse)
-                    
-                    *Decode\leaf    = 0
-                    *Decode\fill    = table_size
-                    
-                    Debug "Decode Table Literal:                              /* reverse the position */"
-                    
-                    Repeat
-                        
-                        *Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1);                        
-                        *Decode\reverse >> 1
-                        
-                        *Decode\fill - 1  
-                    Until (*Decode\fill = 0) ;While(--fill)                  
-                    
-                    
-                    *Decode\pos + *Decode\bit_mask
-                    
-                    If (*Decode\pos  > *Decode\table_mask)
-                    Debug "Decode Table Literal: /* we will overrun the table! abort! */"
-                        *p\abort = 1
-                        Break
-                    EndIf
-                    
-                    *Decode\fill        =  *Decode\bit_mask
-                    *Decode\next_symbol = 1 << *Decode\bit_num                    
-                    
-                    Debug "Decode Table Literal: next_symbol " + Str(*Decode\next_symbol)
-                    
-                    Repeat
-                        
-                        *table\Tbl[*Decode\leaf] = symbol                        
-                        *Decode\leaf =  *Decode\leaf + *Decode\next_symbol
-                        
-                        *Decode\fill - 1
-                        
-                    Until (*Decode\fill = 0)  ;While(--fill)                      
-                EndIf 
-                    Debug "Decode Table Literal: Symbol "+Str(symbol)+" - Bitmask "+Str( *Decode\bit_mask )+" - Position "+Str(*Decode\pos)
-  
-            Next
-            
-            *Decode\bit_mask >> 1            
-            *Decode\bit_num  + 1           
-        Wend
+    	Debug "Decode Table Literal (A):"
+    	While ( (*p\abort = 0) And (*Decode\bit_num <= table_size) )
+    		
+    		For symbol = 0 To number_symbols-1
+    			
+    			If ( *length\Len[symbol] = *Decode\bit_num )
+    				
+    				Debug "Decode Table Literal:                              /* reverse the order of the position's bits */"
+    				*Decode\reverse = *Decode\pos
+    				Debug "Decode Table Literal: reverse " + Str(*Decode\reverse)
+    				
+    				*Decode\leaf    = 0
+    				*Decode\fill    = table_size
+    				
+    				Debug "Decode Table Literal:                              /* reverse the position */"
+    				
+    				While (*Decode\fill ! 0)
+    					
+    					*Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1);                        
+    					*Decode\reverse >> 1
+    					
+    					*Decode\fill - 1  
+    					If *Decode\fill = 0
+    						Break
+    					EndIf
+    				Wend	;While(--fill)                  
+    				
+    				
+    				*Decode\pos + *Decode\bit_mask
+    				
+    				If (*Decode\pos  > *Decode\table_mask)
+    					Debug "Decode Table Literal: /* we will overrun the table! abort! */"
+    					*p\abort = 1
+    					Break
+    				EndIf
+    				
+    				*Decode\fill        =  *Decode\bit_mask
+    				*Decode\next_symbol = 1 << *Decode\bit_num                    
+    				
+    				Debug "Decode Table Literal: next_symbol " + Str(*Decode\next_symbol)
+    				
+    				While (*Decode\fill ! 0)
+    					
+    					*table\Tbl[*Decode\leaf] = symbol                        
+    					*Decode\leaf =  *Decode\leaf + *Decode\next_symbol
+    					
+    					*Decode\fill - 1
+    					If *Decode\fill = 0
+    						Break
+    					EndIf    					
+    				Wend	;While(--fill)                        
+    			EndIf 
+    			Debug "Decode Table Literal: Symbol "+Str(symbol)+" - Bitmask "+Str( *Decode\bit_mask )+" - Position "+Str(*Decode\pos)
+    			
+    		Next
+    		
+    		*Decode\bit_mask >> 1            
+    		*Decode\bit_num  + 1           
+    	Wend
         
     EndProcedure 
     ;
@@ -1036,13 +1047,13 @@ Module PackLZX
                     *Decode\fill    = table_size
                     
                     Debug "Decode Table Literal:                              /* reverse the position */"
-                    Repeat
+                    While (*Decode\fill ! 0)
                         
                         *Decode\leaf    = (*Decode\leaf << 1) + (*Decode\reverse & 1)                                
                         *Decode\reverse >> 1
                         
                         *Decode\fill    - 1  
-                    Until (*Decode\fill = 0) ;While(--fill) 
+                   Wend ;While(--fill) 
                     
                     ;For(fill = 0; fill < bit_num - table_size; fill++)                            
                     fill.i = *Decode\fill
@@ -1126,19 +1137,23 @@ Module PackLZX
         	For symbol = *Decode\pos To *Decode\table_mask-1        ; /* clear the rest of the table */
         		
         		Debug "Make Decode Table() /* reverse the order of the position's bits */"
-        		*Decode\reverse = symbol        ; 
-        		*Decode\leaf    = 0		;
-        		*Decode\fill    = table_size	;
+        		*Decode\reverse = symbol         
+        		*Decode\leaf    = 0		
+        		*Decode\fill    = table_size	
         		
         		Debug "Make Decode Table() /* reverse the position */"
-        		Repeat
+        		
+        		While (*Decode\fill ! 0)
         			
         			*Decode\leaf = (*Decode\leaf << 1) + (*Decode\reverse & 1);
         			
         			*Decode\reverse >> 1
         			
-        			*Decode\fill - 1  
-        		Until (*Decode\fill = 0) ;While(--fill)
+        			*Decode\fill - 1 
+        			If *Decode\fill = 0
+        				Break;
+        			EndIf	
+        		Wend ;While(--fill)
         		
         		Select TableSelect
         			Case 0: *OffSetTBL\Tbl[*Decode\leaf] = 0
@@ -1146,7 +1161,7 @@ Module PackLZX
         			Case 2: *LiteraTBL\Tbl[*Decode\leaf] = 0                       
         		EndSelect                
         		
-        	Next    
+        	Next symbol   
         	
         	*Decode\next_symbol = *Decode\table_mask >> 1
         	*Decode\pos         << 16
@@ -1157,20 +1172,27 @@ Module PackLZX
         		Case 0: Make_Decode_Table_B_Offset (*p,*Decode, number_symbols, table_size, *OffSetLEN, *OffSetTBL):Delay(25)
         		Case 1: Make_Decode_Table_B_Huffman(*p,*Decode, number_symbols, table_size, *HuffmnLEN, *HuffmnTBL):Delay(25)
         		Case 2: Make_Decode_Table_B_Literal(*p,*Decode, number_symbols, table_size, *LiteraLEN, *LiteraTBL):Delay(25)                      
-        	EndSelect 
-        	
-        ;If TableSelect = 1    
-    	;For u = 0 To 95
-    ;		Debug "["+Str(u)+ "]" + Str(*HuffmnTBL\Tbl[u])
-    ;	Next 
-    ;	EndIf        	
+        	EndSelect         	
         	
         EndIf    
         
-        If( *Decode\pos ! *Decode\table_mask)
-        	Debug  "Make Decode Table() /* the table is incomplete! */"
-        	*p\abort = 1
-        EndIf    
+        Select TableSelect
+        	Case 0
+        		If( *Decode\pos ! *Decode\table_mask)
+        			Debug  "Make Decode Table(Offset) /* the table is incomplete! */"
+        			*p\abort = 1
+        		EndIf
+        	Case 1
+        		If( *Decode\pos ! *Decode\table_mask)
+        			Debug  "Make Decode Table(Huffman) /* the table is incomplete! */"
+        			*p\abort = 1
+        		EndIf  
+        	Case 2
+        		If( *Decode\pos ! *Decode\table_mask)
+        			Debug  "Make Decode Table(Literal) /* the table is incomplete! */"
+        			*p\abort = 1
+        		EndIf         			
+        EndSelect  
         
         ProcedureReturn *p\abort 
         
@@ -1755,7 +1777,44 @@ Module PackLZX
         
         Protected  szDestination.s = "B:\"
         
-        pbFile = CreateFile(#PB_Any, szDestination + *UnLZX\FileData()\File)
+        
+        ;
+        ; Verzeichnis Anlegen
+        Select FileSize( szDestination + *UnLZX\File + "\")
+               Case -1: CreateDirectory( szDestination + *UnLZX\File + "\" )                    
+        EndSelect         
+        
+        *UnLZX\Dest = szDestination + *UnLZX\File + "\"
+        
+        DirSplit.i = CountString( *UnLZX\FileData()\File, "/")
+        szSearch.s = *UnLZX\FileData()\File
+        pos_1 = 1
+        
+        For u = 0 To DirSplit -1
+        	
+        	pos_2.i = FindString( *UnLZX\FileData()\File, "/", 1 )
+        	
+        	If ( pos_2 > 0 )
+        		DirectoryName.s = Mid( szSearch, pos_1, ( pos_2 - pos_1 ) )
+        		
+        		Select FileSize( *UnLZX\Dest + "\" + DirectoryName + "\")
+        			Case -1
+        				CreateDirectory( *UnLZX\Dest + "\" + DirectoryName + "\" )        			        				
+        		EndSelect
+        		
+        		*UnLZX\Dest = *UnLZX\Dest + "\" + DirectoryName + "\"
+        				
+        		szSearch = ReplaceString( szSearch, DirectoryName + "/", "" ,0, 1, 1)        		
+        		
+        	EndIf        	        		
+        Next	
+        	
+        Debug "Amiga Slahes: " + *UnLZX\FileData()\File 
+        *UnLZX\FileData()\File = ReplaceString( *UnLZX\FileData()\File, "/", "\",0,1,DirSplit)
+        Debug "PCDOS Slahes: " + *UnLZX\FileData()\File        	
+        
+        *UnLZX\Dest = szDestination + *UnLZX\File + "\"
+        pbFile = CreateFile(#PB_Any,   *UnLZX\Dest + *UnLZX\FileData()\File)
         If ( pbFile > 0 )
             ProcedureReturn pbFile
             
@@ -1843,8 +1902,8 @@ Module PackLZX
     					Debug "Extract_Normal:                                    /* have we exhausted the current Read buffer? */"
     					*p\temp = *ReadBuffer;
     					
-    					count = *p\temp -  *p\source + 16384
-    					If ( count )                              
+    					
+    					If ( count = *p\temp -  *p\source + 16384 )                              
     						
     						Debug "Extract_Normal:                                    /* copy the remaining overrun To the start of the buffer */"                            
     						
@@ -1983,8 +2042,9 @@ Module PackLZX
     					Debug "Extract_Normal: CRC bad"                                
     				EndIf
     				
+    				CloseFile( out_file )
     			EndIf
-    			CloseFile( out_file )
+    			
     		Wend  
     		
     		ProcedureReturn *p\abort
@@ -2352,8 +2412,8 @@ Module PackLZX
            
             *UnLZX\Size         = FileSize( File )
             *UnLZX\Full         = File
-            *UnLZX\Path         = GetPathPart( *UnLZX\Path  )
-            *UnLZX\File         = GetFilePart( *UnLZX\File , #PB_FileSystem_NoExtension)
+            *UnLZX\Path         = GetPathPart( File  )
+            *UnLZX\File         = GetFilePart( File , #PB_FileSystem_NoExtension)
             
             *UnLZX\TotalFiles   = 0
             *UnLZX\Header       = AllocateMemory(  10 *2) ; Keine Ahnung ... "
@@ -2413,9 +2473,9 @@ CompilerIf #PB_Compiler_IsMainFile
     
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1826
-; FirstLine = 1125
-; Folding = -FgHz-D--
+; CursorPosition = 350
+; FirstLine = 292
+; Folding = -Fonz-jB+
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
