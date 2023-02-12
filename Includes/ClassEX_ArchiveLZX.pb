@@ -10,29 +10,30 @@ EndDeclareModule
 
 
 Module UnLZX 
-	 		
+	
+	
+	Structure AsciiArray
+		a.a[0]
+	EndStructure
+		
+	Structure UnicodeArray
+		u.u[0]
+	EndStructure
+	
+	Structure LongArray
+		l.l[0]
+	EndStructure 
+	
 	Structure LZX_FILEDATA
 		Count.i                 ; Aktulle Datei Nummer
 		File.s			; Der DateiName
 		Comment.s
-		PackMode.c              ; Packmodus
-		AttribH.s			; Datei Attribute
-		AttribS.s
-		AttribP.s
-		AttribA.s
-		AttribR.s        
-		AttribW.s        
-		AttribE.s
-		AttribD.s        
-		crc.i                   ; crc Archive Header
-		sum.i				; crc summe
-		crcFile.i			; Data CRC für die Datei (Siehe Extract Normal)        
-		DateY.i			; Datum : Jahr
-		DateM.i			; Datum : Monat
-		DateD.i			; Datum : Tag
-		TimeH.i			; Zeit Stunde
-		TimeM.i			; Zeit Minute
-		TimeS.i			; Zeit Sekunde
+		PackMode.a              ; Packmodus
+    		attributes.a
+    		TimeDate.i       
+		crc.l                   ; crc Archive Header
+		sum.l				; crc summe
+		crcFile.l			; Data CRC für die Datei (Siehe Extract Normal)        
 		TotalFiles.i		; WieViele Dateien        
 		SizePacked.i        
 		SizeUnpack.i
@@ -74,26 +75,7 @@ Module UnLZX
 		List ListData.LZX_DIRECTORY()        
 	EndStructure    
 	
-	
-	Structure AsciiArray
-		a.a[0]
-	EndStructure
-	
-	Structure CharArray
-		c.c[0]
-	EndStructure
-	
-	Structure UnicodeArray
-		u.u[0]
-	EndStructure
-	
-	Structure LongArray
-		l.l[0]
-	EndStructure
-	
-	Structure IntegerArray
-		i.i[0]
-	EndStructure    
+
 	
 	Structure LZX_DECODE
 		*bit_num.ascii                  ; register unsigned char bit_num = 0;
@@ -117,14 +99,14 @@ Module UnLZX
 		*control.Integer        
 		count.i                  		; unsigned int count;
 		*content.ascii				; unsigned char copy from *pos for file saving;        
-		*decrunch_length.Integer		; unsigned int decrunch_length;        
-		*decrunch_method.Integer		; unsigned int decrunch_method;       
+		decrunch_length.i				; unsigned int decrunch_length;        
+		decrunch_method.i				; unsigned int decrunch_method;       
 		*destination.ascii			; unsigned char *destination;
 		*destination_end.ascii			; unsigned char *destination_end;  
-		*last_offset.Integer			; unsigned int last_offset;        
-		*global_control.Integer			; unsigned int global_control;
-		global_shift.i				; global_shift;
-		pack_size.q        
+		last_offset.i				; unsigned int last_offset;        
+    		global_control.i        		; unsigned int global_control
+    		global_shift.i          		; global_shift
+		pack_size.i      
 		*pos.ascii                      	; unsigned char *pos;
 		shift.i        
 		*source.ascii                   	; unsigned char *source;
@@ -230,9 +212,9 @@ Module UnLZX
 	;
 	;
 	;
-	Macro UNINT(a)
-		(a)&$ffffffff
-	EndMacro  
+	;Macro UNINT(a)
+	;	(a)&$ffffffff
+	;EndMacro  
 	;
 	;
 	;   
@@ -285,10 +267,16 @@ Module UnLZX
 	;
 	Procedure .s  Get_Unpack(size.i)
 		
-		If ( size = 0 )
-			ProcedureReturn "n/a"
-		EndIf    
-		ProcedureReturn Str(size)
+		Protected result.s
+		
+		
+		If size = 0
+			result = "n/a"
+		Else
+			result = Str(size)
+		EndIf
+		
+		ProcedureReturn result
 		
 	EndProcedure    
 	;
@@ -296,170 +284,85 @@ Module UnLZX
 	;
 	Procedure .s  Get_Packed(size.i,c.b)
 		
-		If (c & 1)
-			ProcedureReturn "n/a"
-		EndIf    
+		Protected result.s
 		
-		ProcedureReturn Str(size)
+		
+		If c & 1
+			result = "n/a"
+		Else
+			result = Str(size)
+		EndIf
+		
+		ProcedureReturn result
 		
 	EndProcedure    
 	;
 	;
 	;
-	Procedure .s  Get_Clock(hour.i,minute.i,second.i)
+	Procedure .s  Get_Clock(TimeDate.i)
 		
-		;
-		; TODO 
-		szClock.s = RSet(Str(hour),2,Chr(48)) + ":" + RSet(Str(minute),2,Chr(48)) + ":" + RSet( Str(second),2,Chr(48))
-		ProcedureReturn szClock
+		ProcedureReturn FormatDate("%hh:%ii:%ss", TimeDate)
 		
 	EndProcedure
 	;
 	;
 	;
-	Procedure .s  Get_Date(day.i,month.i,year.i)
+	Procedure.s Get_Date(TimeDate.i)
 		
-		szDate.s =  RSet(Str(day),2,Chr(48)) + "-" + RSet(Str(month),2,Chr(48)) + "-" + Str(year)
-		ProcedureReturn szDate
-		
-	EndProcedure 
-	;
-	;
-	;
-	Procedure .s  Deb_Attrib(attrib.i)
-		
-		szAttrib.s ="--------"
-		;
-		;
-		; 0 = Kein Attribut gesetzt
-		
-		If ( (attributes & 32) > 0 )
-			;
-			; Attributes 'h'
-			szAttrib = ReplaceString( szAttrib, "-", "h", 0,1,1)
-		EndIf    
-		
-		If ( (attributes & 64) > 0 )
-			;
-			; Attributes 's'
-			szAttrib = ReplaceString( szAttrib, "-", "s", 0,2,1)         
-		EndIf
-		
-		If ( (attributes & 128) > 0 )
-			;
-			; Attributes 'p'
-			szAttrib = ReplaceString( szAttrib, "-", "p", 0,3,1)         
-		EndIf  
-		
-		If ( (attributes & 16) > 0 )
-			;
-			; Attributes 'a'
-			szAttrib = ReplaceString( szAttrib, "-", "a", 0,4,1)           
-		EndIf
-		
-		If ( (attributes & 1) > 0 )
-			;
-			; Attributes 'r': Read
-			szAttrib = ReplaceString( szAttrib, "-", "r", 0,5,1)          
-		EndIf         
-		
-		If ( (attributes & 2) > 0 )
-			;
-			; Attributes 'w': Write
-			szAttrib = ReplaceString( szAttrib, "-", "w", 0,6,1)          
-		EndIf 
-		
-		If ( (attributes & 8) > 0 )
-			;
-			; Attributes 'e': 
-			szAttrib = ReplaceString( szAttrib, "-", "e", 0,7,1)                     
-		EndIf         
-		
-		If ( (attributes & 4) > 0 )
-			;
-			; Attributes 'd': 
-			szAttrib = ReplaceString( szAttrib, "-", "d", 0,8,1)                       
-		EndIf                    
-		
-		ProcedureReturn szAttrib
+		ProcedureReturn FormatDate("%dd-%mm-%yyyy", TimeDate)
 		
 	EndProcedure
 	;
 	;
 	;
-	Procedure     Get_Attrib(*UnLZX.LZX_ARCHIVE, attributes.i)
+	Procedure.s Get_Attrib(attributes.a)
 		
-		*UnLZX\FileData()\AttribH = "-"
-		*UnLZX\FileData()\AttribS = "-"
-		*UnLZX\FileData()\AttribP = "-"
-		*UnLZX\FileData()\AttribA = "-"
-		*UnLZX\FileData()\AttribR = "-"
-		*UnLZX\FileData()\AttribW = "-"
-		*UnLZX\FileData()\AttribE = "-"
-		*UnLZX\FileData()\AttribD = "-"      
+		Protected Attributes$
 		
-		;
-		;
-		; 0 = Kein Attribut gesetzt
 		
-		If ( (attributes & 32) > 0 )
-			;
-			; Attributes 'h'
-			*UnLZX\FileData()\AttribH = "h"
-		EndIf    
+		Attributes$ = "--------"
 		
-		If ( (attributes & 64) > 0 )
-			;
-			; Attributes 's'
-			*UnLZX\FileData()\AttribS = "s"            
+		If attributes & 32
+			ReplaceString(Attributes$, "-", "h", #PB_String_InPlace, 1, 1)
 		EndIf
 		
-		If ( (attributes & 128) > 0 )
-			;
-			; Attributes 'p'
-			*UnLZX\FileData()\AttribP = "p"            
-		EndIf  
-		
-		If ( (attributes & 16) > 0 )
-			;
-			; Attributes 'a'
-			*UnLZX\FileData()\AttribA = "a"            
+		If attributes & 64
+			ReplaceString(Attributes$, "-", "s", #PB_String_InPlace, 2, 1)
 		EndIf
 		
-		If ( (attributes & 1) > 0 )
-			;
-			; Attributes 'r': Read
-			*UnLZX\FileData()\AttribR = "r"            
-		EndIf         
+		If attributes & 128
+			ReplaceString(Attributes$, "-", "p", #PB_String_InPlace, 3, 1)
+		EndIf
 		
-		If ( (attributes & 2) > 0 )
-			;
-			; Attributes 'w': Write
-			*UnLZX\FileData()\AttribW = "w"            
-		EndIf 
+		If attributes & 16
+			ReplaceString(Attributes$, "-", "a", #PB_String_InPlace, 4, 1)
+		EndIf
 		
-		If ( (attributes & 8) > 0 )
-			;
-			; Attributes 'e':            
-			*UnLZX\FileData()\AttribE = "e"            
-		EndIf         
+		If attributes & 1
+			ReplaceString(Attributes$, "-", "r", #PB_String_InPlace, 5, 1)
+		EndIf
 		
-		If ( (attributes & 4) > 0 )
-			;
-			; Attributes 'd':        
-			*UnLZX\FileData()\AttribD = "d"            
-		EndIf                            
-	EndProcedure     
+		If attributes & 2
+			ReplaceString(Attributes$, "-", "w", #PB_String_InPlace, 6, 1)
+		EndIf
+		
+		If attributes & 8
+			ReplaceString(Attributes$, "-", "e", #PB_String_InPlace, 7, 1)
+		EndIf
+		
+		If attributes & 4
+			ReplaceString(Attributes$, "-", "d", #PB_String_InPlace, 8, 1)
+		EndIf
+		
+		ProcedureReturn Attributes$
+		
+	EndProcedure      
 	;
 	;
 	;
-	Procedure .s  Get_File(*UnLZX.LZX_ARCHIVE)
+	Procedure.s Get_File(*UnLZX.LZX_ARCHIVE)
 		
-		Protected  szFile.s = ""
-		
-		szFile = PeekS(@*UnLZX\header_filename[0], -1, #PB_Ascii)
-		
-		ProcedureReturn szFile
+		ProcedureReturn PeekS(@*UnLZX\header_filename[0], -1, #PB_Ascii)
 		
 	EndProcedure
 	;
@@ -477,7 +380,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i  Make_decode_table(*p.LZX_LITERAL, number_symbols, table_size, *length.AsciiArray, *table.UnicodeArray)
+	Procedure.i  Make_decode_table(number_symbols.i, table_size.i, *length.AsciiArray, *table.UnicodeArray)
 		
 		Protected.i bit_num, symbol, leaf
 		Protected.i table_mask, bit_mask, pos, fill, next_symbol, reverse, abort
@@ -504,7 +407,6 @@ Module UnLZX
 					Repeat
 						leaf = (leaf << 1) + (reverse & 1)
 						reverse >> 1
-						
 						fill - 1
 					Until fill = 0
 					
@@ -521,7 +423,6 @@ Module UnLZX
 					Repeat
 						*table\u[leaf] = symbol
 						leaf + next_symbol
-						
 						fill - 1
 					Until fill = 0
 					
@@ -529,15 +430,12 @@ Module UnLZX
 			Next symbol
 			
 			bit_mask >> 1
-			bit_num  + 1
+			bit_num + 1
 		Wend
 		
 		
-		;Debug "Make Decode Table [*Decode\pos] ("+Str( *Decode\pos )
-		
 		If abort = 0 And pos <> table_mask
 			
-			;For(symbol = pos; symbol < table_mask; symbol++)
 			For symbol = pos To table_mask - 1        ; clear the rest of the table
 				
 				;Debug "reverse the order of the position's bits"
@@ -557,9 +455,9 @@ Module UnLZX
 			Next symbol
 			
 			next_symbol = table_mask >> 1
-			pos         << 16
-			table_mask  << 16
-			bit_mask    = 32768
+			pos << 16
+			table_mask << 16
+			bit_mask = 32768
 			
 			
 			While abort = 0 And bit_num <= 16
@@ -581,7 +479,6 @@ Module UnLZX
 							fill - 1
 						Until fill = 0
 						
-						;For(fill = 0; fill < bit_num - table_size; fill++)
 						For fill = 0 To bit_num - table_size - 1
 							
 							If *table\u[leaf] = 0
@@ -620,6 +517,7 @@ Module UnLZX
 		EndIf
 		
 		ProcedureReturn abort
+    
 	EndProcedure    
 	;
 	;
@@ -644,12 +542,11 @@ Module UnLZX
 		control + (*p\source\a << 16)
 		*p\source + 1
 		control & $FFFFFFFF
-	EndMacro   
+	EndMacro 
 	;
 	;
 	;
-	Procedure .i  Read_Literal_Table(*p.LZX_LITERAL)
-		
+	Procedure.i Read_Literal_Table(*p.LZX_LITERAL)   
 		Protected *Table_Three.UnicodeArray
 		Protected *Table_Four.AsciiArray
 		Protected.i temp, pos, count, fix, max_symbol, symbol, shift, abort
@@ -672,7 +569,7 @@ Module UnLZX
 		control >> 3
 		
 		shift - 3
-		If shift < 0                          ;If ( ( *p\shift = (*p\shift - 3) ) < 0)
+		If shift < 0
 			MacroLiteralShift_16_8
 		EndIf
 		
@@ -693,8 +590,10 @@ Module UnLZX
 				
 			Next temp
 			
-			;Debug "Decode offset table"
-			abort = Make_decode_table(*p, 8, 7, @*p\offset_len[0], @*p\offset_table[0])
+			abort = Make_decode_table(8, 7, @*p\offset_len[0], @*p\offset_table[0])
+			If ( abort = 1 )
+				Debug "ERROR: Decode Table Offset"
+			EndIf	
 			
 		EndIf
 		
@@ -706,7 +605,7 @@ Module UnLZX
 			control >> 8
 			
 			shift - 8
-			If shift < 0                             ;If ( ( *p\shift = ( *p\shift - 8) ) < 0 )
+			If shift < 0
 				MacroLiteralShift_16_8
 			EndIf
 			
@@ -716,7 +615,7 @@ Module UnLZX
 			control >> 8
 			
 			shift - 8
-			If shift < 0                             ; If ( ( *p\shift = ( *p\shift - 8) ) < 0 )
+			If shift < 0
 				MacroLiteralShift_16_8
 			EndIf
 			; Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )
@@ -725,7 +624,7 @@ Module UnLZX
 			control >> 8
 			
 			shift - 8
-			If shift < 0                    ; If ( ( *p\shift = ( *p\shift - 8) ) < 0 )
+			If shift < 0
 				MacroLiteralShift_16_8
 			EndIf
 			;Debug " Control: " + Str( *p\control ) + ": Shift: " + Str( *p\shift )
@@ -742,13 +641,13 @@ Module UnLZX
 			
 			Repeat
 				
-				For temp = 0 To 19            ;  For(temp = 0; temp < 20; temp++)
+				For temp = 0 To 19
 					
 					*p\huffman20_len[temp] = control & 15
 					control >> 4
 					
 					shift - 4
-					If shift < 0                ; if((shift -= 4) < 0)
+					If shift < 0
 						MacroLiteralShift_16_8
 					EndIf
 					
@@ -756,18 +655,16 @@ Module UnLZX
 					
 				Next temp
 				
-				;Debug "Decode huffman table"
-				abort = Make_decode_table(*p,20, 6, @*p\huffman20_len[0], @*p\huffman20_table[0])
-				If abort = 1
-					Debug "ERROR: argh huffman table is corrupt!"
+				abort = Make_decode_table(20, 6, @*p\huffman20_len[0], @*p\huffman20_table[0])
+				If ( abort = 1 )
+					Debug "ERROR:  Huffman Table is corrupt!"
 					Break
-				EndIf
-				
+				EndIf									
 				
 				Repeat
 					;Debug "S" + Str(shift) + " T" + Str(temp) + " C" + Hex(control)
 					symbol = *p\huffman20_table[control & 63]
-					If symbol >= 20      ;If((symbol = huffman20_table[control & 63]) >= 20)
+					If symbol >= 20
 						
 						;Debug "symbol is longer than 6 bits"
 						Repeat
@@ -796,7 +693,7 @@ Module UnLZX
 					control >> temp
 					
 					shift - temp
-					If shift < 0                    ;    if((shift -= temp) < 0)
+					If shift < 0
 						MacroLiteralShift_16_8
 					EndIf
 					
@@ -811,14 +708,13 @@ Module UnLZX
 								count = 19
 							EndIf
 							
-							count + ((control & *Table_Three\u[temp] ) + fix)    ; count += (control & table_three[temp]) + fix
+							count + ((control & *Table_Three\u[temp] ) + fix)
 							control >> temp
 							
 							shift - temp
-							If shift < 0                            ; if((shift -= temp) < 0)
+							If shift < 0
 								MacroLiteralShift_16_8
 							EndIf
-							
 							
 							While pos < max_symbol And count <> 0
 								*p\literal_len[pos] = 0
@@ -839,7 +735,7 @@ Module UnLZX
 							control >> 1
 							
 							symbol = *p\huffman20_table[control & 63]
-							If symbol >= 20       ;If((symbol = huffman20_table[control & 63]) >= 20)
+							If symbol >= 20
 								
 								;Debug "symbol is longer than 6 bits"
 								Repeat
@@ -871,7 +767,6 @@ Module UnLZX
 								MacroLiteralShift_16_8
 							EndIf
 							
-							;C : symbol = table_four[literal_len[pos] + 17 - symbol]
 							symbol = *Table_Four\a[*p\literal_len[pos] + 17 - symbol]
 							
 							While pos < max_symbol And count > 0
@@ -900,8 +795,10 @@ Module UnLZX
 			Until Not max_symbol = 768
 			
 			If abort = 0
-				;Debug "Make literal table"
-				abort = Make_decode_table(*p,768, 12, @*p\literal_len[0], @*p\literal_table[0])
+				abort = Make_decode_table(768, 12, @*p\literal_len[0], @*p\literal_table[0])
+				If ( abort = 1 )
+					Debug "ERROR:  Literal Table damaged!"					
+				EndIf				
 			EndIf
 			
 		EndIf
@@ -909,18 +806,9 @@ Module UnLZX
 		*p\global_shift     = shift
 		
 		ProcedureReturn abort
-	EndProcedure    
-	;
-	;
-	; 
-	Procedure .i  Decrunch_Stop(*DestBeg.ascii, *DestEnd.ascii, *SourceBeg.ascii, *SourceEnd.ascii)
 		
-		If ( (*DestBeg < *DestEnd) And (*SourceBeg < *SourceEnd) )
-			ProcedureReturn #True
-		Else
-			ProcedureReturn #False
-		EndIf       
-	EndProcedure 
+	EndProcedure   
+
 	;
 	;
 	;
@@ -1090,7 +978,7 @@ Module UnLZX
 		;Debug_Decrunch_Buffer(*DecrBuffer)
 		
 		*p\global_control = control
-		*p\global_shift = shift        
+		*p\global_shift = shift
 	EndProcedure     
 	;
 	;
@@ -1118,7 +1006,12 @@ Module UnLZX
 	;
 	;        
 	Procedure .i  Extract_Normal(*UnLZX.LZX_ARCHIVE,*p.LZX_LITERAL)
-				
+		
+		Protected.i count = 0
+		
+    		*read_buffer = AllocateMemory(16384)
+    		*decrunch_buffer = AllocateMemory(258 + 65536 + 258)
+    
 		With *UnLZX\FileData()
 			
 			If ( *UnLZX\ExtractAll ) And ( Len( \File ) > 0)
@@ -1152,33 +1045,33 @@ Module UnLZX
 						;Debug "have we exhausted the current Read buffer?"
 						*p\temp = *p\read_buffer
 						
-						*p\count = *p\temp - *p\source + 16384
-						If *p\count
+						count = *p\temp - *p\source + 16384
+						If count
 							;Debug "copy the remaining overrun To the start of the buffer"
 							Repeat
 								*p\temp\a = *p\source\a
 								*p\temp   + 1
 								*p\source + 1
-								*p\count     - 1
-							Until *p\count = 0
+								count     - 1
+							Until count = 0
 						EndIf
 						
 						*p\source = *p\read_buffer
-						*p\count = *p\source - *p\temp + 16384
+						count = *p\source - *p\temp + 16384
 						
-						If *p\pack_size < *p\count
+						If *p\pack_size < count
 							;Debug "make sure we don't read too much"
-							*p\count = *p\pack_size
+							count = *p\pack_size
 						EndIf
 						
-						If ReadData(*UnLZX\pbData, *p\temp, *p\count) <> *p\count
+						If ReadData(*UnLZX\pbData, *p\temp, count) <> count
 							abort = 1
 							Break
 						EndIf
-						*p\pack_size - *p\count
+						*p\pack_size - count
 						
-						*p\temp + *p\count
-						If *p\source >= *p\temp
+						*p\temp + count
+						If source >= *p\temp
 							Debug "ERROR: argh no more data!"
 							Break
 						EndIf
@@ -1200,8 +1093,8 @@ Module UnLZX
 					;Debug "unpack some Data"
 					If *p\destination >= (*p\decrunch_buffer + 258 + 65536)
 						
-						*p\count = *p\destination - *p\decrunch_buffer - 65536
-						If *p\count > 0
+						count = *p\destination - *p\decrunch_buffer - 65536
+						If count > 0
 							
 							*p\destination = *p\decrunch_buffer
 							*p\temp = *p\destination + 65536
@@ -1213,8 +1106,8 @@ Module UnLZX
 								*p\destination\a = *p\temp\a
 								*p\destination + 1
 								*p\temp + 1
-								*p\count - 1
-							Until *p\count = 0
+								count - 1
+							Until count = 0
 						EndIf
 						
 						*p\pos = *p\destination
@@ -1231,43 +1124,40 @@ Module UnLZX
 				EndIf
 				
 				;Debug "calculate amount of data we can use before we need to fill the buffer again"
-				*p\count = *p\destination - *p\pos
-				If *p\count > *p\unpack_size
+				count = *p\destination - *p\pos
+				If count > *p\unpack_size
 					;Debug "take only what we need"
-					*p\count = *p\unpack_size
+					count = *p\unpack_size
 				EndIf
 				
-				crc_calc(#Null, *UnLZX, *p\count, *p\pos,1)
-				;crc_calc_file(*p\pos, *UnLZX, *p\count)
+				crc_calc(0, *UnLZX, count, *p\pos, 1)
 				
 				If IsFile(out_file)
-					If WriteData(out_file, *p\pos, *p\count) <> *p\count
+					If WriteData(out_file, *p\pos, count) <> count
 						CloseFile(out_file)
 						out_file = 0
 					EndIf
-					
-					CloseFile(out_file)
-					
-					If abort = 0
-						If \crcFile = \sum
-							Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
-						Else							
-							Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
-						EndIf
-					EndIf    				
 				EndIf
-				
-				*p\unpack_size - *p\count
-				*p\pos + *p\count
+				*p\unpack_size - count
+				*p\pos + count
 				
 				;Debug "left decrunch_length: " + Str(*p\decrunch_length)
-				;Debug "left unpack_size: " + Str(*p\unpack_size)    			    			   			
+				;Debug "left unpack_size: " + Str(*p\unpack_size)   				
 			Wend
 			
-			
-		EndWith
-		
-		
+			If out_file
+				CloseFile(out_file)
+				
+				If abort = 0
+					If \crcFile = \sum
+						Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
+					Else							
+						Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
+					EndIf
+				EndIf    				
+			EndIf
+		EndWith		
+	
 	EndProcedure
 	;
 	;
@@ -1353,8 +1243,8 @@ Module UnLZX
 	;
 	Procedure.i	  Extract_Structure_Init(*p.LZX_LITERAL)
 		
-		*p\read_buffer 	= AllocateMemory(16384)
-		*p\decrunch_buffer 	= AllocateMemory(258 + 65536 + 258)           
+		*p\read_buffer 				= AllocateMemory(16384)
+		*p\decrunch_buffer 			= AllocateMemory(258 + 65536 + 258)           
 		
 		*p\count = 0
 		
@@ -1633,18 +1523,13 @@ Module UnLZX
 									\Sum        = *UnLZX\sum
 									\crcFile    = (*UnLZX\archiv_header[25] << 24) + (*UnLZX\archiv_header[24] << 16) + (*UnLZX\archiv_header[23] << 8) + *UnLZX\archiv_header[22]; /* data crc */
 									
-									\DateY = year
-									\DateM = month
-									\DateD = day
-									\TimeH = hour
-									\TimeM = minute
-									\TimeS = second
+									\TimeDate = Date(Year, month, day, hour, minute, second)
 									
 									\SizePacked = pack_size
 									\PackedByte = *UnLZX\archiv_header[12]
 									\SizeUnpack = unpack_size
 									
-									Get_Attrib (*UnLZX, attributes)
+									\attributes = attributes
 									
 									\isMerged   = #False
 									
@@ -1775,9 +1660,9 @@ Module UnLZX
 					szSizePacked =  RSet( Get_Packed( \SizePacked, \PackedByte ),8, Chr(32) )
 				      szCRCCalc    =  RSet( Hex(\sum, #PB_Long), 10, " ")
 				      szCRC        =  RSet( Hex(\crc, #PB_Long), 10, " ")                
-					szFileTime   =  Get_Clock  (\TimeH, \TimeM ,\TimeS)
-					szFileDate   =  Get_Date   (\DateD, \DateM ,\DateY)
-					szFileAttrib =  \AttribH + \AttribS + \AttribP + \AttribA + \AttribR + \AttribW + \AttribE + \AttribD
+          				szFileTime   = Get_Clock(\TimeDate)
+          				szFileDate   = Get_Date(\TimeDate)
+          				szFileAttrib = Get_Attrib(\attributes)
 					szFileName   = \File 
 					szComment    = \Comment
 					
@@ -1935,9 +1820,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1427
-; FirstLine = 753
-; Folding = PAB+f5-
+; CursorPosition = 1008
+; FirstLine = 949
+; Folding = --X-L-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
