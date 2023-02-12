@@ -1,4 +1,4 @@
-﻿DeclareModule PackLZX
+﻿DeclareModule UnLZX
 	
 	Declare.i   Process_Archive(File.s)             					 ; Init and Open Lzx File
 	
@@ -9,44 +9,8 @@
 EndDeclareModule
 
 
-Module PackLZX
-	
-	Structure ArchiveFormat
-		dateiname.s
-		dateipath.s
-		size.i     
-		*image
-	EndStructure     
-	
-	Structure CRC_Memory
-		c.c[256]
-	EndStructure
-	
-	Dim Calculation.a(0)    
-	Dim CrcFileCalc.a(0)
-	Dim DecrunchBuf.a(0)
-	
-	Structure Info_Header
-		c.c[10]
-	EndStructure
-	
-	Structure Archive_Header
-		c.c[31]
-	EndStructure
-	
-	Structure Header_Filename
-		c.c[256]
-	EndStructure
-	
-	Structure Header_Comment
-		c.c[256]
-	EndStructure     
-	
-	Structure FileBuffer
-		c.c[256]
-		size.i
-	EndStructure		
-	
+Module UnLZX 
+	 		
 	Structure LZX_FILEDATA
 		Count.i                 ; Aktulle Datei Nummer
 		File.s			; Der DateiName
@@ -181,49 +145,49 @@ Module PackLZX
 	
 	DataSection
 		CRC_TABLE:
-   Data.l $00000000,$77073096,$EE0E612C,$990951BA,$076DC419,$706AF48F
-    Data.l $E963A535,$9E6495A3,$0EDB8832,$79DCB8A4,$E0D5E91E,$97D2D988
-    Data.l $09B64C2B,$7EB17CBD,$E7B82D07,$90BF1D91,$1DB71064,$6AB020F2
-    Data.l $F3B97148,$84BE41DE,$1ADAD47D,$6DDDE4EB,$F4D4B551,$83D385C7
-    Data.l $136C9856,$646BA8C0,$FD62F97A,$8A65C9EC,$14015C4F,$63066CD9
-    Data.l $FA0F3D63,$8D080DF5,$3B6E20C8,$4C69105E,$D56041E4,$A2677172
-    Data.l $3C03E4D1,$4B04D447,$D20D85FD,$A50AB56B,$35B5A8FA,$42B2986C
-    Data.l $DBBBC9D6,$ACBCF940,$32D86CE3,$45DF5C75,$DCD60DCF,$ABD13D59
-    Data.l $26D930AC,$51DE003A,$C8D75180,$BFD06116,$21B4F4B5,$56B3C423
-    Data.l $CFBA9599,$B8BDA50F,$2802B89E,$5F058808,$C60CD9B2,$B10BE924
-    Data.l $2F6F7C87,$58684C11,$C1611DAB,$B6662D3D,$76DC4190,$01DB7106
-    Data.l $98D220BC,$EFD5102A,$71B18589,$06B6B51F,$9FBFE4A5,$E8B8D433
-    Data.l $7807C9A2,$0F00F934,$9609A88E,$E10E9818,$7F6A0DBB,$086D3D2D
-    Data.l $91646C97,$E6635C01,$6B6B51F4,$1C6C6162,$856530D8,$F262004E
-    Data.l $6C0695ED,$1B01A57B,$8208F4C1,$F50FC457,$65B0D9C6,$12B7E950
-    Data.l $8BBEB8EA,$FCB9887C,$62DD1DDF,$15DA2D49,$8CD37CF3,$FBD44C65
-    Data.l $4DB26158,$3AB551CE,$A3BC0074,$D4BB30E2,$4ADFA541,$3DD895D7
-    Data.l $A4D1C46D,$D3D6F4FB,$4369E96A,$346ED9FC,$AD678846,$DA60B8D0
-    Data.l $44042D73,$33031DE5,$AA0A4C5F,$DD0D7CC9,$5005713C,$270241AA
-    Data.l $BE0B1010,$C90C2086,$5768B525,$206F85B3,$B966D409,$CE61E49F
-    Data.l $5EDEF90E,$29D9C998,$B0D09822,$C7D7A8B4,$59B33D17,$2EB40D81
-    Data.l $B7BD5C3B,$C0BA6CAD,$EDB88320,$9ABFB3B6,$03B6E20C,$74B1D29A
-    Data.l $EAD54739,$9DD277AF,$04DB2615,$73DC1683,$E3630B12,$94643B84
-    Data.l $0D6D6A3E,$7A6A5AA8,$E40ECF0B,$9309FF9D,$0A00AE27,$7D079EB1
-    Data.l $F00F9344,$8708A3D2,$1E01F268,$6906C2FE,$F762575D,$806567CB
-    Data.l $196C3671,$6E6B06E7,$FED41B76,$89D32BE0,$10DA7A5A,$67DD4ACC
-    Data.l $F9B9DF6F,$8EBEEFF9,$17B7BE43,$60B08ED5,$D6D6A3E8,$A1D1937E
-    Data.l $38D8C2C4,$4FDFF252,$D1BB67F1,$A6BC5767,$3FB506DD,$48B2364B
-    Data.l $D80D2BDA,$AF0A1B4C,$36034AF6,$41047A60,$DF60EFC3,$A867DF55
-    Data.l $316E8EEF,$4669BE79,$CB61B38C,$BC66831A,$256FD2A0,$5268E236
-    Data.l $CC0C7795,$BB0B4703,$220216B9,$5505262F,$C5BA3BBE,$B2BD0B28
-    Data.l $2BB45A92,$5CB36A04,$C2D7FFA7,$B5D0CF31,$2CD99E8B,$5BDEAE1D
-    Data.l $9B64C2B0,$EC63F226,$756AA39C,$026D930A,$9C0906A9,$EB0E363F
-    Data.l $72076785,$05005713,$95BF4A82,$E2B87A14,$7BB12BAE,$0CB61B38
-    Data.l $92D28E9B,$E5D5BE0D,$7CDCEFB7,$0BDBDF21,$86D3D2D4,$F1D4E242
-    Data.l $68DDB3F8,$1FDA836E,$81BE16CD,$F6B9265B,$6FB077E1,$18B74777
-    Data.l $88085AE6,$FF0F6A70,$66063BCA,$11010B5C,$8F659EFF,$F862AE69
-    Data.l $616BFFD3,$166CCF45,$A00AE278,$D70DD2EE,$4E048354,$3903B3C2
-    Data.l $A7672661,$D06016F7,$4969474D,$3E6E77DB,$AED16A4A,$D9D65ADC
-    Data.l $40DF0B66,$37D83BF0,$A9BCAE53,$DEBB9EC5,$47B2CF7F,$30B5FFE9
-    Data.l $BDBDF21C,$CABAC28A,$53B39330,$24B4A3A6,$BAD03605,$CDD70693
-    Data.l $54DE5729,$23D967BF,$B3667A2E,$C4614AB8,$5D681B02,$2A6F2B94
-    Data.l $B40BBE37,$C30C8EA1,$5A05DF1B,$2D02EF8D
+		Data.l $00000000,$77073096,$EE0E612C,$990951BA,$076DC419,$706AF48F
+		Data.l $E963A535,$9E6495A3,$0EDB8832,$79DCB8A4,$E0D5E91E,$97D2D988
+		Data.l $09B64C2B,$7EB17CBD,$E7B82D07,$90BF1D91,$1DB71064,$6AB020F2
+		Data.l $F3B97148,$84BE41DE,$1ADAD47D,$6DDDE4EB,$F4D4B551,$83D385C7
+		Data.l $136C9856,$646BA8C0,$FD62F97A,$8A65C9EC,$14015C4F,$63066CD9
+		Data.l $FA0F3D63,$8D080DF5,$3B6E20C8,$4C69105E,$D56041E4,$A2677172
+		Data.l $3C03E4D1,$4B04D447,$D20D85FD,$A50AB56B,$35B5A8FA,$42B2986C
+		Data.l $DBBBC9D6,$ACBCF940,$32D86CE3,$45DF5C75,$DCD60DCF,$ABD13D59
+		Data.l $26D930AC,$51DE003A,$C8D75180,$BFD06116,$21B4F4B5,$56B3C423
+		Data.l $CFBA9599,$B8BDA50F,$2802B89E,$5F058808,$C60CD9B2,$B10BE924
+		Data.l $2F6F7C87,$58684C11,$C1611DAB,$B6662D3D,$76DC4190,$01DB7106
+		Data.l $98D220BC,$EFD5102A,$71B18589,$06B6B51F,$9FBFE4A5,$E8B8D433
+		Data.l $7807C9A2,$0F00F934,$9609A88E,$E10E9818,$7F6A0DBB,$086D3D2D
+		Data.l $91646C97,$E6635C01,$6B6B51F4,$1C6C6162,$856530D8,$F262004E
+		Data.l $6C0695ED,$1B01A57B,$8208F4C1,$F50FC457,$65B0D9C6,$12B7E950
+		Data.l $8BBEB8EA,$FCB9887C,$62DD1DDF,$15DA2D49,$8CD37CF3,$FBD44C65
+		Data.l $4DB26158,$3AB551CE,$A3BC0074,$D4BB30E2,$4ADFA541,$3DD895D7
+		Data.l $A4D1C46D,$D3D6F4FB,$4369E96A,$346ED9FC,$AD678846,$DA60B8D0
+		Data.l $44042D73,$33031DE5,$AA0A4C5F,$DD0D7CC9,$5005713C,$270241AA
+		Data.l $BE0B1010,$C90C2086,$5768B525,$206F85B3,$B966D409,$CE61E49F
+		Data.l $5EDEF90E,$29D9C998,$B0D09822,$C7D7A8B4,$59B33D17,$2EB40D81
+		Data.l $B7BD5C3B,$C0BA6CAD,$EDB88320,$9ABFB3B6,$03B6E20C,$74B1D29A
+		Data.l $EAD54739,$9DD277AF,$04DB2615,$73DC1683,$E3630B12,$94643B84
+		Data.l $0D6D6A3E,$7A6A5AA8,$E40ECF0B,$9309FF9D,$0A00AE27,$7D079EB1
+		Data.l $F00F9344,$8708A3D2,$1E01F268,$6906C2FE,$F762575D,$806567CB
+		Data.l $196C3671,$6E6B06E7,$FED41B76,$89D32BE0,$10DA7A5A,$67DD4ACC
+		Data.l $F9B9DF6F,$8EBEEFF9,$17B7BE43,$60B08ED5,$D6D6A3E8,$A1D1937E
+		Data.l $38D8C2C4,$4FDFF252,$D1BB67F1,$A6BC5767,$3FB506DD,$48B2364B
+		Data.l $D80D2BDA,$AF0A1B4C,$36034AF6,$41047A60,$DF60EFC3,$A867DF55
+		Data.l $316E8EEF,$4669BE79,$CB61B38C,$BC66831A,$256FD2A0,$5268E236
+		Data.l $CC0C7795,$BB0B4703,$220216B9,$5505262F,$C5BA3BBE,$B2BD0B28
+		Data.l $2BB45A92,$5CB36A04,$C2D7FFA7,$B5D0CF31,$2CD99E8B,$5BDEAE1D
+		Data.l $9B64C2B0,$EC63F226,$756AA39C,$026D930A,$9C0906A9,$EB0E363F
+		Data.l $72076785,$05005713,$95BF4A82,$E2B87A14,$7BB12BAE,$0CB61B38
+		Data.l $92D28E9B,$E5D5BE0D,$7CDCEFB7,$0BDBDF21,$86D3D2D4,$F1D4E242
+		Data.l $68DDB3F8,$1FDA836E,$81BE16CD,$F6B9265B,$6FB077E1,$18B74777
+		Data.l $88085AE6,$FF0F6A70,$66063BCA,$11010B5C,$8F659EFF,$F862AE69
+		Data.l $616BFFD3,$166CCF45,$A00AE278,$D70DD2EE,$4E048354,$3903B3C2
+		Data.l $A7672661,$D06016F7,$4969474D,$3E6E77DB,$AED16A4A,$D9D65ADC
+		Data.l $40DF0B66,$37D83BF0,$A9BCAE53,$DEBB9EC5,$47B2CF7F,$30B5FFE9
+		Data.l $BDBDF21C,$CABAC28A,$53B39330,$24B4A3A6,$BAD03605,$CDD70693
+		Data.l $54DE5729,$23D967BF,$B3667A2E,$C4614AB8,$5D681B02,$2A6F2B94
+		Data.l $B40BBE37,$C30C8EA1,$5A05DF1B,$2D02EF8D
 	EndDataSection
 	
 	DataSection
@@ -1286,8 +1250,6 @@ Module PackLZX
 					
 					If abort = 0
 						If \crcFile = \sum
-							
-							RSet( Hex(\sum, #PB_Long), 10, " ")
 							Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
 						Else							
 							Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
@@ -1320,12 +1282,14 @@ Module PackLZX
 		If *read_buffer
 			
 			With *UnLZX\FileData()
+				
 				Debug #LF$ + "PackMode: Stored"
 				Debug "Extracting File: " + \File
 				
 				FileSeek( *UnLZX\pbData, \loc )
 				
-				out_file = open_output(\File, *UnLZX\TargetDirectory)				
+				out_file = open_output(\File, *UnLZX\TargetDirectory)	
+				
 				If out_file
 					
 					\sum = 0   ; reset CRC
@@ -1364,14 +1328,14 @@ Module PackLZX
 					
 					If out_file
 						CloseFile(out_file)
+					
 						If abort = 0
-							Debug Hex(\sum) + " " + Hex(\crc)
-							If \sum = \crc
-								Debug "crc good"
-							Else
-								Debug "crc bad"
+							If \crcFile = \sum
+								Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
+							Else							
+								Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
 							EndIf
-						EndIf
+						EndIf   
 					EndIf
 					
 				EndIf
@@ -1460,7 +1424,17 @@ Module PackLZX
 		Protected CurrentElement.i, MergedSize.q, MergedPosition.i, MergeTotal.i, SearchPosition.i = -1
 		
 		*p.LZX_LITERAL 	= AllocateStructure(LZX_LITERAL)
-		
+		;
+		;
+		,
+		If ( TargetDirectory$ <> "" )
+			If Right(TargetDirectory$, 1) <> "/" Or Right(TargetDirectory$, 1) <> "\"
+				TargetDirectory$ + "/"
+			EndIf
+			*UnLZX\TargetDirectory = TargetDirectory$ + GetFilePart(*UnLZX\Full)
+		Else
+			*UnLZX\TargetDirectory = *UnLZX\Full
+		EndIf		
 		;
 		;
 		;
@@ -1502,7 +1476,9 @@ Module PackLZX
 				
 				FileSeek(*UnLZX\pbData, \Loc, #PB_Absolute)
 				
+				
 				Select *UnLZX\FileData()\PackMode
+						
 					Case 0      ; store				
 						*p = Extract_Structure_Init(*p)
 						
@@ -1520,14 +1496,16 @@ Module PackLZX
 							; Repeat für den Merged Modus da Position/Source und Destination 
 							; für die Datei aktuell im pointer befinden
 							Extract_Normal(*UnLZX,*p) 
-							
+						
 							;
 							; Mache Weiter bis der Merge packed byte beendet(0) ist
 							; Gehe aus dem loop bei Packebyte 0 oder nach der Extraction
 							; bestimmter Dateien
+							
 							If ( \PackedByte = 0) 
 								Break
-							EndIf	
+							EndIf
+
 							NextElement( *UnLZX\FileData() )
 							
 						Until ( *UnLZX\TotalUnpack  = MergeTotal )
@@ -1878,9 +1856,7 @@ Module PackLZX
 	;
 	;
 	Procedure .i  Process_Archive(File.s)
-		
-		
-		
+
 		If ( FileSize( File ) > 0 )
 			
 			*UnLZX.LZX_ARCHIVE  = AllocateMemory(SizeOf(LZX_ARCHIVE))
@@ -1935,23 +1911,23 @@ CompilerIf #PB_Compiler_IsMainFile
 	If ( File )  
 		;
 		; Lzx File Öffne und Inbtialisieren
-		*LzxMemory = PackLZX::Process_Archive(File)
+		*LzxMemory = UnLZX::Process_Archive(File)
 		
 		If ( *LzxMemory > 0 )
 			;
 			; Archive Auflisten
-			PackLZX::Examine_Archive(*LzxMemory)
+			UnLZX::Examine_Archive(*LzxMemory)
 			
 			;
 			;
-			;PackLZX::Extract_Archive(*LzxMemory)
-    			;PackLZX::Extract_Archive(*LzxMemory, "c:\tmp"")
-			;PackLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt"); Datei im Merged Mode
-    			PackLZX::Extract_Archive(*LzxMemory, "B:\",""); Datei im Merged Mode				
+			;UnLZX::Extract_Archive(*LzxMemory)
+    			;UnLZX::Extract_Archive(*LzxMemory, "c:\tmp"")
+			;UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt"); Datei im Merged Mode
+    			UnLZX::Extract_Archive(*LzxMemory, "B:\",""); Datei im Merged Mode				
 			
 			;
 			; Free File and Free Memory
-			*LzxMemory = PackLZX::Close_Archive(*LzxMemory)
+			*LzxMemory = UnLZX::Close_Archive(*LzxMemory)
 		EndIf
 	EndIf
 	
@@ -1960,9 +1936,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1949
-; FirstLine = 1334
-; Folding = PAR9f6-
+; CursorPosition = 1507
+; FirstLine = 829
+; Folding = PAB+f5-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
