@@ -1426,7 +1426,6 @@ Module UnLZX
 		*p.LZX_LITERAL 	= AllocateStructure(LZX_LITERAL)
 		;
 		;
-		,
 		If ( TargetDirectory$ <> "" )
 			If Right(TargetDirectory$, 1) <> "/" Or Right(TargetDirectory$, 1) <> "\"
 				TargetDirectory$ + "/"
@@ -1936,8 +1935,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1507
-; FirstLine = 829
+; CursorPosition = 1427
+; FirstLine = 753
 ; Folding = PAB+f5-
 ; EnableAsm
 ; EnableXP
