@@ -1164,7 +1164,7 @@ Module PackLZX
 					
 			ElseIf ( *UnLZX\ExtractAll = #False ) And ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) ) And ( Len( \File ) > 0) 
 				Debug #LF$ + "PackMode: Normal"
-				Debug "Extracting File: " + \File
+				Debug "Extracting a single file from Archive: " + \File
 				out_file = open_output(\File, *UnLZX\TargetDirectory)	
 			EndIf				
 			
@@ -1900,7 +1900,9 @@ Module PackLZX
 				Debug File + ": Datei ist von einem anderen programm geöffnet"
 				Close_Archive(*UnLZX)
 				ProcedureReturn 0
-			EndIf	
+			EndIf
+			Debug File + ": geöffnet"
+			
 
 			NewList  *UnLZX\FileData.LZX_FILEDATA()
 			NewList  *UnLZX\ListData.LZX_DIRECTORY()
@@ -1942,9 +1944,10 @@ CompilerIf #PB_Compiler_IsMainFile
 			
 			;
 			;
-			PackLZX::Extract_Archive(*LzxMemory)
+			;PackLZX::Extract_Archive(*LzxMemory)
     			;PackLZX::Extract_Archive(*LzxMemory, "c:\tmp"")
-    			;PackLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt")			
+			;PackLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt"); Datei im Merged Mode
+    			PackLZX::Extract_Archive(*LzxMemory, "B:\",""); Datei im Merged Mode				
 			
 			;
 			; Free File and Free Memory
@@ -1957,9 +1960,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1176
-; FirstLine = 622
-; Folding = PAR9fx-
+; CursorPosition = 1949
+; FirstLine = 1334
+; Folding = PAR9f6-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
