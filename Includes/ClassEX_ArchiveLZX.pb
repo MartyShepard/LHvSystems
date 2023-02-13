@@ -1196,13 +1196,15 @@ Module UnLZX
 					If \crcFile = 0 And \sum = 0
 						*UnLZX\crcCountBad + 1
 						Debug "No More Files - Archive Damaged"
+						Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
 					ElseIf \crcFile = \sum
 						*UnLZX\crcCountGood + 1
 						*UnLZX\FileExtracted +1
 						Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
 					Else				
 						*UnLZX\crcCountBad + 1
-						Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
+						Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
+						Delay(2000)
 					EndIf
 				EndIf    				
 			EndIf
@@ -1273,13 +1275,14 @@ Module UnLZX
 							If \crcFile = 0 And \sum = 0
 								*UnLZX\crcCountBad + 1
 								Debug "No More Files - Archive Damaged"
+								Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
 							ElseIf \crcFile = \sum
 								*UnLZX\crcCountGood + 1
 								*UnLZX\FileExtracted +1
 								Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
 							Else				
 								*UnLZX\crcCountBad + 1
-								Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad"  + #CR$
+								Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
 							EndIf
 						EndIf   
 					EndIf
@@ -1334,18 +1337,12 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i	  Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 
-		
-		*UnLZX\ExtractAll = #True
-		*UnLZX\ExtractPos = -1
+	Procedure.i	  Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 		
 		
 		;
 		;
 		; Such und Entpacke
 		If ( Len( szFilename ) > 0 ) Or (DecrunchNum > 0)
-			
-
-			
 			;
 			; Benutzer sucht nach datei. -5 = Datei/Path ist nicht in der Liste vorhanden
 			*UnLZX\ExtractPos = -5
@@ -1396,6 +1393,9 @@ Module UnLZX
 		
 		*p.LZX_LITERAL 	= AllocateStructure(LZX_LITERAL)
 		
+		*UnLZX\ExtractAll = #True
+		*UnLZX\ExtractPos = -1
+				
 		*UnLZX\crcCountGood = 0
 		*UnLZX\crcCountBad  = 0	
 		Total			  = ListSize( *UnLZX\ListData() )
@@ -1964,7 +1964,7 @@ EndModule
 
 CompilerIf #PB_Compiler_IsMainFile
 	EnableExplicit
-	
+		
   	Debug "UnLZX Purebasic Module v0.5 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
   	Debug "Convertet by Infratec & Marty2pb"
   	Debug ""
@@ -2009,7 +2009,7 @@ CompilerIf #PB_Compiler_IsMainFile
 			EndIf	
 			;
 			;
-			Result =  UnLZX::Extract_Archive(*LzxMemory)
+			Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\")
 			If Result < 0
 				Debug Result
 			EndIf	
@@ -2031,9 +2031,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2015
-; FirstLine = 944
-; Folding = DAQzhw
+; CursorPosition = 1277
+; FirstLine = 646
+; Folding = DAQTBw
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
