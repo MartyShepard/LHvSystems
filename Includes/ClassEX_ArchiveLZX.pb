@@ -124,8 +124,8 @@ Module UnLZX
 		huffman20_table.u[96]			; unsigned short huffman20_table[96]
 		literal_len.a[768]			; unsigned char literal_len[768]
 		literal_table.u[5120]			; unsigned short literal_table[5120]
-		*read_buffer				; AllocateMemory(16384)
-		*decrunch_buffer				; AllocateMemory(258 + 65536 + 258)     	  
+		*read_buffer.ascii			; AllocateMemory(16384)
+		*Decrunch_Buffer.ascii			; AllocateMemory(258 + 65536 + 258)     	  
 	EndStructure 
 	
 	
@@ -1016,10 +1016,7 @@ Module UnLZX
 	Procedure .i  Extract_Normal(*UnLZX.LZX_ARCHIVE,*p.LZX_LITERAL)
 		
 		Protected.i count = 0
-		
-    		*read_buffer = AllocateMemory(16384)
-    		*decrunch_buffer = AllocateMemory(258 + 65536 + 258)
-    
+		   
 		With *UnLZX\FileData()
 			
 			If ( *UnLZX\ExtractAll ) And ( Len( \File ) > 0)
@@ -1044,7 +1041,7 @@ Module UnLZX
 				;Debug "time To fill the buffer?"
 				Debug PeekA( *p\pos )
 				Debug PeekA( *p\pos )
-				If *p\pos = *p\destination
+				If *p\pos = *p\destination 
 					
 					;Debug "check If we have enough Data And Read some If Not"
 					If *p\source >= *p\source_end
@@ -1069,7 +1066,7 @@ Module UnLZX
 						
 						\NewLocPos = count						
 						
-						If *p\pack_size = 0
+						If ( *p\pack_size = 0 ) 
 							*p\pack_size = count
 							Debug "merged packed"
 							
@@ -1158,9 +1155,7 @@ Module UnLZX
 				EndIf
 				*p\unpack_size - count
 				*p\pos + count
-				
-				
-				
+
 				;Debug "left decrunch_length: " + Str(*p\decrunch_length)
 				;Debug "left unpack_size: " + Str(*p\unpack_size)   				
 			Wend
@@ -1273,11 +1268,10 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i	  Extract_Structure_Init(*p.LZX_LITERAL)
+	Procedure.i	  Extract_Structure_Init(*p.LZX_LITERAL)		       
 		
-		*p\read_buffer 				= AllocateMemory(16384)
-		*p\decrunch_buffer 			= AllocateMemory(258 + 65536 + 258)           
-		
+		*p\read_buffer 			= AllocateMemory(16384)
+    		*p\decrunch_buffer 		= AllocateMemory(258 + 65536 + 258)
 		*p\count = 0
 		
 		
@@ -1461,11 +1455,13 @@ Module UnLZX
 							If ( \NewLocPos > 0 )
 								FileSeek(*UnLZX\pbData, \NewLocPos  + \loc, #PB_Absolute)
 							EndIf		
-							
+							If \Count = Total
+								
+								FileSeek(*UnLZX\pbData, \loc, #PB_Relative)
+							EndIf								
 
 							Extract_Normal(*UnLZX,*p) 							
-							
-							
+
 							;
 							; Mache Weiter bis der Merge packed byte beendet(0) ist
 							; Gehe aus dem loop bei Packebyte 0 oder nach der Extraction
@@ -1917,9 +1913,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1045
-; FirstLine = 990
-; Folding = --40f-
+; CursorPosition = 1459
+; FirstLine = 613
+; Folding = DAA0f-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
