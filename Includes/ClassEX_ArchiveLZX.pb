@@ -125,7 +125,8 @@ Module UnLZX
 		literal_len.a[768]			; unsigned char literal_len[768]
 		literal_table.u[5120]			; unsigned short literal_table[5120]
 		*read_buffer.ascii			; AllocateMemory(16384)
-		*Decrunch_Buffer.ascii			; AllocateMemory(258 + 65536 + 258)     	  
+		*Decrunch_Buffer.ascii			; AllocateMemory(258 + 65536 + 258)
+		PackSizeRest.i
 	EndStructure 
 	
 	
@@ -1039,8 +1040,6 @@ Module UnLZX
 			While *p\unpack_size > 0
 				
 				;Debug "time To fill the buffer?"
-				Debug PeekA( *p\pos )
-				Debug PeekA( *p\pos )
 				If *p\pos = *p\destination 
 					
 					;Debug "check If we have enough Data And Read some If Not"
@@ -1052,28 +1051,33 @@ Module UnLZX
 						count = *p\temp - *p\source + 16384
 
 						If count
+							;*p\PackSizeRest + count
+							
 							Debug "copy the remaining overrun To the start of the buffer"
 							Repeat
 								*p\temp\a = *p\source\a
 								*p\temp   + 1
 								*p\source + 1
 								count     - 1
-							Until count = 0
+							Until count = 0								
 						EndIf
 						
 						*p\source = *p\read_buffer
 						count = *p\source - *p\temp + 16384
 						
-						\NewLocPos = count						
+						\NewLocPos = count
+						
 						
 						If ( *p\pack_size = 0 ) 
-							*p\pack_size = count
+							*p\pack_size = count															
 							Debug "merged packed"
-							
-						ElseIf  *p\pack_size < count
+						EndIf
+						
+						If  *p\pack_size < count
 							Debug "make sure we don't read too much"
 							count = *p\pack_size ; Bug on Continue  with Merged Files							
-						EndIf												
+						EndIf
+
 										
 						If ReadData(*UnLZX\pbData, *p\temp, count) <> count
 							abort = 1
@@ -1142,9 +1146,6 @@ Module UnLZX
 					count = *p\unpack_size
 				EndIf
 				
-				
-				
-				
 				crc_calc(0, *UnLZX, count, *p\pos, 1)
 				
 				If IsFile(out_file)
@@ -1155,9 +1156,9 @@ Module UnLZX
 				EndIf
 				*p\unpack_size - count
 				*p\pos + count
-
-				;Debug "left decrunch_length: " + Str(*p\decrunch_length)
-				;Debug "left unpack_size: " + Str(*p\unpack_size)   				
+				
+				Debug "left decrunch_length: " + Str(*p\decrunch_length)
+				Debug "left unpack_size: " + Str(*p\unpack_size)   				
 			Wend
 			
 			If out_file
@@ -1358,49 +1359,32 @@ Module UnLZX
 		;
 		ResetList( *UnLZX\FileData() )
 		ResetList( *UnLZX\ListData() )
-			
-		
+					
 		If ( Extract_Files_Search(*UnLZX, szFilename) = -2 )
 			Debug "Datei im Archiv " + szFilename + " nicht gefunden"
 			FreeStructure(*p)
 			ProcedureReturn 
 		EndIf
 		
-		
-		With *UnLZX\FileData()
-		
-
-			;While NextElement( *UnLZX\FileData() )			
-			ForEach *UnLZX\FileData()
 				
-
-				;If (\isMerged = #True)
-				;	;
-				;	; Das ist Quasi nur der Interne Listen Trenner					
-				;	Continue
-				;EndIf
-				If \file = "WHDLoad/Docs/ua/future.html"
-					Debug "HALT"
-				EndIf				
+		With *UnLZX\FileData()		
+			ForEach *UnLZX\FileData()		
 				 
-				If (\SizePacked = 0 ) And ( \PackedByte = 1)
-					Debug \file	
+				If (\SizePacked = 0 )
 					PushListPosition( *UnLZX\FileData() )
 					
 					While NextElement( *UnLZX\FileData() )
 
 						If ( \SizePacked > 0)
 							MergedSize 		= \SizePacked
-							MergedPosition	= \loc
-							MergedSeekPos	= \SeekPosition
+							MergedPosition	= \loc							
 							PopListPosition( *UnLZX\FileData() )
 							\SizePacked 	= MergedSize
 							\loc 			= MergedPosition	
-							\SeekPosition	= MergedSeekPos
+							;\SeekPosition	= MergedSeekPos
 							Break
 						EndIf	
-					Wend															
-
+					Wend																				
 					;CurrentElement = ListIndex(*UnLZX\FileData())
 					
 					;For u = CurrentElement + 1 To LastElement( *UnLZX\FileData() )
@@ -1427,41 +1411,40 @@ Module UnLZX
 					Continue
 				EndIf
 				
+				If (\SizeUnpack = 0 )
+					;
+					; Archiv beschädigt oder keine Dateien, Löse Push
+					PopListPosition( *UnLZX\FileData() )
+				EndIf
+				
 				FileSeek(*UnLZX\pbData, \Loc, #PB_Absolute)			
 				
 				Select *UnLZX\FileData()\PackMode
 						
 					Case 0      ; store				
-						*p = Extract_Structure_Init(*p)
-						
-						extract_store(*UnLZX, *p)
-						
+						*p = Extract_Structure_Init(*p)						
+						Extract_Store(*UnLZX, *p)						
 						Extract_Structure_Clear(*p)
 						
 					Case 2      ; normal  																	
-						*p = Extract_Structure_Init(*p)						
+						*p = Extract_Structure_Init(*p)
+						
 						;
-						; Wiederhole nur bei Merged Dateien						
-						While  \PackedByte = 1
-							
-							If \file = "WHDLoad/Docs/ua/future.html"
-								Debug "HALT"
-							EndIf								
-							
-							
+						; Wiederhole nur bei Merged Dateien	
+						
+						Repeat 
 							;
 							; Repeat für den Merged Modus da Position/Source und Destination 
-							; für die Datei aktuell im pointer befinden								
-							If ( \NewLocPos > 0 )
+							; für die Datei aktuell im pointer befinden		
+							
+							If ( \NewLocPos > 0 ) And (\SizePacked = 0 ) 
 								FileSeek(*UnLZX\pbData, \NewLocPos  + \loc, #PB_Absolute)
-							EndIf		
-							If \Count = Total
-								
-								FileSeek(*UnLZX\pbData, \loc, #PB_Relative)
-							EndIf								
-
-							Extract_Normal(*UnLZX,*p) 							
-
+							EndIf							
+							
+							Extract_Normal(*UnLZX,*p)	
+							
+							
+							Debug "File Seek : " +  Str( \NewLocPos  + \loc )
 							;
 							; Mache Weiter bis der Merge packed byte beendet(0) ist
 							; Gehe aus dem loop bei Packebyte 0 oder nach der Extraction
@@ -1471,22 +1454,13 @@ Module UnLZX
 								Break
 							EndIf
 							
-							If \Count+1 = Total
-								Debug PeekA( *p\pos )
-								
-							EndIf	
-							
 							NextElement( *UnLZX\FileData() )	
-							
-						
-						Wend
+						ForEver 
 						Extract_Structure_Clear(*p)	
 						
 					Default     ; unknown
 						Debug #LF$ + "unknown"
-				EndSelect       
-				
-			;Wend    
+				EndSelect          
 			Next
 		EndWith
 		
@@ -1565,7 +1539,7 @@ Module UnLZX
 								unpack_size  = (*UnLZX\archiv_header[5]  << 24) + (*UnLZX\archiv_header[4]  << 16) + (*UnLZX\archiv_header[3]  << 8) + *UnLZX\archiv_header[2]   ; unpack size
 								pack_size    = (*UnLZX\archiv_header[9]  << 24) + (*UnLZX\archiv_header[8]  << 16) + (*UnLZX\archiv_header[7]  << 8) + *UnLZX\archiv_header[6]	 ; packed size
 								DatePosition = (*UnLZX\archiv_header[18] << 24) + (*UnLZX\archiv_header[19] << 16) + (*UnLZX\archiv_header[20] << 8) + *UnLZX\archiv_header[21]	 ; date
-								
+
 								
 								year        = ((DatePosition >> 17) & 63) + 1970
 								month       = ((DatePosition >> 23) & 15) + 1
@@ -1716,6 +1690,7 @@ Module UnLZX
 	Procedure .i  Debug_View_Archiv( *UnLZX.LZX_ARCHIVE )
 		
 		Protected.s szSizeUnpack, szSizePacked, szCRCCalc, szCRC, szFileTime, szFileDate, szFileAttrib, szFileName, szMergedSize, szComment, FileNummer
+		Protected.i Count
 		
 		Debug "Nr " + "Unpacked" + Chr(9) +"  Packed" + Chr(9) + " CRC Calc " + Chr(9) + " CRC Summe " + Chr(9) +"   Time " + Chr(9) + "   Date " + Chr(9) + " Attrib " + Chr(9) + "Dir/File"
 		Debug "---" + "--------" + Chr(9) +"--------" + Chr(9) + "-----------"+ Chr(9) + "-----------" + Chr(9) +"--------" + Chr(9) + "--------" + Chr(9) + "--------" + Chr(9) + "------------------------------------------------"
@@ -1737,10 +1712,19 @@ Module UnLZX
 					szSizePacked = RSet( Str( \SizePacked ) ,8, Chr(32) )
 					Debug FileNummer + szMergedSize + Chr(9) + szSizePacked + Chr(9) + "Merged"
 					Continue
-				Else    
+				Else  
 					
-					FileNummer   =  RSet( Str( \Count ), 2, " ")
+					Count + 1
+					
 					szSizeUnpack =  RSet( Str(\SizeUnpack) , 8, Chr(32) ) 
+					FileNummer   =  RSet( Str( Count ), 2, " ")
+					If ( \SizeUnpack = 0 )
+						Count - 1
+						szSizeUnpack = "  Damage"
+						FileNummer = RSet( "", 2, " ")
+					EndIf	
+					
+											
 					szSizePacked =  RSet( Get_Packed( \SizePacked, \PackedByte ),8, Chr(32) )
 				      szCRCCalc    =  RSet( Hex(\sum, #PB_Long), 10, " ")
 				      szCRC        =  RSet( Hex(\crc, #PB_Long), 10, " ")                
@@ -1761,7 +1745,7 @@ Module UnLZX
 		EndWith
 		
 		Debug ("--------" + Chr(9) +"--------" + Chr(9) + "-----------"+ Chr(9) + "-----------" + Chr(9) +"--------" + Chr(9) + "--------" + Chr(9) + "--------" + Chr(9) + "------------------------------------------------" )
-		Debug RSet( Str( *UnLZX\TotalUnpack),8, " ") + Chr(9) + RSet( Str(*UnLZX\TotalPacked),8, " ") + Chr(9) + " File"+ Files_CountDesc(*UnLZX\TotalFiles) + ": " + Str(*UnLZX\TotalFiles)      
+		Debug RSet( Str( *UnLZX\TotalUnpack),8, " ") + Chr(9) + RSet( Str(*UnLZX\TotalPacked),8, " ") + Chr(9) + " File"+ Files_CountDesc(Count) + ": " + Str(Count)      
 		
 		
 		Debug ""
@@ -1913,9 +1897,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1459
-; FirstLine = 613
-; Folding = DAA0f-
+; CursorPosition = 1415
+; FirstLine = 931
+; Folding = LEk0--
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
