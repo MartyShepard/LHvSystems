@@ -228,8 +228,6 @@ Module UnLZX
 	;    
 	Procedure 	   crc_calc(*Memory.AsciiArray, *UnLZX.LZX_ARCHIVE, length.i, *FileCalc.ascii = #Null, Modus.i = 0)
 		
-
-    
 		Protected *mem.Ascii, temp.q, *crc_table.LongArray
 		
 		
@@ -1021,13 +1019,11 @@ Module UnLZX
 		With *UnLZX\FileData()
 			
 			If ( *UnLZX\ExtractAll ) And ( Len( \File ) > 0)
-				Debug #LF$ + "PackMode: Normal"
-				Debug "Extracting File: " + \File
+				Debug #LF$ + "PackMode: Normal - Extracting File: " + \File
 				out_file = open_output(\File, *UnLZX\TargetDirectory)
 					
 			ElseIf ( *UnLZX\ExtractAll = #False ) And ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) ) And ( Len( \File ) > 0) 
-				Debug #LF$ + "PackMode: Normal"
-				Debug "Extracting a single file from Archive: " + \File
+				Debug #LF$ + "PackMode: Normal - Extracting a single file from Archive: " + \File
 				out_file = open_output(\File, *UnLZX\TargetDirectory)	
 			EndIf				
 			
@@ -1050,10 +1046,8 @@ Module UnLZX
 						
 						count = *p\temp - *p\source + 16384
 
-						If count
-							;*p\PackSizeRest + count
-							
-							Debug "copy the remaining overrun To the start of the buffer"
+						If count							
+							;Debug "copy the remaining overrun To the start of the buffer"
 							Repeat
 								*p\temp\a = *p\source\a
 								*p\temp   + 1
@@ -1066,24 +1060,33 @@ Module UnLZX
 						count = *p\source - *p\temp + 16384
 						
 						\NewLocPos = count
-						
+						;Debug "Read/Write Position: " +Str( Loc(*UnLZX\pbData))
 						
 						If ( *p\pack_size = 0 ) 
+							;
+							; FixMe
 							*p\pack_size = count															
 							Debug "merged packed"
 						EndIf
 						
 						If  *p\pack_size < count
 							Debug "make sure we don't read too much"
-							count = *p\pack_size ; Bug on Continue  with Merged Files							
+							count = *p\pack_size						
 						EndIf
-
-										
+																						
 						If ReadData(*UnLZX\pbData, *p\temp, count) <> count
-							abort = 1
-							Break
+														
+							If ( Lof(*UnLZX\pbData) = Loc(*UnLZX\pbData) ) ; FixME: Ende datei aber noch nicht fertig.
+								*p\pack_size = 0
+								count = Loc(*UnLZX\pbData) - \NewLocPos
+								Continue
+							Else		
+								Debug "FATAL ERROR: can't read "+Str(count)+" data. File Lenght: " + Str( Lof(*UnLZX\pbData)) + " Read/Write Position: " +Str( Loc(*UnLZX\pbData))
+								abort = 1
+								Break
+							EndIf	
 						EndIf						
-						
+												
 						*p\pack_size - count
 
 						*p\temp + count
@@ -1157,8 +1160,8 @@ Module UnLZX
 				*p\unpack_size - count
 				*p\pos + count
 				
-				Debug "left decrunch_length: " + Str(*p\decrunch_length)
-				Debug "left unpack_size: " + Str(*p\unpack_size)   				
+				;Debug "left decrunch_length: " + Str(*p\decrunch_length)
+				;Debug "left unpack_size: " + Str(*p\unpack_size)   				
 			Wend
 			
 			If out_file
@@ -1334,7 +1337,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure .i    Extract_Archive(*UnLZX.LZX_ARCHIVE, TargetDirectory$="", szFilename.s = "")
+	Procedure .i  Extract_Archive(*UnLZX.LZX_ARCHIVE, TargetDirectory$="", szFilename.s = "")
 		
 		Protected.i CurrentElement, MergedPosition, MergeTotal, SearchPosition = -1, Total, MergedSeekPos
 		Protected.q MergedSize
@@ -1359,52 +1362,31 @@ Module UnLZX
 		;
 		ResetList( *UnLZX\FileData() )
 		ResetList( *UnLZX\ListData() )
-					
+		
 		If ( Extract_Files_Search(*UnLZX, szFilename) = -2 )
 			Debug "Datei im Archiv " + szFilename + " nicht gefunden"
 			FreeStructure(*p)
 			ProcedureReturn 
 		EndIf
 		
-				
+		
 		With *UnLZX\FileData()		
 			ForEach *UnLZX\FileData()		
-				 
+				
 				If (\SizePacked = 0 )
 					PushListPosition( *UnLZX\FileData() )
 					
 					While NextElement( *UnLZX\FileData() )
-
+						
 						If ( \SizePacked > 0)
 							MergedSize 		= \SizePacked
 							MergedPosition	= \loc							
 							PopListPosition( *UnLZX\FileData() )
 							\SizePacked 	= MergedSize
 							\loc 			= MergedPosition	
-							;\SeekPosition	= MergedSeekPos
 							Break
 						EndIf	
-					Wend																				
-					;CurrentElement = ListIndex(*UnLZX\FileData())
-					
-					;For u = CurrentElement + 1 To LastElement( *UnLZX\FileData() )
-					;	
-					;	If u > ListSize(  *UnLZX\ListData() )
-					;		Break
-					;	EndIf	
-						
-					;	SelectElement( *UnLZX\FileData(), u )
-						
-					;	If ( \SizePacked > 0)
-					;		MergedSize 		= *UnLZX\FileData()\SizePacked
-					;		MergedPosition	= *UnLZX\FileData()\loc
-					;		SelectElement( *UnLZX\FileData(), CurrentElement )
-					;		\SizePacked 	= MergedSize
-					;		\loc 			= MergedPosition
-					;		
-					;		Break;
-					;	EndIf
-					;Next		
+					Wend																					
 				EndIf
 				
 				If (\isMerged = 1)
@@ -1436,25 +1418,27 @@ Module UnLZX
 							;
 							; Repeat für den Merged Modus da Position/Source und Destination 
 							; für die Datei aktuell im pointer befinden		
-							
 							If ( \NewLocPos > 0 ) And (\SizePacked = 0 ) 
 								FileSeek(*UnLZX\pbData, \NewLocPos  + \loc, #PB_Absolute)
-							EndIf							
+							EndIf								
+							
 							
 							Extract_Normal(*UnLZX,*p)	
 							
 							
 							Debug "File Seek : " +  Str( \NewLocPos  + \loc )
+	
 							;
 							; Mache Weiter bis der Merge packed byte beendet(0) ist
 							; Gehe aus dem loop bei Packebyte 0 oder nach der Extraction
 							; bestimmter Dateien
 							
 							If ( \PackedByte = 0) 
+								
 								Break
 							EndIf
 							
-							NextElement( *UnLZX\FileData() )	
+							NextElement( *UnLZX\FileData() )													
 						ForEver 
 						Extract_Structure_Clear(*p)	
 						
@@ -1463,10 +1447,10 @@ Module UnLZX
 				EndSelect          
 			Next
 		EndWith
-		
+		Delay( 5 )
 		FreeStructure(*p)
 		
-		Debug #LFCR$ + "----- Files Extracted " + Str(*UnLZX\FileExtracted) + " / Good CRC: " + Str(*UnLZX\crcCountGood) + " / Bad CRC: " + Str(*UnLZX\crcCountBad) + " -----"
+		Debug #LFCR$ + "----- Files Extracted " + Str(*UnLZX\FileExtracted) + "/"+Str(Total)+"  /Good CRC: " + Str(*UnLZX\crcCountGood) + " /Bad CRC: " + Str(*UnLZX\crcCountBad) + " -----"
 	EndProcedure    
 	;
 	;
@@ -1860,7 +1844,7 @@ EndModule
 CompilerIf #PB_Compiler_IsMainFile
 	EnableExplicit
 	
-  	Debug "UnLZX Purebasic Module v0.4 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
+  	Debug "UnLZX Purebasic Module v0.5 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
   	Debug "Convertet by Infratec & Marty2pb"
   	Debug ""
 	
@@ -1883,8 +1867,8 @@ CompilerIf #PB_Compiler_IsMainFile
 			;
 			;UnLZX::Extract_Archive(*LzxMemory)
     			;UnLZX::Extract_Archive(*LzxMemory, "c:\tmp"")
-			;UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt"); Datei im Merged Mode
-    			UnLZX::Extract_Archive(*LzxMemory, "B:\",""); Datei im Merged Mode				
+			;UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt"); Datei Entpacken
+    			UnLZX::Extract_Archive(*LzxMemory, "B:\","");				
 			
 			;
 			; Free File and Free Memory
@@ -1897,9 +1881,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1415
-; FirstLine = 931
-; Folding = LEk0--
+; CursorPosition = 1449
+; FirstLine = 666
+; Folding = DAQh+-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
