@@ -2179,7 +2179,7 @@ CompilerIf #PB_Compiler_IsMainFile
 	;	Support Extract to Sub Directory "*"
 	;	Support Extract by Num (x Integer) or Name "String"
 	
-  	Debug "UnLZX Purebasic Module v0.6 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
+  	Debug "UnLZX Purebasic Module v0.7 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
   	Debug "Convertet by Infratec & Marty2pb"
   	Debug ""
 	
@@ -2278,9 +2278,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2267
-; FirstLine = 776
-; Folding = DAADhBF-
+; CursorPosition = 2181
+; FirstLine = 405
+; Folding = DAAAAAA-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
