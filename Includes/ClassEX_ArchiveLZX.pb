@@ -88,8 +88,8 @@ Module UnLZX
 		Size.q
 		Dest.s
 		pbData.l
-		sum.l                ; ist die Globale Varibale sum und nutzt "variable temp" in crc_calc      
-		crc.l			   ; Abgleich und Vergleich
+		sum.l                			; ist die Globale Varibale sum und nutzt "variable temp" in crc_calc      
+		crc.l			   			; Abgleich und Vergleich
 		TotalFiles.i
 		TotalPacked.i        
 		TotalUnpack.i
@@ -102,18 +102,18 @@ Module UnLZX
 		crcCountNull.i
 		FileExtracted.i
 		Verify.i
-		info_header.a[10]
-		archiv_header.a[31]
-		header_filename.a[256]
-		header_comment.a[256]	
+		info_header.a[10]				; unsigned char info_header[10];
+		archiv_header.a[31]			; unsigned char archive_header[31];
+		header_filename.a[256]			; unsigned char header_filename[256];
+		header_comment.a[256]			; unsigned char header_comment[256];
 		List FileData.LZX_FILEDATA()
 		List ListData.LZX_DIRECTORY()        
 	EndStructure    
 
 	Structure LZX_DECODE
-		*bit_num.ascii                  ; register unsigned char bit_num = 0;
-		*symbol.Integer			  ; register int symbol;
-		leaf.i				  ; unsigned int leaf; /* could be a register */
+		*bit_num.ascii                  	; register unsigned char bit_num = 0;
+		*symbol.Integer			  	; register int symbol;
+		leaf.i				  	; unsigned int leaf; /* could be a register */
 		table_mask.i
 		bit_mask.i
 		pos.i
@@ -155,6 +155,11 @@ Module UnLZX
 	
 	
 	DataSection
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; static const unsigned int crc_table[256]=
+		;
 		CRC_TABLE:
 		Data.l $00000000,$77073096,$EE0E612C,$990951BA,$076DC419,$706AF48F
 		Data.l $E963A535,$9E6495A3,$0EDB8832,$79DCB8A4,$E0D5E91E,$97D2D988
@@ -202,30 +207,53 @@ Module UnLZX
 	EndDataSection
 	
 	DataSection
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; static const unsigned char table_one[32]=
+		;		
 		TABLE_ONE:
 		Data.a   0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14
 	EndDataSection 
 	
 	DataSection
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; static const unsigned int table_two[32]=
+		;			
 		TABLE_TWO:
 		Data.u  0,1,2,3,4,6,8,12,16,24,32,48,64,96,128,192,256,384,512,768,1024
 		Data.u 1536,2048,3072,4096,6144,8192,12288,16384,24576,32768,49152
 	EndDataSection 
 	
 	DataSection
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; static const unsigned int table_three[16]=
+		;		
 		TABLE_THREE:
 		Data.u 0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767
 	EndDataSection        
 	
 	DataSection
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; static const unsigned char table_four[34]=
+		;			
 		TABLE_FOUR:
 		Data.a 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		Data.a 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
-	EndDataSection    
+	EndDataSection 
 	;
 	;
 	;
-	Procedure LogicalAND(a,b)           ; Conversion from &&
+	; --------------------------------------
+	; C -> PB Konvertierung Logical AND (&&)
+	;
+	Procedure LogicalAND(a,b)           
 							; Ob das richtig bezweifle ich. Aber das Auflisten der Dateiene deckt sich mit 'unlzx für Windows 95'                                        ;    
 		If (a = 0 And b = 0)
 			ProcedureReturn  0
@@ -238,20 +266,19 @@ Module UnLZX
 		EndIf   
 		
 	EndProcedure           
-	;
-	;
-	;
-	;Macro UNINT(a)
-	;	(a)&$ffffffff
-	;EndMacro  
-	;
-	;
 	;   
 	; Modus: 0 - Berechne die CRC für das gesamte Archiv
 	; Modus: 1 - Nur für die jeweilge Datei
 	;    
+	; * Build a fast huffman decode table from the symbol bit lengths.         *
+	; * There is an alternate algorithm which is faster but also more complex. *
 	Procedure 	   crc_calc(*Memory.AsciiArray, *UnLZX.LZX_ARCHIVE, length.i, *FileCalc.ascii = #Null, Modus.i = 0)
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; register unsigned int temp;
+		;		
 		Protected *mem.Ascii, temp.q, *crc_table.LongArray
 		
 		
@@ -266,6 +293,11 @@ Module UnLZX
 		
 		If length > 0
 			
+			; --------------------------------------
+			; C -> PB Konvertierung
+			;
+			;  temp = ~sum
+			;				
 			Select Modus
 				Case 0
 					temp = ~*UnLZX\sum  ; was (sum ^ 4294967295)
@@ -273,7 +305,17 @@ Module UnLZX
 					temp = ~*UnLZX\FileData()\sum
 			EndSelect
 			
-			Repeat
+			; --------------------------------------
+			; C -> PB Konvertierung
+			;
+			;  do
+ 			;  {
+			; 
+			;   temp = crc_table[(*memory++ ^ temp) & 255] ^ (temp >> 8);
+			;
+			;  } While(--length);
+			;			
+			Repeat				
 				temp = *crc_table\l[(*mem\a ! temp) & 255] ! ((temp & $FFFFFFFF) >> 8)
 				*mem + 1
 				Length - 1
@@ -344,6 +386,19 @@ Module UnLZX
 	;
 	Procedure.s Get_Attrib(attributes.a)
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; printf("%c%c%c%c%c%c%c%c ",
+            ; (attributes & 32)  ? 'h' : '-',
+            ; (attributes & 64)  ? 's' : '-',
+            ; (attributes & 128) ? 'p' : '-',
+            ; (attributes & 16)  ? 'a' : '-',
+            ; (attributes & 1)   ? 'r' : '-',
+            ; (attributes & 2)   ? 'w' : '-',
+            ; (attributes & 8)   ? 'e' : '-',
+		; (attributes & 4)   ? 'd' : '-');
+		; --------------------------------------		
 		Protected Attributes$
 		
 		
@@ -550,6 +605,13 @@ Module UnLZX
 	;
 	;
 	Macro MacroLiteralShift_16_8
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;
+		; shift += 16;
+            ; control += *source++ << (8 + shift);
+		; control += *source++ << shift;
+		; --------------------------------------
 		shift + 16
 		
 		control + (*p\source\a << (8 + shift))
@@ -562,6 +624,13 @@ Module UnLZX
 	;
 	;
 	Macro MacroLiteralShift_16_24
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; shift += 16;
+            ; control += *source++ << 24;
+            ; control += *source++ << 16;	
+		; --------------------------------------		
 		shift + 16
 		
 		control + (*p\source\a << 24)
@@ -572,14 +641,24 @@ Module UnLZX
 	EndMacro 
 	;
 	;
+	;  Read and build the decrunch tables. There better be enough data in the 
+	;  source buffer or it's stuffed.
 	;
-	Procedure.i Read_Literal_Table(*p.LZX_LITERAL)   
+	Procedure.i Read_Literal_Table(*p.LZX_LITERAL)  
+		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;			
+		; register unsigned int control;
+		; register int shift;
+		; unsigned int symbol, pos, count, fix, max_symbol;
+		; --------------------------------------
+		
 		Protected *Table_Three.UnicodeArray
 		Protected *Table_Four.AsciiArray
 		Protected.i temp, pos, count, fix, max_symbol, symbol, shift, abort
 		Protected.q control
-		
-		
+			
 		*Table_Three = ?TABLE_THREE
 		*Table_Four  = ?TABLE_FOUR
 		
@@ -603,6 +682,11 @@ Module UnLZX
 		;Debug "Read And build the offset huffman table"
 		If abort = 0 And *p\decrunch_method = 3
 			
+			; --------------------------------------
+			; C -> PB Konvertierung
+			;						
+			; for(temp = 0; temp < 8; temp++)
+			; --------------------------------------			
 			For temp = 0 To 7
 				
 				*p\offset_len[temp] = control & 7
@@ -660,12 +744,25 @@ Module UnLZX
 		
 		;Debug "Read And build the huffman literal table"
 		
+		; --------------------------------------
+		; C -> PB Konvertierung					
+		;
+		; if((!abort) && (decrunch_method != 1))
+		; {];
+		; --------------------------------------			
 		If abort = 0 And *p\decrunch_method <> 1
 			
 			pos = 0
 			fix = 1
 			max_symbol = 256
 			
+			; --------------------------------------
+			; C -> PB Konvertierung					
+			;
+			; do
+			; {					
+			; } while(max_symbol == 768);
+			; --------------------------------------			
 			Repeat
 				
 				For temp = 0 To 19
@@ -688,12 +785,32 @@ Module UnLZX
 					Break
 				EndIf									
 				
+				; --------------------------------------
+				; C -> PB Konvertierung					
+				;
+				; do
+				; {					
+				; } while(pos < max_symbol);
+				; --------------------------------------				
 				Repeat
 					;Debug "S" + Str(shift) + " T" + Str(temp) + " C" + Hex(control)
+					
+					; --------------------------------------
+					; C -> PB Konvertierung					
+					;
+					; if((symbol = huffman20_table[control & 63]) >= 20)
+					; --------------------------------------
 					symbol = *p\huffman20_table[control & 63]
 					If symbol >= 20
 						
 						;Debug "symbol is longer than 6 bits"
+						; --------------------------------------
+						; C -> PB Konvertierung
+						;						
+						;  do
+						;  {					
+						;  } while(symbol >= 20);
+						; --------------------------------------
 						Repeat
 							
 							symbol = *p\huffman20_table[((control >> 6) & 1) + (symbol << 1)]
@@ -719,6 +836,12 @@ Module UnLZX
 					
 					control >> temp
 					
+
+					; --------------------------------------
+					; C -> PB Konvertierung
+					;						
+					;  If((shift -= temp) < 0)				
+					; --------------------------------------					
 					shift - temp
 					If shift < 0
 						MacroLiteralShift_16_8
@@ -743,6 +866,12 @@ Module UnLZX
 								MacroLiteralShift_16_8
 							EndIf
 							
+							; --------------------------------------
+							; C -> PB Konvertierung
+							;	
+							; while((pos < max_symbol) && (count--))
+							; 	literal_len[pos++] = 0;
+							; --------------------------------------
 							While pos < max_symbol And count <> 0
 								*p\literal_len[pos] = 0
 								pos + 1
@@ -761,14 +890,31 @@ Module UnLZX
 							
 							control >> 1
 							
+							; --------------------------------------
+							; C -> PB Konvertierung					
+							;
+							; if((symbol = huffman20_table[control & 63]) >= 20)
+							; --------------------------------------								
 							symbol = *p\huffman20_table[control & 63]
 							If symbol >= 20
 								
 								;Debug "symbol is longer than 6 bits"
+								; --------------------------------------
+								; C -> PB Konvertierung					
+								;	
+								;  do
+								;  {					
+								;  } while(symbol >= 20);
+								; --------------------------------------							
 								Repeat
-									
 									symbol = *p\huffman20_table[((control >> 6) & 1) + (symbol << 1)]
 									
+									; --------------------------------------
+									; C -> PB Konvertierung					
+									;	
+									; if(!shift--)
+									; {}
+									; --------------------------------------
 									If shift = 0
 										shift - 1
 										MacroLiteralShift_16_24
@@ -781,10 +927,8 @@ Module UnLZX
 								Until Not symbol >= 20
 								
 								temp = 6
-							Else
-								
+							Else								
 								temp = *p\huffman20_len[symbol]
-								
 							EndIf
 							
 							control >> temp
@@ -794,8 +938,19 @@ Module UnLZX
 								MacroLiteralShift_16_8
 							EndIf
 							
+							; --------------------------------------
+							; C -> PB Konvertierung					
+							;	
+							; symbol = table_four[literal_len[pos] + 17 - symbol];
+							; --------------------------------------							
 							symbol = *Table_Four\a[*p\literal_len[pos] + 17 - symbol]
 							
+							; --------------------------------------
+							; C -> PB Konvertierung
+							;	
+							; while((pos < max_symbol) && (count--))
+							; 	literal_len[pos++] = symbol;
+							; --------------------------------------							
 							While pos < max_symbol And count > 0
 								*p\literal_len[pos] = symbol
 								pos + 1
@@ -803,7 +958,18 @@ Module UnLZX
 							Wend
 							
 						Default
+							; --------------------------------------
+							; C -> PB Konvertierung					
+							;	
+							; symbol = table_four[literal_len[pos] + 17 - symbol];							
+							; --------------------------------------
 							symbol = *Table_Four\a[*p\literal_len[pos] + 17 - symbol]
+							
+							; --------------------------------------
+							; C -> PB Konvertierung					
+							;	
+							; literal_len[pos++] = symbol;							
+							; --------------------------------------														
 							*p\literal_len[pos] = symbol
 							pos + 1
 							
@@ -873,8 +1039,21 @@ Module UnLZX
 	;
 	;
 	;
+	; * Fill up the decrunch buffer. Needs lots of overrun for both destination *
+	; * and source buffers. Most of the time is spent in this routine so it's  *
+	; * pretty damn optimized. *
+	;
 	Procedure .i  Decrunch(*p.LZX_LITERAL, *decrunch_buffer)
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; register unsigned int control;
+            ; register int shift;
+		; unsigned int temp;
+		; unsigned int symbol, count;
+		; unsigned char *string;
+		; --------------------------------------			
 		Protected *Table_One.AsciiArray
 		Protected *Table_Two.UnicodeArray
 		Protected *Table_Three.UnicodeArray
@@ -887,11 +1066,23 @@ Module UnLZX
 		*Table_Two   = ?TABLE_TWO
 		*Table_Three = ?TABLE_THREE
 		
-		control = *p\global_control
-		shift = *p\global_shift
+		control 	 = *p\global_control
+		shift		 = *p\global_shift
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+		; do
+		; {
+		; } while((destination < destination_end) && (source < source_end));
+		; --------------------------------------			
 		Repeat
 			
+			; --------------------------------------
+			; C -> PB Konvertierung
+			;		
+		      ;  if((symbol = literal_table[control & 4095]) >= 768)
+			; --------------------------------------				
 			symbol = *p\literal_table[control & 4095]
 			If symbol >= 768
 				
@@ -903,7 +1094,13 @@ Module UnLZX
 				EndIf
 				
 				;Debug "literal is longer than 12 bits"
-				
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				; do
+				; {
+				; } while(symbol >= 768);
+				; --------------------------------------					
 				Repeat
 					
 					symbol = *p\literal_table[(control & 1) + (symbol << 1)]
@@ -931,16 +1128,34 @@ Module UnLZX
 			
 			If symbol < 256
 				
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				;  *destination++ = symbol;
+				; --------------------------------------				
 				*p\destination\a = symbol
 				*p\destination + 1
 				
 			Else
 				
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				;  symbol-= 256;
+				;  count  = table_two[temp = symbol & 31];
+				;  temp   = table_one[temp];
+				; --------------------------------------				
 				symbol - 256
 				temp   = symbol & 31
 				count  = *Table_Two\u[temp]
 				temp   = *Table_One\a[temp]
 				
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				; if((temp >= 3) && (decrunch_method == 3))
+				; {}
+				; --------------------------------------				
 				If temp >= 3 And *p\decrunch_method = 3
 					
 					temp - 3
@@ -953,11 +1168,22 @@ Module UnLZX
 						MacroLiteralShift_16_8
 					EndIf
 					
+					; --------------------------------------
+					; C -> PB Konvertierung
+					;		
+					; count += (temp = offset_table[control & 127]);
+					; temp = offset_len[temp];
+					; --------------------------------------					
 					temp  = *p\offset_table[control & 127]
 					count + temp
 					temp  = *p\offset_len[temp]
 				Else
 					
+					; --------------------------------------
+					; C -> PB Konvertierung
+					;		
+					; count += control & table_three[temp];
+					; --------------------------------------
 					count + (control & *Table_Three\u[temp])
 					If count = 0
 						count = *p\last_offset
@@ -984,12 +1210,26 @@ Module UnLZX
 					MacroLiteralShift_16_8
 				EndIf
 				
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				; string = (decrunch_buffer + last_offset < destination) ? destination - last_offset : destination + 65536 - last_offset;
+				; --------------------------------------				
 				If *decrunch_buffer + *p\last_offset < *p\destination
 					*string = *p\destination - *p\last_offset
 				Else
 					*string = *p\destination + 65536 - *p\last_offset
 				EndIf
 				
+			
+				; --------------------------------------
+				; C -> PB Konvertierung
+				;		
+				; do
+				; {
+				;  *destination++ = *string++;
+				; } while(--count);
+				; --------------------------------------				
 				Repeat
 					*p\destination\a = *string\a
 					*p\destination + 1
@@ -1009,7 +1249,8 @@ Module UnLZX
 	EndProcedure     
 	;
 	;
-	;     
+	; * Opens a file for writing & creates the full path if required. *
+	;
 	Procedure .i  Open_Output(szAmigaFileSystem.s, szKonformTarget.s)
 				
 		Protected szDestination.s, subdir_count.i, i.i
@@ -1144,8 +1385,12 @@ Module UnLZX
     	EndProcedure	
 	;
 	;
-	;      	
+	;
+	; * Trying to understand this function is hazardous. *
+    	;
 	Procedure .i  Extract_Normal(*UnLZX.LZX_ARCHIVE,*p.LZX_LITERAL)
+		
+		
 		
 		Protected.i count = 0
 		   
@@ -1174,6 +1419,14 @@ Module UnLZX
 
 						If count							
 							;Debug "copy the remaining overrun To the start of the buffer"
+							; --------------------------------------
+							; C -> PB Konvertierung
+							;		
+	      					; do 
+            					; {
+							; *temp++ = *source++;
+							; } while(--count);
+							; --------------------------------------								
 							Repeat
 								*p\temp\a = *p\source\a
 								*p\temp   + 1
@@ -1245,7 +1498,14 @@ Module UnLZX
 							*p\temp = *p\destination + 65536
 							
 							;Debug "copy the overrun to the start of the buffer. count: " + Str(count)
-							
+							; --------------------------------------
+							; C -> PB Konvertierung
+							;		
+	      					; do 
+            					; {
+							; *destination++ = *temp++;
+							; } while(--count);
+							; --------------------------------------								
 							Repeat
 								;  *destination++ = *temp++;
 								*p\destination\a = *p\temp\a
@@ -1298,6 +1558,7 @@ Module UnLZX
 	EndProcedure
 	;
 	;
+	; * This is less complex than extract_normal. Almost decipherable. *
 	;
 	Procedure.i   Extract_Store(*UnLZX.LZX_ARCHIVE,*p.LZX_LITERAL)
 		
@@ -1363,9 +1624,31 @@ Module UnLZX
 	EndProcedure    
 	;
 	;
+	; * Easiest of the three. Just print the file(s) we didn't understand. *
 	;
+	Procedure.i	  Extract_Unknown(*UnLZX.LZX_ARCHIVE)
+		
+		Protected.i abort = 0
+		
+		Debug "Unknown File : " + *UnLZX\FileData()\File
+		
+		ProcedureReturn abort
+	EndProcedure	
+	;
+	;
+	;	
 	Procedure.i	  Extract_Structure_Init(*p.LZX_LITERAL)		       
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; unsigned char *source;
+            ; unsigned char *destination;
+		; unsigned char *source_end;
+		; unsigned char *destination_end;
+		; unsigned char read_buffer[16384]; 			/* have a reasonable sized read buffer */
+		; unsigned char decrunch_buffer[258+65536+258]; 	/* allow overrun for speed */
+		; --------------------------------------			
 		*p\read_buffer 			= AllocateMemory(16384)
     		*p\decrunch_buffer 		= AllocateMemory(258 + 65536 + 258)
 		*p\count = 0
@@ -1377,10 +1660,20 @@ Module UnLZX
 		*p\decrunch_length          = 0         
 		*p\unpack_size              = 0
 		
-		;source_end = (source = read_buffer + 16384) - 1024;    
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; source_end = (source = read_buffer + 16384) - 1024; 
+		; --------------------------------------					
 		*p\source     = *p\read_buffer + 16384
 		*p\source_end = *p\source - 1024
 		
+		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; pos = destination_end = destination = decrunch_buffer + 258 + 65536;
+		; --------------------------------------		
 		*p\destination      = *p\decrunch_buffer + 258 + 65536
 		*p\destination_end  = *p\destination 
 		*p\pos              = *p\destination_end  
@@ -1513,6 +1806,9 @@ Module UnLZX
 	EndProcedure	
 	;
 	;
+	;
+	; * Read the archive and build a linked list of names. Merged files is     *
+	; * always assumed. Will fail if there is no memory for a node. Sigh.      *
 	;
 	Procedure .i  Extract_Archive(*UnLZX.LZX_ARCHIVE, szTarget.s="", szFilename.s = "", DeCrunchNum.i = -1)
 		
@@ -1648,7 +1944,7 @@ Module UnLZX
 						Extract_Structure_Clear(*p)	
 						
 					Default     ; unknown
-						Debug #LF$ + "unknown"
+						Extract_Unknown(*UnLZX)
 						
 				EndSelect  
 				Extract_Single_FileBreak
@@ -1662,8 +1958,19 @@ Module UnLZX
 	;
 	;
 	;
+	; * List the contents of an archive in a nice formatted kinda way.         *
+	;
 	Procedure .i  View_Archive(*UnLZX.LZX_ARCHIVE)
 		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ; unsigned int temp;
+            ; unsigned int total_pack = 0;
+		; unsigned int total_unpack = 0;
+		; unsigned int total_files = 0;
+		; unsigned int merge_size = 0;
+		; --------------------------------------			
 		Protected TempPosition  = 0
 		Protected total_pack    = 0;
 		Protected total_unpack  = 0;    
@@ -1686,6 +1993,15 @@ Module UnLZX
 				
 				If actual = 31
 					
+					; --------------------------------------
+					; C -> PB Konvertierung
+					;		
+				      ; crc = (archive_header[29] << 24) + (archive_header[28] << 16) + (archive_header[27] << 8) + archive_header[26];
+			            ; archive_header[29] = 0;
+					; archive_header[28] = 0;
+					; archive_header[27] = 0;
+					; archive_header[26] = 0;
+					; --------------------------------------						
 					*UnLZX\crc = (*UnLZX\archiv_header[29] << 24) + (*UnLZX\archiv_header[28] << 16) + (*UnLZX\archiv_header[27] << 8) + *UnLZX\archiv_header[26] ; header crc
 					
 					*UnLZX\archiv_header[29] = 0    ; Must set the field to 0 before calculating the crc
@@ -1696,7 +2012,7 @@ Module UnLZX
 					*UnLZX\sum = 0                  ; reset CRC
 					crc_calc(@*UnLZX\archiv_header[0], *UnLZX, 31)                                    
 					
-					;--------------------------------------------------------------------------------------------------------------------------------------------
+					; --------------------------------------------------------------------------------------------------------------------------------------------
 					;
 					temp = *UnLZX\archiv_header[30] ; filename length
 					If temp = 0
@@ -1704,7 +2020,15 @@ Module UnLZX
 						Break
 					EndIf
 					
-					
+					; --------------------------------------
+					; C -> PB Konvertierung
+					;		
+				      ; actual = fread(header_comment, 1, temp, in_file);
+			            ; if(actual == temp)
+					; {
+					; header_comment[temp] = 0;
+					; ....}
+					; --------------------------------------						
 					actual = ReadData(*UnLZX\pbData, @*UnLZX\header_filename[0], temp)
 					If actual = temp
 						
@@ -1713,7 +2037,7 @@ Module UnLZX
 						
 						crc_calc(@*UnLZX\header_filename[0], *UnLZX, temp)      
 						
-						;--------------------------------------------------------------------------------------------------------------------------------------------
+						; -------------------------------------------------------------------------------------------------------------------------------------
 						;
 						temp = *UnLZX\archiv_header[14]   ; comment length
 						actual = ReadData(*UnLZX\pbData, @*UnLZX\header_comment[0], temp)
@@ -1731,7 +2055,16 @@ Module UnLZX
 								pack_size    = (*UnLZX\archiv_header[9]  << 24) + (*UnLZX\archiv_header[8]  << 16) + (*UnLZX\archiv_header[7]  << 8) + *UnLZX\archiv_header[6]	 ; packed size
 								DatePosition = (*UnLZX\archiv_header[18] << 24) + (*UnLZX\archiv_header[19] << 16) + (*UnLZX\archiv_header[20] << 8) + *UnLZX\archiv_header[21]	 ; date
 
-								
+								; --------------------------------------
+								; C -> PB Konvertierung
+								;		
+							      ; year = ((temp >> 17) & 63) + 1970;
+						            ; month = (temp >> 23) & 15;
+								; day = (temp >> 27) & 31;
+								; hour = (temp >> 12) & 31;
+								; minute = (temp >> 6) & 63;
+								; second = temp & 63;
+								; --------------------------------------									
 								year        = ((DatePosition >> 17) & 63) + 1970
 								month       = ((DatePosition >> 23) & 15) + 1
 								day         =  (DatePosition >> 27) & 31
@@ -1800,6 +2133,13 @@ Module UnLZX
 								
 								
 								If ( pack_size > 0); /* seek past the packed Data */ 
+									; --------------------------------------
+									; C -> PB Konvertierung
+									;	
+									; merge_size = 0;
+									; if(!fseek(in_file, pack_size, SEEK_CUR))
+							            ; {}
+									; --------------------------------------									
 									*UnLZX\MergedSize = 0 ;
 									
 									FileSeek(*UnLZX\pbData, pack_size, #PB_Relative) 
@@ -1832,8 +2172,6 @@ Module UnLZX
 				Else    
 					;Debug "End Of File: Archive_Header"
 				EndIf
-				;Else
-				;    Break
 			EndIf                        
 			;result = 0; /* normal termination */                
 			
@@ -1852,7 +2190,18 @@ Module UnLZX
 		
 		Protected actual.i, result.i
 		
-		
+		; --------------------------------------
+		; C -> PB Konvertierung
+		;		
+	      ;  actual = fread(info_header, 1, 10, in_file);
+            ;  {
+		; 	if(actual == 10)
+		; 	{
+		;	 	if((info_header[0] == 76) && (info_header[1] == 90) && (info_header[2] == 88))
+		;	 	{}
+		;	}
+		;  }
+		; --------------------------------------			
 		actual = ReadData(*UnLZX\pbData, @*UnLZX\info_header[0], 10)
 		If actual = 10
 			If (*UnLZX\info_header[0] = 'L') And (*UnLZX\info_header[1] = 'Z') And (*UnLZX\info_header[2] = 'X')   ; LZX
@@ -2113,6 +2462,7 @@ Module UnLZX
 	EndProcedure	
 	;
 	;
+	; * Process a single archive. *
 	;
 	Procedure .i  Process_Archive(File.s)
 
@@ -2178,6 +2528,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	;	Support Extract to Target Directory (Infratec)
 	;	Support Extract to Sub Directory "*"
 	;	Support Extract by Num (x Integer) or Name "String"
+	
+	;	Added Conversions Commentary
 	
   	Debug "UnLZX Purebasic Module v0.7 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
   	Debug "Convertet by Infratec & Marty2pb"
@@ -2278,9 +2630,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2181
-; FirstLine = 405
-; Folding = DAAAAAA-
+; CursorPosition = 2532
+; FirstLine = 518
+; Folding = DCDAAIA-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
