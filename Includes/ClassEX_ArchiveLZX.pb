@@ -1,12 +1,14 @@
 ﻿DeclareModule UnLZX
 	
-	Declare.i   Process_Archive(File.s)             					 ; Init and Open Lzx File
+	Declare.i   Process_Archive(File.s)             			 ; Init and Open Lzx File
+	Declare.i   Examine_Archive(*LzxMemory)					 ; List Content
 	
-	Declare.i   Examine_Archive(*LzxMemory)         					 ; List Content
-	Declare.i   Extract_Archive(*LzxMemory, szTarget.s	="",			 ; Extract to Targe Directory
-	                            		    szFilename.s 	="",			 ; Extract File Only by Name
-	                            		    DecrunchNum.i = -1)			 ; Extract File Only by Position
-	Declare.i	Verify_Archive(*LzxMemory)
+	Declare.i   Extract_Archive(*LzxMemory,	szTarget.s	  ="",	 ; Extract to Targe Directory
+	                           			szFilename.s  ="",	 ; Extract File Only by Name
+	                            			DecrunchNum.i = -1)	 ; Extract File Only by Position
+	
+	Declare.i	Verify_Archive(*LzxMemory,    szFilename.s = "",	 ; Verify Check File by Name
+								DeCrunchNum.i = -1)	 ; Verify Check File by Position
 
 	Declare.i   Close_Archive(*LzxMemory)							 ; Close Archive and Free    
 		
@@ -106,9 +108,7 @@ Module UnLZX
 		List FileData.LZX_FILEDATA()
 		List ListData.LZX_DIRECTORY()        
 	EndStructure    
-	
 
-	
 	Structure LZX_DECODE
 		*bit_num.ascii                  ; register unsigned char bit_num = 0;
 		*symbol.Integer			  ; register int symbol;
@@ -120,11 +120,7 @@ Module UnLZX
 		next_symbol.i
 		reverse.i
 		abort.i
-	EndStructure 
-	
-	Structure LZX_DECRUNCH
-		*control.Integer  
-	EndStructure
+	EndStructure 	
 	
 	Structure LZX_LITERAL
 		abort.i        
@@ -154,7 +150,6 @@ Module UnLZX
 		literal_table.u[5120]			; unsigned short literal_table[5120]
 		*read_buffer.ascii			; AllocateMemory(16384)
 		*Decrunch_Buffer.ascii			; AllocateMemory(258 + 65536 + 258)
-		PackSizeRest.i
 	EndStructure 
 	
 	
@@ -1068,9 +1063,15 @@ Module UnLZX
     			EndSelect		
     					
     			
-    			If *UnLZX\Verify = #True
-    				Debug #LF$ + "Packed Mode: "+szMsg+" - Checking File: " + \File	
-    				ProcedureReturn 0
+    			If ( *UnLZX\Verify = #True ) And ( Len(\File) > 0 )
+    				If  ( *UnLZX\ExtractPos = -1 )
+    					Debug #LF$ + "Packed Mode: "+szMsg+" - Checking File: " + \File	    				
+    					ProcedureReturn  0
+    					
+    				ElseIf ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) )
+    					Debug #LF$ + "Packed Mode: "+szMsg+" - Checking Single File: " + \File	
+    					ProcedureReturn 0
+    				EndIf	
     			EndIf 
     			
     			
@@ -1108,34 +1109,37 @@ Module UnLZX
 			CloseFile(PBFileData)
 		EndIf	
 		
+		If ( Len(*UnLZX\FileData()\File) > 0 )
+			
+			With *UnLZX\FileData()
+				
+				If ( Stop = 0 ) And  ( ( *UnLZX\ExtractPos = -1 ) Or ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) ) )
 					
-    		With *UnLZX\FileData()
-    			
-    			If ( Stop = 0 )
-    				
-    				If ( \crcFile = 0 ) And ( \sum = 0 ) And \isMerged = #False
-    					*UnLZX\crcCountNull + 1
-    					
-    					Debug "No More Files/ Archive Damaged"	; Fix Me Correct Null Crc's
-    					Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " NULL ] <"  + #CR$
-    					ProcedureReturn Stop
-    				EndIf
-    				
-    				If ( \crcFile = \sum  )   
-    					
-    					*UnLZX\crcCountGood  + 1
-    					*UnLZX\FileExtracted + 1
-    					Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$	
-    					ProcedureReturn Stop
-    				EndIf
-    				
-    				If ( \crcFile ! \sum  ) 
-    					*UnLZX\crcCountBad   + 1
-    					Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
-    					ProcedureReturn Stop
-    				EndIf	
-    			EndIf	
-		EndWith  			
+					If ( \crcFile = 0 ) And ( \sum = 0 ) And \isMerged = #False
+						*UnLZX\crcCountNull + 1
+						
+						Debug "No More Files/ Archive Damaged"	; Fix Me Correct Null Crc's
+						Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " NULL ] <"  + #CR$
+						ProcedureReturn Stop
+					Else    			
+						If ( \crcFile = \sum  )   
+							
+							*UnLZX\crcCountGood  + 1
+							*UnLZX\FileExtracted + 1
+							Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$	
+							ProcedureReturn Stop
+						EndIf
+						
+						If ( \crcFile ! \sum  ) 
+							*UnLZX\crcCountBad   + 1
+							Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
+							ProcedureReturn Stop
+						EndIf	
+					EndIf
+					
+				EndIf	
+			EndWith  
+		EndIf
     	EndProcedure	
 	;
 	;
@@ -1309,7 +1313,7 @@ Module UnLZX
 				
 				out_file = Open_Output_Generate(*UnLZX)
 				
-				If out_file
+				If out_file Or ( *UnLZX\Verify = #True )
 					
 					\sum = 0   ; reset CRC
 					
@@ -1401,7 +1405,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i	 Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 		
+	Procedure.i	  Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 		
 		
 		;
 		;
@@ -1427,7 +1431,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i	 Extract_GetUserNum(*UnLZX.LZX_ARCHIVE, DecrunchNum.i)				
+	Procedure.i	  Extract_GetUserNum(*UnLZX.LZX_ARCHIVE, DecrunchNum.i)				
 			
 		With User_LZX_List()
 			
@@ -1482,7 +1486,7 @@ Module UnLZX
 			szMsg.s = "Checked"
 		EndIf	
 		
-		Debug #LFCR$ + "[ Files "+szMsg+" " + Str(*UnLZX\FileExtracted) + "/"+Str( ListSize( *UnLZX\ListData()))+"  /Good CRC: " + Str(*UnLZX\crcCountGood) + " /Bad CRC: " + Str(*UnLZX\crcCountBad) + " /Nul CRC: " + Str(*UnLZX\crcCountNull) +" ]"		
+		Debug "[ Files "+szMsg+" " + Str(*UnLZX\FileExtracted) + "/"+Str( ListSize( *UnLZX\ListData()))+"  /Good CRC: " + Str(*UnLZX\crcCountGood) + " /Bad CRC: " + Str(*UnLZX\crcCountBad) + " /Nul CRC: " + Str(*UnLZX\crcCountNull) +" ]"		
 		
 	EndProcedure	
 	;	
@@ -1495,7 +1499,20 @@ Module UnLZX
 	EndMacro
 	;	
 	;
-	;	
+	;
+	Procedure .i  Extract_Reset_FileSeek_Pos(*UnLZX.LZX_ARCHIVE)
+		;
+		;	Resete die FileSeek Position
+		;
+			While NextElement( *UnLZX\FileData() )
+				*UnLZX\FileData()\NewLocPos = 0							
+			Wend
+			
+			FileSeek(  *UnLZX\pbData, 0, #PB_Relative); Setze Setze Seek Position am Anfang
+	EndProcedure	
+	;
+	;
+	;
 	Procedure .i  Extract_Archive(*UnLZX.LZX_ARCHIVE, szTarget.s="", szFilename.s = "", DeCrunchNum.i = -1)
 		
 		Protected.i CurrentElement, MergedPosition, MergeTotal, SearchPosition = -1, Total, MergedSeekPos, Result
@@ -1510,19 +1527,25 @@ Module UnLZX
 		*UnLZX\crcCountBad  	= 0
 		*UnLZX\crcCountNull  	= 0	
 		*UnLZX\FileExtracted	= 0			
-		
-		FileSeek(  *UnLZX\pbData, 0, #PB_Absolute); Setze Setze Seek Position am Anfang
-		
-		;
-		;
+				
 		;
 		ResetList( *UnLZX\FileData() )
 		ResetList( *UnLZX\ListData() )
+		
+		
+		Extract_Reset_FileSeek_Pos(*UnLZX)
+		
+		If *UnLZX\Verify = #False
+			Debug #LFCR$ + "> ... Extract:"
+		Else
+			Debug #LFCR$ + "> ... Verify:"
+		EndIf	
 		
 		If *UnLZX\Verify = #False
 			;		
 			; Optional: Zielverzeichnis 
 			Extract_SetTargetDirectory(*UnLZX, szTarget)
+		EndIf			
 		
 	
 			;		
@@ -1546,9 +1569,11 @@ Module UnLZX
 					ProcedureReturn Result
 				EndIf	
 			EndIf
-		EndIf
 		
-		
+		;
+		ResetList( *UnLZX\FileData() )
+		ResetList( *UnLZX\ListData() )
+			
 		With *UnLZX\FileData()		
 			ForEach *UnLZX\FileData()		
 				
@@ -1594,17 +1619,15 @@ Module UnLZX
 						; Wiederhole nur bei Merged Dateien	
 						
 						Repeat 
-							
-							
 							;
 							; Repeat für den Merged Modus da Position/Source und Destination 
 							; für die Datei aktuell im pointer befinden		
 							If ( \NewLocPos > 0 ) And (\SizePacked = 0 ) 
 								FileSeek(*UnLZX\pbData, \NewLocPos  + \loc, #PB_Absolute)
 							EndIf								
-														
+							
 							Extract_Normal(*UnLZX,*p)	
-														
+							
 							; Debug "File Seek : " +  Str( \NewLocPos  + \loc )	
 							;
 							; Mache Weiter bis der Merge packed byte beendet(0) ist
@@ -1612,7 +1635,7 @@ Module UnLZX
 							; bestimmter Dateien
 							
 							Extract_Single_FileBreak		; Steige nach der Datei aus (Single Extract)
-		
+							
 							If ( \PackedByte = 0) 								
 								Break
 							EndIf
@@ -1625,17 +1648,15 @@ Module UnLZX
 						
 					Default     ; unknown
 						Debug #LF$ + "unknown"
+						
 				EndSelect  
 				Extract_Single_FileBreak
 			Next
 		EndWith
 		Delay( 5 )
-					
-		ResetList( *UnLZX\FileData() )
-		ResetList( *UnLZX\ListData() )
 		
 		Extract_Result(*UnLZX)		
-
+		
 	EndProcedure    
 	;
 	;
@@ -2018,13 +2039,13 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i   Verify_Archive(*UnLZX.LZX_ARCHIVE)
+	Procedure.i   Verify_Archive(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DeCrunchNum.i = -1)
 		
 		If ( *UnLZX > 0 ) 
 			
 			*UnLZX\Verify = #True
 			
-			Extract_Archive(*UnLZX)
+			Extract_Archive(*UnLZX, "", szFilename, DeCrunchNum)
 			
 			*UnLZX\Verify = #False
 			ProcedureReturn *UnLZX\crcCountBad	
@@ -2111,7 +2132,11 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 	; History
 	
+	;	v-0.7
+	;	Support: Verify single File by FileName or Position Number
+	
 	;	v-0.6
+	;	UnLZX::Extract_Archive(*LzxMemory, "*")
 	;	Adding: Verify Archive UnLZX::Verify_Archive(*LzxMemory)
 	
 	
@@ -2166,17 +2191,25 @@ CompilerIf #PB_Compiler_IsMainFile
 				Debug Result
 			EndIf	
 			;
+			;
 			; Negative Zahlen sind Fehler
 			; Positve  Zahlen sind  Schlechte CRC's
 			; Bei 0 ist alles ok
+			;
 			Result = UnLZX::Verify_Archive(*LzxMemory)
+			; Result = UnLZX::Verify_Archive(*LzxMemory, "", 2)
 			If Result < 0
 				Debug "Verify:" + Str(Result)
 			Else
-				Debug "Verify: Bad CRC's = " + Str(Result)
+				If ( Result > 0)
+					Debug "Verify: Bad CRC's = " + Str(Result)
+				Else
+					Debug "Verify: OK"
+				EndIf	
 			EndIf	
 			
-			Result =  UnLZX::Extract_Archive(*LzxMemory, "*", "", 2)
+
+			Result =  UnLZX::Extract_Archive(*LzxMemory, "*")
 			If Result < 0
 				Debug "Ectract:" + Str(Result)
 			EndIf
@@ -2197,16 +2230,16 @@ CompilerIf #PB_Compiler_IsMainFile
 
 			;
 			; Free File and Free Memory
-			Debug #LFCR$ + "... Closing LZX File"
+			Debug #LFCR$ + "> ... Closing LZX File " + File
 			*LzxMemory = UnLZX::Close_Archive(*LzxMemory)
 			
 		EndIf
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2170
-; FirstLine = 762
-; Folding = DAgDoA+
+; CursorPosition = 1574
+; FirstLine = 485
+; Folding = DAADhBs-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
