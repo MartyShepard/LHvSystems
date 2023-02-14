@@ -3,9 +3,10 @@
 	Declare.i   Process_Archive(File.s)             					 ; Init and Open Lzx File
 	
 	Declare.i   Examine_Archive(*LzxMemory)         					 ; List Content
-	Declare.i   Extract_Archive(*LzxMemory, TargetDirectory$="",			 ; Extract to Targe Directory
-	                            		    szFilename.s 	  ="",			 ; Extract File Only by Name
-	                            		    DecrunchNum.i   = -1)			 ; Extract File Only by Position
+	Declare.i   Extract_Archive(*LzxMemory, szTarget.s	="",			 ; Extract to Targe Directory
+	                            		    szFilename.s 	="",			 ; Extract File Only by Name
+	                            		    DecrunchNum.i = -1)			 ; Extract File Only by Position
+	Declare.i	Verify_Archive(*LzxMemory)
 
 	Declare.i   Close_Archive(*LzxMemory)							 ; Close Archive and Free    
 		
@@ -95,7 +96,9 @@ Module UnLZX
 		ExtractPos.i
 		crcCountGood.i
 		crcCountBad.i
+		crcCountNull.i
 		FileExtracted.i
+		Verify.i
 		info_header.a[10]
 		archiv_header.a[31]
 		header_filename.a[256]
@@ -1011,47 +1014,140 @@ Module UnLZX
 	;
 	;
 	;     
-	Procedure .i  open_output(Filename$, ArchiveName$)
+	Procedure .i  Open_Output(szAmigaFileSystem.s, szKonformTarget.s)
 				
 		Protected szDestination.s, subdir_count.i, i.i
 		
 		;
 		; Not Allowed on Windows File System
-		ReplaceString(Filename$, "?", "_", #PB_String_InPlace)
-		ReplaceString(Filename$, "|", "_", #PB_String_InPlace)		
+		ReplaceString(szAmigaFileSystem, "?", "_", #PB_String_InPlace)
+		ReplaceString(szAmigaFileSystem, "|", "_", #PB_String_InPlace)		
+					
 		
-		szDestination.s = GetPathPart(ArchiveName$) + GetFilePart(ArchiveName$, #PB_FileSystem_NoExtension) + "/"
-		CreateDirectory(szDestination)
+		szDestination.s = GetPathPart(szKonformTarget) + GetFilePart(szKonformTarget, #PB_FileSystem_NoExtension)
 		
-		If FindString(Filename$, "/")
-			subdir_count = CountString(Filename$, "/")
+		If Right( szDestination, 1 ) <> "\"
+			    szDestination + "\"	; Windows					
+		EndIf
+						
+		If ( FileSize( szDestination ) ! -2 )
+		     CreateDirectory(szDestination)
+		EndIf			
+		
+		
+		If FindString(szAmigaFileSystem, "/")
+			
+			subdir_count = CountString(szAmigaFileSystem, "/")
+			
 			For i = 1 To subdir_count
-				szDestination + StringField(Filename$, i, "/") + "/"
-				CreateDirectory(szDestination)
+				
+				szDestination + StringField(szAmigaFileSystem, i, "/") + "\"
+				
+				If ( FileSize( szDestination ) ! -2 )
+		     			CreateDirectory(szDestination)
+				EndIf	
 			Next i
 		EndIf
     
-    		ProcedureReturn CreateFile(#PB_Any, szDestination + GetFilePart(Filename$))   
+    		ProcedureReturn CreateFile(#PB_Any, szDestination + GetFilePart(szAmigaFileSystem))   
 		
-	EndProcedure    
+    	EndProcedure    
 	;
 	;
-	;        
+	;   
+    	Procedure.i  Open_Output_Generate(*UnLZX.LZX_ARCHIVE)
+    		
+    		Protected.s szMsg
+
+    		With *UnLZX\FileData()
+    			
+    			Select \PackMode
+    				Case 0	: szMsg = "Stored"
+    				Case 2	: szMsg = "Crunched"
+    				Default	: szMsg = "Unknown" ; ....
+    			EndSelect		
+    					
+    			
+    			If *UnLZX\Verify = #True
+    				Debug #LF$ + "Packed Mode: "+szMsg+" - Checking File: " + \File	
+    				ProcedureReturn 0
+    			EndIf 
+    			
+    			
+    			If ( Len( \File ) = 0)
+    				ProcedureReturn 0
+    			EndIf	
+  			
+    							
+    			If ( *UnLZX\ExtractAll = #True ) And ( *UnLZX\ExtractPos = -1 ) 
+    				
+    				Debug #LF$ + "PackMode:  "+szMsg+"  - Extracting File: " + \File
+    				
+				ProcedureReturn open_output(\File, *UnLZX\TargetDirectory)
+				
+			ElseIf ( *UnLZX\ExtractAll = #False ) And ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) ) 
+				
+				Debug #LF$ + "PackMode:  "+szMsg+"  - Extracting a single file from Archive: " + \File
+				ProcedureReturn open_output(\File, *UnLZX\TargetDirectory)	
+				
+			EndIf				
+		EndWith			
+			
+    	EndProcedure
+	;
+	;
+	;  
+    	Procedure.i  Open_Output_CloseFile(*UnLZX.LZX_ARCHIVE, PBFileData.i, Stop.i)
+    		
+    		If ( PBFileData = 0 ) And ( *UnLZX\Verify = #False )
+    			
+    			ProcedureReturn Stop
+    			
+    		ElseIf ( PBFileData > 0 ) And ( *UnLZX\Verify = #False )
+    			
+			CloseFile(PBFileData)
+		EndIf	
+		
+					
+    		With *UnLZX\FileData()
+    			
+    			If ( Stop = 0 )
+    				
+    				If ( \crcFile = 0 ) And ( \sum = 0 ) And \isMerged = #False
+    					*UnLZX\crcCountNull + 1
+    					
+    					Debug "No More Files/ Archive Damaged"	; Fix Me Correct Null Crc's
+    					Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " NULL ] <"  + #CR$
+    					ProcedureReturn Stop
+    				EndIf
+    				
+    				If ( \crcFile = \sum  )   
+    					
+    					*UnLZX\crcCountGood  + 1
+    					*UnLZX\FileExtracted + 1
+    					Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$	
+    					ProcedureReturn Stop
+    				EndIf
+    				
+    				If ( \crcFile ! \sum  ) 
+    					*UnLZX\crcCountBad   + 1
+    					Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
+    					ProcedureReturn Stop
+    				EndIf	
+    			EndIf	
+		EndWith  			
+    	EndProcedure	
+	;
+	;
+	;      	
 	Procedure .i  Extract_Normal(*UnLZX.LZX_ARCHIVE,*p.LZX_LITERAL)
 		
 		Protected.i count = 0
 		   
-		With *UnLZX\FileData()
-			
-			If ( *UnLZX\ExtractAll ) And ( Len( \File ) > 0)
-				Debug #LF$ + "PackMode: Normal - Extracting File: " + \File
-				out_file = open_output(\File, *UnLZX\TargetDirectory)
-					
-			ElseIf ( *UnLZX\ExtractAll = #False ) And ( *UnLZX\ExtractPos = ListIndex( *UnLZX\FileData() ) ) And ( Len( \File ) > 0) 
-				Debug #LF$ + "PackMode: Normal - Extracting a single file from Archive: " + \File
-				out_file = open_output(\File, *UnLZX\TargetDirectory)	
-			EndIf				
-			
+		With *UnLZX\FileData()	
+
+			out_file = Open_Output_Generate(*UnLZX)
+
 			;Debug "reset CRC"
 			*UnLZX\FileData()\sum = 0
 			
@@ -1175,13 +1271,14 @@ Module UnLZX
 				EndIf
 				
 				crc_calc(0, *UnLZX, count, *p\pos, 1)
-				
+
 				If IsFile(out_file)
 					If WriteData(out_file, *p\pos, count) <> count
 						CloseFile(out_file)
 						out_file = 0
 					EndIf
 				EndIf
+
 				*p\unpack_size - count
 				*p\pos + count
 				
@@ -1189,25 +1286,8 @@ Module UnLZX
 				;Debug "left unpack_size: " + Str(*p\unpack_size)   				
 			Wend
 			
-			If out_file
-				CloseFile(out_file)
-				
-				If abort = 0
-					If \crcFile = 0 And \sum = 0
-						*UnLZX\crcCountBad + 1
-						Debug "No More Files - Archive Damaged"
-						Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
-					ElseIf \crcFile = \sum
-						*UnLZX\crcCountGood + 1
-						*UnLZX\FileExtracted +1
-						Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
-					Else				
-						*UnLZX\crcCountBad + 1
-						Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
-						Delay(2000)
-					EndIf
-				EndIf    				
-			EndIf
+			abort = Open_Output_CloseFile(*UnLZX, out_file, abort)
+			
 		EndWith		
 	
 	EndProcedure
@@ -1224,21 +1304,18 @@ Module UnLZX
 		If *read_buffer
 			
 			With *UnLZX\FileData()
-				
-				Debug #LF$ + "PackMode: Stored"
-				Debug "Extracting File: " + \File
-				
+								
 				FileSeek( *UnLZX\pbData, \loc )
 				
-				out_file = open_output(\File, *UnLZX\TargetDirectory)	
+				out_file = Open_Output_Generate(*UnLZX)
 				
 				If out_file
 					
 					\sum = 0   ; reset CRC
 					
-					pack_size = \SizePacked
-					
+					pack_size 	= \SizePacked					
 					unpack_size = \SizeUnpack
+					
 					If unpack_size > \SizePacked
 						unpack_size = \SizePacked
 					EndIf
@@ -1268,32 +1345,14 @@ Module UnLZX
 						unpack_size - count
 					Wend
 					
-					If out_file
-						CloseFile(out_file)
-					
-						If abort = 0
-							If \crcFile = 0 And \sum = 0
-								*UnLZX\crcCountBad + 1
-								Debug "No More Files - Archive Damaged"
-								Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
-							ElseIf \crcFile = \sum
-								*UnLZX\crcCountGood + 1
-								*UnLZX\FileExtracted +1
-								Debug "CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Good" + #CR$					
-							Else				
-								*UnLZX\crcCountBad + 1
-								Debug "> [ CRC: " + RSet( Hex(\crcFile,#PB_Long ), 10, "0") + " = " + RSet( Hex(\sum,#PB_Long ), 10, "0") + " Bad ] <"  + #CR$
-							EndIf
-						EndIf   
-					EndIf
+					abort = Open_Output_CloseFile(*UnLZX, out_file, abort)
 					
 				EndIf
 			EndWith
 			
 			FreeMemory(*read_buffer)
 		EndIf
-		
-		
+				
 		ProcedureReturn abort
 		
 	EndProcedure    
@@ -1328,8 +1387,13 @@ Module UnLZX
 	;
 	Procedure 	  Extract_Structure_Clear(*p.LZX_LITERAL)	
 		
-		FreeMemory(*p\decrunch_buffer)
-		FreeMemory(*p\read_buffer)
+		If ( *p\decrunch_buffer > 0 )
+			FreeMemory(*p\decrunch_buffer)
+		EndIf	
+		
+		If ( *p\read_buffer > 0 )		
+			FreeMemory(*p\read_buffer)
+		EndIf
 		
 		ClearStructure(*p,LZX_LITERAL)
 		
@@ -1337,7 +1401,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i	  Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 		
+	Procedure.i	 Extract_Files_Search(*UnLZX.LZX_ARCHIVE, szFilename.s = "", DecrunchNum.i = -1)	 		
 		
 		;
 		;
@@ -1385,54 +1449,104 @@ Module UnLZX
 	EndProcedure	
 	;	
 	;
+	;
+	Procedure	 Extract_SetTargetDirectory(*UnLZX.LZX_ARCHIVE, szTarget.s = "")
+		;
+		; Extrahiere das Archiv in das Unterverzeichnis mit dem Archiv Namen
+		
+		If ( szTarget = "*" )
+			*UnLZX\TargetDirectory = GetPathPart( *UnLZX\Full ) + GetFilePart( *UnLZX\Full, #PB_FileSystem_NoExtension) + "\"
+			
+		ElseIf ( szTarget <> "" )
+			
+		If Right( szTarget, 1 ) <> "\"	;Or Right( szTarget, 1 ) <> "/"
+			 szTarget + "\"	; Windows
+			;szDestination + "/"				
+		EndIf				
+			*UnLZX\TargetDirectory = szTarget + GetFilePart(*UnLZX\Full)
+		Else
+			;
+			; Standard im Selben Verzeicznis wo auch das Archiv ist
+			*UnLZX\TargetDirectory = GetPathPart( *UnLZX\Full )
+		EndIf			
+		
+	EndProcedure
 	;	
-	Procedure .i  Extract_Archive(*UnLZX.LZX_ARCHIVE, TargetDirectory$="", szFilename.s = "", DecrunchNum.i = -1)
+	;
+	;
+	Procedure	 Extract_Result(*UnLZX.LZX_ARCHIVE)
+		
+		Protected.s szMsg = "Extracted"
+		
+		If *UnLZX\Verify = #True
+			szMsg.s = "Checked"
+		EndIf	
+		
+		Debug #LFCR$ + "[ Files "+szMsg+" " + Str(*UnLZX\FileExtracted) + "/"+Str( ListSize( *UnLZX\ListData()))+"  /Good CRC: " + Str(*UnLZX\crcCountGood) + " /Bad CRC: " + Str(*UnLZX\crcCountBad) + " /Nul CRC: " + Str(*UnLZX\crcCountNull) +" ]"		
+		
+	EndProcedure	
+	;	
+	;
+	;
+	Macro Extract_Single_FileBreak
+		If ( *UnLZX\ExtractAll = #False)  And ( *UnLZX\ExtractPos = \Count-1 )
+			Break
+		EndIf		
+	EndMacro
+	;	
+	;
+	;	
+	Procedure .i  Extract_Archive(*UnLZX.LZX_ARCHIVE, szTarget.s="", szFilename.s = "", DeCrunchNum.i = -1)
 		
 		Protected.i CurrentElement, MergedPosition, MergeTotal, SearchPosition = -1, Total, MergedSeekPos, Result
 		Protected.q MergedSize
 		
-		*p.LZX_LITERAL 	= AllocateStructure(LZX_LITERAL)
+		*p.LZX_LITERAL 		= AllocateStructure(LZX_LITERAL)
 		
-		*UnLZX\ExtractAll = #True
-		*UnLZX\ExtractPos = -1
-				
-		*UnLZX\crcCountGood = 0
-		*UnLZX\crcCountBad  = 0	
-		Total			  = ListSize( *UnLZX\ListData() )
-		;
-		;
-		If ( TargetDirectory$ <> "" )
-			If Right(TargetDirectory$, 1) <> "/" Or Right(TargetDirectory$, 1) <> "\"
-				TargetDirectory$ + "/"
-			EndIf
-			*UnLZX\TargetDirectory = TargetDirectory$ + GetFilePart(*UnLZX\Full)
-		Else
-			*UnLZX\TargetDirectory = *UnLZX\Full
-		EndIf		
+		*UnLZX\ExtractAll 	= #True
+		*UnLZX\ExtractPos 	= -1
+		
+		*UnLZX\crcCountGood 	= 0
+		*UnLZX\crcCountBad  	= 0
+		*UnLZX\crcCountNull  	= 0	
+		*UnLZX\FileExtracted	= 0			
+		
+		FileSeek(  *UnLZX\pbData, 0, #PB_Absolute); Setze Setze Seek Position am Anfang
+		
 		;
 		;
 		;
 		ResetList( *UnLZX\FileData() )
 		ResetList( *UnLZX\ListData() )
 		
-		If ( DecrunchNum > 0 )
-			Result = Extract_GetUserNum(*UnLZX, DecrunchNum)
-			If Result < 0 
-				ProcedureReturn Result
-			EndIf
-			DecrunchNum = Result
-		EndIf	
+		If *UnLZX\Verify = #False
+			;		
+			; Optional: Zielverzeichnis 
+			Extract_SetTargetDirectory(*UnLZX, szTarget)
 		
-		If ( Len(szFilename) ) > 0 Or ( DecrunchNum > 0 )
-			Result = Extract_Files_Search(*UnLZX, szFilename, DecrunchNum) 		
-			If Result < 0 			
-				Debug "File " + szFilename + " Not"
-				FreeStructure(*p)
-				ProcedureReturn Result
+	
+			;		
+			; Optional: Extract single files by Num			
+			If ( DeCrunchNum > 0 )
+				Result = Extract_GetUserNum(*UnLZX, DeCrunchNum)
+				If Result < 0 
+					ProcedureReturn Result
+				EndIf
+				DeCrunchNum = Result
 			EndIf	
+			
+	
+			;		
+			; Optional: Extract single files by Name				
+			If ( Len(szFilename) ) > 0 Or ( DeCrunchNum > 0 )
+				Result = Extract_Files_Search(*UnLZX, szFilename, DeCrunchNum) 		
+				If Result < 0 			
+					Debug "File " + szFilename + " Not"
+					FreeStructure(*p)
+					ProcedureReturn Result
+				EndIf	
+			EndIf
 		EndIf
-		
-		
 		
 		
 		With *UnLZX\FileData()		
@@ -1454,7 +1568,7 @@ Module UnLZX
 					Wend																					
 				EndIf
 				
-				If (\isMerged = 1)
+				If (\isMerged = 1) Or (Len(\File) = 0)
 					Continue
 				EndIf
 				
@@ -1480,6 +1594,8 @@ Module UnLZX
 						; Wiederhole nur bei Merged Dateien	
 						
 						Repeat 
+							
+							
 							;
 							; Repeat für den Merged Modus da Position/Source und Destination 
 							; für die Datei aktuell im pointer befinden		
@@ -1495,24 +1611,31 @@ Module UnLZX
 							; Gehe aus dem loop bei Packebyte 0 oder nach der Extraction
 							; bestimmter Dateien
 							
-							If ( \PackedByte = 0) 
-								
+							Extract_Single_FileBreak		; Steige nach der Datei aus (Single Extract)
+		
+							If ( \PackedByte = 0) 								
 								Break
 							EndIf
 							
-							NextElement( *UnLZX\FileData() )													
+							NextElement( *UnLZX\FileData() )
+							
+							
 						ForEver 
 						Extract_Structure_Clear(*p)	
 						
 					Default     ; unknown
 						Debug #LF$ + "unknown"
-				EndSelect          
+				EndSelect  
+				Extract_Single_FileBreak
 			Next
 		EndWith
 		Delay( 5 )
-		FreeStructure(*p)
+					
+		ResetList( *UnLZX\FileData() )
+		ResetList( *UnLZX\ListData() )
 		
-		Debug #LFCR$ + "----- Files Extracted " + Str(*UnLZX\FileExtracted) + "/"+Str(Total)+"  /Good CRC: " + Str(*UnLZX\crcCountGood) + " /Bad CRC: " + Str(*UnLZX\crcCountBad) + " -----"
+		Extract_Result(*UnLZX)		
+
 	EndProcedure    
 	;
 	;
@@ -1895,6 +2018,26 @@ Module UnLZX
 	;
 	;
 	;
+	Procedure.i   Verify_Archive(*UnLZX.LZX_ARCHIVE)
+		
+		If ( *UnLZX > 0 ) 
+			
+			*UnLZX\Verify = #True
+			
+			Extract_Archive(*UnLZX)
+			
+			*UnLZX\Verify = #False
+			ProcedureReturn *UnLZX\crcCountBad	
+		EndIf
+		;
+		; No LZX Opened in Memory
+		ProcedureReturn -8
+		
+		
+	EndProcedure	
+	;
+	;
+	;
 	Procedure .i  Examine_Archive( *UnLZX.LZX_ARCHIVE )    	    	  
 		
 		Protected.i Result
@@ -1926,15 +2069,16 @@ Module UnLZX
 			*UnLZX.LZX_ARCHIVE  = AllocateMemory(SizeOf(LZX_ARCHIVE))
 			InitializeStructure(*UnLZX, LZX_ARCHIVE)
 			
-			*UnLZX\Size         = FileSize( File )
-			*UnLZX\Full         = File
-			*UnLZX\Path         = GetPathPart( File  )
-			*UnLZX\File         = GetFilePart( File , #PB_FileSystem_NoExtension)
+			*UnLZX\Size         	= FileSize( File )
+			*UnLZX\Full         	= File
+			*UnLZX\Path         	= GetPathPart( File  )
+			*UnLZX\File         	= GetFilePart( File , #PB_FileSystem_NoExtension)
 			
-			*UnLZX\FileError	  = 1
-			*UnLZX\TotalFiles   = 0
+			*UnLZX\FileError	  	= 1
+			*UnLZX\TotalFiles   	= 0
 			
-			*UnLZX\pbData       = ReadFile( #PB_Any,  *UnLZX\Full )
+			*UnLZX\pbData       	= ReadFile( #PB_Any,  *UnLZX\Full )
+			*UnLZX\Verify	  	= #False					
 			
 			If ( *UnLZX\pbData = 0 )            
 				Debug File + ": Datei ist von einem anderen programm geöffnet/ File is in Use"
@@ -1964,8 +2108,22 @@ EndModule
 
 CompilerIf #PB_Compiler_IsMainFile
 	EnableExplicit
-		
-  	Debug "UnLZX Purebasic Module v0.5 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
+	
+	; History
+	
+	;	v-0.6
+	;	Adding: Verify Archive UnLZX::Verify_Archive(*LzxMemory)
+	
+	
+	;	v-0.1 - 0.5
+	;	Initial Coding;	
+	;	Converting Exteract algo C Style to PB
+	;	Big Thanks to Infratec for Correcting the Code
+	;	Support Extract to Target Directory (Infratec)
+	;	Support Extract to Sub Directory "*"
+	;	Support Extract by Num (x Integer) or Name "String"
+	
+  	Debug "UnLZX Purebasic Module v0.6 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
   	Debug "Convertet by Infratec & Marty2pb"
   	Debug ""
 	
@@ -1977,8 +2135,7 @@ CompilerIf #PB_Compiler_IsMainFile
 	File = OpenFileRequester("LZX Tester","",Pattern,0)
 	
 	If ( File )  
-		;
-		; Lzx File Öffne und Inbtialisieren
+
 		*LzxMemory = UnLZX::Process_Archive(File)
 		
 		If ( *LzxMemory > 0 )
@@ -1993,7 +2150,8 @@ CompilerIf #PB_Compiler_IsMainFile
 				; -3 : Error User Listing
 				; -4 : File is In use
 
-			
+			;
+			; Listing Example
 			If Result > 0			
 			
 				While NextElement( UnLZX::User_LZX_List() )
@@ -2008,15 +2166,27 @@ CompilerIf #PB_Compiler_IsMainFile
 				Debug Result
 			EndIf	
 			;
-			;
-			Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\")
+			; Negative Zahlen sind Fehler
+			; Positve  Zahlen sind  Schlechte CRC's
+			; Bei 0 ist alles ok
+			Result = UnLZX::Verify_Archive(*LzxMemory)
 			If Result < 0
-				Debug Result
+				Debug "Verify:" + Str(Result)
+			Else
+				Debug "Verify: Bad CRC's = " + Str(Result)
 			EndIf	
-    			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp"")			; Zielverzeichnis
-			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt")	; Datei Entpacken
-			;Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\","");		
-			;Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\","", 6);			; Entpacken via Position
+			
+			Result =  UnLZX::Extract_Archive(*LzxMemory, "*", "", 2)
+			If Result < 0
+				Debug "Ectract:" + Str(Result)
+			EndIf
+			
+			;Archiv auf den selben Laufwerk in ein Unterverzeichnis mit dem Archiv Namen entpacken
+			;Result =  UnLZX::Extract_Archive(*LzxMemory, "*")				
+						
+    			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp")			; Zielverzeichnis
+			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt")	; Zielverzeichnis und dir Datei "gdm-np77.txt" Entpacken	
+			;Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\","", 6);			; Zielverzeichnis und Entpacke die (Archiv Position) 6 Datei
 				;
 				; ReturnCodes
 				;
@@ -2024,16 +2194,19 @@ CompilerIf #PB_Compiler_IsMainFile
 				; -6 : Extractting by Nr   = Number excced List
 				; -7 : Extractting by Nr   = File Not in the List			
 			
+
 			;
 			; Free File and Free Memory
+			Debug #LFCR$ + "... Closing LZX File"
 			*LzxMemory = UnLZX::Close_Archive(*LzxMemory)
+			
 		EndIf
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1277
-; FirstLine = 646
-; Folding = DAQTBw
+; CursorPosition = 2170
+; FirstLine = 762
+; Folding = DAgDoA+
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
