@@ -11,6 +11,7 @@
 								DeCrunchNum.i = -1)	 ; Verify Check File by Position
 	
 	Declare.i   ListSize_Archive(*UnLZX)
+	Declare.s	About_UnLZX()
 	Declare.i   Close_Archive(*LzxMemory)					 ; Close Archive and Free    
 		
 	
@@ -40,7 +41,32 @@ EndDeclareModule
 
 
 Module UnLZX 
-		
+	
+	; Original Text by David Tritcher
+	;
+	;
+	; /* $VER: unlzx.c 1.0 (22.2.98) */
+	; /* Created: 11.2.98 */
+	
+	; /* LZX Extract in (supposedly) portable C.                                */
+	;
+	; /* Compile With:                                                          */
+	; /* gcc unlzx.c -ounlzx -O2                                                */
+	;
+	; /* Thanks To Dan Fraser For decoding the coredumps And helping me track   */
+	; /* down some HIDEOUSLY ANNOYING bugs.                                     */
+	;
+	; /* Everything is accessed As unsigned char's to try and avoid problems    */
+	; /* With byte order And alignment. Most of the decrunch functions          */
+	; /* encourage overruns IN the buffers To make things As fast As possible.  */
+	; /* All the time is taken up IN crc_calc() And decrunch() so they are      */
+	; /* pretty damn optimized. Don't try to understand this program.           */
+	;
+	;
+	; Purebasic C Conversion Code
+	; Compiled and Testet with 5.73+ LTS 64Bit. Thanks to Infratec 
+	
+	
 	Structure AsciiArray
 		a.a[0]
 	EndStructure
@@ -266,7 +292,33 @@ Module UnLZX
 		EndIf   
 		
 	EndProcedure           
-	;   
+	;
+	;
+	;
+	Procedure.s Version()
+		Protected.s szString
+		
+		szString = "$VER: UnLZX Purebasic Module v0.7"
+		
+		ProcedureReturn szString
+	EndProcedure
+	;
+	;
+	;	
+	Procedure.s About_UnLZX()
+		 	
+		Protected.s szString
+		szString = Version() + #CRLF$
+		szString + "      Based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)" + #CR$
+		szString + "      Port by David Tritscher <dt14 at uow.edu.au>" + #CRLF$
+		szString + "Convertet to Purebasic Nativ by Infratec & Marty2pb"
+		
+		ProcedureReturn szString
+
+	EndProcedure	
+	;
+	;
+	;
 	; Modus: 0 - Berechne die CRC für das gesamte Archiv
 	; Modus: 1 - Nur für die jeweilge Datei
 	;    
@@ -376,7 +428,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.s Get_Date(TimeDate.i)
+	Procedure.s   Get_Date(TimeDate.i)
 		
 		ProcedureReturn FormatDate("%dd-%mm-%yyyy", TimeDate)
 		
@@ -384,7 +436,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.s Get_Attrib(attributes.a)
+	Procedure.s   Get_Attrib(attributes.a)
 		
 		; --------------------------------------
 		; C -> PB Konvertierung
@@ -442,7 +494,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.s Get_File(*UnLZX.LZX_ARCHIVE)
+	Procedure.s   Get_File(*UnLZX.LZX_ARCHIVE)
 		
 		ProcedureReturn PeekS(@*UnLZX\header_filename[0], -1, #PB_Ascii)
 		
@@ -462,7 +514,7 @@ Module UnLZX
 	;
 	;
 	;
-	Procedure.i  Make_decode_table(number_symbols.i, table_size.i, *length.AsciiArray, *table.UnicodeArray)
+	Procedure.i   Make_decode_table(number_symbols.i, table_size.i, *length.AsciiArray, *table.UnicodeArray)
 		
 		Protected.i bit_num, symbol, leaf
 		Protected.i table_mask, bit_mask, pos, fill, next_symbol, reverse, abort
@@ -644,7 +696,7 @@ Module UnLZX
 	;  Read and build the decrunch tables. There better be enough data in the 
 	;  source buffer or it's stuffed.
 	;
-	Procedure.i Read_Literal_Table(*p.LZX_LITERAL)  
+	Procedure.i   Read_Literal_Table(*p.LZX_LITERAL)  
 		
 		; --------------------------------------
 		; C -> PB Konvertierung
@@ -2523,7 +2575,7 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 	;	v-0.1 - 0.5
 	;	Initial Coding;	
-	;	Converting Exteract algo C Style to PB
+	;	Converting Extract algo C Style to PB
 	;	Big Thanks to Infratec for Correcting the Code
 	;	Support Extract to Target Directory (Infratec)
 	;	Support Extract to Sub Directory "*"
@@ -2531,9 +2583,7 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 	;	Added Conversions Commentary
 	
-  	Debug "UnLZX Purebasic Module v0.7 based on Amiga PowerPC Elf UnLZX 1.0 (22.2.98)"
-  	Debug "Convertet by Infratec & Marty2pb"
-  	Debug ""
+	
 	
 	Define File.s, Pattern.s, *LzxMemory, Result.i
 	
@@ -2543,7 +2593,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	File = OpenFileRequester("LZX Tester","",Pattern,0)
 	
 	If ( File )  
-
+		
+		Debug UnLZX::About_UnLZX() + #CRLF$
+		
 		*LzxMemory = UnLZX::Process_Archive(File)
 		
 		If ( *LzxMemory > 0 )
@@ -2630,9 +2682,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2532
-; FirstLine = 518
-; Folding = DCDAAIA-
+; CursorPosition = 302
+; FirstLine = 261
+; Folding = bAAAAAA5
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
