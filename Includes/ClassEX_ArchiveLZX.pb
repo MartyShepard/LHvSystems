@@ -9,8 +9,9 @@
 	
 	Declare.i	Verify_Archive(*LzxMemory,    szFilename.s = "",	 ; Verify Check File by Name
 								DeCrunchNum.i = -1)	 ; Verify Check File by Position
-
-	Declare.i   Close_Archive(*LzxMemory)							 ; Close Archive and Free    
+	
+	Declare.i   ListSize_Archive(*UnLZX)
+	Declare.i   Close_Archive(*LzxMemory)					 ; Close Archive and Free    
 		
 	
 	;
@@ -2059,6 +2060,36 @@ Module UnLZX
 	;
 	;
 	;
+	Procedure .i  ListSize_Archive(*UnLZX.LZX_ARCHIVE)
+		
+		Protected.i Result
+		
+		If ( *UnLZX > 0 ) 
+			
+			
+			ResetList( User_LZX_List() )
+			
+			While NextElement( User_LZX_List() )
+				
+				If  User_LZX_List()\isMerge
+					Continue
+				EndIf
+				Result + 1
+
+			Wend	
+			
+			ResetList( User_LZX_List() )
+			
+			ProcedureReturn Result
+		EndIf
+		;
+		; No LZX Opened in Memory
+		ProcedureReturn -8
+		
+	EndProcedure	
+	;
+	;
+	;	
 	Procedure .i  Examine_Archive( *UnLZX.LZX_ARCHIVE )    	    	  
 		
 		Protected.i Result
@@ -2166,7 +2197,7 @@ CompilerIf #PB_Compiler_IsMainFile
 		If ( *LzxMemory > 0 )
 			;
 			; Archive Auflisten
-			Result =  UnLZX::Examine_Archive(*LzxMemory)
+			Result =  UnLZX::Examine_Archive(*LzxMemory)						
 				;
 				; ReturnCodes
 				;
@@ -2208,10 +2239,12 @@ CompilerIf #PB_Compiler_IsMainFile
 				EndIf	
 			EndIf	
 			
-
+			;
+			;
+			;
 			Result =  UnLZX::Extract_Archive(*LzxMemory, "*")
 			If Result < 0
-				Debug "Ectract:" + Str(Result)
+				Debug "Extract:" + Str(Result)
 			EndIf
 			
 			;Archiv auf den selben Laufwerk in ein Unterverzeichnis mit dem Archiv Namen entpacken
@@ -2227,7 +2260,15 @@ CompilerIf #PB_Compiler_IsMainFile
 				; -6 : Extractting by Nr   = Number excced List
 				; -7 : Extractting by Nr   = File Not in the List			
 			
-
+			;
+			;
+			;
+			Result =  UnLZX::ListSize_Archive(*LzxMemory)
+			If Result > 0
+				Debug #LFCR$ + "> ... Archiv Count"
+				Debug "LZX Archiv contains: " +  Result + " Files"
+			EndIf	
+			;
 			;
 			; Free File and Free Memory
 			Debug #LFCR$ + "> ... Closing LZX File " + File
@@ -2237,9 +2278,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	EndIf	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1574
-; FirstLine = 485
-; Folding = DAADhBs-
+; CursorPosition = 2267
+; FirstLine = 776
+; Folding = DAADhBF-
 ; EnableAsm
 ; EnableXP
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
