@@ -157,7 +157,7 @@ Module TDCDAT
 	;
 	;
 	;
-	Procedure.s Game_Char_Check(szLine)
+	Procedure.s Game_Char_Check(szLine.s)
 		Protected.s szReplaced = ""
 		Protected.i i
 		Protected.c c
@@ -1383,8 +1383,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 501
-; FirstLine = 241
+; CursorPosition = 159
+; FirstLine = 71
 ; Folding = DnAOc9-
 ; EnableAsm
 ; EnableThread
