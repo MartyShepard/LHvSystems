@@ -817,6 +817,9 @@ Module MagicGUI
     EndProcedure
     
     
+    ;******************************************************************************************************************************************
+    ;  Screenshot Fenster (Wenn man auf einem Thumnail Doppelklickt)
+    ;__________________________________________________________________________________________________________________________________________    
     Procedure.i InteractiveGadgets_Window_004_Def(Resize.i = 0, SnapHeight = 30)
         
         
@@ -852,10 +855,364 @@ Module MagicGUI
                 ResizeGadget(DC::#Contain_11    ,#PB_Ignore, SnapHeight, *r\w, *r\h-60)                    
                 
         EndSelect        
-    EndProcedure     
+    EndProcedure          
     ;******************************************************************************************************************************************
-    ;  Fenster Für Infos und Texte
+    ;  Fenster Für Pack Archiv
     ;__________________________________________________________________________________________________________________________________________     
+    Procedure.i InteractiveGadgets_Window_007_Def(Resize.i = 0, SnapHeight = 30)
+        
+        Protected ObjPosSpace.i
+        
+        *ObjPos\x = 0 
+        *ObjPos\y = SnapHeight                  
+        *ObjPos\w = *r\w
+        *ObjPos\h = *r\h        
+        ObjPosSpace.i = 4
+        Select Resize
+                ;
+                ; Build Mode
+            Case 0                               
+                ContainerGadget(DC::#Contain_20, *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h-(*ObjPos\y*2),0) 
+                
+                
+                If ( Startup::*LHGameDB\CBMFONT = 0 )
+                     Startup::*LHGameDB\CBMFONT = FontID(Fonts::#_C64_CHARS3_REQ)
+                EndIf
+                ;WinGuru::ThemeBox(-1,GadgetWidth(DC::#Contain_12)-40, GadgetHeight(DC::#Contain_12)-165, 20, 0, *ObjPos\c\rgb_C64Screen, BoxC.l) 
+                ;
+                ;
+                ;
+                ; Farbe die Strings
+                Protected RGB_FrntStR.i = *ObjPos\c\rgb_StrinFC       
+                Protected RGB_BackStR.i = *ObjPos\c\rgb_C64_BG2
+                Protected Font_StR.i    = FontID(Fonts::#_FIXPLAIN7_12)  
+                
+                ;
+                ; C64 Disk Label Header = Bytes
+                *ObjPos\x = 10 
+                *ObjPos\y = 8                  
+                *ObjPos\w = 35
+                *ObjPos\h = 12                                                   
+                FORM::TextObject(DC::#Text_137,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h, Font_StR.i ,*ObjPos\c\rgb_C64_BG3,*ObjPos\c\rgb_C64_Front2.i," #Text_137",1)
+                               
+                ;
+                ; C64 Disk Label Header = ID                        
+                *ObjPos\x = GadgetX(DC::#Text_137) + GadgetWidth(DC::#Text_137)                 
+                *ObjPos\w = 45                                             
+                FORM::TextObject(DC::#Text_138,   *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h, Font_StR,*ObjPos\c\rgb_C64_BG3,*ObjPos\c\rgb_C64_Front2.i," #Text_137",1)
+                
+                ;
+                ; C64 Disk Label Header = Label                    
+                *ObjPos\x = GadgetX(DC::#Text_138) + GadgetWidth(DC::#Text_138)                 
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)-138                                  
+                FORM::StrgObject(DC::#String_113,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h, Font_StR,*ObjPos\c\rgb_C64_BG3,*ObjPos\c\rgb_C64_Front2 ,"#String_113",2,1)
+                
+                ;
+                ; Listbox
+                *ObjPos\x = 10 
+                *ObjPos\y = 20                  
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)-10
+                *ObjPos\h = GadgetHeight(DC::#Contain_20)-325
+                Form::ListObject(DC::#ListIcon_004, *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,Fonts::#PC_Clone_09, 0, 0, "", 0, *ObjPos\c\rgb_C64_Front2,*ObjPos\c\rgb_C64_BG3, #PB_ListIcon_MultiSelect|#LVS_OWNERDRAWFIXED)
+                
+                                                                                   
+                
+                RGB_FrntStR.i = *ObjPos\c\rgb_strFrCk        
+                RGB_BackStR.i = *ObjPos\c\rgb_54_54_54
+                Font_StR.i    = FontID(Fonts::#_SEGOEUI10N)                         
+                *ObjPos\x = 10
+                *ObjPos\y = GadgetHeight(DC::#ListIcon_004) +  GadgetY(DC::#ListIcon_004)
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 12            
+                
+                FORM::TextObject(DC::#Text_139,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h, FontID(Fonts::#_FIXPLAIN7_12) ,*ObjPos\c\rgb_C64_BG3,*ObjPos\c\rgb_C64_Front2," --- #Text_139",0)                    
+                
+                *ObjPos\x = 0
+                *ObjPos\y = GadgetHeight(DC::#Text_139) +  GadgetY(DC::#Text_139) + ObjPosSpace + 8
+                *ObjPos\w = GadgetWidth(DC::#Contain_20) - 140
+                *ObjPos\h = 20                      
+                
+                FORM::StrgObject(DC::#String_100,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,FontID(Fonts::#_FIXPLAIN7_12),RGB_FrntStR,RGB_BackStR,"DC::#String_100",1,1)
+                
+                *ObjPos\x = GadgetWidth(DC::#String_100) +  GadgetX(DC::#String_100) + ObjPosSpace                  
+                *ObjPos\w = 140                    
+                FORM::StrgObject(DC::#String_104,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,FontID(Fonts::#_FIXPLAIN7_12),RGB_FrntStR,RGB_BackStR,"DC::#String_104",1,1)                    
+                
+                
+                ;
+                ;
+                *ObjPos\x = 0                    
+                *ObjPos\y = GadgetHeight(DC::#String_100) +  GadgetY(DC::#String_100) +ObjPosSpace                        
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)                    
+                FORM::StrgObject(DC::#String_102,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"DC::#String_102",0,1)
+                
+                ;
+                ;
+                *ObjPos\y = GadgetHeight(DC::#String_102) +  GadgetY(DC::#String_102) +ObjPosSpace                        
+                FORM::StrgObject(DC::#String_101,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"DC::#String_101",0,1)                    
+                
+                ;
+                ;
+                *ObjPos\x = 1 
+                *ObjPos\y = GadgetHeight(DC::#String_101) +  GadgetY(DC::#String_101) + ObjPosSpace
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 20  
+                
+                SetButton(DC::#Button_277,*ObjPos\x,*ObjPos\y,"#Button_277","Local - Image","Local - Image",14)         
+                SetButton(DC::#Button_279,GadgetX(DC::#Button_277)+GadgetWidth(DC::#Button_277)+ObjPosSpace, *ObjPos\y,"#Button_279","Charset","Charset",17)  
+                SetButton(DC::#Button_280,GadgetX(DC::#Button_279)+GadgetWidth(DC::#Button_279)+ObjPosSpace,*ObjPos\y,"#Button_280 - Drive","Real - Drive","Real - Drive",14) 
+                
+                ;SetButton(DC::#Button_281,GadgetWidth(DC::#Contain_12) - (GadgetWidth(DC::#Button_279)+1), *ObjPos\y,"","","",12)  
+                ButtonEX::Toggle(DC::#Button_277, 1): ButtonEX::SetState(DC::#Button_277, 0)
+                ButtonEX::Toggle(DC::#Button_280, 1): ButtonEX::SetState(DC::#Button_280, 0)                     
+                ;
+                ;
+                *ObjPos\x = 1 
+                *ObjPos\y = GadgetHeight(DC::#Button_280) +  GadgetY(DC::#Button_280) +ObjPosSpace                       
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 20                       
+                SetButton(DC::#Button_203,*ObjPos\x,*ObjPos\y,"#Button_203","Directory","Directory",16)  ; Show Image Directory
+                
+                SetButton(DC::#Button_204,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"#Button_204","Copy Files  ","Copy Files  ",19)                                         
+                SetButton(DC::#Button_205,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"#Button_205","Rename","Rename",17)                                       
+                SetButton(DC::#Button_206,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"#Button_206","  Copy Files","  Copy Files",18)                     
+                SetButton(DC::#Button_207,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"#Button_207","Directory","Directory",12)  
+                
+                
+                ;
+                ;
+                *ObjPos\x = 1 
+                *ObjPos\y = GadgetHeight(DC::#Button_280) +  GadgetY(DC::#Button_280) + ObjPosSpace + 24
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 20  
+                
+                SetButton(DC::#Button_262,GadgetX(DC::#Button_203), *ObjPos\y,"#Button_262","","",12)        
+                SetButton(DC::#Button_263,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"#Button_263","Write D64  ","Write D64  ",19)    
+                SetButton(DC::#Button_264,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"#Button_263","Scratch","Scratch",17)    
+                SetButton(DC::#Button_265,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"#Button_265","  Create D64","  Create D64",18)                      
+                SetButton(DC::#Button_266,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"#Button_266","Status","Status",12)                     
+                
+                ;
+                ;
+                *ObjPos\x = 1 
+                *ObjPos\y = GadgetHeight(DC::#Button_262) +  GadgetY(DC::#Button_262) + ObjPosSpace 
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 20  
+                
+                SetButton(DC::#Button_267,GadgetX(DC::#Button_203), *ObjPos\y,"#Button_267","","",12)        
+                SetButton(DC::#Button_268,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"#Button_268","New Image","",13)    
+                SetButton(DC::#Button_269,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"#Button_269","","",17)    
+                SetButton(DC::#Button_270,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"#Button_270","Format","Format",13)                      
+                SetButton(DC::#Button_271,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"#Button_271","Validate","Validate",12)   
+                
+                ;
+                ;
+                *ObjPos\x = 1 
+                *ObjPos\y = GadgetHeight(DC::#Button_271) +  GadgetY(DC::#Button_271) + ObjPosSpace 
+                *ObjPos\w = GadgetWidth(DC::#ListIcon_004)
+                *ObjPos\h = 20  
+                
+                SetButton(DC::#Button_272,GadgetX(DC::#Button_203), *ObjPos\y,"#Button_272","Transfer Files","Transfer Files",21)        
+                SetButton(DC::#Button_273,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"#Button_273","Backup Files","Backup Files",21)    
+                SetButton(DC::#Button_274,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"#Button_274","Ok","Ok",17)    
+                SetButton(DC::#Button_275,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"#Button_275","Backup Files","Backup Files",21)                      
+                SetButton(DC::#Button_276,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"#Button_276","Transfer Files","Transfer Files",21)                      
+                ;
+                ;
+                *ObjPos\y = GadgetHeight(DC::#Button_276) +  GadgetY(DC::#Button_276) + ObjPosSpace  + 4
+                *ObjPos\w = GadgetWidth(DC::#Contain_20) 
+                FORM::StrgObject(DC::#String_103,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"#String_103",0,1) 
+                
+                ;
+                ;
+                *ObjPos\y = GadgetHeight(DC::#String_103) +  GadgetY(DC::#String_103) + ObjPosSpace 
+                *ObjPos\w = GadgetWidth(DC::#Contain_20) 
+                FORM::StrgObject(DC::#String_111,*ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"#String_111",0,1)                     
+                
+                
+                CloseGadgetList()
+                SetGadgetColor(DC::#Contain_20,#PB_Gadget_BackColor,*ObjPos\c\rgb_backgrd)  
+                ;
+                ; Resize Mode
+            Case 1
+                ResizeGadget(DC::#Contain_20    ,#PB_Ignore, SnapHeight, *r\w, *r\h-60)
+                
+                ResizeGadget(DC::#ListIcon_004  , #PB_Ignore,          #PB_Ignore, GadgetWidth(DC::#Contain_20)-20, GadgetHeight(DC::#Contain_20)-294)
+                
+                :SetGadgetItemAttribute(DC::#ListIcon_004,0,#PB_ListIcon_ColumnWidth,GadgetWidth(DC::#Contain_20)-243,1  )                                                                  
+                
+               ; ResizeGadget(DC::#String_113, GadgetX(DC::#Text_137) + GadgetWidth(DC::#Text_137), #PB_Ignore, GadgetWidth(DC::#Contain_20)-138,#PB_Ignore)
+               ; ResizeGadget(DC::#Text_138, GadgetX(DC::#String_113) + GadgetWidth(DC::#String_113), #PB_Ignore, #PB_Ignore ,#PB_Ignore) 
+                
+                ResizeGadget(DC::#Text_139, #PB_Ignore, GadgetHeight(DC::#ListIcon_004) +  GadgetY(DC::#ListIcon_004),  GadgetWidth(DC::#ListIcon_004), #PB_Ignore)   
+                
+                ;                 Center.LV_COLUMN\mask=#LVCF_FMT
+                ;                 Center\fmt=#LVCFMT_LEFT
+                ;                 SendMessage_(GadgetID(DC::#ListIcon_003), #LVM_SETCOLUMN,1,@Center)                
+                *ObjPos\x = 0 
+                *ObjPos\y = GadgetHeight(DC::#Text_139) +  GadgetY(DC::#Text_139)  + ObjPosSpace + 8
+                *ObjPos\w = GadgetWidth(DC::#Contain_20) - 140                   
+                *ObjPos\h = 20 
+                ResizeGadget(DC::#String_100,  *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h)
+                
+                *ObjPos\x = GadgetWidth(DC::#String_100) +  GadgetX(DC::#String_100) + ObjPosSpace                  
+                *ObjPos\w = 140                    
+                ResizeGadget(DC::#String_104,  *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h)                 
+                ;
+                ;              
+                *ObjPos\x = 0                     
+                *ObjPos\y = GadgetHeight(DC::#String_100) +  GadgetY(DC::#String_100) +ObjPosSpace                  
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)                      
+                ResizeGadget(DC::#String_102,  *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h) 
+                ;
+                ;                    
+                *ObjPos\y = GadgetHeight(DC::#String_102) +  GadgetY(DC::#String_102) +ObjPosSpace                       
+                ResizeGadget(DC::#String_101,  *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h) 
+                
+                
+                
+                
+                ;
+                ;
+                *ObjPos\x = GadgetWidth(DC::#Contain_20) - 432
+                *ObjPos\y = GadgetHeight(DC::#String_101) +  GadgetY(DC::#String_101) + ObjPosSpace     
+                ResizeGadget(DC::#Button_277    , *ObjPos\x, *ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_277)+GadgetWidth(DC::#Button_277)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_279   ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_279)+GadgetWidth(DC::#Button_279)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_280    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                
+                ;
+                ;                    
+                ;ResizeGadget(DC::#Button_281    ,GadgetWidth(DC::#Contain_12) - (GadgetWidth(DC::#Button_206)+1),*ObjPos\y, #PB_Ignore, #PB_Ignore)  
+                
+                ;
+                ;
+                *ObjPos\x = GadgetWidth(DC::#Contain_20) - 432
+                *ObjPos\y = GadgetHeight(DC::#Button_280) +  GadgetY(DC::#Button_280) +ObjPosSpace                      
+                ResizeGadget(DC::#Button_203    , *ObjPos\x, *ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace
+                *ObjPos\y = GadgetY(DC::#Button_203)               
+                ResizeGadget(DC::#Button_204    , *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_205    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_206    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;                    
+                ResizeGadget(DC::#Button_207    ,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1),*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetWidth(DC::#Contain_20) - 432
+                *ObjPos\y = GadgetHeight(DC::#Button_207) +  GadgetY(DC::#Button_207) + ObjPosSpace
+                ResizeGadget(DC::#Button_262    , *ObjPos\x, *ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace             
+                ResizeGadget(DC::#Button_263    , *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_264   ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_265    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                
+                ;
+                ;                    
+                ResizeGadget(DC::#Button_266    ,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1),*ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetWidth(DC::#Contain_20) - 432
+                *ObjPos\y = GadgetHeight(DC::#Button_262) +  GadgetY(DC::#Button_262) + ObjPosSpace      
+                ResizeGadget(DC::#Button_267    , *ObjPos\x, *ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace             
+                ResizeGadget(DC::#Button_268    , *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_269   ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_270    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                
+                ;
+                ;                    
+                ResizeGadget(DC::#Button_271    ,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1),*ObjPos\y, #PB_Ignore, #PB_Ignore)                        
+                
+                *ObjPos\x = GadgetWidth(DC::#Contain_20) - 432
+                *ObjPos\y = GadgetHeight(DC::#Button_271) +  GadgetY(DC::#Button_271) + ObjPosSpace      
+                ResizeGadget(DC::#Button_272    , *ObjPos\x, *ObjPos\y, #PB_Ignore, #PB_Ignore)                    
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace             
+                ResizeGadget(DC::#Button_273    , *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_274   ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                ;
+                ;
+                *ObjPos\x = GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace                    
+                ResizeGadget(DC::#Button_275    ,  *ObjPos\x,*ObjPos\y, #PB_Ignore, #PB_Ignore)
+                
+                
+                ;
+                ;                    
+                ResizeGadget(DC::#Button_276    ,GadgetWidth(DC::#Contain_20) - (GadgetWidth(DC::#Button_206)+1),*ObjPos\y, #PB_Ignore, #PB_Ignore)    
+                
+                ;
+                ;                    
+                *ObjPos\y = GadgetHeight(DC::#Button_276) +  GadgetY(DC::#Button_276) + ObjPosSpace +4
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)                                        
+                ResizeGadget(DC::#String_103, #PB_Ignore,*ObjPos\y, *ObjPos\w, *ObjPos\h) 
+                
+                ;
+                ;                    
+                *ObjPos\y = GadgetHeight(DC::#String_103) +  GadgetY(DC::#String_103) + ObjPosSpace 
+                *ObjPos\w = GadgetWidth(DC::#Contain_20)                                        
+                ResizeGadget(DC::#String_111, #PB_Ignore,*ObjPos\y, *ObjPos\w, *ObjPos\h)                     
+                
+        EndSelect        
+    EndProcedure
+ 
+    ;******************************************************************************************************************************************
+    ;  Editor Fenster Für Infos und Texte
+    ;__________________________________________________________________________________________________________________________________________      
     Procedure.i InteractiveGadgets_Window_006_Def(Resize.i = 0, SnapHeight = 30)
         
         Protected ObjPosSpace.i, DesignControl1.i = DC::#DesignBox005 , nFont.l
@@ -1076,8 +1433,9 @@ Module MagicGUI
 
         EndSelect        
     EndProcedure     
+    
     ;******************************************************************************************************************************************
-    ;  Fenster Für das Disketten Image
+    ;  C64er Datei Manager
     ;__________________________________________________________________________________________________________________________________________     
     Procedure.i InteractiveGadgets_Window_005_Def(Resize.i = 0, SnapHeight = 30)
         
@@ -1736,7 +2094,7 @@ Module MagicGUI
                 Select ChildWindowID  
                 ;
                 ; Close Button and Resize Button
-                    Case DC::#_Window_002, DC::#_Window_003, DC::#_Window_004, DC::#_Window_005
+                    Case DC::#_Window_002, DC::#_Window_003, DC::#_Window_004, DC::#_Window_005, DC::#_Window_007
                         SetButton(bClose,*r\w-SnapHeight,      0,"","","",2)
                         SetButton(bResze,*r\w-SnapHeight,*r\h-SnapHeight,"","","",4)
                     Case DC::#_Window_006                        
@@ -1745,6 +2103,7 @@ Module MagicGUI
                 EndSelect
                 
                 Select ChildWindowID                      
+                    Case DC::#_Window_007: SetButton(bpMenu,*r\w-(SnapHeight*2),0 ,"","","",15)                		
                     Case DC::#_Window_005: SetButton(bpMenu,*r\w-(SnapHeight*2),0 ,"","","",15)
                     Case DC::#_Window_003: SetButton(bpMenu,*r\w-(SnapHeight*2),0 ,"","","",15)
                 EndSelect        
@@ -1755,8 +2114,9 @@ Module MagicGUI
                     Case DC::#_Window_002: InteractiveGadgets_Window_002_Def()
                     Case DC::#_Window_003: InteractiveGadgets_Window_003_Def() 
                     Case DC::#_Window_004: InteractiveGadgets_Window_004_Def()    
-                    Case DC::#_Window_005: InteractiveGadgets_Window_005_Def()
-                    Case DC::#_Window_006: InteractiveGadgets_Window_006_Def()                         
+                    Case DC::#_Window_005: InteractiveGadgets_Window_005_Def()                  	
+                    Case DC::#_Window_006: InteractiveGadgets_Window_006_Def()
+                    Case DC::#_Window_007: InteractiveGadgets_Window_007_Def()                      	
                     Default
                 EndSelect
                 ; ======================================================================================================
@@ -1770,6 +2130,7 @@ Module MagicGUI
                 ;
                 ; Menu PopUp Button
                 Select ChildWindowID                       
+                    Case DC::#_Window_007: ResizeGadget(bpMenu,*r\w-(SnapHeight*2)   , #PB_Ignore, #PB_Ignore, #PB_Ignore)                		
                     Case DC::#_Window_005: ResizeGadget(bpMenu,*r\w-(SnapHeight*2)   , #PB_Ignore, #PB_Ignore, #PB_Ignore)
                     Case DC::#_Window_003: ResizeGadget(bpMenu,*r\w-(SnapHeight*2)   , #PB_Ignore, #PB_Ignore, #PB_Ignore)
                 EndSelect 
@@ -1777,7 +2138,7 @@ Module MagicGUI
                 Select ChildWindowID  
                 ;
                 ; Close Button and Resize Button
-                    Case DC::#_Window_002, DC::#_Window_003, DC::#_Window_004, DC::#_Window_005
+                    Case DC::#_Window_002, DC::#_Window_003, DC::#_Window_004, DC::#_Window_005, DC::#_Window_007
                         ResizeGadget(bClose,*r\w-SnapHeight   , #PB_Ignore, #PB_Ignore, #PB_Ignore)
                         ResizeGadget(bResze,*r\w-SnapHeight   ,*r\h-SnapHeight    , #PB_Ignore, #PB_Ignore)
                     Case DC::#_Window_006
@@ -1794,7 +2155,8 @@ Module MagicGUI
                     Case DC::#_Window_003: InteractiveGadgets_Window_003_Def(1) 
                     Case DC::#_Window_004: InteractiveGadgets_Window_004_Def(1)     
                     Case DC::#_Window_005: InteractiveGadgets_Window_005_Def(1) 
-                    Case DC::#_Window_006: InteractiveGadgets_Window_006_Def(1)                           
+                    Case DC::#_Window_006: InteractiveGadgets_Window_006_Def(1)
+                    Case DC::#_Window_007: InteractiveGadgets_Window_007_Def(1)                     	
                     Default
                 EndSelect
                 
@@ -1917,21 +2279,26 @@ Module MagicGUI
             Case DC::#_Window_004   
                 w = 1
                 h = 61
-                
+            ;
+            ; Disk/ Archiv Lister    
             Case DC::#_Window_005
-                w = 433
+                w = 433           
                 h = 790 
                 
-            Case DC::#_Window_006
-                
+            Case DC::#_Window_006                
                 w = vInfo::Props_GetWidth()  - (GetSystemMetrics_(#SM_CXSIZEFRAME) *2 )                
-                h = vInfo::Props_GetHeight() - (GetSystemMetrics_(#SM_CXSIZEFRAME) *2 )                  
+                h = vInfo::Props_GetHeight() - (GetSystemMetrics_(#SM_CXSIZEFRAME) *2 )                 
+            ;
+            ; Disk/ Archiv Lister    
+            Case DC::#_Window_007
+                w = 533           
+                h = 850                 
         EndSelect
         
         DefaultWindow_State(ChildWindowID.i, Base_WindowID.i, w, h)
         
         Select ChildWindowID
-            Case DC::#_Window_002 , DC::#_Window_003, DC::#_Window_004, DC::#_Window_005
+            Case DC::#_Window_002 , DC::#_Window_003, DC::#_Window_004, DC::#_Window_005,  DC::#_Window_007
                 InteractiveGadgets(ChildWindowID)  
                 WinGuru::Center(ChildWindowID,w, h, ChildWindowID)    
                 
@@ -2280,9 +2647,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2059
-; FirstLine = 750
-; Folding = D-Hg-
+; CursorPosition = 907
+; FirstLine = 191
+; Folding = DAQ5x
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

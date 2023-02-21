@@ -511,7 +511,8 @@ Module GuruCallBack
         If IsWindow(DC::#_Window_002): hwndID.i = DC::#_Window_002: EndIf
         If IsWindow(DC::#_Window_003): hwndID.i = DC::#_Window_003: EndIf 
         If IsWindow(DC::#_Window_004): hwndID.i = DC::#_Window_004: EndIf      
-        If IsWindow(DC::#_Window_005): hwndID.i = DC::#_Window_005: EndIf                
+        If IsWindow(DC::#_Window_005): hwndID.i = DC::#_Window_005: EndIf
+        If IsWindow(DC::#_Window_007): hwndID.i = DC::#_Window_007: EndIf           
         
         If ( IsWindow(hwndID.i) <> 0 )
             TempX = WindowX(hwndID.i): TempY = WindowY(hwndID.i): TempW = WindowWidth(hwndID.i): Temph = WindowHeight(hwndID.i)
@@ -526,14 +527,14 @@ Module GuruCallBack
                 SSTTIP::Tooltip_TrayIcon(ProgramFilename(), DC::#TRAYICON001, DC::#_Window_001, Startup::*LHGameDB\TrayIconTitle)                
                 
             Case #WM_DRAWITEM
-                If IsWindow(DC::#_Window_005 )
+                If IsWindow(DC::#_Window_005 ) Or IsWindow(DC::#_Window_007 ) 
                     OnDrawItem(hwnd, lParam)
                 EndIf    
                 
             Case #WM_MEASUREITEM 
-                If IsWindow(DC::#_Window_005 )
+                If IsWindow(DC::#_Window_005 ) Or IsWindow(DC::#_Window_007 )
                     *lpmis.MEASUREITEMSTRUCT = lparam
-                    *lpmis\itemheight = 12                       
+                    *lpmis\itemheight = 14                       
                 EndIf    
                 
             Case #WM_APPCOMMAND
@@ -1513,6 +1514,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 536
+; FirstLine = 375
 ; Folding = XO-j+-
 ; EnableAsm
 ; EnableXP

@@ -2428,9 +2428,11 @@ Module UnLZX
 		If ( *UnLZX > 0 )           
 			
 			If ( *UnLZX\pbData > 0 )  
+				Debug "Close LZX File"
 				CloseFile( *UnLZX\pbData )
 			EndIf
 			
+			Debug "Clear LZX Structure"
 			ClearList( *UnLZX\FileData() )
 			ClearStructure(*UnLZX, LZX_ARCHIVE)
 			FreeMemory(*UnLZX)
@@ -2585,15 +2587,14 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 	
 	
-	Define File.s, Pattern.s, *LzxMemory, Result.i
+	Define File.s, Pattern.s, *LzxMemory, Result.i				
 	
-	Pattern = "LZX (*.lzx)|*.lzx|Alle Dateien (*.*)|*.*"
-	
-	
+	Pattern = "LZX (*.lzx)|*.lzx|Alle Dateien (*.*)|*.*"		
 	File = OpenFileRequester("LZX Tester","",Pattern,0)
 	
-	If ( File )  
-		
+	If ( File )  		
+		;
+		; -------------------------------------------------------------------------------
 		Debug UnLZX::About_UnLZX() + #CRLF$
 		
 		*LzxMemory = UnLZX::Process_Archive(File)
@@ -2653,9 +2654,10 @@ CompilerIf #PB_Compiler_IsMainFile
 			
 			;Archiv auf den selben Laufwerk in ein Unterverzeichnis mit dem Archiv Namen entpacken
 			;Result =  UnLZX::Extract_Archive(*LzxMemory, "*")				
-						
+			
+    			;Result =  UnLZX::Extract_Archive(*LzxMemory, "")				; Enrpackt das Archiv in das Aktullen Verzeichis. Sozusagen "Hierhin"
     			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp")			; Zielverzeichnis
-			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt")	; Zielverzeichnis und dir Datei "gdm-np77.txt" Entpacken	
+			;Result =  UnLZX::Extract_Archive(*LzxMemory, "c:\tmp","gdm-np77.txt")	; Zielverzeichnis und die Datei "gdm-np77.txt" Entpacken	
 			;Result =  UnLZX::Extract_Archive(*LzxMemory, "B:\","", 6);			; Zielverzeichnis und Entpacke die (Archiv Position) 6 Datei
 				;
 				; ReturnCodes
@@ -2680,12 +2682,15 @@ CompilerIf #PB_Compiler_IsMainFile
 			
 		EndIf
 	EndIf	
+		
+	
 CompilerEndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 302
-; FirstLine = 261
-; Folding = bAAAAAA5
+; CursorPosition = 2434
+; FirstLine = 522
+; Folding = 8AAAAAQ5
 ; EnableAsm
 ; EnableXP
+; Executable = B:\UnLZX(PB).exe
 ; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; EnablePurifier

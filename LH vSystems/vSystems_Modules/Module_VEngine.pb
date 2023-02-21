@@ -5023,7 +5023,7 @@ EndProcedure
             Case "ZIP"               
                 RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Zip     )               
                 
-            Case "7Z"                
+            Case "7Z","LHA"                
                 RtCode = FileManageR_MediumDecmp( szMedium.s,  #PB_PackerPlugin_Lzma   )               
                 
             Case "TAR"
@@ -5034,6 +5034,9 @@ EndProcedure
                 ; Ja super ... da muss man wieder war machen ...
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","RAR wird Nativ (noch) nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn 
+            Case "LZX"
+            	vWindows::OpenWindow_Archiv(GadgetID.i, DestGadgetID.i)
+            	ProcedureReturn 
         EndSelect
         
         Select RtCode
@@ -5043,7 +5046,10 @@ EndProcedure
                 vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
                 ProcedureReturn 
                 
-            Default
+          Default
+          	    ;
+          	    ; Öffnet den Standard Archiv Manager
+          	    vWindows::OpenWindow_Archiv(GadgetID.i, DestGadgetID.i)
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Der Inhalt der [ "+ szFormat +" ] Datei wird noch nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn 
                 
@@ -5057,7 +5063,8 @@ EndProcedure
                 vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
                 ProcedureReturn 
                 
-            Default
+          Default
+                vWindows::OpenWindow_Archiv(GadgetID.i, DestGadgetID.i)
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","[ "+ szFormat +" ] wird für den Internen Datei Manager nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn
                 
@@ -5152,14 +5159,14 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 4134
-; FirstLine = 3549
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 5038
+; FirstLine = 4065
 ; Folding = 8-P+34J-t9-0A-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Apple Macintosh 1\
+; CurrentDirectory = ..\release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

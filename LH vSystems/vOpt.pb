@@ -39,6 +39,7 @@
         XIncludeFile "..\INCLUDES\CLASSES_SUB\Math_Bytes.pb"
         
         XIncludeFile "..\INCLUDES\CLASSES_EMU\FileFormat_DiskImageC64.pb"     
+        XIncludeFile "..\INCLUDES\ClassEX_ArchiveLZX.pb"         
                   
         XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
         
@@ -77,7 +78,8 @@
         XIncludeFile ".\vSystems_Modules\Module_VEngine.pb"             ; vEngine::       
         XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            ; vDiskPath::
         XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            ; vInfoMenu::
-        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"           ; vItem64E::
+        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"		; vItem64E::
+        XIncludeFile ".\vSystems_Modules\Module_ArchivManager.pb"           ; vItem64E::        
         BackupRestart:       
         vSystem::System_CheckInstance()
         
@@ -153,8 +155,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 48
-; FirstLine = 19
+; CursorPosition = 81
+; FirstLine = 33
 ; EnableAsm
 ; EnableThread
 ; EnableXP

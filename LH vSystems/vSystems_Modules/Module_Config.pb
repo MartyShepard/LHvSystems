@@ -63,6 +63,7 @@ DeclareModule vWindows
     Declare OpenWindow_Sys3(ImageGadgetID.i)   
     
     Declare OpenWindow_Sys64(GadgetID.i,DestGadgetID.i)
+    Declare OpenWindow_Archiv(GadgetID.i,DestGadgetID.i)
     
     Declare OpenWindow_EditInfos()
     
@@ -266,7 +267,8 @@ DeclareModule Startup
         Settings_MameHelp.i         ;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen      
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
-        vKeyActivMMBT.i             ;Temporäre Var für den Loop        
+        vKeyActivMMBT.i			;Temporäre Var für den Loop
+        ArchivTyp.s			
         
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
@@ -973,9 +975,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 852
-; FirstLine = 632
-; Folding = 5D+
+; CursorPosition = 270
+; FirstLine = 180
+; Folding = 9D+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
