@@ -146,7 +146,7 @@ Module TDCDAT
 	;
 	;
 	;
-	Procedure.i Header_Main(*Header.TDC_Main, szLine.s)
+	Procedure.i Header_Main(*Header.TDC_Main, szLine.s)		
 				
 		If FindString( szLine, "DOSCenter (", 1, #PB_String_CaseSensitive)
 			ProcedureReturn #True	
@@ -154,6 +154,25 @@ Module TDCDAT
 		ProcedureReturn #False
 		
 	EndProcedure
+	;
+	;
+	;
+	Procedure.s Game_Char_Check(szLine)
+		Protected.s szReplaced = ""
+		Protected.i i
+		Protected.c c
+		
+		For i = 1 To Len( szLine )			
+			c = Asc( Mid( szLine, i,1) )			
+			Select c
+				Case 38	:szReplaced + "&amp;"					
+				Default
+				szReplaced + Chr( c )	
+			EndSelect							
+		Next
+
+		ProcedureReturn szReplaced
+	EndProcedure	
 	;
 	;
 	;
@@ -168,7 +187,8 @@ Module TDCDAT
 		szNewString.s = ReplaceString( szNewString, ".zip", "", #PB_String_CaseSensitive  )		
 	       
 	      szNewString = Trim( szNewString, Chr(9) )
-	       
+	      
+	      szNewString = Game_Char_Check(szNewString)
 	      ProcedureReturn szNewString
 		
 	 EndProcedure	
@@ -452,7 +472,8 @@ Module TDCDAT
 		     FindString( UCase( *Header\Content()\Game), "[KFX][360K-1200k]") Or
 		     FindString( UCase( *Header\Content()\Game), "[KFX][720k-1220k]") Or		     
 		     FindString( UCase( *Header\Content()\Game), "[KFX][1200k-1440k]") Or
-		     FindString( UCase( *Header\Content()\Game), "[360k][CP][!]"))
+		     FindString( UCase( *Header\Content()\Game), "[360k][CP][!]")) Or
+		     FindString( UCase( *Header\Content()\Game), ".IMG") 					; Das ist sooo dooof
 			ProcedureReturn #True
 		EndIf
 		ProcedureReturn #False
@@ -478,7 +499,7 @@ Module TDCDAT
 		     	FindString( UCase( *Header\Content()\Game),"_TDC_]") Or 
 		     	FindString( UCase( *Header\Content()\Game),"[MDF]") Or
 		     	FindString( UCase( *Header\Content()\Game),"[NRG]") Or		     	
-		     	FindString( UCase( *Header\Content()\Game),"[CCD_DUPE_OF_REDUMP_BIN-CUE]") Or
+		     	FindString( UCase( *Header\Content()\Game),"[CCD_DUPE_OF_REDUMP_BIN-CUE]") Or				; What the Fuck is that for a Naming at the rest .... 
 		     	FindString( UCase( *Header\Content()\Game),"[CCD CONVERTED To BIN-CUE]") Or
 		     	FindString( UCase( *Header\Content()\Game),"[FROM_EXO_ DUPE OF REDUMP BIN-CUE]") Or
 		     	FindString( UCase( *Header\Content()\Game),"[ISO__DUPEOFBIN-CUE__]") Or
@@ -1362,9 +1383,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 750
-; FirstLine = 409
-; Folding = DQ9-P+
+; CursorPosition = 501
+; FirstLine = 241
+; Folding = DnAOc9-
 ; EnableAsm
 ; EnableThread
 ; EnableXP
