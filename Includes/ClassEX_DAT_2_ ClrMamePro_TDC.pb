@@ -473,7 +473,9 @@ Module TDCDAT
 		     FindString( UCase( *Header\Content()\Game), "[KFX][720k-1220k]") Or		     
 		     FindString( UCase( *Header\Content()\Game), "[KFX][1200k-1440k]") Or
 		     FindString( UCase( *Header\Content()\Game), "[360k][CP][!]")) Or
-		     FindString( UCase( *Header\Content()\Game), ".IMG") 					; Das ist sooo dooof
+		     FindString( UCase( *Header\Content()\Game), ".IMG") 
+			
+			; Das ist sooo dooof
 			ProcedureReturn #True
 		EndIf
 		ProcedureReturn #False
@@ -1383,8 +1385,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 159
-; FirstLine = 71
+; CursorPosition = 476
+; FirstLine = 263
 ; Folding = DnAOc9-
 ; EnableAsm
 ; EnableThread
