@@ -56,6 +56,8 @@ Module TDCDAT
 		useSortCDR.i
 		useSortEDU.i
 		useSortGMS.i
+		CountWrittenTitles.i
+		CountWrittenEntrys.i
 		List Content.TDC_GameName()
 	EndStructure
 
@@ -362,6 +364,7 @@ Module TDCDAT
 			Else
 				WriteStringN(*Header\FileDataW,  #TAB$ + #TAB$ +"<description>" 	+ *Header\Decription + "</description>", *Header\Encoding)
 			EndIf	
+			
 			WriteStringN(*Header\FileDataW,  #TAB$ + #TAB$ +"<category>" 	+ *Header\Category 	+ "</category>"	, *Header\Encoding)
 			WriteStringN(*Header\FileDataW,  #TAB$ + #TAB$ +"<version>" 	+ *Header\Version 	+ "</version>"	, *Header\Encoding)
 			WriteStringN(*Header\FileDataW,  #TAB$ + #TAB$ +"<author>" 		+ *Header\Author 		+ "</author>"	, *Header\Encoding)
@@ -409,21 +412,47 @@ Module TDCDAT
 	;
 	;
 	Procedure.i Check_Disk(*Header.TDC_Main)
-				
+		
 		If ( FindString( UCase( *Header\Content()\Game), "[IMA][180K]") Or
-		     FindString( UCase( *Header\Content()\Game), "[IMA][160K]") Or 					                            
+		     FindString( UCase( *Header\Content()\Game), "[IMA][160K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMA][320K]") Or		     
 		     FindString( UCase( *Header\Content()\Game), "[IMA][360K]") Or
-		     FindString( UCase( *Header\Content()\Game), "[IMA][1200K]") Or						                                                                          
+		     FindString( UCase( *Header\Content()\Game), "[IMA][720K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[IMA][1200K]") Or	; 1200 same how 1220 ???
 		     FindString( UCase( *Header\Content()\Game), "[IMA][1220K]") Or					                                                                          
 		     FindString( UCase( *Header\Content()\Game), "[IMA][1440K]") Or
-		     FindString( UCase( *Header\Content()\Game), "[IMA][720K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMA][360K-1200k]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMA][720k-1220k]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[IMA][1200k-1440k]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMD][180K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMD][160K]") Or 					                            
+		     FindString( UCase( *Header\Content()\Game), "[IMD][360K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[IMD][720K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[IMD][1200K]") Or	; 1200 same how 1220 ???
+		     FindString( UCase( *Header\Content()\Game), "[IMD][1220K]") Or					                                                                          
+		     FindString( UCase( *Header\Content()\Game), "[IMD][1440K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[TD0][160K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[TD0][180K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[TD0][320K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[TD0][360K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[SCP][360K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[SCP][720K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[TC][160K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[TC][180K]") Or			     		     
+		     FindString( UCase( *Header\Content()\Game), "[TC][320K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[TC][360K]") Or		     
 		     FindString( UCase( *Header\Content()\Game), "[KFX][180K]") Or
-		     FindString( UCase( *Header\Content()\Game), "[KFX][160K]") Or					                            
+		     FindString( UCase( *Header\Content()\Game), "[KFX][160K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[KFX][320K]") Or		     
 		     FindString( UCase( *Header\Content()\Game), "[KFX][360K]") Or			                            
 		     FindString( UCase( *Header\Content()\Game), "[KFX][720K]") Or
 		     FindString( UCase( *Header\Content()\Game), "[KFX][1200K]") Or					                                                                          
-		     FindString( UCase( *Header\Content()\Game), "[KFX][1220K]") Or
-		     FindString( UCase( *Header\Content()\Game), "[KFX][1440K]") )
+		     FindString( UCase( *Header\Content()\Game), "[KFX][1220K]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[KFX][1440K]") Or
+		     FindString( UCase( *Header\Content()\Game), "[KFX][360K-1200k]") Or
+		     FindString( UCase( *Header\Content()\Game), "[KFX][720k-1220k]") Or		     
+		     FindString( UCase( *Header\Content()\Game), "[KFX][1200k-1440k]") Or
+		     FindString( UCase( *Header\Content()\Game), "[360k][CP][!]"))
 			ProcedureReturn #True
 		EndIf
 		ProcedureReturn #False
@@ -446,7 +475,9 @@ Module TDCDAT
 		     	FindString( UCase( *Header\Content()\Game),"CUE]") Or
 		     	FindString( UCase( *Header\Content()\Game),"ISO]") Or		     
 		     	FindString( UCase( *Header\Content()\Game),"CCD]") Or
-		     	FindString( UCase( *Header\Content()\Game),"_TDC_]") Or 		     	
+		     	FindString( UCase( *Header\Content()\Game),"_TDC_]") Or 
+		     	FindString( UCase( *Header\Content()\Game),"[MDF]") Or
+		     	FindString( UCase( *Header\Content()\Game),"[NRG]") Or		     	
 		     	FindString( UCase( *Header\Content()\Game),"[CCD_DUPE_OF_REDUMP_BIN-CUE]") Or
 		     	FindString( UCase( *Header\Content()\Game),"[CCD CONVERTED To BIN-CUE]") Or
 		     	FindString( UCase( *Header\Content()\Game),"[FROM_EXO_ DUPE OF REDUMP BIN-CUE]") Or
@@ -473,26 +504,89 @@ Module TDCDAT
 	;
 	;
 	;
+	Procedure.i Check_Disk_RAW(*Header.TDC_Main)
+				
+		If (  GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "IMA" Or 
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "IMZ" Or	; IMZ has always another Size
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "IMG" Or 			      
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "RAW" Or 		      
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "SCP" Or
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "TD0" Or
+		      GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "DSK" Or
+			GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "VFD" Or			      
+			GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name )) = "TC" )
+			ProcedureReturn #True
+		EndIf
+		ProcedureReturn #False
+		
+	EndProcedure
+	;
+	;
+	;
+	Procedure.i Check_Disk_IMA(*Header.TDC_Main)
+				
+		If ( GetExtensionPart(UCase(  *Header\Content()\TDC_GameFile()\Name ) ) = "IMA"  Or GetExtensionPart(UCase(  *Header\Content()\TDC_GameFile()\Name ) )  = "IMG" ) And		   
+		   ( Val( *Header\Content()\TDC_GameFile()\Size) = 118044 Or	;180
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 149576 Or	;160
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 327680 Or	;320k
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 368640 Or	;360		     
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 737280 Or	;720K
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 1228800 Or	;1.2MB
+		     Val( *Header\Content()\TDC_GameFile()\Size) = 1474560 )	;1.44MB
+			  
+			ProcedureReturn #True
+		EndIf
+		ProcedureReturn #False
+		
+	EndProcedure
+	;
+	;
+	;
+	Procedure.i Check_CDROM_File(*Header.TDC_Main)
+				
+		If (   GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "BIN" Or 
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "CUE" Or
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "CCD" Or		      
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "ISO" Or		      
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "MDF" Or
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "MDS" Or		      
+		       GetExtensionPart( UCase( *Header\Content()\TDC_GameFile()\Name ) ) = "NRG"  )
+			
+			If ( Check_CDROM(*Header) = #False )
+				ProcedureReturn #False
+			EndIf
+			
+			ProcedureReturn #True
+		EndIf
+		ProcedureReturn #False
+		
+	EndProcedure	
+	;
+	;
+	;
 	Procedure.i Dat_WriteFile_CheckDate(*Header.TDC_Main)
 		
-			If *Header\useDate = #True
-				WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
-				                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
-				                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
-				                                  " date=" + Chr(34) + *Header\Content()\TDC_GameFile()\date      	+ Chr(34) +
-				                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)
-			ElseIf *Header\useDateLong = #True
-				WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
-				                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
-				                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
-				                                  " date=" + Chr(34) + *Header\Content()\TDC_GameFile()\DateLong     	+ Chr(34) +
-				                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)
-			Else
-				WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
-				                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
-				                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
-				                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)							
-			EndIf			
+		If *Header\useDate = #True
+			*Header\CountWrittenEntrys + 1
+			WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
+			                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
+			                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
+			                                  " date=" + Chr(34) + *Header\Content()\TDC_GameFile()\date      	+ Chr(34) +
+			                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)
+		ElseIf *Header\useDateLong = #True
+			*Header\CountWrittenEntrys + 1
+			WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
+			                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
+			                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
+			                                  " date=" + Chr(34) + *Header\Content()\TDC_GameFile()\DateLong     	+ Chr(34) +
+			                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)
+		Else
+			*Header\CountWrittenEntrys + 1
+			WriteStringN(*Header\FileDataW,   #TAB$ +#TAB$ + 
+			                                  "<rom name=" + Chr(34) + *Header\Content()\TDC_GameFile()\Name 	+ Chr(34) +
+			                                  " size=" + Chr(34) + *Header\Content()\TDC_GameFile()\Size      	+ Chr(34) +
+			                                  " crc="  + Chr(34) + *Header\Content()\TDC_GameFile()\HashCrc32 	+ Chr(34) + "/>",*Header\Encoding)							
+		EndIf			
 		
 		
 	EndProcedure
@@ -501,27 +595,86 @@ Module TDCDAT
 	;
 	Procedure.i Dat_WriteFile_RomLine(*Header.TDC_Main)
 		
-		ProgressCounter + 1
-		WriteStringN(*Header\FileDataW,  #TAB$ + "<game name="   + *Header\Content()\Game + ">", *Header\Encoding)
-		
-		WriteStringN(*Header\FileDataW,  #TAB$ +#TAB$ + "<description>" +Trim(*Header\Content()\Game, Chr(34)) + "</description>", *Header\Encoding)
+		Protected nWritten.i = 0
 		ResetList( *Header\Content()\TDC_GameFile() )
 		
+		;
+		;    Allowed DiskImages			CDROMS					 Educational				Games			
+		If ( *Header\useSortIMA = #True And *Header\useSortCDR  = #False And *Header\useSortEDU = #True  And *Header\useSortGMS = #False )
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0
+				If ( Check_Disk_RAW(*Header) = #True )
+				Else	
+					ProcedureReturn 
+				EndIf
+			EndIf	
+				
+		ElseIf ( *Header\useSortIMA = #True And  *Header\useSortCDR  = #False And *Header\useSortEDU = #False  And *Header\useSortGMS = #True )
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0
+				If ( Check_Disk_RAW(*Header) = #True )
+				Else	
+					ProcedureReturn
+				EndIf
+			EndIf	
+				
+		ElseIf ( *Header\useSortIMA = #False And  *Header\useSortCDR  = #True And *Header\useSortEDU = #True  And *Header\useSortGMS = #False )
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0
+				If ( Check_CDROM_File(*Header) = #True )
+				Else	
+					ProcedureReturn
+				EndIf
+			EndIf
 		
+		ElseIf ( *Header\useSortIMA = #False And  *Header\useSortCDR  = #True And *Header\useSortEDU = #False  And *Header\useSortGMS = #True )
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0			
+				If ( Check_CDROM_File(*Header) = #True )
+				Else	
+					ProcedureReturn
+				EndIf
+			EndIf
+			
+		ElseIf (*Header\useSortEDU = #True And *Header\useSortGMS = #False And  *Header\useSortCDR  = #False And *Header\useSortIMA = #False ) 
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0
+				If ( Check_Disk_RAW(*Header) = #False ) Or ( Check_CDROM_File(*Header) = #False )
+				Else	
+					ProcedureReturn
+				EndIf
+			EndIf
+			
+		ElseIf ( *Header\useSortEDU = #False And *Header\useSortGMS = #True And  *Header\useSortCDR  = #False And *Header\useSortIMA = #False )
+			If ListIndex( *Header\Content()\TDC_GameFile()) = 0
+				If ( Check_Disk_RAW(*Header) = #False ) Or ( Check_CDROM_File(*Header) = #False )
+				Else	
+					ProcedureReturn
+				EndIf
+			EndIf
+		ElseIf ( *Header\useSortGMS = #False And  *Header\useSortCDR  = #False And *Header\useSortEDU = #False  And *Header\useSortIMA = #False )
+			; OK Alles
+		EndIf	
+		
+		ProgressCounter + 1
+		
+		WriteStringN(*Header\FileDataW,  #TAB$ + "<game name="   + *Header\Content()\Game + ">", *Header\Encoding)		
+		WriteStringN(*Header\FileDataW,  #TAB$ +#TAB$ + "<description>" +Trim(*Header\Content()\Game, Chr(34)) + "</description>", *Header\Encoding)
+				
 		While NextElement( *Header\Content()\TDC_GameFile() )
+			
+			
 			;
 			;
 			; ClrmamePro unterstützt keine Verzeichnisse angabe mit 0 CRC's
 			If ( *Header\Content()\TDC_GameFile()\HashCrc32 = "00000000") And ( Right(*Header\Content()\TDC_GameFile()\Name, 1) = "\" )
 				;
 				; Verzeichnis Gefunden
+				*Header\CountWrittenEntrys + 1
 				Continue
 			EndIf
+
 			
-			Dat_WriteFile_CheckDate(*Header)
+			
+			Dat_WriteFile_CheckDate(*Header)			
 			
 		Wend	
-		;
+
 		;
 		; Hierarchie für <game> beendet
 		WriteStringN(*Header\FileDataW,  #TAB$ + "</game>", *Header\Encoding)					
@@ -553,6 +706,7 @@ Module TDCDAT
 				ProcedureReturn #False
 			EndIf	
 			
+
 			;
 			;
 			; Resete die Datei Liste
@@ -565,46 +719,51 @@ Module TDCDAT
 					;    Allowed DiskImages			CDROMS					 Educational				Games
 					If ( *Header\useSortIMA = #True And *Header\useSortCDR  = #False And *Header\useSortEDU = #True  And *Header\useSortGMS = #False )
 						
-						If ( Check_Disk(*Header)= #True ) And ( FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))
+						If ( Check_Disk(*Header)= #True ) And ( FindString( UCase( *Header\Content()\Game),"EDUCATIONAL"));"[EDUCATIONAL]"))
 							;
-							; Collect Only Edcuational and DiskImages							
+							; Collect Only Edcuational and DiskImages	
+							*Header\CountWrittenTitles + 1
 							Dat_WriteFile_RomLine(*Header)
 						EndIf	
 						
 					ElseIf ( *Header\useSortIMA = #True And  *Header\useSortCDR  = #False And *Header\useSortEDU = #False  And *Header\useSortGMS = #True )
 						
-						If ( Check_Disk(*Header) = #True) And ( Not FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))				                            
+						If ( Check_Disk(*Header) = #True) And ( Not FindString( UCase( *Header\Content()\Game),"EDUCATIONAL"));"[EDUCATIONAL]"))				                            
 							;
-							; Collect Only Games and DiskImages					
+							; Collect Only Games and DiskImages	
+							*Header\CountWrittenTitles + 1
 							Dat_WriteFile_RomLine(*Header)
 						EndIf	
 						
 						
 					ElseIf ( *Header\useSortIMA = #False And  *Header\useSortCDR  = #True And *Header\useSortEDU = #True  And *Header\useSortGMS = #False )
 						
-						If ( Check_CDROM(*Header) = #True ) And ( FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))	
+						If ( Check_CDROM(*Header) = #True ) And ( FindString( UCase( *Header\Content()\Game), "EDUCATIONAL"));"[EDUCATIONAL]"))	
 							;
-							; Collect Only Edcuational and CDROM						 					
+							; Collect Only Edcuational and CDROM
+							*Header\CountWrittenTitles + 1
 							Dat_WriteFile_RomLine(*Header)
 						EndIf	
 						
 						
 					ElseIf ( *Header\useSortIMA = #False And  *Header\useSortCDR  = #True And *Header\useSortEDU = #False  And *Header\useSortGMS = #True )
 						
-						If ( Check_CDROM(*Header) = #True ) And ( Not FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))	
+						If ( Check_CDROM(*Header) = #True ) And ( Not FindString( UCase( *Header\Content()\Game),"EDUCATIONAL"));"[EDUCATIONAL]"))	
 							;
-							; Collect Only Games and CDROM				
+							; Collect Only Games and CDROM
+							*Header\CountWrittenTitles + 1
 							Dat_WriteFile_RomLine(*Header)						
 						EndIf	
 						
 					ElseIf (*Header\useSortEDU = #True And *Header\useSortGMS = #False And  *Header\useSortCDR  = #False And *Header\useSortIMA = #False ) 
 						
-						If ( FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))
+						If ( FindString( UCase( *Header\Content()\Game),"EDUCATIONAL"));"[EDUCATIONAL]"))
 							
 							If ( Check_Disk(*Header)= #True ) Or ( Check_CDROM(*Header) = #True )
 							Else
 								;
-								; Collect Only Edcuational Software and Installer				
+								; Collect Only Edcuational Software and Installer
+								*Header\CountWrittenTitles + 1
 								Dat_WriteFile_RomLine(*Header)
 							EndIf
 						EndIf
@@ -612,12 +771,13 @@ Module TDCDAT
 						
 					ElseIf ( *Header\useSortEDU = #False And *Header\useSortGMS = #True And  *Header\useSortCDR  = #False And *Header\useSortIMA = #False )
 						
-						If ( Not FindString( UCase( *Header\Content()\Game),"[EDUCATIONAL]"))
+						If ( Not FindString( UCase( *Header\Content()\Game),"EDUCATIONAL"));"[EDUCATIONAL]"))
 							
 							If ( Check_Disk(*Header)= #True ) Or ( Check_CDROM(*Header) = #True )
-							Else								
+								Else								
 								;
-								; Collect Only Games Software and Installer				
+								; Collect Only Games Software and Installer
+								*Header\CountWrittenTitles + 1
 								Dat_WriteFile_RomLine(*Header)
 							EndIf					
 						EndIf	
@@ -626,8 +786,12 @@ Module TDCDAT
 					ElseIf ( *Header\useSortGMS = #False And  *Header\useSortCDR  = #False And *Header\useSortEDU = #False  And *Header\useSortIMA = #False )
 						;
 						;
-						; Alles						
+						; Alles
+						*Header\CountWrittenTitles + 1
 						Dat_WriteFile_RomLine(*Header)
+						
+					Else
+						MessageRequester( "Total DOS Collection", "Achtung: Nicht Konvertiert" + #CRLF$ +  *Header\Content()\Game )
 					EndIf	
 					
 				Wend	
@@ -656,7 +820,7 @@ Module TDCDAT
 		; Schreibe das Encofings Format
 		*Header\FileDataW = CreateFile( #PB_Any,  Dat_WriteFile_NewFileName(*Header , File) )
 		*Header\_thread	= 0
-		
+
 		
 		If IsGadget(ProgressID)
 			SetGadgetAttribute(ProgressID, #PB_ProgressBar_Minimum,1 )
@@ -686,7 +850,7 @@ Module TDCDAT
 			;
 			; Gadget Support				
 			If IsGadget( GadgetID_GameName)
-				SetGadgetText(GadgetID_GameName, "Konvertierung und Gespeichert als ClrMamePro Format ..." )	
+				SetGadgetText(GadgetID_GameName, "Konvertierung und Gespeichert als ClrMamePro Format ... (Geschrieben: "+ *Header\CountWrittenTitles+"/"+*Header\CountWrittenEntrys+")" )	
 			EndIf					
 			
 			If IsGadget(ProgressID)
@@ -714,6 +878,8 @@ Module TDCDAT
 			
 			*Header\useDate	  = useDate
 			*Header\useDateLong = useDateLong
+			*Header\CountWrittenTitles = 0
+			*Header\CountWrittenEntrys = 0			
 			
 			If ( UseSort = #False )	
 				
@@ -736,7 +902,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				; 				
-				szCategory = "[Floppys - Eductional]"
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Educational - Floppy [IMA][IMG][RAW][SCP][TD0] )"
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -758,7 +924,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				; 
-				szCategory = "[Floppys - Games]"				
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Games - Floppy [IMA][IMG][RAW][SCP][TD0] )"				
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -779,7 +945,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				;
-				szCategory = "[CDROMs - Eductional]"				
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Educational - CDRoms [ISO][BIN][CCD][NRG][MDF] )"				
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -800,7 +966,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				; 
-				szCategory = "[CDROMs - Games]"
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Games - CDRoms [ISO][BIN][CCD][NRG][MDF] )"
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -821,7 +987,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				;
-				szCategory = "[Software - Educational]"				
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Educational - Software [RIP][INSTALLS][LOSE FILES] )"				
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -842,7 +1008,7 @@ Module TDCDAT
 				;---------------------------------------------------------------------------------
 				;
 				;
-				szCategory = "[Software - Games]"				
+				szCategory = "[ TDC Ver."+*Header\Version+" ]( Games - Software [RIP][INSTALLS][LOSE FILES] )"					
 				If IsGadget( GadgetID_GameName)
 					SetGadgetText(GadgetID_GameName, "Speichere ... "+szCategory )	
 				EndIf
@@ -942,6 +1108,7 @@ Module TDCDAT
 		
 		ProgressCounter = 0
 		
+		
 		*Header\useDate = #False
 		*Header\useDateLong = #False
 		
@@ -988,6 +1155,7 @@ Module TDCDAT
 	;
 	;
 	Procedure.i Dat_Listing(*Header.TDC_Main, ListGadgetID.i = 0)
+		Protected FileList.i
 		;
 		;
 		; Support Listview Gadget
@@ -996,7 +1164,13 @@ Module TDCDAT
 			ResetList( *Header\Content() )
 						
 			While NextElement( *Header\Content() )								
-				AddGadgetItem( ListGadgetID, -1, *Header\Content()\Game)								
+				AddGadgetItem( ListGadgetID, -1, *Header\Content()\Game)	
+				
+				ResetList( *Header\Content()\TDC_GameFile() )
+				FileList = ListSize ( *Header\Content()\TDC_GameFile() )
+				If ( FileList = 0 )
+					MessageRequester( "Total DOS Collection", "Achtung: Keine Dateien bei Titel" + #CRLF$ +  *Header\Content()\Game )
+				EndIf	
 			Wend	
 		EndIf
 		
@@ -1043,7 +1217,7 @@ CompilerIf #PB_Compiler_IsMainFile
 		Protected.s FileName,  Pattern
 		
 		Pattern = "TDC Data (*.dat)|*.dat|Alle Dateien (*.*)|*.*"		
-		FileName = OpenFileRequester("TDC Tester","",Pattern,0)
+		FileName = OpenFileRequester("Total DOS Collection DAT","",Pattern,0)
 		
 		If ( FileName ) 
 			
@@ -1075,7 +1249,7 @@ CompilerIf #PB_Compiler_IsMainFile
 		Protected.s FileName,  Pattern
 		
 		Pattern = "TDC Data (*.dat)|*.dat|Alle Dateien (*.*)|*.*"		
-		FileName = SaveFileRequester("TDC DAT","TDC_ClrMamePro.DAT",Pattern,0)
+		FileName = SaveFileRequester("Total DOS Collection DAT","ClrMamePro.DAT",Pattern,0)
 		If ( FileName ) 
 			;
 			;
@@ -1090,16 +1264,16 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 		
 	Procedure OpenWindow_0(x = 0, y = 0, width = 600, height = 426)
-		OpenWindow(#Window_0, x, y, width, height, "Total DOC Collection DAT 2 ClrmamePro DAT Konvertierung", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
+		OpenWindow(#Window_0, x, y, width, height, "Total DOS Collection DAT 2 ClrmamePro DAT Konvertierung", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
 		
 		ButtonGadget(#Button_0, 4, 378, 116, 28, "Öffne TDC Dat")
 	  	ButtonGadget(#Button_1, 130, 364, 130, 28, "Speichern")		
-  		ButtonGadget(#Button_2, 266, 364, 160, 28, "Speichern ( Date )")
-  		ButtonGadget(#Button_3, 432, 364, 160, 28, "Speichern ( Timestamp )")	  	
+  		ButtonGadget(#Button_2, 266, 364, 160, 28, "Speichern ( Datum )")
+  		ButtonGadget(#Button_3, 432, 364, 160, 28, "Speichern ( Stempel )")	  	
   		
-  		ButtonGadget(#Button_4, 130, 394, 130, 28, "Speichern (Split)")
-  		ButtonGadget(#Button_5, 266, 394, 160, 28, "Speichern (Split/Date)")
-  		ButtonGadget(#Button_6, 432, 394, 160, 28, "Speichern (Split/Timestamp)")  		
+  		ButtonGadget(#Button_4, 130, 394, 130, 28, "Speichern (S)")
+  		ButtonGadget(#Button_5, 266, 394, 160, 28, "Speichern (S|Datum)")
+  		ButtonGadget(#Button_6, 432, 394, 160, 28, "Speichern (S|Stempel)")  		
   		
 	  	ProgressBarGadget(#ProgressBar_0, 0, 316, 600, 8, 0, 0)
 
@@ -1188,11 +1362,12 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 555
-; FirstLine = 265
-; Folding = DQAf1-
+; CursorPosition = 750
+; FirstLine = 409
+; Folding = DQ9-P+
 ; EnableAsm
 ; EnableThread
 ; EnableXP
+; Executable = ClassEX_DAT_2_ ClrMamePro_TDC.exe
 ; DisableDebugger
 ; EnablePurifier
