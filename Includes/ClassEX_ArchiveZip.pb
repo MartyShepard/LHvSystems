@@ -967,11 +967,16 @@ EndProcedure
 EndModule
 
 CompilerIf #PB_Compiler_IsMainFile
+	
+	
+	Debug CLZIP::GetFileInfo("B:\Testpack\mss_v093.zip", 4)
+	CLZIP::ExtractArchiv("B:\Testpack\mss_v093.zip", "B:\testPack")
+	
 CompilerEndIf
-; IDE Options = PureBasic 5.42 LTS (Windows - x64)
-; CursorPosition = 969
-; FirstLine = 175
-; Folding = DXAAA9
+; IDE Options = PureBasic 6.00 LTS (Windows - x64)
+; CursorPosition = 972
+; FirstLine = 293
+; Folding = DfAgA9
 ; EnableAsm
-; EnableUnicode
 ; EnableXP
+; EnableUnicode
