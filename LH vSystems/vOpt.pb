@@ -154,9 +154,8 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 81
-; FirstLine = 33
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 77
 ; EnableAsm
 ; EnableThread
 ; EnableXP
@@ -164,7 +163,7 @@
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
 ; CurrentDirectory = N:\Tosec Mame Emulation\Computer\Apple Macintosh 1\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

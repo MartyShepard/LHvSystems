@@ -135,11 +135,11 @@ Module Monitoring
             
             ;
             ; Sicher den Handle um diesen später zu überprüfen. Genriere den DateiNamen
-            Startup::*LHGameDB\Monitoring\LogHandle =  OpenFile( #PB_Any,  Startup::*LHGameDB\Monitoring\LogPath + Date$ + Time$ + "-" + Startup::*LHGameDB\Monitoring\LogFile )      
+            Startup::*LHGameDB\Monitoring\LogHandle =  OpenFile( #PB_Any,  Startup::*LHGameDB\Monitoring\LogPath + Date$ + "-" + Time$ + "-" + Startup::*LHGameDB\Monitoring\LogFile )      
             
             ;
             ; Letzte LogDatei über das Traymenü Öffnen           
-            Startup::*LHGameDB\Monitoring\LatestLog =  Startup::*LHGameDB\Monitoring\LogPath + Date$ + Time$ + "-" + Startup::*LHGameDB\Monitoring\LogFile
+            Startup::*LHGameDB\Monitoring\LatestLog =  Startup::*LHGameDB\Monitoring\LogPath + Date$ + "-"+ Time$ + "-" + Startup::*LHGameDB\Monitoring\LogFile
 
                                     
             If (  Startup::*LHGameDB\Monitoring\LogHandle )
@@ -195,7 +195,7 @@ EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 141
-; FirstLine = 104
+; FirstLine = 94
 ; Folding = f-
 ; EnableAsm
 ; EnableXP

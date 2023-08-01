@@ -8,6 +8,8 @@ DeclareModule TDCDAT
 	Declare.i	GetCountFiles(*Header)
 	
 	Declare.i	Dat_Listing(*Header, ListGadgetID.i = 0)
+	
+	Declare.i   Dat_CleanFile(File.s, GadgetID_CountGames.i = 0, GadgetID_CountFiles.i = 0, GadgetID_GameName.i = 0, ProgressGadgteID.i = 0)
 
 EndDeclareModule
 
@@ -60,6 +62,24 @@ Module TDCDAT
 		CountWrittenEntrys.i
 		List Content.TDC_GameName()
 	EndStructure
+	
+	Structure TDC_TextFile
+		szLine.s	
+	EndStructure
+	
+	Structure TDC_Clean
+		File.s
+		Path.s
+		Encoding.i
+		_thread.i
+		FileDataR.i	
+		FileDataW.i	
+		GadgetID_CountGames.i
+		GadgetID_CountFiles.i
+		GadgetID_GameName.i
+		ProgressGadgteID.i
+		List Content.TDC_TextFile()
+	EndStructure	
 
 	;
 	;
@@ -1054,7 +1074,7 @@ Module TDCDAT
 	;
 	;
 	;
-	Procedure.i	Dat_Convert(*Header.TDC_Main)
+	Procedure.i	Dat_Convert(*Header.TDC_Main)				
 		
 		Protected.i isHeader = #False,  isStart = #True, isGame = #False, isGameData = #False
 		Protected.s szLine
@@ -1176,6 +1196,209 @@ Module TDCDAT
 	EndProcedure	
 	;
 	;
+	; Säubere die TC Dat von verzeichnissen
+	Procedure.i	Dat_Clean_Thread(*Clean.TDC_Clean)				
+		Protected.i Zeilen, RemovedDirs, Games
+		Protected.s szLine, szWriteFile
+		
+		If *Clean = 0
+			Debug "Read Database - Problem"
+		EndIf
+		
+		If ( *Clean\FileDataR > 0)
+			Debug "Read Database (Clean)"
+						
+			
+			;*Header\Encoding = ReadStringFormat(*Header\FileDataR)
+			
+			*Clean\Encoding = #PB_UTF8
+			
+			While Eof(*Clean\FileDataR) = 0
+				
+				szLine = ReadString(*Clean\FileDataR, *Clean\Encoding)
+				
+				
+				If ( FindString( szLine, "crc 00000000",1) > 1)
+														
+					If ( FindString( szLine, "\ size 0 date") > 1 )
+						Debug "NULL CRCs Verzeicichnisse: " + szLine
+						SetGadgetText( *Clean\GadgetID_GameName ,  "Leeres CRC Verzeichnis: "+  szLine)	
+						RemovedDirs + 1
+						Continue
+					 EndIf	
+				EndIf	
+					
+				If ( FindString( szLine, "dosbox.conf",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox (Conf) Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "dosbox.exe",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox (exe) Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				
+				If ( FindString( szLine, "scummvm.exe",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "ScummVM Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "Conf\setup.conf",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox Conf Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "\DOSBox\",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox Dir Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "\dosbox-0.74\",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox Dir Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "crc A320B5E0",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox SDL Dll Entfernt: "+  szLine)	
+					Continue
+				EndIf	
+				
+				If ( FindString( szLine, "crc E90BEDAA",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "Dosbox SDL Dll Entfernt: "+  szLine)	
+					Continue
+				EndIf
+				
+				If ( FindString( szLine, "DOS4GVM.SWP size 0",1) > 1)	
+					SetGadgetText( *Clean\GadgetID_GameName ,  "DOS SwapDatei Entfernt: "+  szLine)	
+					Continue
+				EndIf					
+				
+				AddElement( *Clean\Content() )
+				*Clean\Content()\szLine = szLine
+				Zeilen + 1
+				
+				
+				If ( FindString( *Clean\Content()\szLine, "game (",1) >= 1)
+					Games + 1
+				EndIf	
+				;
+				;
+				; Gadget Support					
+				If IsGadget(*Clean\GadgetID_CountGames)
+					SetGadgetText( *Clean\GadgetID_CountGames , "Spiele : " + Str( Games )	)
+				EndIf	
+				
+ 				If IsGadget(*Clean\GadgetID_CountFiles)
+ 					SetGadgetText( *Clean\GadgetID_CountFiles , "E. Ver.: " + Str( RemovedDirs )	)
+ 				EndIf	
+				
+;  				If IsGadget(*Clean\GadgetID_GameName)
+;  					If ( FindString( *Clean\Content()\szLine, ")",1) = 1) Or ( Len(*Clean\Content()\szLine) = 0 ) Or ( FindString( *Clean\Content()\szLine, "game (",1) >= 1)
+;  					Else
+;  						
+;  						SetGadgetText( *Clean\GadgetID_GameName ,  *Clean\Content()\szLine )	
+;  					EndIf	
+;  				EndIf					
+							
+			Wend	
+			
+			CloseFile(*Clean\FileDataR)
+			
+			Debug "Read Database (Clean) - Finsished"
+			
+			Debug "Write Cleaned Database"
+			
+ 			If IsGadget(*Clean\GadgetID_GameName)
+ 				SetGadgetText( *Clean\GadgetID_GameName ,  "Write Cleaned Database....." )	
+ 			EndIf
+ 				
+			szWriteFile = *Clean\Path + GetFilePart( *Clean\File, #PB_FileSystem_NoExtension) + "-Cleaned.DAT"
+			
+			*Clean\FileDataW = CreateFile( #PB_Any, szWriteFile, #PB_File_SharedWrite)
+			
+			If IsGadget(*Clean\ProgressGadgteID)
+				SetGadgetState(*Clean\ProgressGadgteID, 0 ):
+			EndIf	
+				
+			ResetList( *Clean\Content() )
+			
+			If IsGadget(*Clean\ProgressGadgteID)
+				SetGadgetAttribute(*Clean\ProgressGadgteID, #PB_ProgressBar_Minimum,1 )
+				SetGadgetAttribute(*Clean\ProgressGadgteID, #PB_ProgressBar_Maximum,Zeilen)				
+			EndIf			
+			
+			Zeilen = 0
+			While NextElement( *Clean\Content() )
+				WriteStringN( *Clean\FileDataW, *Clean\Content()\szLine, *Clean\Encoding )
+				
+				Zeilen + 1
+				If IsGadget(*Clean\ProgressGadgteID)
+					SetGadgetState(*Clean\ProgressGadgteID, Zeilen ):
+				EndIf					
+			Wend	
+			
+			CloseFile(*Clean\FileDataW)
+			
+			Debug "Write Cleaned Database  Finished"
+		EndIf
+
+	EndProcedure	
+	
+	;
+	;
+	; Module um TDC Dat Dateien nach ClrmamePro zu Konvertieren
+	Procedure.i Dat_CleanFile(File.s, GadgetID_CountGames.i = 0, GadgetID_CountFiles.i = 0, GadgetID_GameName.i = 0, ProgressGadgteID.i = 0)
+		
+		*Clean.TDC_Clean = AllocateStructure( TDC_Clean )
+		*Clean\File = GetFilePart( File )
+		*Clean\Path = GetPathPart( File )		
+		
+		*Clean\GadgetID_CountGames  = GadgetID_CountGames		
+		*Clean\GadgetID_CountFiles = GadgetID_CountFiles		
+		*Clean\GadgetID_GameName   = GadgetID_GameName
+		*Clean\ProgressGadgteID    = ProgressGadgteID
+		
+		NewList *Clean\Content.TDC_TextFile()
+				
+		*Clean\FileDataR = ReadFile( #PB_Any, *Clean\Path + *Clean\File)
+		
+		ProgressCounter = 0
+		
+		*Clean\_thread  = CreateThread(@Dat_Clean_Thread(),*Clean)   		   		            
+		If *Clean\_thread  > 0			
+			
+			While IsThread(*Clean\_thread )
+				
+				;Delay(5)
+							
+				
+				ProgramEventID = WindowEvent()    
+				If ( ProgramEventID )
+					
+				EndIf
+				
+			Wend   
+			
+			;
+			;
+			; Gadget Support				
+			If IsGadget(GadgetID_GameName)
+				SetGadgetText( GadgetID_GameName ,  "DAT Konvertierung beendet und vorbereitet zum Speichern .... " )
+
+			EndIf				
+			
+			SetGadgetText( GadgetID_CountGames , "Spiele : 0")
+			SetGadgetText( GadgetID_CountFiles , "Dateien: 0")			
+			SetGadgetText( GadgetID_GameName , "")	
+			SetGadgetAttribute(ProgressGadgteID, #PB_ProgressBar_Minimum,1)
+			SetGadgetAttribute(ProgressGadgteID, #PB_ProgressBar_Maximum,1)			
+		EndIf
+		ProcedureReturn *Clean
+		
+	EndProcedure	
+	;
+	;
 	;
 	Procedure.i Dat_Listing(*Header.TDC_Main, ListGadgetID.i = 0)
 		Protected FileList.i
@@ -1205,7 +1428,7 @@ EndModule
 CompilerIf #PB_Compiler_IsMainFile
 	
 	
-	Define *TDCContent, ThreadID.i, CountGames.i
+	Define *TDCContent, *TDCClean, ThreadID.i, CountGames.i
 	
 	Enumeration FormWindow
 	  #Window_0
@@ -1219,6 +1442,7 @@ CompilerIf #PB_Compiler_IsMainFile
 		#Button_4
 		#Button_5
 		#Button_6
+		#Button_7
 		#ProgressBar_0		
 		#ListView_0
 		#Text_0
@@ -1232,6 +1456,34 @@ CompilerIf #PB_Compiler_IsMainFile
 		
 	LoadFont(#Font_Window_0_1,"Segoe UI", 10)	
 	
+	;
+	;
+	; --------------------------------------------------------------------------------------------------------------	
+	Procedure 	TDC_Clean_Open(*TDCClean)
+		Protected.s FileName,  Pattern
+		
+		Pattern = "TDC Data (*.dat)|*.dat|Alle Dateien (*.*)|*.*"		
+		FileName = OpenFileRequester("Total DOS Collection DAT","",Pattern,0)
+		
+		If ( FileName ) 
+			
+			ClearGadgetItems( #ListView_0 )
+			
+			SetGadgetText( #Text_0 , "Spiele : 0")
+			SetGadgetText( #Text_1 , "E. Ver.: 0")			
+			SetGadgetText( #Text_2 , "")	
+			SetGadgetAttribute(#ProgressBar_0, #PB_ProgressBar_Minimum,1)
+			SetGadgetAttribute(#ProgressBar_0, #PB_ProgressBar_Maximum,1)
+				
+			*TDCClean = TDCDAT::Dat_CleanFile(FileName, #Text_0, #Text_1, #Text_2, #ProgressBar_0)			
+			
+			If *TDCClean > 0							
+				ProcedureReturn *TDCClean
+			EndIf
+		
+		EndIf			
+		ProcedureReturn 0
+	EndProcedure
 	
 	;
 	;
@@ -1289,7 +1541,9 @@ CompilerIf #PB_Compiler_IsMainFile
 	Procedure OpenWindow_0(x = 0, y = 0, width = 600, height = 426)
 		OpenWindow(#Window_0, x, y, width, height, "Total DOS Collection DAT 2 ClrmamePro DAT Konvertierung", #PB_Window_SystemMenu| #PB_Window_ScreenCentered)
 		
-		ButtonGadget(#Button_0, 4, 378, 116, 28, "Öffne TDC Dat")
+		ButtonGadget(#Button_0, 4, 364, 116, 28, "Öffne TDC Dat")
+		ButtonGadget(#Button_7, 4, 394, 116, 28, "Bereinige TDC Dat")
+		
 	  	ButtonGadget(#Button_1, 130, 364, 130, 28, "Speichern")		
   		ButtonGadget(#Button_2, 266, 364, 160, 28, "Speichern ( Datum )")
   		ButtonGadget(#Button_3, 432, 364, 160, 28, "Speichern ( Stempel )")	  	
@@ -1349,6 +1603,11 @@ CompilerIf #PB_Compiler_IsMainFile
 						If *TDCContent > 0
 	
 						EndIf	
+					Case #Button_7 :
+						*TDCClean = TDC_Clean_Open(*TDCClean)
+						If *TDCClean > 0
+	
+						EndIf							
 						
             			Case #Button_1 :
             				If *TDCContent > 0
@@ -1385,12 +1644,11 @@ CompilerIf #PB_Compiler_IsMainFile
 	
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 476
-; FirstLine = 263
-; Folding = DnAOc9-
+; CursorPosition = 1272
+; FirstLine = 396
+; Folding = DAAAM3-
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; Executable = ClassEX_DAT_2_ ClrMamePro_TDC.exe
-; DisableDebugger
 ; EnablePurifier

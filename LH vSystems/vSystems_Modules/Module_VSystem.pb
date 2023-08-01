@@ -23,6 +23,9 @@
     
     Declare.i   Capture_Screenshot(ProgrammName.s) 
     
+    Declare.i   LCD_Info(LCDInfo.i = #False, PrpLoop.i = #False)
+    
+    Declare.i   Terminate_Programm(*Params)
 EndDeclareModule
 
 Module vSystem
@@ -982,14 +985,29 @@ Module vSystem
     ;
     ;
     Procedure.s   System_Get_Internal_MEM(LCDInfo.i = #True)
-               
-        Free.s = MathBytes::Bytes2String(MemoryStatus(#PB_System_FreePhysical))
-        Total.s= MathBytes::Bytes2String(MemoryStatus(#PB_System_TotalPhysical))
-        
-        If ( LCDInfo.i = #True )
-            ProcedureReturn  Total + "  ( " + Free + " Frei )"
-        EndIf    
-        ProcedureReturn  Total + "  ( " + Free + " Verfügabar )"
+    	
+    	Protected Free.s = "", Total.s = ""
+    	
+    	Free.s = MathBytes::Bytes2String(MemoryStatus(#PB_System_FreePhysical))
+    	
+    	If ( LCDInfo.i = #True )
+    		;
+		; Info für den Standard Loop 	 	
+    		Total.s = MathBytes::Bytes2String( MemoryStatus(#PB_System_TotalPhysical), #True)
+    		
+    		ProcedureReturn  Total + "  FREE: " + Free 
+    		
+    	ElseIf ( LCDInfo.i = 999 )
+    		;
+		; Info für den Programm Execute Loop        	
+    		ProcedureReturn  Free
+    	EndIf
+    	
+    	;
+	; Info für den Standard Loop 	     	
+    	Total.s = MathBytes::Bytes2String( MemoryStatus(#PB_System_TotalPhysical) )
+    	
+    	ProcedureReturn  Total + "  ( " + Free + " Verfügabar )"
     EndProcedure
     ;
     ;
@@ -1003,7 +1021,6 @@ Module vSystem
     ;    
     Procedure.s   System_InfoToolTip(LCDInfo.i = #False)
         
-        If ( LCDInfo = #False )
             TooltipString.s = ""
             TooltipString   = Startup::*LHGameDB\TrayIconTitle + Chr(13) + Chr(13) + 
                               "CPU: " + Trim( CPUName() ) + Chr(13) +
@@ -1014,14 +1031,7 @@ Module vSystem
                               "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
                               "Developed by Marty Shepard"
             
-            Startup::ToolTipSystemInfo = TooltipString
-        EndIf
-        
-        If ( LCDInfo = #True )  And ( LCD::Mono_IsConnected() )                     
-             LCD::Mono_SetText(0, Startup::*LHGameDB\TitleSimpled )
-             LCD::Mono_SetText(1,  System_Get_Internal_MEM(#True) )             
-             LCD::Update()
-        EndIf
+            Startup::ToolTipSystemInfo = TooltipString     
 
         ProcedureReturn TooltipString
     EndProcedure
@@ -1029,6 +1039,21 @@ Module vSystem
     Procedure.i   System_DPI_Helper()
     EndProcedure    
     
+    Procedure.i   Capture_Screenshot_Thread(*Interval)
+    	
+		If (  LCD::Mono_IsConnected() )              
+			LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
+             	LCD::Mono_SetText(1, "")			
+             	LCD::Mono_SetText(2, " --  SCREENSHOT CAPTURED  -- " )             	
+             	LCD::Mono_SetText(3, "")
+             	LCD::Update()
+             	Delay(*Interval)
+            EndIf    	
+    	
+    EndProcedure
+    ;
+    ;
+    ;
     Procedure.i   Capture_Screenshot(ProgrammName.s)
         
         If  ( Startup::*LHGameDB\NBWindowhwnd > 0 )
@@ -1036,7 +1061,7 @@ Module vSystem
             Debug "Capture Screenshot"
             
             Protected Window.RECT, Client.RECT, Directory.s =  Startup::*LHGameDB\Base_Path + "Systeme\", ImageFileName.s 
-            
+                       	            
             
             hImage = CreateImage(#PB_Any,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom)  
             hDC    = StartDrawing(ImageOutput(hImage))
@@ -1063,23 +1088,148 @@ Module vSystem
             ImageFileName.s = Directory.s + "SHOT\" + ProgrammName.s + " - " + Date$ + " - " + Time$ + ".png"
                        
             SaveImage(hImage, ImageFileName,#PB_ImagePlugin_PNG)
+            
+		CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 1000)
+             
             Beep_(200,300)
             Beep_(450,100)            
             FreeImage(hImage)
             
-            Debug "Captured: " + ImageFileName
+            Debug "Captured: " + ImageFileName           	
             ProcedureReturn                                    
         EndIf
     EndProcedure        
     ;
     ;
-    ;    
+    ;
+    Procedure.i 	  LCD_Info(LCDInfo.i = #False, PrgLoop.i = #False)
+    	
+    	If ( LCDInfo = #True )  And ( LCD::Color_IsConnected() Or LCD::Mono_IsConnected() ) And (PrgLoop = #False)                 
+    		
+             LCD::Mono_SetText(0, UCase( Startup::*LHGameDB\TitleSimpled ))
+             LCD::Mono_SetText(1, "MEM: " + System_Get_Internal_MEM(#True) )
+             LCD::Mono_SetText(2, UCase( GetFilePart(ProgramFilename(),#PB_FileSystem_NoExtension)))
+             LCD::Mono_SetText(3, "")
+             LCD::Mono_SetText(4, "")
+             LCD::Update()
+             
+             ProcedureReturn 
+             
+      ElseIf ( LCDInfo = #True ) And ( LCD::Color_IsConnected() Or LCD::Mono_IsConnected() ) And (PrgLoop = #True)   
+      	
+             LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
+             
+             
+
+             If ( Startup::*LHGameDB\vKeyActivShot = #True )
+             	LCD::Mono_SetText(1,  "KEY CAPTURE : SCROLL" )
+             Else
+             	LCD::Mono_SetText(1,  "KEY CAPTURE : DISBALED" )
+             EndIf	
+             
+             If ( Startup::*LHGameDB\vKeyActivKill = #True )             	
+             	If   ( Startup::*LHGameDB\Settings_hkeyShot = #MOD_SHIFT)
+           			LCD::Mono_SetText(2,  "KEY KILL-PRG: SHIFT + SCROLL" )
+             	Else
+           			LCD::Mono_SetText(2,  "KEY KILL-PRG: ALT + SCROLL" )
+             	EndIf
+             Else
+             	LCD::Mono_SetText(2,  "KEY KILL-PRG : DISBALED" )
+             EndIf
+             
+             sTextLastLine.s = ""
+             
+             If ( Startup::*LHGameDB\Settings_Affinity => 0)
+             	Debug Startup::*LHGameDB\Settings_Affinity
+             	sTextLastLine + "|CPU-"+Str(Startup::*LHGameDB\Settings_Affinity)
+             EndIf 
+             
+             If ( Startup::*LHGameDB\Settings_fMonitor = #True)
+             	sTextLastLine + "MON|" 
+             EndIf
+             
+             If ( Startup::*LHGameDB\Settings_aExecute = #True)
+             	sTextLastLine + "|EXE"
+             EndIf 
+                                         
+             If ( Startup::*LHGameDB\Settings_bCompatM = #True)
+             	sTextLastLine + "|COMP"
+             EndIf    
+             
+             If ( Startup::*LHGameDB\Settings_NoBorder = #True)
+             	sTextLastLine + "|NB"
+             EndIf               
+             
+              If ( Startup::*LHGameDB\Settings_NBCenter = #True)
+             	sTextLastLine + "C"
+             EndIf 
+             
+             If ( Startup::*LHGameDB\Settings_OvLapped = #True)
+             	sTextLastLine + "B"
+             EndIf              
+             
+             If ( Startup::*LHGameDB\Settings_LokMouse = #True)
+             	sTextLastLine + "|LCKMS"
+             EndIf 
+             
+             If ( Startup::*LHGameDB\Settings_bBlockFW = #True)
+             	sTextLastLine + "|BLOCK"
+             EndIf              
+             
+             If ( Startup::*LHGameDB\Settings_bNoOutPt = #False)
+             	sTextLastLine + "|LOG"
+             EndIf             
+             
+             If ( Startup::*LHGameDB\Settings_bSaveLog = #True)
+             	sTextLastLine + "|EXTLOG"
+             EndIf 
+             
+             
+             LCD::Mono_SetText(3,  sTextLastLine)
+             
+             LCD::Update()
+             
+             ProcedureReturn 
+      EndIf    
+ 
+    EndProcedure     		
+    ;
+    ;
+    ;
+    Procedure.i    Terminate_Programm(*Params)
+    	
+    	If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
+    		If ( Startup::*LHGameDB\Settings_aExecute = #True )
+    			;
+			;
+			; Alternative Execute
+    			phandle = OpenProcess_(#PROCESS_TERMINATE, #False, Startup::*LHGameDB\Thread_ProcessLow)
+    			If phandle <> #Null
+    				If TerminateProcess_(phandle, 1)
+    					result = #True
+    				EndIf
+    				CloseHandle_(phandle)
+    				CloseHandle_( *Params )
+    				Delay(100)
+    				ProcedureReturn 0
+    			EndIf
+    			
+    		Else	    			
+    			If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+    				KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
+    				ProcedureReturn 0
+    			EndIf 
+    		EndIf 
+    	EndIf    	
+    	ProcedureReturn 1
+    EndProcedure	
+    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1022
-; FirstLine = 414
-; Folding = DAiDgz
+; CursorPosition = 1194
+; FirstLine = 564
+; Folding = DBiDgj+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\MAME\
+; CurrentDirectory = P:\Games - V\Velvet Assassin\

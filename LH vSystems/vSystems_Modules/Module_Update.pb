@@ -123,7 +123,7 @@ Module vUpdate
     ;****************************************************************************************************************************************************  
     Procedure.s GetVersion(sHttFile.s)
         
-        InitNetwork()
+        InitNetwork() ; Veraltet ab PB 6.x
         
         Protected sData.s, bResult = #False
         
@@ -276,9 +276,9 @@ Module vUpdate
         
     EndProcedure    
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 201
-; FirstLine = 57
+; IDE Options = PureBasic 6.00 LTS (Windows - x64)
+; CursorPosition = 125
+; FirstLine = 121
 ; Folding = --
 ; EnableAsm
 ; EnableXP

@@ -69,7 +69,7 @@ Module VEngine
         UniqueProcessId.i
         InheritedFromUniqueProcessId.i
     EndStructure
-
+        	
     Structure PROGRAM_BOOT
         Program.s
         PrgPath.s
@@ -81,6 +81,8 @@ Module VEngine
         StError.s
         ErrorLg.l
         StdOutL.i
+        hThread.i
+        hProcess.i
     EndStructure
     
     Structure DELETE_ENTRIES
@@ -2446,7 +2448,7 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure.s DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)
         
-        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0, y.i= 0
+        Protected Mame_Window.i, DOS_NOP = 1, WindowState = #False, StdOutErrors$, FatalError_A$, FatalError_B$, x.i=0, y.i= 0, exitCodeL
         
         Repeat
             If ( x = 10000)
@@ -2500,16 +2502,28 @@ Module VEngine
                 ProcessEX::LHFreeMem()
             EndIf                 
             
-            If Not (ProgramRunning(l_ProcID))
-                DOS_NOP = 0
-            EndIf 
+            If ( Startup::*LHGameDB\Settings_aExecute = #False )
+            	If Not (ProgramRunning(l_ProcID))
+                		DOS_NOP = 0
+                	EndIf 
+                Else
+                	;
+                	; Exits Codes (Muss geändert oder verbessert werden)
+           		GetExitCodeProcess_(*Params\hProcess, @exitCodeL)
+           		If ( exitCodeL = 0 ) Or ( exitCodeL = 1 )
+           			DOS_NOP = 0
+           		EndIf
+           	EndIf
+           		
             
             If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
                 DOS_NOP = 0
             Else
                 If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
-                    ; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)     
-                    DOS_Thread_OutPut(*Params)
+                	; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)    
+                		If ( Startup::*LHGameDB\Settings_aExecute = #False )
+                			DOS_Thread_OutPut(*Params)
+                		EndIf	
                 EndIf                      
             EndIf    
             Delay(25)
@@ -2517,7 +2531,7 @@ Module VEngine
         
         Delay(1)
         
-        If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+        If (Startup::*LHGameDB\Settings_bNoOutPt = #False) And ( Startup::*LHGameDB\Settings_aExecute = #False )
             FatalError_A$ = ""
             FatalError_B$ = ""
             
@@ -2541,7 +2555,7 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ; Programm Starten via CreateProcess
     ;________________________________________________________________________________________________________________________________________________________________ 
-    Procedure.l DOS_Thread_CreatProcess(DOS_PatH.s,DOS_ExeC.s,DOS_CliC.s)
+    Procedure.l DOS_Thread_CreatProcess(*Params.PROGRAM_BOOT, DOS_PatH.s,DOS_ExeC.s,DOS_CliC.s)
         
             Protected ProcessPriority = $20
             
@@ -2555,6 +2569,7 @@ Module VEngine
             szCmdline.s = ""
             szPrgLine.s = ""
             
+            
             If ( Len(DOS_CliC) >= 1 )
                 szCmdline = DOS_PatH + DOS_ExeC +  " " +DOS_CliC
                 CreateProcess_(0, @szCmdline, #Null,#Null,#False,ProcessPriority,#Null,@DOS_PatH,@lpStartUpInfo,@lpProcessInfo) ; Return 1 if success / 0 = fail
@@ -2562,9 +2577,11 @@ Module VEngine
                 szPrgLine = DOS_PatH + DOS_ExeC
                 CreateProcess_(0, @szPrgLine, #Null,#Null,#False,ProcessPriority,#Null,@DOS_PatH,@lpStartUpInfo,@lpProcessInfo) ; Return 1 if success / 0 = fail
             EndIf    
-
+                                   
             Delay(25)
             l_ProcID = lpProcessInfo\dwProcessId
+            *Params\hProcess = lpProcessInfo\hProcess
+            *Params\hThread  = lpProcessInfo\hThread
  
             
             ProcedureReturn l_ProcID 
@@ -2656,15 +2673,18 @@ Module VEngine
         ;
         Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)
         
-        If ( Startup::*LHGameDB\Settings_Asyncron = #True )
-            
+        ;
+        ; Settings_aExecute = Benutze alternativen Api process (inWork)
+        If ( Startup::*LHGameDB\Settings_Asyncron = #True ) Or (Startup::*LHGameDB\Settings_aExecute = #True)
+
             Debug ""
             Debug "Programm Load: Async "
             Debug "Path         : " + DOS_PatH$
             Debug "Exec         : " + DOS_ExeC$ 
             Debug "Command      : " + DOS_CliC$           
-            l_ProcID = DOS_Thread_CreatProcess(DOS_PatH$,DOS_ExeC$,DOS_CliC$) 
-             Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
+            l_ProcID = DOS_Thread_CreatProcess(*Params, DOS_PatH$,DOS_ExeC$,DOS_CliC$) 
+            Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
+            Delay(25) 
         Else                             
             Debug ""
             Debug "Programm Load: NonAsync "
@@ -2678,26 +2698,50 @@ Module VEngine
         EndIf    
              
         
-        If ( l_ProcID.l = 0 ) Or ( Startup::*LHGameDB\Settings_Asyncron = #True ) Or (IsProgram(l_ProcID) = 0)
-            ProcedureReturn
+        If ( Startup::*LHGameDB\Settings_Asyncron = #True )
+        	ProcedureReturn
         EndIf
         
+        If ( Startup::*LHGameDB\Settings_aExecute = #False ) And (IsProgram(Startup::*LHGameDB\Thread_ProcessLow) = 0)
+        	ProcedureReturn 
+        EndIf	
+        
+        If ( Startup::*LHGameDB\Thread_ProcessLow = 0 )
+        	ProcedureReturn 
+        EndIf
+        
+        ;If ( l_ProcID.l = 0 ) Or ( Startup::*LHGameDB\Settings_Asyncron = #True ) Or (IsProgram(l_ProcID) = 0)
+        ;    ProcedureReturn
+        ;EndIf
+        
          
-            
-        h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, ProgramID(l_ProcID))          
+        If ( Startup::*LHGameDB\Settings_aExecute = #False )     
+        	h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, ProgramID(Startup::*LHGameDB\Thread_ProcessLow))          
+        Else
+        	h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, Startup::*LHGameDB\Thread_ProcessLow)
+        EndIf	
      
 
-        DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, l_ProcID.l)    
-                
-        GetExitCodeProcess_(h_ProcID, @exitCodeH)
-        GetExitCodeProcess_(l_ProcID, @exitCodeL)
+        DOS_Thread_PrgLoop(*Params.PROGRAM_BOOT, Startup::*LHGameDB\Thread_ProcessLow)    
         
-        Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
+        ; If ( Startup::*LHGameDB\Settings_aExecute = #True )
+        ; 	WaitForSingleObject_( h_ProcID, #INFINITE );
+        ; EndIf	
+        
+        GetExitCodeProcess_(h_ProcID, @exitCodeH)
+        GetExitCodeProcess_(Startup::*LHGameDB\Thread_ProcessLow, @exitCodeL)
+        
+        ;Startup::*LHGameDB\Thread_ProcessLow = l_ProcID
         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@ExitCode Low : " + Str(exitCodeL) )         
         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@ExitCode High: " + Str(exitCodeH) ) 
         
-        CloseProgram(l_ProcID)                
+         If ( Startup::*LHGameDB\Settings_aExecute = #True )
+         	CloseHandle_( h_ProcID)
+         	CloseHandle_( *Params\hThread )
+         Else                  
+         	CloseProgram(l_ProcID)                
+         EndIf	
         
         ;vSystem::System_Set_Priority(GetFilePart( ProgramFilename() ), #NORMAL_PRIORITY_CLASS)
         ;
@@ -3113,7 +3157,8 @@ Module VEngine
         Startup::*LHGameDB\Settings_hkeyKill = #True ;
         Startup::*LHGameDB\Settings_hkeyMMBT = #True 
         Startup::*LHGameDB\Settings_fMonitor = #False;
-        Startup::*LHGameDB\Settings_MameHelp = #False;         
+        Startup::*LHGameDB\Settings_MameHelp = #False;  
+        Startup::*LHGameDB\Settings_aExecute = #False
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
@@ -3261,7 +3306,7 @@ Module VEngine
         EndIf
         
         ;
-        ; Einstellung: Für die Auswahl der Taste für die Spoeichgeruihg des Screenshots
+        ; Einstellung: Für die Auswahl der Taste für die Speicherung des Screenshots
         If ( Startup::*LHGameDB\Settings_NoBorder = #True ) 
             If ( Startup::*LHGameDB\Settings_NBNoShot  = #False )                
                 szCommand.s = "%nbkeym"
@@ -3453,7 +3498,17 @@ Module VEngine
         
 
                              
-        
+            
+        ;
+        ;
+        ; Aktiveren des Alternativen process
+        szCommand.s = "%altexe"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_aExecute = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Alternativer Process")  
+        EndIf             
        
         ;
         ;
@@ -4074,6 +4129,10 @@ Module VEngine
             ; Normalisiere, 
             *Params\PrgPath         = GetPathPart(*Params\Program)
             *Params\Program         = GetFilePart(*Params\Program)
+            ;
+            ; Für den Alternativen Process
+            *Params\hThread 		= 0 
+            *Params\hProcess		= 0
             
             If ( Startup::*LHGameDB\Settings_NBNoShot = #False )
                 ; Reset NoBorder Handle Vars
@@ -4140,27 +4199,26 @@ Module VEngine
 
                 ProgramEventID = WaitWindowEvent()             
                 If ( ProgramEventID = #WM_HOTKEY )
-                    Select EventwParam()
-                            
-                        Case 10
-                            If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
-                                Beep_(257,150)
-                                vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
-                            EndIf
-                            
-                        Case 20  
-                            If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
-                                If  IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                                    KillProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                                    Break
-                                EndIf 
-                            EndIf
-                            
-                        Case 30 
-                            If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )                               
-                            EndIf                            
-                    EndSelect
-                EndIf                     
+                	Select EventwParam()
+                			
+                		Case 10
+                			If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
+                				Beep_(257,150)
+                				vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
+                			EndIf
+                			
+                		Case 20                  			
+                			If ( ( vSystem::Terminate_Programm(*Params\hThread) = 0 ) )
+                				Break
+                			EndIf
+                			
+                		Case 30 
+                			If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )                               
+                			EndIf                            
+                	EndSelect
+                EndIf
+              
+              vSystem::LCD_Info(#True, #True)
                 ;While WindowEvent()
                 ;Wend  
             Wend  
@@ -5160,13 +5218,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5038
-; FirstLine = 4065
-; Folding = 8-P+34J-t9-0A-
+; CursorPosition = 4210
+; FirstLine = 3628
+; Folding = 8-P+34J-vc-0A-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\release\
+; CurrentDirectory = P:\Games - V\Velvet Assassin\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

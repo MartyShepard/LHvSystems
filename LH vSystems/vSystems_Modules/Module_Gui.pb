@@ -2322,7 +2322,8 @@ Module MagicGUI
         ToolTipInfo_Text$ = #CR$ +
                             "Edit the Commandline directly here. Supportet Keynames are:"       + #CR$ + #CR$ +                                                                  
                             "%m      = Minimize vSystems"                                        + #CR$ +
-                            "%a      = Execute and Run the programm Asynchron"                   + #CR$ + #CR$ +                                 
+                            "%a      = Execute and Run the programm Asynchron"                   + #CR$ +
+                            "%altexe = Execute and Run the Programm WinApi Process"              + #CR$ + #CR$ +
                             "%nb[cb] = Remove Border from Windowed Programs or Games"            + #CR$ +
                             "        + Optional c to Center the Window"                          + #CR$ +
                             "        + Optional b to set real Borderless Window"                 + #CR$ +
@@ -2646,10 +2647,10 @@ Module MagicGUI
         EndIf
     EndProcedure    
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 907
-; FirstLine = 191
-; Folding = DAQ5x
+; IDE Options = PureBasic 6.00 LTS (Windows - x64)
+; CursorPosition = 2324
+; FirstLine = 784
+; Folding = DAQ54
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

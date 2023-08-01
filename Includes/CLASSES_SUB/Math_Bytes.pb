@@ -1,6 +1,6 @@
 ﻿DeclareModule MathBytes
 	
-	Declare.s Bytes2String(byte.q , nbDecimals.l = 0) 
+	Declare.s Bytes2String(byte.q , NoDecimals.i = #False) 
 	Declare.q String2Bytes(Value.s, UnitSelect.i = -1) 
 	
 	; In LH.Mame    
@@ -42,12 +42,17 @@ Module MathBytes
 	;        
 	; Konvertiert die Eingabe von bytes zum String
 	;__________________________________________________________________________________________________________________________________________        
-	Procedure.s Bytes2String(byte.q , nbDecimals.l = 0) 
+	Procedure.s Bytes2String(byte.q , NoDecimals.i = #False) 
 		Protected output.s,*chr.Character, pos.i
 		
 		Protected unit.b = Round(Log(byte)/Log(1024), 0)
 		
-		output.s =  StrD(byte/Pow(1024, unit), 15)
+		If (NoDecimals = #True)
+			output.s = Str( byte/Pow(1024, unit))
+		Else				
+			output.s = StrD(byte/Pow(1024, unit), 15)
+		EndIf
+		
 		pos = FindString(output,".")
 		*chr = @output + pos  
 		
@@ -59,7 +64,7 @@ Module MathBytes
 		
 		Select output
 			Case "0.00 Bytes"
-				output = "0 Bytes"
+				output = "0 Bytes"				
 		EndSelect 
 		
 		ProcedureReturn output 
@@ -496,7 +501,8 @@ Module MathBytes
 	EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 13
+; CursorPosition = 50
+; FirstLine = 24
 ; Folding = ---
 ; EnableAsm
 ; EnableXP

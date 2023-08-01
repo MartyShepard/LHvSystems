@@ -39,7 +39,18 @@ Module vKeys
                 
                 Debug "Init_Terminate() REGISTER HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"                                    
             EndIf
-        EndIf        
+          
+          	If ( Startup::*LHGameDB\Thread_ProcessLow > 0) And ( Startup::*LHGameDB\Settings_aExecute  = #True)
+                RegisterHotKey_(  WindowID(DC::#_Window_001), 20, #MOD_ALT, #VK_SCROLL)
+                
+                Startup::*LHGameDB\vKeyActivKill = #True
+                
+                Debug "Init_Terminate() REGISTER HotKey to Kill Programm (Process ID: "+ Startup::*LHGameDB\Thread_ProcessLow +")"            	
+          EndIf  
+            
+      EndIf   
+      
+      
     EndProcedure
     ;
     ;
@@ -55,8 +66,9 @@ Module vKeys
         
     EndProcedure     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 50
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 48
+; FirstLine = 2
 ; Folding = -
 ; EnableAsm
 ; EnableXP

@@ -264,7 +264,8 @@ DeclareModule Startup
         Settings_hkeyShot.i         ;Hotkey Modifier für das Aufnehmen der Screenshots
         Settings_hkeyMMBT.i         ;Hotkey Modifier für das Aufnehmen der Screenshots        
         Settings_fMonitor.i         ;Sepaerates Aktivieren des Monitoring der Datei Aktivität wenn das Spiel/Programm gestartet wird
-        Settings_MameHelp.i         ;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen      
+        Settings_MameHelp.i		;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen
+        Settings_aExecute.i         ;Alternativer Process für das Ausführen von programmen
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
@@ -369,6 +370,12 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+	  ; Version 0.51b
+	  ; Alternative Windows API Process für das Ausführen von Programmen falls die Routine von Purebasic
+	  ; nicht greift. "%altexe"
+	  ; Logitech LCD Support (Mono erstmal)
+        ; 
         ;
         ; Version 0.50b
         ; Cue Banner für ein paar String Einstellungs Fenster
@@ -975,8 +982,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 270
-; FirstLine = 180
+; CursorPosition = 377
+; FirstLine = 301
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

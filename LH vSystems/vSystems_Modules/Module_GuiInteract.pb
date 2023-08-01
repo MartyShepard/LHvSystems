@@ -82,14 +82,13 @@ Module Interact
         
         SSTTIP::Tooltip_TrayIcon(ProgramFilename(), DC::#TRAYICON001, DC::#_Window_001, Startup::*LHGameDB\TrayIconTitle) 
         
+        
         ; Logitech 
         Logitech_Common::GetLCorePath()
         LCD::Init(Startup::*LHGameDB\TitleVersion, LCD::GetLCD_DLL_Path())  
-        If LCD::Color_IsConnected()
-            ;
-            ;
-            ; I dont have Color
-        ElseIf LCD::Mono_IsConnected()
+        If LCD::Color_IsConnected() Or LCD::Mono_IsConnected()
+        	;
+        	; Can not Color Version test
             LCD::Mono_SetText(0, Startup::*LHGameDB\TitleSimpled )
             LCD::Update()                   
         EndIf        
@@ -172,7 +171,8 @@ Module Interact
 
         Repeat
             
-            vSystem::System_InfoToolTip(#True)    
+        	;vSystem::System_InfoToolTip(#True)    
+        	vSystem::LCD_Info(#True, #False)
             
             EvntWait = WaitWindowEvent(): EvntWindow = EventWindow(): EvntGadget = EventGadget(): EvntType   = EventType()
             EvntMenu = EventMenu()      : EvntwParam = EventwParam(): EvntlParam = EventlParam(): EvntData   = EventData()                                              
@@ -738,8 +738,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 174
-; FirstLine = 141
+; CursorPosition = 90
+; FirstLine = 54
 ; Folding = --
 ; EnableAsm
 ; EnableXP

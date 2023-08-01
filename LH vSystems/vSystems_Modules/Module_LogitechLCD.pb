@@ -260,16 +260,16 @@ Module LCD
     hDLL = OpenLibrary(#PB_Any, DLL$)
     If hDLL
 
-      Color_SetBackground = GetFunction(hDLL, "LogiLcdColorSetBackground")
-      Color_SetText = GetFunction(hDLL, "LogiLcdColorSetText")
-      Color_SetTitle = GetFunction(hDLL, "LogiLcdColorSetTitle")
-      IsButtonPressed = GetFunction(hDLL, "LogiLcdIsButtonPressed")
-      IsConnected = GetFunction(hDLL, "LogiLcdIsConnected")
-      Mono_SetBackground = GetFunction(hDLL, "LogiLcdMonoSetBackground")
-      Mono_SetText = GetFunction(hDLL, "LogiLcdMonoSetText")
-      Update = GetFunction(hDLL, "LogiLcdUpdate")
-      LcdInit = GetFunction(hDLL, "LogiLcdInit")
-      LcdShutdown = GetFunction(hDLL, "LogiLcdShutdown")
+      Color_SetBackground 	= GetFunction(hDLL, "LogiLcdColorSetBackground")
+      Color_SetText 		= GetFunction(hDLL, "LogiLcdColorSetText")
+      Color_SetTitle 		= GetFunction(hDLL, "LogiLcdColorSetTitle")
+      IsButtonPressed 		= GetFunction(hDLL, "LogiLcdIsButtonPressed")
+      IsConnected 		= GetFunction(hDLL, "LogiLcdIsConnected")
+      Mono_SetBackground 	= GetFunction(hDLL, "LogiLcdMonoSetBackground")
+      Mono_SetText 		= GetFunction(hDLL, "LogiLcdMonoSetText")
+      Update 			= GetFunction(hDLL, "LogiLcdUpdate")
+      LcdInit 			= GetFunction(hDLL, "LogiLcdInit")
+      LcdShutdown 		= GetFunction(hDLL, "LogiLcdShutdown")
 
       ProcedureReturn LcdInit(AppName$, Type)
     EndIf
@@ -738,9 +738,9 @@ CompilerIf #PB_Compiler_IsMainFile
 CompilerEndIf
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 36
-; FirstLine = 348
-; Folding = --j-
+; CursorPosition = 146
+; FirstLine = 108
+; Folding = --v-
 ; EnableAsm
 ; EnableThread
 ; EnableXP
