@@ -2514,8 +2514,7 @@ Module VEngine
            			DOS_NOP = 0
            		EndIf
            	EndIf
-           		
-            
+           	           	            
             If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
                 DOS_NOP = 0
             Else
@@ -2525,7 +2524,9 @@ Module VEngine
                 			DOS_Thread_OutPut(*Params)
                 		EndIf	
                 EndIf                      
-            EndIf    
+            EndIf   
+            
+            
             Delay(25)
         Until DOS_NOP = 0    
         
@@ -2800,7 +2801,9 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ; Startet Programm (Threaded)
     ;________________________________________________________________________________________________________________________________________________________________               
-    Procedure DOS_Thread(*Params.PROGRAM_BOOT) 
+    Procedure DOS_Thread(*Params.PROGRAM_BOOT)
+    	
+    		
             LockMutex(ProgrammMutex)    
             Delay(25)
             DOS_Thread_GameMode(*Params.PROGRAM_BOOT)        
@@ -3723,6 +3726,7 @@ Module VEngine
         sCmpArg$ = ""
         sCmpMod$ = ""
         sCmpEmu$ = ""
+        sCMPFound.i = #False
         
         ArgLen   = Len(Args) 
         For  ArgIndex = 1 To ArgLen           
@@ -3736,6 +3740,7 @@ Module VEngine
                         
                         UseModule Compatibility
                         ; Lese OSModi
+                        
                         ResetList(CompatibilitySystem())                    
                         For LstIndex = 0 To ListSize(CompatibilitySystem()) 
                             NextElement(CompatibilitySystem())
@@ -3755,7 +3760,7 @@ Module VEngine
                                 Args     = DOS_TrimArg(Args.s, s+sCompArg$)
                                 ArgLen   = Len(Args) 
                                 ArgIndex = 0
-                                
+                                sCMPFound= #True
                                 Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Compatibility Mode (Activ)")   
                                 Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)  
                                 Break
@@ -3784,15 +3789,34 @@ Module VEngine
                                 Args     = DOS_TrimArg(Args.s, s+sCompArg$)
                                 ArgLen   = Len(Args) 
                                 ArgIndex = 0
-                                
+                                sCMPFound= #True
                                 Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Compatibility Emulation (Activ)")
                                 Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)                                  
                                 Break
                             EndIf    
                                 
                         Next                        
+                                       
+                        UnuseModule Compatibility     
                         
-                        UnuseModule Compatibility                                                 
+                        If ( sCMPFound = #False )
+                        	;MessageRequester( "vSystem  Support","Compatibility: '" + sCompArg$ + "' nicht gefunden.")
+                        	Delay(250)
+                        	
+                        				  Request::*MsgEx\User_BtnTextL = "Starten"                 
+                						  Request::*MsgEx\User_BtnTextR = "Abbruch"                          	
+                        	CmpLogResult= Request::MSG(Startup::*LHGameDB\TitleVersion, "Windows Kompatibilitäts-Assistent","Ubekannter Kompatibilitäts Modus: "+#CR$+#CR$+#TAB$+Chr(34)+sCompArg$+Chr(34)+""+#CR$+#CR$+"Weiter?",10,1,"",0,0,DC::#_Window_001)
+                        	
+                        	SetActiveWindow(DC::#_Window_001)
+                        	SetActiveGadget(DC::#ListIcon_001)                        	
+                        	Delay(250)
+                        	
+                        	Select CmpLogResult
+	                    		Case 0; Ok                        	
+							    Case 1; Abbruch
+							    	ProcedureReturn "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
+						    EndSelect	
+                        EndIf
                      EndIf                                             
                 EndIf
             EndIf            
@@ -4156,8 +4180,12 @@ Module VEngine
             EndIf              
                        
             ;
-            ; Prüfe Nach Speziellen Kommandos
+			; Prüfe Nach Speziellen Kommandos
             *Params\Command         = DOS_Device(*Params\Command, *Params\Program, 0, *Params\PrgPath)
+            If *Params\Command  = "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
+            	ProcedureReturn
+            EndIf	
+            
             Debug #CR$+ "Volle Commandline: " +#CR$+ *Params\Command
             
             ;
@@ -4619,22 +4647,35 @@ EndProcedure
         
         Select Startup::*LHGameDB\InfoWindow\bTabNum
                 Case 1
-                    SetActiveGadget( DC::#Text_128 )
+                	SetActiveGadget( DC::#Text_128 )
+                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", "",Startup::*LHGameDB\GameID)
+                	
                     szText.s = GetGadgetText( DC::#String_112  )
                     ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szText ,Startup::*LHGameDB\GameID)
                 Case 2
-                    SetActiveGadget( DC::#Text_129 )                                        
+                	SetActiveGadget( DC::#Text_129 )               
+                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", "",Startup::*LHGameDB\GameID)
+                	
                     szText.s = GetGadgetText( DC::#String_112  )
                     ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szText ,Startup::*LHGameDB\GameID)                    
                 Case 3
-                    SetActiveGadget( DC::#Text_130 )              
+                	SetActiveGadget( DC::#Text_130 )              
+                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", "",Startup::*LHGameDB\GameID)
+                	
                     szText.s = GetGadgetText( DC::#String_112  )
                     ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szText ,Startup::*LHGameDB\GameID)                    
-                Case 4
-                    SetActiveGadget( DC::#Text_131 )              
+                Case 4                	
+                	SetActiveGadget( DC::#Text_131 )                              
+                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", "",Startup::*LHGameDB\GameID)
+                	
                     szText.s = GetGadgetText( DC::#String_112  )
                     ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szText ,Startup::*LHGameDB\GameID)                   
             EndSelect 
+            
+            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", "" ,Startup::*LHGameDB\GameID) 
+            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", "" ,Startup::*LHGameDB\GameID) 
+            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", "" ,Startup::*LHGameDB\GameID) 
+            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", "" ,Startup::*LHGameDB\GameID)             
             
             szText.s = ""
             szText.s = GetGadgetText( DC::#Text_128  )           
@@ -5217,14 +5258,14 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4210
-; FirstLine = 3628
-; Folding = 8-P+34J-vc-0A-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 4667
+; FirstLine = 4110
+; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = P:\Games - V\Velvet Assassin\
+; CurrentDirectory = Release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

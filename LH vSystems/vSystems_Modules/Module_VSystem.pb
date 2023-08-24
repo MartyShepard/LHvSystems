@@ -20,7 +20,7 @@
     
     Declare.i   System_ProgrammIsAlive(szTaskName.s)
     Declare.i   System_GetTasklist();
-    
+       
     Declare.i   Capture_Screenshot(ProgrammName.s) 
     
     Declare.i   LCD_Info(LCDInfo.i = #False, PrpLoop.i = #False)
@@ -984,7 +984,7 @@ Module vSystem
     ;
     ;
     ;
-    Procedure.s   System_Get_Internal_MEM(LCDInfo.i = #True)
+    Procedure.s System_Get_Internal_MEM(LCDInfo.i = #True)
     	
     	Protected Free.s = "", Total.s = ""
     	
@@ -1012,7 +1012,7 @@ Module vSystem
     ;
     ;
     ;
-    Procedure.s    System_Get_Internal_Count()        
+    Procedure.s System_Get_Internal_Count()        
         x = CountGadgetItems(DC::#ListIcon_001)
          ProcedureReturn Str(x)
     EndProcedure
@@ -1040,20 +1040,128 @@ Module vSystem
     EndProcedure    
     
     Procedure.i   Capture_Screenshot_Thread(*Interval)
-    	
-		If (  LCD::Mono_IsConnected() )              
+		If (  LCD::Mono_IsConnected()  Or  LCD::Color_IsConnected())              
 			LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
              	LCD::Mono_SetText(1, "")			
-             	LCD::Mono_SetText(2, " --  SCREENSHOT CAPTURED  -- " )             	
+             	LCD::Mono_SetText(2, "--  SCREENSHOT CAPTURED  --" )             	
              	LCD::Mono_SetText(3, "")
-             	LCD::Update()
-             	Delay(*Interval)
+             	LCD::Update()     
+             	Delay(*Interval)             	             	
             EndIf    	
     	
     EndProcedure
     ;
     ;
+	;
+    Procedure.i   Capture_Screenshot_Thread_Error(*Interval)
+    	
+		If (  LCD::Mono_IsConnected()   Or  LCD::Color_IsConnected())             
+			LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
+             	LCD::Mono_SetText(1, "--         ERROR         --" )			
+             	LCD::Mono_SetText(2, "--  SCREENSHOT CAPTURED  --" )             	
+             	LCD::Mono_SetText(3, "--         ERROR         --" )
+             	LCD::Update()
+             	Delay(*Interval)
+             	
+             	
+            EndIf    	
+    	
+    EndProcedure    
     ;
+    ;
+	;
+    Procedure CaptureScreen(Left, Top, Width, Height)
+    	Protected dm.DEVMODE, BMPHandle
+    	Protected old, trgDC, srcDC = CreateDC_("DISPLAY", "", "", dm)
+    	
+    	If srcDC
+    		trgDC = CreateCompatibleDC_(srcDC)
+    		If trgDC
+    			BMPHandle = CreateCompatibleBitmap_(srcDC, Width, Height)
+    			If BMPHandle
+    				old = SelectObject_(trgDC, BMPHandle)
+    				
+    				BitBlt_(trgDC, 0, 0, Width, Height, srcDC, Left, Top, #SRCCOPY)
+    				SelectObject_(trgDC, old)
+    			EndIf
+    			DeleteDC_(trgDC)
+    			
+			ReleaseDC_(#Null, srcDC)   			
+			; --------------------------
+				OpenClipboard_(#Null)
+				EmptyClipboard_()
+				SetClipboardData_(#CF_BITMAP, BMPHandle);  // clipboard now owns the bitmap
+				CloseClipboard_()
+			; --------------------------	
+			EndIf
+    		DeleteDC_(srcDC)
+    	EndIf
+    	
+    	ProcedureReturn BMPHandle 
+    EndProcedure 
+    
+    #DWMWA_EXTENDED_FRAME_BOUNDS = 9
+    ;
+    ;
+	;
+    Procedure GetWindowRect_modified(hWnd, *rt.RECT)
+    	Protected Lib, DwmIsCompositionEnabled, DwmGetWindowAttribute, flag
+    	
+    	If *rt = 0 : ProcedureReturn 0 : EndIf
+    	
+    	GetWindowRect_(hWnd, *rt)
+    	
+    	If OSVersion() >= #PB_OS_Windows_Vista
+    		Lib = OpenLibrary(#PB_Any, "dwmapi.dll")
+    		If Lib
+    			DwmIsCompositionEnabled = GetFunction(Lib, "DwmIsCompositionEnabled")
+    			If DwmIsCompositionEnabled
+    				CallFunctionFast(DwmIsCompositionEnabled, @flag)
+    			EndIf
+    			If flag = 1
+    				DwmGetWindowAttribute = GetFunction(Lib, "DwmGetWindowAttribute")
+    				If DwmGetWindowAttribute
+    					CallFunctionFast(DwmGetWindowAttribute, hWnd, #DWMWA_EXTENDED_FRAME_BOUNDS, *rt, SizeOf(RECT))
+    				EndIf
+    			EndIf
+    			CloseLibrary(Lib)
+    		EndIf
+    	EndIf
+    	
+    	ProcedureReturn 1
+    EndProcedure 
+    ;
+    ;
+	;    
+    Procedure CaptureWindow(ImageFileName.s)
+    	Protected Image, ScreenCaptureAddress, WindowSize.RECT, WinHndl = Startup::*LHGameDB\NBWindowhwnd
+    	If WinHndl
+
+    		GetWindowRect_modified(WinHndl, @WindowSize)
+    		
+    		ScreenCaptureAddress = CaptureScreen(WindowSize\Left, WindowSize\Top, WindowSize\Right - WindowSize\Left, WindowSize\Bottom - WindowSize\Top)
+    		
+    		If ScreenCaptureAddress
+    			Image = CreateImage(#PB_Any, WindowSize\Right - WindowSize\Left, WindowSize\Bottom - WindowSize\Top)
+    			If Image
+    				If StartDrawing(ImageOutput(Image))
+    					DrawImage(ScreenCaptureAddress, 0, 0)
+    					StopDrawing()
+    					SaveImage(Image, ImageFileName,#PB_ImagePlugin_PNG)   					
+    				EndIf
+    				FreeImage(Image)
+    			EndIf
+    			DeleteObject_(ScreenCaptureAddress)
+    		EndIf
+		
+    	Else
+    		ProcedureReturn 0
+    	EndIf
+    	ProcedureReturn 1
+    EndProcedure
+    ;
+    ;
+	;
     Procedure.i   Capture_Screenshot(ProgrammName.s)
         
         If  ( Startup::*LHGameDB\NBWindowhwnd > 0 )
@@ -1062,46 +1170,59 @@ Module vSystem
             
             Protected Window.RECT, Client.RECT, Directory.s =  Startup::*LHGameDB\Base_Path + "Systeme\", ImageFileName.s 
                        	            
+            Beep_(200,300)
+            ;OLD
+            ;	hImage = CreateImage(#PB_Any,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom)  
+            ;	hDC    = StartDrawing(ImageOutput(hImage))
             
-            hImage = CreateImage(#PB_Any,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom)  
-            hDC    = StartDrawing(ImageOutput(hImage))
+            ;	PrgDC = GetDC_(Startup::*LHGameDB\NBWindowhwnd) 
+            ;	BitBlt_(hDC,0,0,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom,PrgDC,0,0,#SRCCOPY) 
+            ;	StopDrawing() 
             
-            PrgDC = GetDC_(Startup::*LHGameDB\NBWindowhwnd) 
-            BitBlt_(hDC,0,0,Startup::*LHGameDB\NBClient\right,Startup::*LHGameDB\NBClient\bottom,PrgDC,0,0,#SRCCOPY) 
-            StopDrawing() 
+            ;	ReleaseDC_(Startup::*LHGameDB\NBWindowhwnd,PrgDC)
             
-            ReleaseDC_(Startup::*LHGameDB\NBWindowhwnd,PrgDC)
-            
-            ;
-            ; SaveImage (Format PNG)
-            ;
-            ; Genreate FileName
+            	;
+            	; SaveImage (Format PNG)
+            	;
+            	; Genreate FileName
             
             Delay(1)
             
             Select FileSize( Directory.s + "SHOT")
                 Case -1: CreateDirectory( Directory.s + "SHOT" )                    
             EndSelect        
+            
             Date$ = FormatDate("%yyyy_%mm_%dd", Date())
             Time$ = FormatDate("%hh_%ii_%ss"  , Date())
                         
             ImageFileName.s = Directory.s + "SHOT\" + ProgrammName.s + " - " + Date$ + " - " + Time$ + ".png"
-                       
-            SaveImage(hImage, ImageFileName,#PB_ImagePlugin_PNG)
             
-		CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 1000)
-             
-            Beep_(200,300)
-            Beep_(450,100)            
-            FreeImage(hImage)
             
-            Debug "Captured: " + ImageFileName           	
+            If ( CaptureWindow(ImageFileName.s) = 0)
+            	Debug "ERROR ON CAPTURE: " + ImageFileName  
+            	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread_ERROR(), 5000)
+            	Beep_(250,200) 
+            	Delay(1250)
+            Else
+            	Debug "CAPTURED: " + ImageFileName
+            	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 5000)
+            	Beep_(450,100)  
+            	Delay(1250)            	
+            EndIf	
+            	
+            ;OLD                       
+            ;	SaveImage(hImage, ImageFileName,#PB_ImagePlugin_PNG,#Null,32)
+            ;OLD			
+            ;	FreeImage(hImage)
+
+                     	
             ProcedureReturn                                    
         EndIf
     EndProcedure        
+
     ;
     ;
-    ;
+	;    
     Procedure.i 	  LCD_Info(LCDInfo.i = #False, PrgLoop.i = #False)
     	
     	If ( LCDInfo = #True )  And ( LCD::Color_IsConnected() Or LCD::Mono_IsConnected() ) And (PrgLoop = #False)                 
@@ -1110,16 +1231,13 @@ Module vSystem
              LCD::Mono_SetText(1, "MEM: " + System_Get_Internal_MEM(#True) )
              LCD::Mono_SetText(2, UCase( GetFilePart(ProgramFilename(),#PB_FileSystem_NoExtension)))
              LCD::Mono_SetText(3, "")
-             LCD::Mono_SetText(4, "")
              LCD::Update()
              
              ProcedureReturn 
              
-      ElseIf ( LCDInfo = #True ) And ( LCD::Color_IsConnected() Or LCD::Mono_IsConnected() ) And (PrgLoop = #True)   
+      ElseIf ( LCDInfo = #True ) And ( LCD::Color_IsConnected() Or LCD::Mono_IsConnected() ) And (PrgLoop = #True)         	      		      		 
       	
              LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
-             
-             
 
              If ( Startup::*LHGameDB\vKeyActivShot = #True )
              	LCD::Mono_SetText(1,  "KEY CAPTURE : SCROLL" )
@@ -1185,10 +1303,10 @@ Module vSystem
              EndIf 
              
              
-             LCD::Mono_SetText(3,  sTextLastLine)
+             LCD::Mono_SetText(3,  sTextLastLine )
              
              LCD::Update()
-             
+             	
              ProcedureReturn 
       EndIf    
  
@@ -1196,7 +1314,7 @@ Module vSystem
     ;
     ;
     ;
-    Procedure.i    Terminate_Programm(*Params)
+    Procedure.i    Terminate_Programm(*Params)    	    	
     	
     	If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
     		If ( Startup::*LHGameDB\Settings_aExecute = #True )
@@ -1223,13 +1341,96 @@ Module vSystem
     	EndIf    	
     	ProcedureReturn 1
     EndProcedure	
+   	;
+	;
+	;
+    
     
 EndModule
+
+; Disabled - Todo
+; ------------------------------------------------------------------------------------
+;  Gibt die anzahl der Bilder pro sek. zurück.
+;    Procedure.l System_GetFPS()
+;     	Static GetFPS_Count.l, GetFPS_FPS.l, GetFPS_Start.l
+;     	GetFPS_Count + 1
+;     	
+;     	If GetFPS_Start = 0
+;     		GetFPS_Start = GetTickCount_()
+;     	EndIf
+;     	If GetTickCount_() - GetFPS_Start >= 1000
+;     		GetFPS_FPS   = GetFPS_Count
+;     		GetFPS_Count = 0
+;     		GetFPS_Start + 1000
+;     	EndIf
+;     	ProcedureReturn GetFPS_FPS
+;    EndProcedure  
+
+; ------------------------------------------------------------------------------------
+;     Global gCurrentUsage.d
+;     
+;     Procedure.d EMA_smoothing(raw.d, samples.w)
+;     	Static Alpha.d
+;     	Protected CurrentEMA.d
+;     	Static PriorEMA.d
+;     	
+;     	Alpha.d = 2 / (samples.w + 1)
+;     	CurrentEMA.d = priorEMA.d + (Alpha.d * (raw.d - priorEMA.d))
+;     	PriorEMA.d = CurrentEMA.d
+;     	
+;     	ProcedureReturn CurrentEMA.d
+;     EndProcedure
+;     
+;     Procedure System_MonitorCPU(void)
+;     	#EMA_Samples = 20
+;     	
+;     	Protected creation.FILETIME
+;     	Protected exit.FILETIME
+;     	Protected kernel.FILETIME
+;     	Protected user.FILETIME
+;     	Protected sysinfo.SYSTEM_INFO
+;     	Protected numprocs
+;     	Protected h
+;     	Protected oldkernel
+;     	Protected olduser
+;     	Protected rawCurrentUsage.d
+;     	
+;     	GetSystemInfo_(@sysinfo)
+;     	numprocs = sysinfo\dwNumberOfProcessors
+;     	
+;     	h = OpenProcess_(#PROCESS_QUERY_INFORMATION, #False, Startup::*LHGameDB\Thread_ProcessLow) 
+;     	GetProcessTimes_(h,@creation,@exit,@kernel,@user)
+;     	oldkernel=kernel\dwlowdatetime
+;     	olduser=user\dwlowdatetime
+;     	Delay(100)
+;     	
+;     	Repeat
+;     		GetProcessTimes_(h,@creation,@exit,@kernel,@user)
+;     		rawCurrentUsage.d = ((((user\dwlowdatetime-olduser)+(kernel\dwlowdatetime-oldkernel))/500)/100)/numprocs
+;     		gCurrentUsage.d = EMA_smoothing(rawCurrentUsage.d, #EMA_Samples)
+;     		olduser=user\dwlowdatetime
+;     		oldkernel=kernel\dwlowdatetime   
+;     		Delay(100)
+;     	ForEver
+;     EndProcedure
+; ------------------------------------------------------------------------------------
+;
+;     Procedure StateWindow(handle) 
+;     	MyWindpl.WINDOWPLACEMENT 
+;     	MyWindpl\length=SizeOf(MyWindpl) 
+;     	
+;     	If GetWindowPlacement_(handle,@MyWindpl) 
+;     		MyWindpl\length=SizeOf(MyWindpl) 
+;     		;MyWindpl\showCmd=State 
+;     		Debug "MyWindpl\showCmd: " + Str(MyWindpl\showCmd)
+;     		SetWindowPlacement_(handle,@MyWindpl) 
+;     	EndIf 
+;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1194
-; FirstLine = 564
-; Folding = DBiDgj+
+; CursorPosition = 1209
+; FirstLine = 506
+; Folding = DBiBA0-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = P:\Games - V\Velvet Assassin\
+; CurrentDirectory = B:\Test\

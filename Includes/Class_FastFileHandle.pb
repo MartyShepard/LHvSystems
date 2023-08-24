@@ -1989,11 +1989,11 @@ CompilerEndIf
     
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 1949
-; FirstLine = 1146
-; Folding = vPoAB3
+; FirstLine = 1207
+; Folding = vPoAB+
 ; EnableAsm
 ; EnableXP
-; CurrentDirectory = ..\..\..\System Platform\Maschines - Arcade Mame Derivats\MAME\
+; CurrentDirectory = Release\
 ; EnableUnicode

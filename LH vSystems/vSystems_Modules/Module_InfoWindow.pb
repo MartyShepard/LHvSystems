@@ -111,42 +111,62 @@ Module vInfo
                         
                         Dim Result. C (CountBytes);  buffer under HEX data. 
                         
-                        Pos = 0: OldPos = 0 
+                        Pos = 0: EndPos = 0: NewLinePos = 0
                         
                         *Point = @Result() 
                         CopyMemoryString (0, @ *Point) 
 
                         Repeat                 
-                            Debug Chr(Buff (Pos) )+ " : "+ Str( Buff (Pos) )
+                        	;Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================") 
                             
-                            Select Buff (Pos)
-                                Case 146
-                                    String. S + "'"
+                        	Select Buff (Pos)
+                        		Case 10
+                        			Debug #PB_Compiler_Module + " = Position " + RSet( Str(pos), 10 , "0") + " [ 10 = Buffer Position - "+ RSet( Str(pos), 4 ," ") + "] (Special Char 10: Newline) "
+                        			;String. S = ReplaceString( String. S, Chr(10), Chr(10), 0, pos, 1)
+                        			NewLinePos = Pos
+                        		Case 13	
+                        			Debug #PB_Compiler_Module + " = Position " + RSet( Str(pos), 10 , "0") + " [ 13 = Buffer Position - "+ RSet( Str(pos), 4 ," ") + "] (Special Char 13: Return) "                        			
+                        			;String. S = ReplaceString( String. S, Chr(13), #CR$, 0, pos, 1)
+                        			EndPos = Pos
+                        		Case 146
+                        			;Debug #PB_Compiler_Module + " = Position " + RSet( Str(pos), 10 , "0") + " [" + RSet( Chr(Buff (Pos) ), 3 , " ") + " = Buffer Position - "+ RSet( Str(pos), 4 ," ") + "] (Special Database Char 146) "
+                        			String. S + "'"
+                        			Pos + 1
+                        			lenght + 1
                                 Case 130
-                                    String. S + ","                                                
-                                Default                                    
+                        			;Debug #PB_Compiler_Module + " = Position " + RSet( Str(pos), 10 , "0") + " [" + RSet( Chr(Buff (Pos) ), 3 , " ") + " = Buffer Position - "+ RSet( Str(pos), 4 ," ") + "] (Special Database Char 130) "
+                        			String. S + ","                                               
+                        			Pos + 1
+                        			lenght + 1
+                                Default          
+                        			;Debug #PB_Compiler_Module + " = Position " + RSet( Str(pos), 10 , "0") + " [" + RSet( Chr(Buff (Pos) ), 3 , " ") + " = Buffer Position - "+ RSet( Str(pos), 4 , " ")                                   	                                                                	
                                     String. S + Chr (Buff (Pos) ) 
                              EndSelect       
-
-                                
-                            Pos + 1 
+                            
 ;                             Debug String
 ;                             For k = 0 To Len(String)
 ;                                 g.c = Asc( Mid( String,k,1 ) )
 ;                                 Debug Str( g ) + " Asc: " +Chr(g)
-;                             Next
-                            
-                            
-                            If Pos> = OldPos + 16 Or Pos> lenght 
-                                ; String + # CRLF $ 
+;                             Next                                                          
+                             
+                            Pos + 1
+                            If ( EndPos >= 1 ) Or ( Pos >= lenght )
+                                String + #CR$ 
                                 CopyMemoryString (@ String) 
                                 String = "" 
-                                OldPos = Pos 
+                                EndPos = 0 
+                            ElseIf ( NewLinePos >= 1 ) Or ( Pos >= lenght )
+                                String + #LF$ 
+                                CopyMemoryString (@ String) 
+                                String = "" 
+                                NewLinePos = 0                             	
                             EndIf 
                             
-                        Until Pos> lenght 
+                            
+                        Until Pos>= lenght 
                         
                         sodergimoe$ = PeekS (@Result ()) 
+                        
                         
                     Else 
                         MessageRequester ("Information", "Failed to load data") 
@@ -165,6 +185,10 @@ Module vInfo
         Else 
             MessageRequester ("Information", "Could not open file" + Filename.S + "to read") 
         EndIf 
+        
+       ; Debug "FULL TEXT"
+       ; Debug "========="
+       ; Debug sodergimoe$
         
         ProcedureReturn sodergimoe$
     EndProcedure      
@@ -1808,11 +1832,11 @@ EndModule
 ; Ctrl+Shift+L	        Fiddle bullet style.	
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1156
-; FirstLine = 718
-; Folding = -LA+zwf+-H-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 188
+; FirstLine = 140
+; Folding = -bB+45f+-H-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = Release\

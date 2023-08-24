@@ -127,25 +127,29 @@ Module vInfoMenu
                szFile = SaveFileRequester( szTitle, szFilePath + GetFilePart( szFileProg,1 ), szPattern,0 )
                
                 If ( szFile )
-                    szFilePath.s = GetPathPart( szFile )
-                    szFileProg.s = GetFilePart( szFile ) 
-                    
+                    szFilePath.s = GetPathPart( szFile )                    
                     Select SelectedFilePattern()
-                        Case 0
-                            szFileProg + "." + szExtension
+                    	Case 0
+                    		szFileProg = GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
+                        	szFileProg + "." + szExtension
+                        	
                         Case 1 ; Wir gehen davon aus das der User ein Patten drangeängt hat
+                        	szFileProg = GetFilePart( szFile )
+                        	szExtension= GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
                     EndSelect        
                     
-                   SetGadgetText( DC::#String_112,szFile + "." + szExtension)                               
+                    szFile = vEngine::Getfile_Portbale_ModeIn( szFilePath + szFileProg )
+                    
+                   SetGadgetText( DC::#String_112,szFile)                               
                    Select Startup::*LHGameDB\InfoWindow\bTabNum
                         Case 1
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szFile  ,Startup::*LHGameDB\GameID)
                         Case 2
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                    
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szFile  ,Startup::*LHGameDB\GameID)                    
                         Case 3
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                    
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szFile  ,Startup::*LHGameDB\GameID)                    
                         Case 4
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szFile + "." + szExtension ,Startup::*LHGameDB\GameID)                   
+                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szFile  ,Startup::*LHGameDB\GameID)                   
                    EndSelect                     
                 EndIf                             
                 
@@ -172,7 +176,21 @@ Module vInfoMenu
                    szText.s = GetGadgetText( DC::#Text_131  )                    
            EndSelect 
            
-           hFile = OpenFile( #PB_Any,  szFilePath + szFileProg)
+           
+          ; Debug ""
+          ; Debug "Save Text"
+          ; Debug "========="
+          ; Debug szText
+          ; Debug ""
+           
+           If FileSize( szFilePath + szFileProg ) > 0
+           	           	
+            	Date$ = FormatDate("%yyyy_%mm_%dd", Date())
+            	Time$ = FormatDate("%hh_%ii_%ss"  , Date())            	            
+            	CopyFile( szFilePath + szFileProg , szFilePath + szFileProg + " " + Date$ + "-"+ Time$ + "."+ szExtension)
+           EndIf
+            
+           hFile = CreateFile( #PB_Any,  szFilePath + szFileProg)
            If ( hFile )
                Select nEncoding
                    Case 0
@@ -436,11 +454,11 @@ Module vInfoMenu
      EndProcedure    
     
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 347
-; FirstLine = 57
-; Folding = DgAA+
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 190
+; FirstLine = 94
+; Folding = DgBA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release
+; CurrentDirectory = Release\

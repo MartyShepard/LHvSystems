@@ -371,10 +371,16 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
-	  ; Version 0.51b
-	  ; Alternative Windows API Process für das Ausführen von Programmen falls die Routine von Purebasic
-	  ; nicht greift. "%altexe"
-	  ; Logitech LCD Support (Mono erstmal)
+		; Version 0.52b
+		; Kompatibilitäts Assisitenten erweitert. Alle Modi's und Fixe sind mit "%c<Mode/Fix>" startbar
+		; Text Speichen Openfile ist jetzt Createfile mit Backup
+		; Update und Korrektur für den Portable Path Modus
+        ; Bessere Extension Auflösung
+		;
+	    ; Version 0.51b
+	    ; Alternative Windows API Process für das Ausführen von Programmen falls die Routine von Purebasic
+	    ; nicht greift. "%altexe"
+	    ; Logitech LCD Support (Mono erstmal)
         ; 
         ;
         ; Version 0.50b
@@ -981,12 +987,12 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 377
-; FirstLine = 301
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 366
+; FirstLine = 298
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = Release\
 ; EnableUnicode

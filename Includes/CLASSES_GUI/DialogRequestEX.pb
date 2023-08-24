@@ -1312,7 +1312,7 @@ CompilerIf #PB_Compiler_IsMainFile
 
 
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 325
 ; FirstLine = 217
 ; Folding = HC10
@@ -1321,4 +1321,6 @@ CompilerEndIf
 ; EnableXP
 ; UseIcon = C:\Workbench\Utilities DesignICO\Programme\Dropbox FUSION.ico
 ; Executable = Test_Requester.exe
+; CurrentDirectory = Release\
+; CompileSourceDirectory
 ; EnableUnicode

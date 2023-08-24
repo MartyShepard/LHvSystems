@@ -193,10 +193,11 @@ Module Monitoring
     
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 141
 ; FirstLine = 94
 ; Folding = f-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
+; CurrentDirectory = Release\
