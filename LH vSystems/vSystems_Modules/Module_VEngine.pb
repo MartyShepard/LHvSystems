@@ -2404,43 +2404,50 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure DOS_Thread_OutPut(*Params.PROGRAM_BOOT)
         
-        Protected stdout.s, ReturnCodes.i, NewLines.i
-        
-            If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow ) 
+    	Protected stdout.s, NewLines.i , nul.s
+    	    	
+    	If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow ) 
+    		
+    		 	If (Startup::*LHGameDB\Settings_bNoOutPt = #False)                
+    		 		
+    		 		*Params\Logging + #CR$ + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)    		 		                
+                	Debug #TAB$ + "Standard Output Log: " + *Params\Logging
                 
-                *Params\Logging + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
                 
-                Debug #TAB$ + "Standard Output Log: " + *Params\Logging 
+                	If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And ( *Params\StdOutL )                	
+                    	WriteStringN(*Params\StdOutL, *Params\Logging )                                                          
+                    	*Params\Logging = "";
+               		 Else
+
+                    	NewLines = CountString(*Params\Logging, Chr(10) )
+                    	If ( NewLines > 200 )
+                        	*Params\Logging = "";
+                    	EndIf                     
+                    EndIf                 
+                    
                 
-                If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\StdOutL )
-                    WriteStringN(*Params\StdOutL, *Params\Logging )                                                          
-                    *Params\Logging = "";
-                Else
-                    ;
-                    ; Clear *Params\Logging at 200 Lines
-                    NewLines    = CountString(*Params\Logging, Chr(10) )
-                    If ( NewLines > 200 )
-                        *Params\Logging = "";
-                    EndIf                     
-                EndIf                 
+                	If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                		
+                		stdout = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
                 
-                ;ReturnCodes = CountString(*Params\StError, Chr(13) )   
-                
-                If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                    stdout = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
-                
-                    If ( Len( stdout)  > 0 )
-                        *Params\StError + stdout
+                    	If ( Len( stdout)  > 0 )
+                        	*Params\StError + stdout                        
+                        	Debug #TAB$ + "Error Output Log: " + *Params\StError 
                         
-                        Debug #TAB$ + "Error Output Log: " + *Params\StError 
-                        
-                        If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\ErrorLg )
-                            WriteStringN(*Params\ErrorLg,*Params\StError)
-                            *Params\StError = ""
+                        	If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\ErrorLg )
+                            	WriteStringN(*Params\ErrorLg,*Params\StError)
+                            	*Params\StError = ""
+                            EndIf	
                         EndIf                        
                     EndIf                    
+                    
+                Else
+                	nul = ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
+                	If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+                		nul = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
+                	EndIf                	
                 EndIf
-            EndIf        
+        EndIf
         
     EndProcedure    
     ;****************************************************************************************************************************************************************
@@ -2518,12 +2525,10 @@ Module VEngine
             If ( vSystem::System_ProgrammIsAlive(*Params\Program) = #False )            
                 DOS_NOP = 0
             Else
-                If (Startup::*LHGameDB\Settings_bNoOutPt = #False)
-                	; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)    
-                		If ( Startup::*LHGameDB\Settings_aExecute = #False )
-                			DOS_Thread_OutPut(*Params)
-                		EndIf	
-                EndIf                      
+                ; OutputThread = CreateThread(@DOS_Thread_OutPut(),*Params)    
+                If ( Startup::*LHGameDB\Settings_aExecute = #False )
+                	DOS_Thread_OutPut(*Params)
+                EndIf                                      
             EndIf   
             
             
@@ -4182,9 +4187,10 @@ Module VEngine
             ;
 			; Prüfe Nach Speziellen Kommandos
             *Params\Command         = DOS_Device(*Params\Command, *Params\Program, 0, *Params\PrgPath)
-            If *Params\Command  = "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
-            	ProcedureReturn
-            EndIf	
+            
+            ;If *Params\Command  = "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
+            ;	ProcedureReturn
+            ;EndIf	
             
             Debug #CR$+ "Volle Commandline: " +#CR$+ *Params\Command
             
@@ -4269,7 +4275,7 @@ Module VEngine
             
             ;
             ;
-            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )            
+            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )  And (Startup::*LHGameDB\Settings_bNoOutPt = #True)           
                 If ( *Params\ErrorLg )
                     CloseFile( *Params\ErrorLg )
                 EndIf
@@ -4282,21 +4288,21 @@ Module VEngine
             ;
             If (Startup::*LHGameDB\Settings_bNoOutPt = #True)    
                 *Params\StError = "";
-            EndIf
-            
-            ;
-            ;
-            If  ( Len(*Params\StError) >= 1 ) And ( Startup::*LHGameDB\Settings_bSaveLog = #False )                         
-                ReturnCodes = CountString(*Params\StError, Chr(13) )
-                NewLines    = CountString(*Params\StError, Chr(10) )
-                Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
-            EndIf 
-            
-            ;
-            ; Saved Log? Message to the user
-            If ( Startup::*LHGameDB\Settings_bSaveLog = #True )
-                DOS_Output_SaveLog(*Params\PrgPath + *Params\Program)
-            EndIf    
+            Else                                   
+            	If  ( Len(*Params\StError) >= 1 ) And ( Startup::*LHGameDB\Settings_bSaveLog = #False )                         
+                	ReturnCodes = CountString(*Params\StError, Chr(13) )
+                	NewLines    = CountString(*Params\StError, Chr(10) )
+                	
+                	Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
+                Else                
+                	
+            		; Saved Log? Message to the user
+            		If ( Startup::*LHGameDB\Settings_bSaveLog = #True )
+                		DOS_Output_SaveLog(*Params\PrgPath + *Params\Program)
+                	EndIf                  
+                EndIf	
+                
+            EndIf            
             
             ;
             ; Markiere Item welches gestartet ist
@@ -5258,14 +5264,14 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 4667
-; FirstLine = 4110
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2448
+; FirstLine = 2223
 ; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = Release\
+; CurrentDirectory = P:\Games _ Adult Archiv\Theme - The Klub\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

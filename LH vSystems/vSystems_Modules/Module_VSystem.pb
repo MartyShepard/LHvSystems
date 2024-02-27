@@ -1240,17 +1240,17 @@ Module vSystem
              LCD::Mono_SetText(0, "VSYSTEMS RUNS" + "  |MEM " + System_Get_Internal_MEM(999) )
 
              If ( Startup::*LHGameDB\vKeyActivShot = #True )
-             	LCD::Mono_SetText(1,  "KEY CAPTURE : SCROLL" )
+             	If   ( Startup::*LHGameDB\Settings_hkeyShot = #MOD_SHIFT)
+           			LCD::Mono_SetText(1,  "KEY CAPTURE: SHIFT + SCROLL" )
+             	Else
+           			LCD::Mono_SetText(1,  "KEY CAPTURE: SCROLL" )
+             	EndIf             	
              Else
              	LCD::Mono_SetText(1,  "KEY CAPTURE : DISBALED" )
              EndIf	
              
              If ( Startup::*LHGameDB\vKeyActivKill = #True )             	
-             	If   ( Startup::*LHGameDB\Settings_hkeyShot = #MOD_SHIFT)
-           			LCD::Mono_SetText(2,  "KEY KILL-PRG: SHIFT + SCROLL" )
-             	Else
-           			LCD::Mono_SetText(2,  "KEY KILL-PRG: ALT + SCROLL" )
-             	EndIf
+       			LCD::Mono_SetText(2,  "KEY KILL-PRG: ALT + SCROLL" )
              Else
              	LCD::Mono_SetText(2,  "KEY KILL-PRG : DISBALED" )
              EndIf
@@ -1427,8 +1427,8 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1209
-; FirstLine = 506
+; CursorPosition = 1252
+; FirstLine = 612
 ; Folding = DBiBA0-
 ; EnableAsm
 ; EnableXP
