@@ -4170,17 +4170,26 @@ Module VEngine
              
             
             If (Len(*Params\Program) = 0 )
-                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
+            	Delay(5)            	
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
                 ProcedureReturn
             EndIf 
             
             If (FileSize(*Params\PrgPath) <> -2 )
-                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Program Folder Does Not Exists",2,2,"",0,0,DC::#_Window_001)
+            	Delay(5)            	
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Program Folder Does Not Exists",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
                 ProcedureReturn
             EndIf 
             
             If (FileSize(*Params\PrgPath + *Params\Program  ) = -1 )
-                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
+            	Delay(5)
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)
                 ProcedureReturn
             EndIf              
                        
@@ -4292,8 +4301,10 @@ Module VEngine
             	If  ( Len(*Params\StError) >= 1 ) And ( Startup::*LHGameDB\Settings_bSaveLog = #False )                         
                 	ReturnCodes = CountString(*Params\StError, Chr(13) )
                 	NewLines    = CountString(*Params\StError, Chr(10) )
-                	
+                	Delay(3)
                 	Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
+            		SetActiveWindow(DC::#_Window_001)
+            		SetActiveGadget(DC::#ListIcon_001)                	
                 Else                
                 	
             		; Saved Log? Message to the user
@@ -5265,13 +5276,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2448
-; FirstLine = 2223
+; CursorPosition = 4306
+; FirstLine = 3859
 ; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = P:\Games _ Adult Archiv\Theme - The Klub\
+; CurrentDirectory = G:\Tosec _ Emulation\Mame Emulation\Computer\Amstrad PC 512K & PC 640K\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier
