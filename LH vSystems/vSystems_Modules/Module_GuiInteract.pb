@@ -364,25 +364,32 @@ Module Interact
                             EndSelect                                                              
                             
                         Case DC::#ListIcon_001
+                        	
                             Select EvntType                                                                                                    
-                                Case #PB_EventType_LeftClick, #PB_EventType_LeftDoubleClick
+                                Case #PB_EventType_LeftClick
                                     ;BaseCode::GetBaseItem(0)                                   
-                                    If      ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftClick)
+                                    If ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftClick)
                                         vInfo::Modify_EndCheck()
                                         vInfo::Modify_Reset()
                                         VEngine::ListBox_GetData_LeftMouse()
+                                        Delay(3)
                                         Continue
-                                    ElseIf  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftDoubleClick)
-                                        VEngine::DOS_Prepare()
+                                    EndIf                                                                        
+                                    ;                             
+                                Case #PB_EventType_RightClick       
+                                    If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_RightClick)
+                                    	VEngine::ListBox_GetData_LeftMouse()
+                                    	Delay(3)
                                         Continue
                                     EndIf    
                                     
-                                    ;                             
-                                Case #PB_EventType_RightClick       
-                                    If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftClick)
-                                        VEngine::ListBox_GetData_LeftMouse()
+                                    
+                                Case #PB_EventType_LeftDoubleClick                                 
+                                    If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftDoubleClick)
+                                    	VEngine::DOS_Prepare()
+                                    	Delay(3)
                                         Continue
-                                    EndIf    
+                                    EndIf                                      
                             EndSelect
                             
                                
@@ -738,8 +745,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 90
-; FirstLine = 54
+; CursorPosition = 391
+; FirstLine = 339
 ; Folding = --
 ; EnableAsm
 ; EnableXP

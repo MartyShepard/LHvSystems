@@ -1197,8 +1197,8 @@ Module vThumbSys
             ;
             ; Erstelle eine Kopie und lege diesen handle in die Strukture, Mit Originaler Höhe und Breite              
              CopyImage(StructImagePB, Startup::*LHImages\CpScreenPB[n])
-            
-             Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])          
+             
+             Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])                       	
             
             ;
             ; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
@@ -2572,8 +2572,8 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2561
-; FirstLine = 1484
+; CursorPosition = 54
+; FirstLine = 78
 ; Folding = vPAAAAAAAA+--
 ; EnableAsm
 ; EnableXP

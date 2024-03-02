@@ -4169,24 +4169,21 @@ Module VEngine
             EndIf
              
             
-            If (Len(*Params\Program) = 0 )
-            	Delay(5)            	
+            If (Len(*Params\Program) = 0 )       	
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
             	SetActiveWindow(DC::#_Window_001)
             	SetActiveGadget(DC::#ListIcon_001)            	
                 ProcedureReturn
             EndIf 
             
-            If (FileSize(*Params\PrgPath) <> -2 )
-            	Delay(5)            	
+            If (FileSize(*Params\PrgPath) <> -2 )            	
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Program Folder Does Not Exists",2,2,"",0,0,DC::#_Window_001)
             	SetActiveWindow(DC::#_Window_001)
             	SetActiveGadget(DC::#ListIcon_001)            	
                 ProcedureReturn
             EndIf 
             
-            If (FileSize(*Params\PrgPath + *Params\Program  ) = -1 )
-            	Delay(5)
+            If (FileSize(*Params\PrgPath + *Params\Program  ) = -1 )            
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
             	SetActiveWindow(DC::#_Window_001)
             	SetActiveGadget(DC::#ListIcon_001)
@@ -5276,13 +5273,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4306
-; FirstLine = 3859
+; CursorPosition = 4186
+; FirstLine = 3613
 ; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = G:\Tosec _ Emulation\Mame Emulation\Computer\Amstrad PC 512K & PC 640K\
+; CurrentDirectory = G:\Tosec _ Emulation\Mame Emulation\Arcade\Atari Gauntlet Hardware
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

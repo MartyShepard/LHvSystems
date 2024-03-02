@@ -769,7 +769,7 @@ DeclareModule Request
           
           ;
           ; 
-          Delay( 5 )
+          Delay( 50 )
           
           If ( ParentID = #Null) 
               ParentID =  0
@@ -1028,47 +1028,36 @@ DeclareModule Request
                           Case 13 
                               ; Return
                               If IsGadget(#REXB1)                                  
-                                  rQuit= MSG_Internal_Return(#REXB1) 
+                              	rQuit= MSG_Internal_Return(#REXB1)                             	
                                   
                               ElseIf Not IsGadget(#REXB1)    
-                                  rQuit= MSG_Internal_Return(#REXB2) 
+                              	rQuit= MSG_Internal_Return(#REXB2)                            	
                               EndIf    
                                   
                           Case 27
                               ; ESC
                               If IsGadget(#REXB1)
-                                  rQuit= MSG_Internal_Return(#REXB3) 
+                              	rQuit= MSG_Internal_Return(#REXB3)                             	
                               EndIf    
                       EndSelect        
                   Case #PB_Event_CloseWindow
                   Case #PB_Event_Gadget
 
                         
-                      Select EvntType 
-                              
-                          Case #PB_EventType_LeftClick
+                      Select EvntType                              
+                      	Case #PB_EventType_LeftClick
+                      		rClicked = #True
                       EndSelect 
                       
                       Select EvntGadget
-                          Case #REXB1                           ; Button left                                                                                                       
-                              Select ButtonEX::ButtonExEvent(EvntGadget)                                                
-                                  Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
-                                      rQuit= MSG_Internal_Return(EvntGadget) 
-                                      
-                              EndSelect                                           
-                          Case #REXB2                           ; Button Middle                                                                                                       
-                              Select ButtonEX::ButtonExEvent(EvntGadget)                                                
-                                  Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)                                      
-                                      rQuit= MSG_Internal_Return(EvntGadget)   
-                                      
-                              EndSelect                                  
-                          Case #REXB3                           ; Button Right                                                                                                        
-                              Select ButtonEX::ButtonExEvent(EvntGadget)                                                
-                                  Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)                                      
-                                      rQuit= MSG_Internal_Return(EvntGadget)  
-                                      
-                              EndSelect                                  
-                              
+                          Case #REXB1, #REXB2, #REXB3          ; Button left; Button Middle ; Button Right                                                                                                       
+                          	Select ButtonEX::ButtonExEvent(EvntGadget)
+                          			
+                              	Case ButtonEX::#ButtonGadgetEx_Pressed
+                              		ButtonEX::SetState(EvntGadget,0)
+                              		rQuit= MSG_Internal_Return(EvntGadget)
+                              		Break;
+                            EndSelect                            
                               
                           Case #REXS1
                               If SendMessage_(GadgetID(#REXS1), #EM_GETMODIFY, 0, 0)
@@ -1082,19 +1071,15 @@ DeclareModule Request
                                     sReturnLenght = "[" + Str( Len( *MsgEx\Return_String ))+ "] " + Window_Title$
                                                                 
                                     SetWindowTitle(#REXW0 , sReturnLenght)
-                                EndIf
-                                
+                                EndIf                                
                             EndIf    
-                          
+                                                        
+                          Case #REXCBBTN                              
                               
-                          Case #REXCBBTN
-                              
-                              
-                      EndSelect    
+                      EndSelect
               EndSelect    
-              
           Until rQuit = #True
-          
+                    
           SetWindowCallback(0, #REXW0)
          
           
@@ -1312,10 +1297,10 @@ CompilerIf #PB_Compiler_IsMainFile
 
 
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 325
-; FirstLine = 217
-; Folding = HC10
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 919
+; FirstLine = 676
+; Folding = HCw-
 ; EnableAsm
 ; EnableThread
 ; EnableXP
