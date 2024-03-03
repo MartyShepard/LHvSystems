@@ -5412,7 +5412,11 @@ EndProcedure
         			
         			If FindString( Title, "hack",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "hack", "Hack",#PB_String_CaseSensitive,1,1)	
-        			EndIf        			
+        			EndIf
+        			
+        			If FindString( Title, "protected",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "protected", "Protected",#PB_String_CaseSensitive,1,1)	
+        			EndIf         			
         			        			
         			If FindString( Title, "()",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "()", "",#PB_String_CaseSensitive,1,1)
@@ -5424,6 +5428,10 @@ EndProcedure
         			
         			If FindString( Title, "(, ",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "(, ", "(",#PB_String_CaseSensitive,1,1)
+        			EndIf
+        			
+        			If FindString( Title, "  (",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "  (", " (",#PB_String_CaseSensitive,1,1)
         			EndIf         			
         			
         			
@@ -5605,8 +5613,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5408
-; FirstLine = 4808
+; CursorPosition = 5433
+; FirstLine = 4820
 ; Folding = 8-P-+4P-v9-0N-
 ; EnableAsm
 ; EnableXP
