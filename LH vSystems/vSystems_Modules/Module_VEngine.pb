@@ -5272,15 +5272,24 @@ EndProcedure
     
     Procedure.i     MAME_Driver_Import()   
     	
-    	Protected FileHandle.l, StrLine.s, StrRead.s
+    	Protected FileHandle.l, StrLine.s, StrRead.s, StrRegion.s
     	
     	
     	Structure MAME_DRIVER_IMPORT_LIST
         	DriverName.s
         	Title.s
+        	Region.s
+        EndStructure
+        
+        
+    	Structure MAME_DRIVER_REGION
+        	Region.s
         EndStructure
         
         NewList mdil.MAME_DRIVER_IMPORT_LIST()
+        NewList mdr.MAME_DRIVER_REGION()
+        
+        
         
         SetActiveGadget(-1) 
         
@@ -5304,6 +5313,27 @@ EndProcedure
     	
     	If ( Len( ExportPath$ ) >= 1 )
     		
+    		AddElement( mdr() ): mdr()\Region = "Asia"
+    		AddElement( mdr() ): mdr()\Region = "Brazil"
+    		AddElement( mdr() ): mdr()\Region = "China"    		
+    		AddElement( mdr() ): mdr()\Region = "Euro"
+    		AddElement( mdr() ): mdr()\Region = "Europe"    		
+    		AddElement( mdr() ): mdr()\Region = "English"
+     		AddElement( mdr() ): mdr()\Region = "French"     		
+    		AddElement( mdr() ): mdr()\Region = "German"
+    		AddElement( mdr() ): mdr()\Region = "Hispanic"
+    		AddElement( mdr() ): mdr()\Region = "Hong Kong"    		
+    		AddElement( mdr() ): mdr()\Region = "Italian"
+    		AddElement( mdr() ): mdr()\Region = "Korea"      		
+    		AddElement( mdr() ): mdr()\Region = "Japan"
+     		AddElement( mdr() ): mdr()\Region = "Spain"    		
+     		AddElement( mdr() ): mdr()\Region = "Taiwan"
+    		AddElement( mdr() ): mdr()\Region = "UK"     		
+    		AddElement( mdr() ): mdr()\Region = "USA"
+    		AddElement( mdr() ): mdr()\Region = "US"    		
+     		AddElement( mdr() ): mdr()\Region = "World"   		
+
+     		
     		FileHandle = ReadFile(#PB_Any, ExportPath$)
     		
     		If ( FileHandle >= 0 )
@@ -5314,6 +5344,8 @@ EndProcedure
     			StrLine   =  StrRead
     			
     			sLen.i    = Len( StrLine )
+    			
+    			StrRegion = ""
     			
     			If ( Right(StrLine, 1) = ":" ) And ( Left( StrLine, 6) = "Driver")
     				
@@ -5331,10 +5363,58 @@ EndProcedure
     				StrLine      = Trim( StrLine, Chr(32) )
     				
     				Title.s      = Mid( StrLine, 2, Len( StrLine ) -3 )
+    				RegionFound	 = #False
+    				
+        			ResetList( mdr() )
+        			While NextElement( mdr() )
+        				If FindString( Title, mdr()\Region,1,#PB_String_CaseSensitive)
+        					
+        					If FindString( Title, "(" + mdr()\Region,1,#PB_String_CaseSensitive)
+        						RegionFound = #True
+        					ElseIf FindString( Title, ", " + mdr()\Region,1,#PB_String_CaseSensitive)	
+        						RegionFound = #True
+        					EndIf	
+        					
+        					If ( RegionFound = #True )
+        						StrRegion = mdr()\Region
+        						Title	  = ReplaceString( Title, StrRegion, "",#PB_String_CaseSensitive,1,1)
+        					EndIf	
+        					Break
+        				EndIf	
+        			Wend
+        			
+        			If FindString( Title, "set ",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "set ", "Set ",#PB_String_CaseSensitive,1,1)	
+        			EndIf     			
+        			
+        			If FindString( Title, "rev ",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "rev ", "Revision ",#PB_String_CaseSensitive,1,1)	
+        			EndIf
+        			
+        			If FindString( Title, "prototype",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "prototype", "Prototype",#PB_String_CaseSensitive,1,1)	
+        			EndIf
+        			
+        			If FindString( Title, "bootleg",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "bootleg", "Bootleg",#PB_String_CaseSensitive,1,1)	
+        			EndIf
+        			
+        			If FindString( Title, "harder",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "harder", "Harder",#PB_String_CaseSensitive,1,1)	
+        			EndIf        			
+        			        			
+        			If FindString( Title, "()",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "()", "",#PB_String_CaseSensitive,1,1)
+        			EndIf 
+        			
+        			If FindString( Title, "( ",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "( ", "(",#PB_String_CaseSensitive,1,1)
+        			EndIf         			
         			
         			AddElement( mdil() )
         			mdil()\DriverName = DriverName
         			mdil()\Title      = Title
+        			mdil()\Region     = StrRegion         			
         			
     				Debug "Titel: " + Title        				
     				Debug "Rom  : " + DriverName 				
@@ -5396,6 +5476,7 @@ EndProcedure
 				Debug "ID Index : " + Str(Startup::*LHGameDB\GameID)
 				Debug "Insert   : " + mdil()\Title
 				Debug "FileDev0 : " + mdil()\DriverName
+				Debug "Region   : " + mdil()\Region
 				
 				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)				
 				
@@ -5416,7 +5497,36 @@ EndProcedure
                 
 				Delay(15)                  
 
-                ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", mdil()\DriverName, Startup::*LHGameDB\GameID) 
+				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", mdil()\DriverName, Startup::*LHGameDB\GameID)
+				
+				Delay(15)
+				
+				If ( Len( mdil()\Region ) > 0)
+					
+					RegionFound.i = #False
+					
+					For RowID = 1 To ExecSQL::CountRows(DC::#Database_001,"Language")
+						
+	            		LanguageID.i = ExecSQL::iRow(DC::#Database_001,"Language","id",0,RowID,"",1)
+	            		LanguageST.s = ExecSQL::nRow(DC::#Database_001,"Language","Locale","",RowID,"",1)
+	            		
+	            		If  ( UCase( mdil()\Region ) = UCase( LanguageST ) )	            			
+	            			RegionFound = #True
+	            			Debug "Founded"
+	            			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(LanguageID), Startup::*LHGameDB\GameID)
+	                    	Break
+	                    EndIf	                    		                    	
+	                Next RowID 
+	                
+	                
+	                ; Nicht Gefunden -> Füge die Region der Liste hinzu und dem Aktuellen Titel
+	                If ( RegionFound.i = #False )
+	                	ExecSQL::InsertRow(DC::#Database_001,"Language", "Locale ",  mdil()\Region)
+	                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(ExecSQL::LastRowID(DC::#Database_001,"Language")), Startup::*LHGameDB\GameID)
+	                EndIf	
+                EndIf
+        
+				
             Wend
                         
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)
@@ -5471,9 +5581,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5460
-; FirstLine = 4811
-; Folding = 8-P++4P-v9-0J-
+; CursorPosition = 5402
+; FirstLine = 4785
+; Folding = 8-P-+4P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
