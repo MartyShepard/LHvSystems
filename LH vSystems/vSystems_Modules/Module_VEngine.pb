@@ -5282,16 +5282,17 @@ EndProcedure
         
         NewList mdil.MAME_DRIVER_IMPORT_LIST()
         
+        SetActiveGadget(-1) 
         
         ; Intro
         ;
-        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Import", "Mame Titel und Rom Namen Importieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listdevices' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
-        SetActiveWindow(DC::#_Window_001)           
-        SetActiveGadget(DC::#ListIcon_001) 
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Import", "Mame Titel und Rom Namen Importieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listdevices' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
         If ( Result = 1 ) 
+        	SetActiveWindow(DC::#_Window_001)           
+        	SetActiveGadget(DC::#ListIcon_001)         	
         	ProcedureReturn 
         EndIf
-            
+        
         Delay(30)
   			  				  			
         ExportFile$ = FFH::GetFilePBRQ("Export File",SourcePath$, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
@@ -5338,10 +5339,10 @@ EndProcedure
     				Debug "Titel: " + Title        				
     				Debug "Rom  : " + DriverName 				
     				Debug "Read : " + StrRead
-    				Debug ""
+    				Debug ""    				
     			EndIf
-
     		Wend
+    		
     		CloseFile(FileHandle)
   			Else
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
@@ -5366,10 +5367,10 @@ EndProcedure
             
             ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
             ;
-            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
-            SetActiveWindow(DC::#_Window_001)           
-            SetActiveGadget(DC::#ListIcon_001) 
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
             If ( Result = 1 ) 
+            	SetActiveWindow(DC::#_Window_001)           
+            	SetActiveGadget(DC::#ListIcon_001)             	
             	ProcedureReturn 
             EndIf
             
@@ -5380,33 +5381,41 @@ EndProcedure
                 
         	Delay(30)
         	
+        	Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
+        	
         	SourceGameID.i            = Startup::*LHGameDB\GameID
         	If ( SourceGameID = 0 )
         		SourceGameID + 1
-        	EndIf	
-         	
-        	Debug "Port ID"
-            
+        	EndIf
+        	
+        	ResetList( mdil() )
+        	
 			While NextElement(mdil())
 				Delay(5)
 				
-				Debug "Insert" + mdil()\Title
+				Debug "ID Index : " + Str(Startup::*LHGameDB\GameID)
+				Debug "Insert   : " + mdil()\Title
+				Debug "FileDev0 : " + mdil()\DriverName
 				
-				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)
-												                                      
-                Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
+				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)				
+				
+				Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
+				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "GameTitle", mdil()\Title, Startup::*LHGameDB\GameID) ; Force
                 
+				Delay(15)                
                 ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)                         
                 
                 ; Screenshot Zelle hinzufügen
                 ;
-                ExecSQL::InsertRow(DC::#Database_002,"GameShot", "BaseGameID ", Str(Startup::*LHGameDB\GameID)) 
+                ExecSQL::InsertRow(DC::#Database_002,"GameShot", "BaseGameID ", Str(Startup::*LHGameDB\GameID))
+                
                 ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(202),Startup::*LHGameDB\GameID)
                 ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(142),Startup::*LHGameDB\GameID)                            
                 
                 VEngine::Splitter_SetGet(#False)
                 
-                Debug "Insert FileDev0: " + mdil()\DriverName
+				Delay(15)                  
+
                 ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", mdil()\DriverName, Startup::*LHGameDB\GameID) 
             Wend
                         
@@ -5416,13 +5425,10 @@ EndProcedure
                                     
            ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
             ;
-            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Für die zu Importierten ("+ Str(ls) +") Titel ein Programm auswählen?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
-            SetActiveWindow(DC::#_Window_001)           
-            SetActiveGadget(DC::#ListIcon_001) 
-            
-            If ( Result = 0 )  				
-  				vWindows::OpenWindow_Sys2()
-  				VEngine:: ListBox_GetData_LeftMouse(#True)                 
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Für die zu Importierten ("+ Str(ls) +") Titel ein Programm auswählen?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )                        
+            If ( Result = 0 ) 
+            	Delay(10)
+  				vWindows::OpenWindow_Sys2()                
   				  				  				
         		PortValID.i = 0
         		PortValID   = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","", SourceGameID,"",1))    				
@@ -5430,21 +5436,31 @@ EndProcedure
         		ResetList( mdil() )
         		
         		CurrentIndexID =  SourceGameID-1        		
-        		While NextElement(mdil())
+        		While NextElement( mdil() )
+            		Delay(10)        			
         			CurrentIndexID + 1
         			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)        			
         		Wend
         		
         	EndIf 
-        	
+        	              
            VEngine::Thread_LoadGameList_Action()
            vImages::Screens_Show()
            
-           Delay(90)
+           SetActiveWindow(DC::#_Window_001)
+           SetActiveGadget(DC::#ListIcon_001)           
            
+           ListBox_GetData_LeftMouse(#True)           
+           
+           Delay(150)
+                   	
            Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls) + " Titel wurden Importiert" ,2,2,"",0,0,DC::#_Window_001)
            SetActiveWindow(DC::#_Window_001)
-           SetActiveGadget(DC::#ListIcon_001)            	                       
+           SetActiveGadget(DC::#ListIcon_001)
+           
+           ClearList( mdil() )
+           
+           
     	EndIf	
     	
     	 ProcedureReturn 
@@ -5455,9 +5471,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5442
-; FirstLine = 4718
-; Folding = 8-P+34P-v9-0J-
+; CursorPosition = 5460
+; FirstLine = 4811
+; Folding = 8-P++4P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
