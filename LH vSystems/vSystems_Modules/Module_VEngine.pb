@@ -5406,6 +5406,10 @@ EndProcedure
         				Title	  = ReplaceString( Title, "ver.", "Version",#PB_String_CaseSensitive,1,1)	
         			EndIf
         			
+        			If FindString( Title, "Ver.",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "ver.", "Version",#PB_String_CaseSensitive,1,1)	
+        			EndIf        			
+        			
         			If FindString( Title, "hack",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "hack", "Hack",#PB_String_CaseSensitive,1,1)	
         			EndIf        			
@@ -5601,7 +5605,7 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5404
+; CursorPosition = 5408
 ; FirstLine = 4808
 ; Folding = 8-P-+4P-v9-0N-
 ; EnableAsm
