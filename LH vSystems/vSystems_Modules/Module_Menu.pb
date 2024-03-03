@@ -2578,6 +2578,8 @@ Module INVMNU
             Case 32: DesktopEX::SetTaskBar()
             Case 35: vEngine::ServiceOption("uxsms", #False)                 
             Case 34: vEngine::ServiceOption("uxsms", #True) 
+            Case 40: vEngine::MAME_Driver_Import()             	        
+           
 
                 ; Resetet die Fenster Position
             Case 20
@@ -2793,7 +2795,9 @@ Module INVMNU
             MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       )       
             MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       )
             MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       )
-            MenuBar()           
+            MenuBar()
+ 			MenuItem(40 , "Title Import: Mame Drivers" 			    )           
+            MenuBar()             
             MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
             MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
             MenuBar()                   
@@ -2827,11 +2831,10 @@ Module INVMNU
             MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
             MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
             MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
-            MenuBar()                         
+            MenuBar()
         EndIf
         MenuItem(98, "vSystems Update")        
         MenuItem(99, "vSystems Beenden")
-        
 
 
             
@@ -2841,9 +2844,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2775
-; FirstLine = 2474
-; Folding = z54-
+; CursorPosition = 2798
+; FirstLine = 2531
+; Folding = z5--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

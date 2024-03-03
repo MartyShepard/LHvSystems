@@ -1013,7 +1013,7 @@ Module vSystem
     ;
     ;
     Procedure.s System_Get_Internal_Count()        
-        x = CountGadgetItems(DC::#ListIcon_001)
+        x = CountGadgetItems(DC::#ListIcon_001)-1
          ProcedureReturn Str(x)
     EndProcedure
     ;
@@ -1427,9 +1427,9 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1252
-; FirstLine = 612
-; Folding = DBiBA0-
+; CursorPosition = 1015
+; FirstLine = 461
+; Folding = DBjBg--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

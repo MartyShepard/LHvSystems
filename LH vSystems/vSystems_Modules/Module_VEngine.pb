@@ -52,6 +52,8 @@
     Declare     Thumbnails_Set(nSize.i)
     
     Declare.i   FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
+    
+    Declare	 MAME_Driver_Import() 
 
     
 
@@ -918,7 +920,7 @@ Module VEngine
               ;
               ; Resete die Update Section. Siehe Modul Itemslist            
               Startup::*LHGameDB\UpdateSection = -1
-              Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")        
+              Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished - Aktuelle ID " + Str(Startup::*LHGameDB\GameID))        
               
           EndIf    
       EndProcedure
@@ -5266,20 +5268,200 @@ EndProcedure
 ;                 EndIf
 ;             EndIf
 ;       
-;    EndProcedure    
+;    EndProcedure 
+    
+    Procedure.i     MAME_Driver_Import()   
+    	
+    	Protected FileHandle.l, StrLine.s, StrRead.s
+    	
+    	
+    	Structure MAME_DRIVER_IMPORT_LIST
+        	DriverName.s
+        	Title.s
+        EndStructure
+        
+        NewList mdil.MAME_DRIVER_IMPORT_LIST()
+        
+        
+        ; Intro
+        ;
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Import", "Mame Titel und Rom Namen Importieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listdevices' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
+        SetActiveWindow(DC::#_Window_001)           
+        SetActiveGadget(DC::#ListIcon_001) 
+        If ( Result = 1 ) 
+        	ProcedureReturn 
+        EndIf
+            
+        Delay(30)
+  			  				  			
+        ExportFile$ = FFH::GetFilePBRQ("Export File",SourcePath$, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
+        If ( Len( ExportFile$ ) = 0 )
+        	ProcedureReturn 
+        EndIf	
+        	
+    	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
+    	
+    	If ( Len( ExportPath$ ) >= 1 )
+    		
+    		FileHandle = ReadFile(#PB_Any, ExportPath$)
+    		
+    		If ( FileHandle >= 0 )
+    			
+    		While Eof(FileHandle) = 0
+    			
+    			StrRead   =  ReadString(FileHandle)
+    			StrLine   =  StrRead
+    			
+    			sLen.i    = Len( StrLine )
+    			
+    			If ( Right(StrLine, 1) = ":" ) And ( Left( StrLine, 6) = "Driver")
+    				
+    				StrLine      = ReplaceString( StrLine, "Driver", "", #PB_String_CaseSensitive ,0,1)
+    				
+    				; Suche nach der ersten Klammer
+    				sKlammerO.i  = FindString( StrLine, "(",0)    				
+    				
+    				; Hole Rom Name vor dem zeichen der ersten Klammer
+    				DriverName.s = Mid( StrLine, 0, sKlammerO - 1 )
+    				
+    				DriverName.s = Trim( DriverName, Chr(32) )
+    				
+    				StrLine      = ReplaceString( StrLine, DriverName, "", #PB_String_CaseSensitive ,0,1)
+    				StrLine      = Trim( StrLine, Chr(32) )
+    				
+    				Title.s      = Mid( StrLine, 2, Len( StrLine ) -3 )
+        			
+        			AddElement( mdil() )
+        			mdil()\DriverName = DriverName
+        			mdil()\Title      = Title
+        			
+    				Debug "Titel: " + Title        				
+    				Debug "Rom  : " + DriverName 				
+    				Debug "Read : " + StrRead
+    				Debug ""
+    			EndIf
+
+    		Wend
+    		CloseFile(FileHandle)
+  			Else
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
+                ProcedureReturn  				
+  			EndIf
+  			
+  			ResetList( mdil() ): ls.i = ListSize ( mdil() )
+  			
+  			; Prüfen ob die Liste nicht null ist
+  			;
+  			If ( ls = 0 )
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Keine Titel zum Importieren gefunden",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
+                ProcedureReturn  				
+            EndIf
+            
+                        
+            Delay(30)
+            
+            ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
+            ;
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls-1) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
+            SetActiveWindow(DC::#_Window_001)           
+            SetActiveGadget(DC::#ListIcon_001) 
+            If ( Result = 1 ) 
+            	ProcedureReturn 
+            EndIf
+            
+            
+            ; Anzahl der Items in der DB Prüfen
+            ;
+        	Rows = ExecSQL::CountRows(DC::#Database_001,"Gamebase")  
+                
+        	Delay(30)
+        	
+        	SourceGameID.i            = Startup::*LHGameDB\GameID
+        	If ( SourceGameID = 0 )
+        		SourceGameID + 1
+        	EndIf	
+         	
+        	Debug "Port ID"
+            
+			While NextElement(mdil())
+				Delay(5)
+				
+				Debug "Insert" + mdil()\Title
+				
+				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)
+												                                      
+                Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
+                
+                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)                         
+                
+                ; Screenshot Zelle hinzufügen
+                ;
+                ExecSQL::InsertRow(DC::#Database_002,"GameShot", "BaseGameID ", Str(Startup::*LHGameDB\GameID)) 
+                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(202),Startup::*LHGameDB\GameID)
+                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(142),Startup::*LHGameDB\GameID)                            
+                
+                VEngine::Splitter_SetGet(#False)
+                
+                Debug "Insert FileDev0: " + mdil()\DriverName
+                ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", mdil()\DriverName, Startup::*LHGameDB\GameID) 
+            Wend
+                        
+            ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)
+                                              
+            Startup::*LHGameDB\GameID = SourceGameID
+                                    
+           ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
+            ;
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls-1) +" Titel Verknüpfen", "Für die zu Importierten ("+ Str(ls-1) +") Titel ein Programm auswählen?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
+            SetActiveWindow(DC::#_Window_001)           
+            SetActiveGadget(DC::#ListIcon_001) 
+            
+            If ( Result = 0 )  				
+  				vWindows::OpenWindow_Sys2()
+  				VEngine:: ListBox_GetData_LeftMouse(#True)                 
+  				  				  				
+        		PortValID.i = 0
+        		PortValID   = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","", SourceGameID,"",1))    				
+        		
+        		ResetList( mdil() ): ls.i = ListSize ( mdil() )
+        		
+        		CurrentIndexID =  SourceGameID-1        		
+        		While NextElement(mdil())
+        			CurrentIndexID + 1
+        			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)        			
+        		Wend
+        		
+        	EndIf 
+        	
+           VEngine::Thread_LoadGameList_Action()
+           vImages::Screens_Show()
+           
+           Delay(30)
+           
+           Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls-1) + " Titel wurden Importiert" ,2,2,"",0,0,DC::#_Window_001)
+           SetActiveWindow(DC::#_Window_001)
+           SetActiveGadget(DC::#ListIcon_001)            	                       
+    	EndIf	
+    	
+    	 ProcedureReturn 
+    EndProcedure	
 EndModule    
 
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4186
-; FirstLine = 3613
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 5287
+; FirstLine = 4579
 ; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = G:\Tosec _ Emulation\Mame Emulation\Arcade\Atari Gauntlet Hardware
+; CurrentDirectory = \release
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier
