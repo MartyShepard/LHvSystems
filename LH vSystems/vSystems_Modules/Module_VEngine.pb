@@ -5313,6 +5313,8 @@ EndProcedure
     	
     	If ( Len( ExportPath$ ) >= 1 )
     		
+    		SetGadgetText(DC::#Text_003,"Reading List")
+    		
     		AddElement( mdr() ): mdr()\Region = "Asia"
     		AddElement( mdr() ): mdr()\Region = "Brazil"
     		AddElement( mdr() ): mdr()\Region = "China"    		
@@ -5363,21 +5365,18 @@ EndProcedure
     				StrLine      = Trim( StrLine, Chr(32) )
     				
     				Title.s      = Mid( StrLine, 2, Len( StrLine ) -3 )
-    				RegionFound	 = #False
-    				
+    				    				
         			ResetList( mdr() )
         			While NextElement( mdr() )
         				If FindString( Title, mdr()\Region,1,#PB_String_CaseSensitive)
         					
         					If FindString( Title, "(" + mdr()\Region,1,#PB_String_CaseSensitive)
-        						RegionFound = #True
-        					ElseIf FindString( Title, ", " + mdr()\Region,1,#PB_String_CaseSensitive)	
-        						RegionFound = #True
-        					EndIf	
-        					
-        					If ( RegionFound = #True )
         						StrRegion = mdr()\Region
-        						Title	  = ReplaceString( Title, StrRegion, "",#PB_String_CaseSensitive,1,1)
+        						Title	  = ReplaceString( Title, "(" + StrRegion, "(",#PB_String_CaseSensitive,1,1)
+        						
+        					ElseIf FindString( Title, ", " + mdr()\Region,1,#PB_String_CaseSensitive)	
+        						StrRegion = mdr()\Region
+        						Title	  = ReplaceString( Title, ", " + StrRegion, "(",#PB_String_CaseSensitive,1,1)
         					EndIf	
         					Break
         				EndIf	
@@ -5401,6 +5400,14 @@ EndProcedure
         			
         			If FindString( Title, "harder",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "harder", "Harder",#PB_String_CaseSensitive,1,1)	
+        			EndIf   
+        			
+        			If FindString( Title, "ver.",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "ver.", "Version",#PB_String_CaseSensitive,1,1)	
+        			EndIf
+        			
+        			If FindString( Title, "hack",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "hack", "Hack",#PB_String_CaseSensitive,1,1)	
         			EndIf        			
         			        			
         			If FindString( Title, "()",1,#PB_String_CaseSensitive)
@@ -5409,7 +5416,12 @@ EndProcedure
         			
         			If FindString( Title, "( ",1,#PB_String_CaseSensitive)
         				Title	  = ReplaceString( Title, "( ", "(",#PB_String_CaseSensitive,1,1)
+        			EndIf 
+        			
+        			If FindString( Title, "(, ",1,#PB_String_CaseSensitive)
+        				Title	  = ReplaceString( Title, "(, ", "(",#PB_String_CaseSensitive,1,1)
         			EndIf         			
+        			
         			
         			AddElement( mdil() )
         			mdil()\DriverName = DriverName
@@ -5419,7 +5431,10 @@ EndProcedure
     				Debug "Titel: " + Title        				
     				Debug "Rom  : " + DriverName 				
     				Debug "Read : " + StrRead
-    				Debug ""    				
+    				Debug "" 
+    				
+    				SetGadgetText(DC::#Text_003,"Reading List [" + ListSize( mdil() ) + "]")
+    				
     			EndIf
     		Wend
     		
@@ -5478,6 +5493,8 @@ EndProcedure
 				Debug "FileDev0 : " + mdil()\DriverName
 				Debug "Region   : " + mdil()\Region
 				
+				SetGadgetText(DC::#Text_003,"Insert [" + mdil()\Title + "]")
+				
 				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)				
 				
 				Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
@@ -5528,7 +5545,9 @@ EndProcedure
         
 				
             Wend
-                        
+            
+            SetGadgetText(DC::#Text_003,"...")
+            
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)
                                               
             Startup::*LHGameDB\GameID = SourceGameID
@@ -5548,12 +5567,13 @@ EndProcedure
         		CurrentIndexID =  SourceGameID-1        		
         		While NextElement( mdil() )
             		Delay(10)        			
-        			CurrentIndexID + 1
-        			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)        			
+            		CurrentIndexID + 1
+            		SetGadgetText(DC::#Text_003,".. Linking: [ " + CurrentIndexID +" ]" )
+        			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)
         		Wend
-        		
+        		SetGadgetText(DC::#Text_003,"...")
         	EndIf 
-        	              
+        	        	              
            VEngine::Thread_LoadGameList_Action()
            vImages::Screens_Show()
            
@@ -5581,9 +5601,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5402
-; FirstLine = 4785
-; Folding = 8-P-+4P-v9-0J-
+; CursorPosition = 5404
+; FirstLine = 4808
+; Folding = 8-P-+4P-v9-0N-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
