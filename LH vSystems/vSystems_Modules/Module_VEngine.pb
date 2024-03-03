@@ -5366,7 +5366,7 @@ EndProcedure
             
             ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
             ;
-            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls-1) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
             SetActiveWindow(DC::#_Window_001)           
             SetActiveGadget(DC::#ListIcon_001) 
             If ( Result = 1 ) 
@@ -5416,7 +5416,7 @@ EndProcedure
                                     
            ; Auswählen mit welchen Programm die Spiele verknüpft werden sollen            
             ;
-            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls-1) +" Titel Verknüpfen", "Für die zu Importierten ("+ Str(ls-1) +") Titel ein Programm auswählen?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Für die zu Importierten ("+ Str(ls) +") Titel ein Programm auswählen?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )            
             SetActiveWindow(DC::#_Window_001)           
             SetActiveGadget(DC::#ListIcon_001) 
             
@@ -5427,7 +5427,7 @@ EndProcedure
         		PortValID.i = 0
         		PortValID   = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","", SourceGameID,"",1))    				
         		
-        		ResetList( mdil() ): ls.i = ListSize ( mdil() )
+        		ResetList( mdil() )
         		
         		CurrentIndexID =  SourceGameID-1        		
         		While NextElement(mdil())
@@ -5440,9 +5440,9 @@ EndProcedure
            VEngine::Thread_LoadGameList_Action()
            vImages::Screens_Show()
            
-           Delay(30)
+           Delay(90)
            
-           Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls-1) + " Titel wurden Importiert" ,2,2,"",0,0,DC::#_Window_001)
+           Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls) + " Titel wurden Importiert" ,2,2,"",0,0,DC::#_Window_001)
            SetActiveWindow(DC::#_Window_001)
            SetActiveGadget(DC::#ListIcon_001)            	                       
     	EndIf	
@@ -5454,9 +5454,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 5287
-; FirstLine = 4579
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 5442
+; FirstLine = 4718
 ; Folding = 8-P+34P-v9-0J-
 ; EnableAsm
 ; EnableXP

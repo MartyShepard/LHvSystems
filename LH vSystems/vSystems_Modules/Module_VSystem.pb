@@ -1013,7 +1013,7 @@ Module vSystem
     ;
     ;
     Procedure.s System_Get_Internal_Count()        
-        x = CountGadgetItems(DC::#ListIcon_001)-1
+        x = CountGadgetItems(DC::#ListIcon_001)
          ProcedureReturn Str(x)
     EndProcedure
     ;
