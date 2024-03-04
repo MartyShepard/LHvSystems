@@ -5524,7 +5524,9 @@ EndProcedure
                 ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(202),Startup::*LHGameDB\GameID)
                 ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(142),Startup::*LHGameDB\GameID)                            
                 
-                VEngine::Splitter_SetGet(#False)
+                ;VEngine::Splitter_SetGet(#False)
+            	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),Startup::*LHGameDB\GameID)
+            	ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),1)                  
                 
 				Delay(15)                  
 
@@ -5615,9 +5617,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5336
-; FirstLine = 4745
-; Folding = 8-P-+4P-v9-0N-
+; CursorPosition = 5500
+; FirstLine = 5004
+; Folding = 8-P-+4P-v9--N-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
