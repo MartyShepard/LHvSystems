@@ -5317,11 +5317,13 @@ EndProcedure
     		
     		AddElement( mdr() ): mdr()\Region = "Asia"
     		AddElement( mdr() ): mdr()\Region = "Brazil"
-    		AddElement( mdr() ): mdr()\Region = "China"    		
-    		AddElement( mdr() ): mdr()\Region = "Euro"
-    		AddElement( mdr() ): mdr()\Region = "Europe"    		
+    		AddElement( mdr() ): mdr()\Region = "China"
+     		AddElement( mdr() ): mdr()\Region = "European"   		
+    		AddElement( mdr() ): mdr()\Region = "Europe"
+    		AddElement( mdr() ): mdr()\Region = "Euro"    		
     		AddElement( mdr() ): mdr()\Region = "English"
-     		AddElement( mdr() ): mdr()\Region = "French"     		
+    		AddElement( mdr() ): mdr()\Region = "French"
+    		AddElement( mdr() ): mdr()\Region = "Germany"    		
     		AddElement( mdr() ): mdr()\Region = "German"
     		AddElement( mdr() ): mdr()\Region = "Hispanic"
     		AddElement( mdr() ): mdr()\Region = "Hong Kong"    		
@@ -5613,8 +5615,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5433
-; FirstLine = 4820
+; CursorPosition = 5336
+; FirstLine = 4745
 ; Folding = 8-P-+4P-v9-0N-
 ; EnableAsm
 ; EnableXP
