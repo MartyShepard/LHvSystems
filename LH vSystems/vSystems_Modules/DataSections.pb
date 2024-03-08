@@ -14,7 +14,8 @@ DeclareModule DI
         #_MNU_DSK: #_MNU_SVE: #_MNU_LOD: #_MNU_PRN: #_MNU_SET: #_MNU_FDF: #_MNU_FDL: #_MNU_TDF: #_MNU_TRN: #_MNU_WRS
         #_MNU_CLS: #_MNU_WMS: #_MNU_WMT: #_MNU_WMH: #_MNU_SPL: #_MNU_DPC: #_MNU_ATO: #_MNU_EXE: #_MNU_EXD: #_MNU_AEE
         #_MNU_AED: #_MNU_TBD: #_MNU_TBE: #_MNU_SWN: #_MNU_SFN: #_MNU_TB1: #_MNU_TB2: #_MNU_TB3: #_MNU_TB4: #_MNU_TB5
-        #_MNU_DIR: #_MNU_RAL: #_MNU_RNE: #_MNU_FEX: #_MNU_FPS: #_MNU_URL: #_MNU_RUN: 
+        #_MNU_DIR: #_MNU_RAL: #_MNU_RNE: #_MNU_FEX: #_MNU_FPS: #_MNU_URL: #_MNU_RUN: #_MNU_MAM: #_MNU_VSY: #_MNU_VSU
+        #_MNU_MON: #_MNU_VSP:
     EndEnumeration
     Debug "- Menu ImageIcon #2601 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
     
@@ -73,8 +74,8 @@ Module DI
     CatchImage(#_MNU_AEE, ?_MNU_AEE):   CatchImage(#_MNU_TBD, ?_MNU_TBD):   CatchImage(#_MNU_TBE, ?_MNU_TBE):   CatchImage(#_MNU_SWN, ?_MNU_SWN):   CatchImage(#_MNU_SFN, ?_MNU_SFN)
     CatchImage(#_MNU_TB1, ?_MNU_TB1):   CatchImage(#_MNU_TB2, ?_MNU_TB2):   CatchImage(#_MNU_TB3, ?_MNU_TB3):   CatchImage(#_MNU_TB4, ?_MNU_TB4):   CatchImage(#_MNU_TB5, ?_MNU_TB5)
     CatchImage(#_MNU_DIR, ?_MNU_DIR):   CatchImage(#_MNU_RAL, ?_MNU_RAL):   CatchImage(#_MNU_RNE, ?_MNU_RNE):   CatchImage(#_MNU_FEX, ?_MNU_FEX):   CatchImage(#_MNU_FPS, ?_MNU_FPS)
-    CatchImage(#_MNU_URL, ?_MNU_URL):   CatchImage(#_MNU_RUN, ?_MNU_RUN):
-    
+    CatchImage(#_MNU_URL, ?_MNU_URL):   CatchImage(#_MNU_RUN, ?_MNU_RUN):	CatchImage(#_MNU_MAM, ?_MNU_MAM):	CatchImage(#_MNU_VSY, ?_MNU_VSY):	CatchImage(#_MNU_VSU, ?_MNU_VSU)
+    CatchImage(#_MNU_MON, ?_MNU_MON):	CatchImage(#_MNU_VSP, ?_MNU_VSP):
     ;
     ; Button Images
     CatchImage(#_BTN_GREY4_0N, ?_BTN_GREY4_0N): CatchImage(#_BTN_GREY4_0H, ?_BTN_GREY4_0H): CatchImage(#_BTN_GREY4_0P, ?_BTN_GREY4_0P): CatchImage(#_BTN_GREY4_0D, ?_BTN_GREY4_0D)
@@ -359,14 +360,24 @@ Module DI
         _MNU_URL:
         IncludeBinary "Data_Images\MENU\MnuUrlOpen.png"
         _MNU_RUN:
-        IncludeBinary "Data_Images\MENU\MnuRun.png"         
+        IncludeBinary "Data_Images\MENU\MnuRun.png"
+        _MNU_MAM:
+        IncludeBinary "Data_Images\MENU\MAME.png"                
+        _MNU_VSY:
+        IncludeBinary "Data_Images\MENU\VSystem.png"
+        _MNU_VSU:
+        IncludeBinary "Data_Images\MENU\VSysUpdate.png"
+        _MNU_MON:
+        IncludeBinary "Data_Images\MENU\Monitor.png"
+        _MNU_VSP:
+        IncludeBinary "Data_Images\MENU\VSysPrefs.png"         
     EndDataSection
     
 
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 277
-; FirstLine = 255
+; CursorPosition = 77
+; FirstLine = 30
 ; Folding = -
 ; EnableAsm
 ; EnableXP

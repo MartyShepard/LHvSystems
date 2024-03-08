@@ -17,9 +17,12 @@
         
         ; Downloads
         ; Declare.i GetFileDownload(File$ = "")
-        Declare.i WinApi_DownloadFile(Url.s, TargetPath.s)
+        Declare.i HTTP_ReciveFile(Url.s, TargetPath.s)
         Declare.i CheckURL(URL.s)
-
+        Declare.q HTTP_GetContentLength(Url$)
+        _HttpDownloadedSize.q
+        _HttpDownloadedFile.s
+        
         ; Path's
         Declare.s GetClSIDPath(FOLDERID_CLSID)
         Declare.s GetClSIDVariable(Path$) 
@@ -1623,26 +1626,81 @@ EndProcedure
             CloseClipboard_()
             ProcedureReturn lR            
         EndProcedure
-   
-    ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
-    ; Download        
-        Procedure WinApi_DownloadFile(Url.s, TargetPath.s)
+        
+	
+	
+    Procedure.q HTTP_GetContentLength(Url$)
+        	
+      #HTTP_QUERY_CONTENT_LENGTH=5
+        	
+	  Protected FileSizet.s=Space(20),FileSize.q, Size,hINET,hURL
+	  
+	  hINET=InternetOpen_("blub",0,0,0,0)
+	  	If hINET
+	    	hURL =InternetOpenUrl_(hINET,Url$,0,0,$80000000,0)
+	    	If hURL
+	      		Size=Len(FileSizet)
+	      		
+	      		HttpQueryInfo_(hURL,#HTTP_QUERY_CONTENT_LENGTH,@FileSizet,@Size,#Null)
+	      		
+	      		FileSize=Val(FileSizet)
+	      		
+	      		InternetCloseHandle_(hURL)
+	      		InternetCloseHandle_(hINET)
+	    	Else
+	      		InternetCloseHandle_(hINET)
+	    	EndIf
+	  	EndIf
+	  	ProcedureReturn FileSize
+	EndProcedure        
+	;
+	;
+	; Download        
+	
+    Procedure Thread_MAME_Roms_Get(t)    	
+    ;
+    ;
+
+	;
+    EndProcedure
+    
+    Procedure HTTP_ReciveFile_ThreadStart()
+    	Protected ActionThread.i
+    	
+    	#INET_E_DOWNLOAD_FAILURE = $800C0008
             
-            #INET_E_DOWNLOAD_FAILURE = $800C0008
-            
-            If Not DeleteUrlCacheEntry_(@Url)
-                If GetLastError_() = #ERROR_ACCESS_DENIED
-                    ProcedureReturn #False
-                EndIf
+        If Not DeleteUrlCacheEntry_(@Url)
+        	
+        	If GetLastError_() = #ERROR_ACCESS_DENIED
+        		
+        		ProcedureReturn #False
             EndIf
+        EndIf
             
-            Select URLDownloadToFile_(0, @Url, @TargetPath, 0, 0)
-                Case #S_OK                                                                                
-                    ProcedureReturn #True
-                Case #E_OUTOFMEMORY, #INET_E_DOWNLOAD_FAILURE
-                    ProcedureReturn #False
-            EndSelect
-        EndProcedure            
+        Select URLDownloadToFile_(0, @Url, @TargetPath, 0, 0)
+        	Case #S_OK                                                                                
+            	ProcedureReturn #True
+        	Case #E_OUTOFMEMORY, #INET_E_DOWNLOAD_FAILURE
+            ProcedureReturn #False
+    	EndSelect
+    
+        ActionThread = CreateThread(@Thread_MAME_Roms_Get(),0)  
+        
+        ThreadPriority(ActionThread, 31) 
+        
+        While IsThread(ActionThread)
+                           
+        	While WindowEvent() 
+        		
+            Wend
+        Wend 
+
+    EndProcedure   
+    
+    Procedure HTTP_ReciveFile(Url.s, TargetPath.s)
+    	
+
+    EndProcedure            
     ;
     ;
       Procedure.i CheckURL (URL.s)
@@ -2019,9 +2077,9 @@ CompilerEndIf
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1960
-; FirstLine = 1327
-; Folding = vPpBB+-
+; CursorPosition = 23
+; FirstLine = 6
+; Folding = vPpBx4-
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = Release\

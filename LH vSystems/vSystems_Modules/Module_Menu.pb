@@ -2776,15 +2776,15 @@ Module INVMNU
     Procedure Set_TrayMenu_Monitor()        
                 
         If ( Startup::*LHGameDB\FileMonitoring = #False )
-            MenuItem(24, "Start: Disk Monitoring"  )            
+            MenuItem(24, "Start: Disk Monitoring"   ,ImageID( DI::#_MNU_MON ))            
             SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 0) 
         Else
-            MenuItem(24, "Stop: Disk Monitoring"  )             
+            MenuItem(24, "Stop: Disk Monitoring"   ,ImageID( DI::#_MNU_MON ))             
             SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 1) 
         EndIf          
         
         If ( FileSize(Startup::*LHGameDB\Monitoring\LatestLog) <> -1 ) And (Startup::*LHGameDB\Monitoring\LogHandle = 0)
-            MenuItem(25, "Open Monitoring Log File"                     )           
+            MenuItem(25, "Open Monitoring Log File"  ,ImageID( DI::#_MNU_MON ))            
         EndIf    
         
     EndProcedure    
@@ -2792,22 +2792,14 @@ Module INVMNU
     Procedure Set_TrayMenu()
 
         If IsWindow(DC::#_Window_001)                            
-            MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       )
-            MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       )       
-            MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       )
-            MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       )
+            MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
+            MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
+            MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))
+            MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       ,ImageID( DI::#_MNU_VSY ))
             MenuBar()
-            MenuItem(40 , "Mame Title Import: Drivers" 			    )
- 			MenuItem(41 , "Mame Title Import: Roms" 			    )              
-            MenuBar()             
-            MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
-            MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
-            MenuBar()                   
-            MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
-            MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
-            MenuBar()            
-            MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))            
-            MenuBar() 
+            MenuItem(40 , "Mame Import : Title" 			    	,ImageID( DI::#_MNU_MAM ))
+ 			MenuItem(41 , "Mame Import : Roms" 			    		,ImageID( DI::#_MNU_MAM ))              
+ 			MenuBar()                     
             MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
             MenuBar()  
             Set_TrayMenu_LoggUtil()   
@@ -2834,9 +2826,19 @@ Module INVMNU
             MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
             MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
             MenuBar()
+            OpenSubMenu( "Einstellungen"   							,ImageID( DI::#_MNU_VSP )) 
+            MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
+            MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
+            MenuBar()                   
+            MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
+            MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
+            MenuBar()            
+            MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
+            CloseSubMenu()
+            MenuBar()             
         EndIf
-        MenuItem(98, "vSystems Update")        
-        MenuItem(99, "vSystems Beenden")
+        	MenuItem(98, "vSystems Update"							,ImageID( DI::#_MNU_VSU ))        
+        	MenuItem(99, "vSystems Beenden"							,ImageID( DI::#_MNU_VSY ))
 
 
             
@@ -2846,8 +2848,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2581
-; FirstLine = 2301
+; CursorPosition = 2800
+; FirstLine = 2542
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

@@ -95,6 +95,12 @@ Module VEngine
         SafeItem.i
     EndStructure     
     
+    Structure HTTP_INDEX
+        File.s
+        Urls.s
+        Size.q       
+    EndStructure 
+    
     Global MainEventMutex = CreateMutex()
     Global ProgrammMutex
       
@@ -1116,7 +1122,22 @@ Module VEngine
         EndIf    
         
     EndProcedure
-
+    ;
+	;
+	;
+    Procedure vSys_MainButtonsConfig(state.i = #True)
+    	
+            ButtonEX::Disable(DC::#Button_001, state)            
+            ButtonEX::Disable(DC::#Button_002, state) 
+            ButtonEX::Disable(DC::#Button_287, state)
+            ButtonEX::Disable(DC::#Button_010, state)
+            ButtonEX::Disable(DC::#Button_011, state)
+            ButtonEX::Disable(DC::#Button_012, state)
+            ButtonEX::Disable(DC::#Button_013, state)                            
+            ButtonEX::Disable(DC::#Button_014, state)            
+            ButtonEX::Disable(DC::#Button_016, state)
+            
+    EndProcedure	
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************
@@ -5612,23 +5633,105 @@ EndProcedure
     	EndIf	
     	
     	 ProcedureReturn 
+   	EndProcedure
+    ;
+    ;
+	;
+    Procedure Thread_MAME_Roms_Get(t)    	
+    ;
+    ;
+
+	;
     EndProcedure
+    
+    
+Procedure DoEvents() 
+  Protected msg.MSG
+  
+  If PeekMessage_(msg,0,0,0,1) 
+    TranslateMessage_(msg) 
+    DispatchMessage_(msg) 
+  Else 
+    Sleep_(1) 
+  EndIf 
+  EndProcedure
+  
+	Procedure Thread_HTTP_MAME_Roms(*Params.HTTP_INDEX) 
+		
+	  Protected isLoop.b	= 1 
+	  Protected Bytes.l	= 0 
+	  Protected fBytes.l	= 0 
+	  Protected Buffer.l	=4096 
+	  Protected OpenType.b	= 1 
+	  Protected memID
+	  Protected hInet
+	  Protected hURL
+	  Protected myMax
+	  Protected EndSize.s = MathBytes::FileSizeFormat(*Params\Size)
+	  
+	  File.s = *Params\File
+	  
+	  memID = AllocateMemory(Buffer) 
+	  
+	  FileHandle.l = CreateFile(#PB_Any, File) 
+	  
+	  hInet 	= InternetOpen_("", OpenType, #Null, #Null, 0) 
+	  hURL 		= InternetOpenUrl_(hInet, *Params\Urls , #Null, 0, #INTERNET_FLAG_RELOAD, 0) 
+	  
+	  SetGadgetText(DC::#Text_003, "Warmup: " + GetFilePart( File) + "( Size: "+ EndSize + " )")
+	  Delay( 1000 )
+	  
+	  Repeat 
+	    InternetReadFile_(hURL, memID, Buffer, @Bytes) 
+	    If Bytes = 0 
+	      isLoop=0 
+	    Else 
+	      fBytes=fBytes+Bytes 
+	      SetGadgetText(DC::#Text_003, "Get " + GetFilePart( File,#PB_FileSystem_NoExtension )+ ": "+ MathBytes::FileSizeFormat(fBytes) + " / " + EndSize)
+	      WriteData(FileHandle, memID, Bytes) 
+	  EndIf 
+	  ;DoEvents() 
+	  Until isLoop=0 
+	  InternetCloseHandle_(hURL) 
+	  InternetCloseHandle_(hInet) 
+	  
+	  CloseFile(FileHandle)    
+	  
+	  FreeMemory(memID) 
+	  SetGadgetText(DC::#Text_003, "Finished: " + GetFilePart( File,#PB_FileSystem_NoExtension ) + " ( Size: "+ MathBytes::FileSizeFormat(fBytes) + " )")
+	  Delay(3000)
+	  
+	EndProcedure
+
+    Procedure Thread_MAME_Roms()
+
+
+    EndProcedure     
+	;
+	;
     ;
-    ;
-    ;        
     Procedure.i     MAME_Roms_Check_Import()  
     	
     	
         ; Intro
-        ;
+		;
+    	vSys_MainButtonsConfig()
+    	
         Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Rom Copy", "Mame Roms Sortiert kopieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listroms' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
         If ( Result = 1 ) 
         	SetActiveWindow(DC::#_Window_001)           
-        	SetActiveGadget(DC::#ListIcon_001)         	
+        	SetActiveGadget(DC::#ListIcon_001)
+        	vSys_MainButtonsConfig(#False)
         	ProcedureReturn 
         EndIf    	
 
-    	
+        HideGadget(DC::#ListIcon_001,1)           
+        HideGadget(DC::#Text_003,0)
+         
+        Intro$ = "[ .. M.A.M.E. .. ]"         
+        SetGadgetColor(DC::#Text_003, #PB_Gadget_BackColor, RGB(61,61,61)):SetGadgetText(DC::#Text_003,"[ ]"): Delay(85): Thread_LoadGameList_Anim(10, DC::#Text_003): SetGadgetText(DC::#Text_003,Intro$)
+                 
+        
     	Protected ExportFile$, FileHandle.l, StrLine.s, StrRead.s, QDirectory.s, RomCount.i = 0
     	
     	Structure MAME_ROMS_IMPORT_LIST
@@ -5648,6 +5751,9 @@ EndProcedure
     	Structure MAME_ROMS_FILESUFFIX_LIST
         	suffix.s
         EndStructure  
+        
+        *Params.HTTP_INDEX = AllocateMemory(SizeOf(HTTP_INDEX))
+        InitializeStructure(*Params, HTTP_INDEX)
         
         
         NewList MRIL.MAME_ROMS_IMPORT_LIST()
@@ -5669,7 +5775,10 @@ EndProcedure
     	ExportFile$ = FFH::GetFilePBRQ("Export File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
     	If ( Len( ExportFile$ ) = 0 )
            	SetActiveWindow(DC::#_Window_001)
-            SetActiveGadget(DC::#ListIcon_001)     		
+           	SetActiveGadget(DC::#ListIcon_001)
+        	HideGadget(DC::#ListIcon_001,0)           
+        	HideGadget(DC::#Text_003,1)
+        	vSys_MainButtonsConfig(#False)
     		ProcedureReturn 
     	EndIf
     	
@@ -5707,13 +5816,12 @@ EndProcedure
     				
     				If FindString(StrLine, " driver ", #Null, #PB_String_CaseSensitive)
     					MRIL()\RomDescription = "Driver"
-    				EndIf	
-    				
-  					If FindString(StrLine, " device ", #Null, #PB_String_CaseSensitive)
+    				ElseIf FindString(StrLine, " device ", #Null, #PB_String_CaseSensitive)
     					MRIL()\RomDescription = "Device"
     				EndIf
     				
     				RomCount + 1
+    				SetGadgetText(DC::#Text_003, MRIL()\RomDescription + ": " + MRIL()\rom )
     			Else	
     				Continue
     			EndIf
@@ -5725,10 +5833,14 @@ EndProcedure
   			
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte die Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
             	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)            	
+            	SetActiveGadget(DC::#ListIcon_001)
+        		HideGadget(DC::#ListIcon_001,0)           
+        		HideGadget(DC::#Text_003,1)
+        		vSys_MainButtonsConfig(#False)
                 ProcedureReturn  				
   			EndIf    			
-    		
+  			
+  			SetGadgetText(DC::#Text_003,"")
     		
     		; Prüfe Roms vom Quellen Verzeichnis (zip, 7z, rar)
     		;    		
@@ -5740,6 +5852,9 @@ EndProcedure
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Keine Roms gefunden",2,2,"",0,0,DC::#_Window_001)
             	SetActiveWindow(DC::#_Window_001)
             	SetActiveGadget(DC::#ListIcon_001)            	
+        		HideGadget(DC::#ListIcon_001,0)           
+        		HideGadget(DC::#Text_003,1)
+        		vSys_MainButtonsConfig(#False)
                 ProcedureReturn  				
             EndIf
             
@@ -5751,6 +5866,9 @@ EndProcedure
     			If ( Len( Directory ) = 0 )
             		SetActiveWindow(DC::#_Window_001)
             		SetActiveGadget(DC::#ListIcon_001)     				
+        			HideGadget(DC::#ListIcon_001,0)           
+        			HideGadget(DC::#Text_003,1)
+        			vSys_MainButtonsConfig(#False)
         			ProcedureReturn #False
         		EndIf    			
     			
@@ -5781,7 +5899,9 @@ EndProcedure
     							
     							; SHA1 Prüfung abtasten für das spätere Kopieren
     							;
-    							MRDL()\SHA1		= FileFingerprint(MRDL()\FullPath, #PB_Cipher_SHA1 )    							
+    							MRDL()\SHA1		= FileFingerprint(MRDL()\FullPath, #PB_Cipher_SHA1 )
+    							
+    							SetGadgetText(DC::#Text_003, "Found: " + ": " + MRIL()\rom + MRFL()\suffix )
     							Debug "Quellen Verzeichnis: " + Directory + MRIL()\rom + MRFL()\suffix    							
     							Break
     					EndSelect
@@ -5789,6 +5909,8 @@ EndProcedure
     			Wend	
     			
     		EndIf
+    		
+    		SetGadgetText(DC::#Text_003, "")
     		
     		; Kopiere Roms zum Zielverzeichnis
     		;
@@ -5800,7 +5922,10 @@ EndProcedure
     		Directory.s = FFH::GetPathPBRQ("Für ["+Str(RomCount)+"] M.A.M.E Rom(s) - Ziel Verzeichnis Auswählen",GetPathPart(ExportFile$))
     		If ( Len( Directory ) = 0 )
             	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)     				
+            	SetActiveGadget(DC::#ListIcon_001)
+        		HideGadget(DC::#ListIcon_001,0)           
+        		HideGadget(DC::#Text_003,1)
+        		vSys_MainButtonsConfig(#False)
             	ProcedureReturn #False
             EndIf
             	
@@ -5821,6 +5946,9 @@ EndProcedure
     			If (Len(Directory) = 0 )
             		SetActiveWindow(DC::#_Window_001)
             		SetActiveGadget(DC::#ListIcon_001)      				
+	        		HideGadget(DC::#ListIcon_001,0)           
+	        		HideGadget(DC::#Text_003,1)
+	        		vSys_MainButtonsConfig(#False)
     				ProcedureReturn #False
     			EndIf
     		EndIf	
@@ -5863,7 +5991,9 @@ EndProcedure
 						;
 					EndIf    					
     						    						
-	    			CopyFile( MRDL()\FullPath , Directory + GetFilePart( MRDL()\FullPath) ) 
+					CopyFile( MRDL()\FullPath , Directory + GetFilePart( MRDL()\FullPath) )
+					SetGadgetText(DC::#Text_003, "Copy: " + ": " + GetFilePart( MRDL()\FullPath) )
+					
 	    			Delay( 5 )
 	    			
 	    			; 
@@ -5895,13 +6025,16 @@ EndProcedure
     		Wend	    		    		
     	EndIf
     	
-    	
+    	SetGadgetText(DC::#Text_003, "")
     	ResetList( MRDL() )
     	ErrorFiles.s = ""
     	ErrorCount.i = 0
     	ErrorCntSHA1.i=0
     	DriverCount.i =0
     	DeviceCount.i =0
+    	FileToDownload.s
+    	AchvHead.s= "sptth" 
+    	AchiPont.s = "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
     	
     	While NextElement( MRDL() )
     		If ( MRDL()\NotOK = #True )
@@ -5921,19 +6054,65 @@ EndProcedure
     		EndIf    		
     	Wend
     	
-    	If (ErrorCount > 0 )    		
-            Request::MSG(Startup::*LHGameDB\TitleVersion, "Dateien konnten nicht gefunden werden",ErrorFiles,2,2,"",0,0,DC::#_Window_001)
+    	If (ErrorCount > 0 )
+    		
+    		Request::*MsgEx\User_BtnTextL = "Backup" 					
+            Request::*MsgEx\User_BtnTextR = "Beenden"     		
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Dateien konnten nicht gefunden werden.","Backup aus dem Internet beziehen ?" + #CRLF$ +  #CRLF$ + ErrorFiles,10,0,ProgramFilename(),0,0,DC::#_Window_001)
+			If Result = 0
+		        		        
+		        ;Try To Download
+		        ResetList( MRDL() )
+		        While NextElement( MRDL() )
+		        	
+		        	
+		        	*Params\File = ""
+		        	*Params\Size = 0
+		        	*Params\Urls = ""
+		        	
+		        	If ( MRDL()\NotOK = #True )
+			        	SetGadgetText(DC::#Text_003, "HTTP Request: " +GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension))
+			        	
+			        	s.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz." ) )
+			        	If s = 0
+			        		
+			        		SetGadgetText(DC::#Text_003, ".. Failure ..")
+			        		
+			        		Request::MSG(Startup::*LHGameDB\TitleVersion, "Failure","Datei '" +GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)+ "' konnte nicht erreicht werden. (Größe 0?/ Non Merged Rom?)",2,1,"",0,0,DC::#_Window_001)
+			        		Delay( 10 )
+			        		
+			        		Continue
+			        	Else	        				        		
+			        		*Params\File = Directory + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ".zip"
+			        		*Params\Size = s
+			        		*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz.")
+			        		
+			        		Thread_HTTP_MAME_Roms(*Params) 
+			        		
+		        			Protected HTTP_Thread.i
+		        			HTTP_Thread = CreateThread(@Thread_HTTP_MAME_Roms(),*Params)  
+		        			ThreadPriority(HTTP_Thread, 31) 
+		        
+		        			While IsThread(HTTP_Thread)		                           
+		            			While WindowEvent()                                    
+		            			Wend
+		        			Wend 	        		
+			        		Delay(10)	
+			        	EndIf
+		        	EndIf
+		        Wend
+	        EndIf
             SetActiveWindow(DC::#_Window_001)
-            SetActiveGadget(DC::#ListIcon_001)            	
-            ProcedureReturn 
-            	
-    		Debug "Nicht Gefunden"
-    		Debug ErrorFiles
+            SetActiveGadget(DC::#ListIcon_001)
+	        HideGadget(DC::#ListIcon_001,0)           
+	        HideGadget(DC::#Text_003,1)
+	        vSys_MainButtonsConfig(#False)
+	        ProcedureReturn 
     		
     	ElseIf (ErrorCount = 0)   		
     		Request::*MsgEx\User_BtnTextL = "Ok" 					
             Request::*MsgEx\User_BtnTextR = Str(DriverCount) + " Löschen"    		
-            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Succesfully", "Dateien wurden Kopiert: " + Str(RomCount) + " (Export List)/ " + Str( ListSize( MRDL() )) + " (Files)/ Kopier Fehler " + Str(ErrorCntSHA1) + #CRLF$ + #CRLF$ + Str(RomCount) + " Datei(en) Löschen? (Landen im Papierkorb) (Nur Driver)",10,0,ProgramFilename(),0,0,DC::#_Window_001)
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Succesfully", "Dateien wurden Kopiert: " + Str(RomCount) + " (Export List)/ " + Str( ListSize( MRDL() )) + " (Files)/ Kopier Fehler " + Str(ErrorCntSHA1) + #CRLF$ + #CRLF$ + Str(DriverCount) + " Datei(en) Löschen? (Landen im Papierkorb) (Nur Driver Keine Devices)",10,0,ProgramFilename(),0,0,DC::#_Window_001)
             If Result = 1
             	
             	ResetList( MRDL() )
@@ -5941,14 +6120,19 @@ EndProcedure
             		
             		If ( MRDL()\RomDescription = "Driver" )            		
             			Debug "Lösche : " +  MRDL()\FullPath
-            			FFH::_Recycle(  MRDL()\FullPath )
+            			FFH::_Recycle(  MRDL()\FullPath )            			
             			Delay(5)
+            			SetGadgetText(DC::#Text_003, "Delete to Recyclebin: " + GetFilePart( MRDL()\FullPath))
+            			
             		EndIf	
             		
             	Wend	
             EndIf	
             SetActiveWindow(DC::#_Window_001)
             SetActiveGadget(DC::#ListIcon_001)
+        	HideGadget(DC::#ListIcon_001,0)           
+        	HideGadget(DC::#Text_003,1)
+        	vSys_MainButtonsConfig(#False)
             ProcedureReturn 
         EndIf
         
@@ -5959,9 +6143,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5799
-; FirstLine = 5460
-; Folding = 8-P-+4--v9--N-
+; CursorPosition = 6061
+; FirstLine = 5718
+; Folding = 8-P-0v--f6--b+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
