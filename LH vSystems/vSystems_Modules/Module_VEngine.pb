@@ -54,7 +54,7 @@
     Declare.i   FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
     
     Declare	 MAME_Driver_Import() 
-
+    Declare	 MAME_Roms_Check_Import()
     
 
     
@@ -5304,8 +5304,10 @@ EndProcedure
         
         Delay(30)
   			  				  			
-        ExportFile$ = FFH::GetFilePBRQ("Export File",SourcePath$, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
+        ExportFile$ = FFH::GetFilePBRQ("Export File",Startup::*LHGameDB\Base_Path, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
         If ( Len( ExportFile$ ) = 0 )
+           	SetActiveWindow(DC::#_Window_001)
+            SetActiveGadget(DC::#ListIcon_001)          	
         	ProcedureReturn 
         EndIf	
         	
@@ -5610,16 +5612,356 @@ EndProcedure
     	EndIf	
     	
     	 ProcedureReturn 
-    EndProcedure	
+    EndProcedure
+    ;
+    ;
+    ;        
+    Procedure.i     MAME_Roms_Check_Import()  
+    	
+    	
+        ; Intro
+        ;
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Rom Copy", "Mame Roms Sortiert kopieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listroms' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+        If ( Result = 1 ) 
+        	SetActiveWindow(DC::#_Window_001)           
+        	SetActiveGadget(DC::#ListIcon_001)         	
+        	ProcedureReturn 
+        EndIf    	
+
+    	
+    	Protected ExportFile$, FileHandle.l, StrLine.s, StrRead.s, QDirectory.s, RomCount.i = 0
+    	
+    	Structure MAME_ROMS_IMPORT_LIST
+    		rom.s
+    		RomDescription.s    		
+        EndStructure    	
+        
+    	Structure MAME_ROMS_DIRECTORY_LIST
+    		FullPath.s
+    		CopyOK.i
+    		SHA1.s
+    		NotFound.s
+    		NotOK.i
+    		RomDescription.s
+        EndStructure 
+        
+    	Structure MAME_ROMS_FILESUFFIX_LIST
+        	suffix.s
+        EndStructure  
+        
+        
+        NewList MRIL.MAME_ROMS_IMPORT_LIST()
+        NewList MRDL.MAME_ROMS_DIRECTORY_LIST()        
+        NewList MRFL.MAME_ROMS_FILESUFFIX_LIST() 
+        
+        ; Dateieindungen hinzufügen
+        ;
+        AddElement( MRFL() ):  MRFL()\suffix = ".zip"
+        AddElement( MRFL() ):  MRFL()\suffix = ".7z"
+        AddElement( MRFL() ):  MRFL()\suffix = ".rar"
+        ResetList(  MRFL() )
+        
+        SetActiveGadget(-1) 
+        
+
+        
+        
+    	ExportFile$ = FFH::GetFilePBRQ("Export File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
+    	If ( Len( ExportFile$ ) = 0 )
+           	SetActiveWindow(DC::#_Window_001)
+            SetActiveGadget(DC::#ListIcon_001)     		
+    		ProcedureReturn 
+    	EndIf
+    	
+    	    	
+    	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
+    		
+    	If ( Len( ExportPath$ ) >= 1 )
+    		
+			FileHandle = ReadFile(#PB_Any, ExportPath$)
+    		
+    		If ( FileHandle >= 0 )
+    			
+    			While Eof(FileHandle) = 0
+    				
+   				StrRead   =  ReadString(FileHandle)
+    			StrLine   =  StrRead    			
+    			sLen.i    = Len( StrLine )    		    			
+    			
+    			StrFindOk.s = "ROMs required for "
+    			StrFindNO.s = "No ROMs required for "
+   			    			
+    			If FindString(StrLine, StrFindOk, #Null, #PB_String_CaseSensitive)
+    				
+    				If FindString(StrLine, StrFindNO, #Null, #PB_String_CaseSensitive)
+    					Continue
+    				EndIf	
+    				StrQuotBeg = FindString(StrLine, Chr(34), 1)
+    				StrQuotEnd = FindString(StrLine, Chr(34), StrQuotBeg+1)
+    				
+    				; Hole Rom Name vor dem zeichen der ersten Anführungszeichen
+    				RomsName.s = Mid( StrLine, StrQuotBeg+1, (StrQuotEnd - StrQuotBeg) - 1 )
+    				
+    				AddElement( MRIL() )
+    				MRIL()\rom = RomsName
+    				
+    				If FindString(StrLine, " driver ", #Null, #PB_String_CaseSensitive)
+    					MRIL()\RomDescription = "Driver"
+    				EndIf	
+    				
+  					If FindString(StrLine, " device ", #Null, #PB_String_CaseSensitive)
+    					MRIL()\RomDescription = "Device"
+    				EndIf
+    				
+    				RomCount + 1
+    			Else	
+    				Continue
+    			EndIf
+    			
+    			Wend
+    			
+    			CloseFile(FileHandle)
+    		Else
+  			
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte die Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
+                ProcedureReturn  				
+  			EndIf    			
+    		
+    		
+    		; Prüfe Roms vom Quellen Verzeichnis (zip, 7z, rar)
+    		;    		
+  			ResetList( MRIL() ): ls.i = ListSize ( MRIL() )
+  			
+  			; Prüfen ob die Liste nicht null ist
+  			;
+  			If ( ls = 0 )
+            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Keine Roms gefunden",2,2,"",0,0,DC::#_Window_001)
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            	
+                ProcedureReturn  				
+            EndIf
+            
+    		If ( ls > 0 )
+    			
+    			; Verzeichnis Auswahl
+    			
+    			Directory.s = FFH::GetPathPBRQ("Für ["+Str(RomCount)+"] M.A.M.E Rom(s) - Quell Verzeichnis Auswählen",Startup::*LHGameDB\Base_Path)
+    			If ( Len( Directory ) = 0 )
+            		SetActiveWindow(DC::#_Window_001)
+            		SetActiveGadget(DC::#ListIcon_001)     				
+        			ProcedureReturn #False
+        		EndIf    			
+    			
+    			QDirectory	= Directory
+    			
+    			While NextElement( MRIL() )
+    				
+    				ResetList( MRFL() )
+    				
+    				AddElement( MRDL() )
+    				MRDL()\CopyOK 	= #False 
+    				MRDL()\NotOK	= #True
+    				MRDL()\RomDescription = MRIL()\RomDescription
+    				
+    				; Datei Name und Endung 
+    				;
+    				While NextElement( MRFL() )    					    					
+    					Select FileSize( Directory + MRIL()\rom + MRFL()\suffix)
+    						Case -1
+    							MRDL()\NotFound = Directory + MRIL()\rom
+    							Continue
+    						Case -2      							
+    							Continue
+    							
+    						Default
+    							MRDL()\NotOK	= #False
+    							MRDL()\FullPath = Directory + MRIL()\rom + MRFL()\suffix   			
+    							
+    							; SHA1 Prüfung abtasten für das spätere Kopieren
+    							;
+    							MRDL()\SHA1		= FileFingerprint(MRDL()\FullPath, #PB_Cipher_SHA1 )    							
+    							Debug "Quellen Verzeichnis: " + Directory + MRIL()\rom + MRFL()\suffix    							
+    							Break
+    					EndSelect
+    				 Wend    				
+    			Wend	
+    			
+    		EndIf
+    		
+    		; Kopiere Roms zum Zielverzeichnis
+    		;
+    		ResetList( MRDL() ): ls.i = ListSize ( MRDL() )
+    		
+    		; Verzeichnis Asuwahl
+			; 
+    		    		
+    		Directory.s = FFH::GetPathPBRQ("Für ["+Str(RomCount)+"] M.A.M.E Rom(s) - Ziel Verzeichnis Auswählen",GetPathPart(ExportFile$))
+    		If ( Len( Directory ) = 0 )
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)     				
+            	ProcedureReturn #False
+            EndIf
+            	
+    		If (QDirectory = Directory)
+    			; Selbes Verzeichnis
+				; 
+    			Repeat
+    				Delay( 100 )
+    				
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Quell -und Ziel Verzeichnis gleich", "Dateien können nicht in Kopiert werden" ,2,1,"",0,0,DC::#_Window_001 )     			
+    				
+    				Directory.s = FFH::GetPathPBRQ("Für ["+Str(RomCount)+"] M.A.M.E Rom(s) - Quell Verzeichnis Auswählen",Startup::*LHGameDB\Base_Path)
+    				
+    			Until (Len(Directory) = 0 ) Or  Not ( QDirectory = Directory )
+    			
+    			; Aussteigen
+    			; 
+    			If (Len(Directory) = 0 )
+            		SetActiveWindow(DC::#_Window_001)
+            		SetActiveGadget(DC::#ListIcon_001)      				
+    				ProcedureReturn #False
+    			EndIf
+    		EndIf	
+    		
+    		RequestUserA.i = #True
+    		
+    		While NextElement( MRDL() )
+    			;
+				;
+    			If ( MRDL()\NotOK = #False )
+    				
+    				; Existiert die Datei schon
+					;    				
+    				If ( FileSize( Directory + GetFilePart( MRDL()\FullPath) ) > 0 )
+    					
+    					If ( RequestUserA = #True )
+    						
+	    					Request::*MsgEx\User_BtnTextL = "Ok"
+	                   		Request::*MsgEx\User_BtnTextM = "Überspringen"    					
+	                   		Request::*MsgEx\User_BtnTextR = "Cancel"
+	                   		TempMessage.s = "Die Datei '" + GetFilePart( MRDL()\FullPath) + "' überschreiben?" + #CRLF$ + #CRLF$ + "Ziel: "+ Directory
+	                   		
+	                   		Result.i = Request::MSG(Startup::*LHGameDB\TitleVersion, "Datei Existiert!", TempMessage ,16,1,"",0,0,DC::#_Window_001)
+	                   		
+	                   		If Result = 1
+	                   			; Überspringen der Datei
+	                   			;
+	                   			Continue
+	                   		EndIf
+	                   		
+	                   		If Result = 2
+	                   			; Für alle zukünftigen Kopier Operationene den Benutzer nicht mehr fragen
+	                   			;
+	                   			RequestUserA = #False
+	                   		EndIf  
+	                   	Else
+	                   		Continue
+	                   	EndIf
+    					;
+						;
+					EndIf    					
+    						    						
+	    			CopyFile( MRDL()\FullPath , Directory + GetFilePart( MRDL()\FullPath) ) 
+	    			Delay( 5 )
+	    			
+	    			; 
+	    			;
+	    			Select FileSize( Directory + GetFilePart( MRDL()\FullPath) )
+	    				Case -1
+	    					Continue
+	    				Case -2
+	    					Continue
+	    				Default
+	    					SHA1ZIEL.s = FileFingerprint( Directory + GetFilePart( MRDL()\FullPath), #PB_Cipher_SHA1 )
+	    					
+	    					If (SHA1ZIEL = MRDL()\SHA1)
+	    						Debug "Kopiert " + Directory + GetFilePart( MRDL()\FullPath)
+	    						MRDL()\CopyOK = #True
+	    						; Löschen
+	    						;
+								
+	    						
+	    					Else
+	    						Request::MSG(Startup::*LHGameDB\TitleVersion, "Datei Kopier Fehler!?","Kopierte Datei und Original sind unterschiedlich"  + #CRLF$ + #CRLF$ +
+	    						                                                                      "SHA1 Wert Original: " +  MRDL()\SHA1  + #CRLF$ +
+	    						                                                                      "SHA1 Wert Kopiert : " +  SHA1ZIEL     + #CRLF$ + #CRLF$ +
+	    						                                                                      "Datei: " + Directory + GetFilePart( MRDL()\FullPath),2,2,"",0,0,DC::#_Window_001)
+	    						MRDL()\CopyOK = #False
+	    					EndIf    					    					
+	    			EndSelect
+    			EndIf
+    		Wend	    		    		
+    	EndIf
+    	
+    	
+    	ResetList( MRDL() )
+    	ErrorFiles.s = ""
+    	ErrorCount.i = 0
+    	ErrorCntSHA1.i=0
+    	DriverCount.i =0
+    	DeviceCount.i =0
+    	
+    	While NextElement( MRDL() )
+    		If ( MRDL()\NotOK = #True )
+    			ErrorCount + 1
+    			ErrorFiles.s + MRDL()\RomDescription+ ": "+  GetFilePart( MRDL()\NotFound) + #CRLF$
+    		EndIf
+    		If ( MRDL()\CopyOK = #False )
+    			ErrorCntSHA1 + 1
+    		EndIf	
+    		
+    		If ( MRDL()\RomDescription = "Driver" )   
+    			DriverCount + 1
+    		EndIf
+    		
+    		If ( MRDL()\RomDescription = "Device" )   
+    			DeviceCount + 1
+    		EndIf    		
+    	Wend
+    	
+    	If (ErrorCount > 0 )    		
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Dateien konnten nicht gefunden werden",ErrorFiles,2,2,"",0,0,DC::#_Window_001)
+            SetActiveWindow(DC::#_Window_001)
+            SetActiveGadget(DC::#ListIcon_001)            	
+            ProcedureReturn 
+            	
+    		Debug "Nicht Gefunden"
+    		Debug ErrorFiles
+    		
+    	ElseIf (ErrorCount = 0)   		
+    		Request::*MsgEx\User_BtnTextL = "Ok" 					
+            Request::*MsgEx\User_BtnTextR = Str(DriverCount) + " Löschen"    		
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Succesfully", "Dateien wurden Kopiert: " + Str(RomCount) + " (Export List)/ " + Str( ListSize( MRDL() )) + " (Files)/ Kopier Fehler " + Str(ErrorCntSHA1) + #CRLF$ + #CRLF$ + Str(RomCount) + " Datei(en) Löschen? (Landen im Papierkorb) (Nur Driver)",10,0,ProgramFilename(),0,0,DC::#_Window_001)
+            If Result = 1
+            	
+            	ResetList( MRDL() )
+            	While NextElement( MRDL() )
+            		
+            		If ( MRDL()\RomDescription = "Driver" )            		
+            			Debug "Lösche : " +  MRDL()\FullPath
+            			FFH::_Recycle(  MRDL()\FullPath )
+            			Delay(5)
+            		EndIf	
+            		
+            	Wend	
+            EndIf	
+            SetActiveWindow(DC::#_Window_001)
+            SetActiveGadget(DC::#ListIcon_001)
+            ProcedureReturn 
+        EndIf
+        
+    	EndProcedure
 EndModule    
 
 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5500
-; FirstLine = 5004
-; Folding = 8-P-+4P-v9--N-
+; CursorPosition = 5799
+; FirstLine = 5460
+; Folding = 8-P-+4--v9--N-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

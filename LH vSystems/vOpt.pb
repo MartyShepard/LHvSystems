@@ -45,7 +45,7 @@
         
         XIncludeFile ".\vSystems_Modules\Module_LogitechLCD.pb"   
         
-        UseZipPacker(): UseLZMAPacker()
+        UseZipPacker(): UseLZMAPacker(): UseSHA1Fingerprint()
 
         InitKeyboard()
         
@@ -155,8 +155,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 76
-; FirstLine = 72
+; CursorPosition = 47
+; FirstLine = 24
 ; EnableAsm
 ; EnableThread
 ; EnableXP

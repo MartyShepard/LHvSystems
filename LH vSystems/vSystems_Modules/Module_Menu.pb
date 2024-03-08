@@ -2579,7 +2579,8 @@ Module INVMNU
             Case 35: vEngine::ServiceOption("uxsms", #False)                 
             Case 34: vEngine::ServiceOption("uxsms", #True) 
             Case 40: vEngine::MAME_Driver_Import()             	        
-           
+            Case 41: vEngine::MAME_Roms_Check_Import()
+            	
 
                 ; Resetet die Fenster Position
             Case 20
@@ -2796,7 +2797,8 @@ Module INVMNU
             MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       )
             MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       )
             MenuBar()
- 			MenuItem(40 , "Title Import: Mame Drivers" 			    )           
+            MenuItem(40 , "Mame Title Import: Drivers" 			    )
+ 			MenuItem(41 , "Mame Title Import: Roms" 			    )              
             MenuBar()             
             MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
             MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
@@ -2844,8 +2846,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2798
-; FirstLine = 2531
+; CursorPosition = 2581
+; FirstLine = 2301
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

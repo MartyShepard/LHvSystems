@@ -36,6 +36,7 @@
         Declare.i Move(Array sources.s(1), Array dest.s(1), title.s = "", hWnd = 0, flags = #FOF_NOCONFIRMATION | #FOF_NOCONFIRMMKDIR | #FOF_NOERRORUI)
         Declare.i Delete(Array sources.s(1), title.s = "", hWnd = 0, flags = #FOF_NOCONFIRMATION | #FOF_NOERRORUI)
         Declare.i Delete_ShFileOP(From$="",Dest$="",SHFunction.l=#Null,ShFlags.l=#Null)
+        Declare.i _Recycle(File$)
         
         ; Clipboard Stuff
         Declare.i SetClipBoard(Array sources.s(1),FlagEffect.i = #DROPEFFECT_COPY)
@@ -1947,7 +1948,35 @@ EndProcedure
         ; CSIDL_FLAG_NO_ALIAS               KF_FLAG_NO_ALIAS            Combine With another CSIDL constant To ensure the retrieval of the true system path For the folder, free of any aliased placeholders such As %USERPROFILE%, returned by SHGetFolderLocation. This flag has no effect on paths returned by SHGetFolderPath.
         ; CSIDL_FLAG_PER_USER_INIT          
         ; CSIDL_FLAG_MASK              A mask For any valid CSIDL flag value.                
-    EndProcedure        
+   EndProcedure 
+   
+  
+	Procedure _Recycle(File$)
+	  SHFileOp.SHFILEOPSTRUCT
+	  m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
+	  If m
+	    PokeS(m,File$)
+	    SHFileOp\pFrom  = m
+	    SHFileOp\wFunc  = #FO_DELETE
+	    SHFileOp\fFlags = #FOF_ALLOWUNDO|#FOF_SILENT|#FOF_NOCONFIRMATION
+	    result = SHFileOperation_(SHFileOp)
+	    FreeMemory(m)
+	  EndIf
+	EndProcedure
+	
+	Procedure _Delete(File$)
+	  SHFileOp.SHFILEOPSTRUCT
+	  m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
+	  If m
+	    PokeS(m,File$)
+	    SHFileOp\pFrom  = m
+	    SHFileOp\wFunc  = #FO_DELETE
+	    SHFileOp\fFlags = #FOF_SILENT|#FOF_NOCONFIRMATION
+	    result = SHFileOperation_(SHFileOp)
+	    FreeMemory(m)
+	  EndIf  
+	EndProcedure
+
    EndModule
 
     
@@ -1989,10 +2018,10 @@ CompilerEndIf
     
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 1949
-; FirstLine = 1207
-; Folding = vPoAB+
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1960
+; FirstLine = 1327
+; Folding = vPpBB+-
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = Release\
