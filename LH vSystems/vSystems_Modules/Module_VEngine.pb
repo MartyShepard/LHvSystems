@@ -5645,6 +5645,9 @@ EndProcedure
     	           
             SetGadgetText(DC::#Text_003,"...")
             
+            ClearStructure(*Params,MAME_DRIVER_PARAMS_LIST)
+            FreeMemory(*Params)
+            
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)
                                               
             Startup::*LHGameDB\GameID = SourceGameID
@@ -5671,7 +5674,11 @@ EndProcedure
         		Wend
         		SetGadgetText(DC::#Text_003,"...")
         	EndIf 
-        	        	              
+        	
+           ButtonEX::Disable(DC::#Button_001, false)            
+           ButtonEX::Disable(DC::#Button_002, false) 
+           ButtonEX::Disable(DC::#Button_287, false)
+            
            VEngine::Thread_LoadGameList_Action()
            vImages::Screens_Show()
            
@@ -5688,7 +5695,7 @@ EndProcedure
            
            ClearList( mdil() )
            
-           FreeStructure(*Params)
+           
     	EndIf	
     	
     	 ProcedureReturn 
@@ -6605,8 +6612,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5669
-; FirstLine = 5311
+; CursorPosition = 5670
+; FirstLine = 5321
 ; Folding = 8-P--v--f6--b+-
 ; EnableAsm
 ; EnableXP
