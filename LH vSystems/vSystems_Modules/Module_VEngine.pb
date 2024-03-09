@@ -101,6 +101,16 @@ Module VEngine
         Size.q       
     EndStructure 
     
+    Structure MAME_DRIVER_IMPORT_LIST
+       	DriverName.s
+    	Title.s
+     	Region.s
+    EndStructure
+    
+    Structure MAME_DRIVER_PARAMS_LIST
+    	List mdil.MAME_DRIVER_IMPORT_LIST()
+    EndStructure
+        	
     Global MainEventMutex = CreateMutex()
     Global ProgrammMutex
       
@@ -935,13 +945,13 @@ Module VEngine
     ;****************************************************************************************************************************************************************    
       Procedure Database_Remove_DB(RemoveID.i)
             ExecSQL::DeleteRow(DC::#Database_001,"Gamebase",RemoveID)                          
-            Delay(5)
+            Delay(1)
             
             ExecSQL::DeleteRow(DC::#Database_002,"GameShot",RemoveID,"BaseGameID")
-            Delay(5)
+            Delay(1)
             
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1) 
-            Delay(5)
+            Delay(1)
      EndProcedure
     ;****************************************************************************************************************************************************************
     ;
@@ -5290,18 +5300,106 @@ EndProcedure
 ;             EndIf
 ;       
 ;    EndProcedure 
-    
+    ;
+	;
+	;   
+    Procedure Thread_HTTP_MAME_Roms_DoEvents() 
+    	Protected msg.MSG
+    	
+    	If PeekMessage_(msg,0,0,0,1) 
+    		TranslateMessage_(msg) 
+    		DispatchMessage_(msg) 
+    	Else 
+    		Sleep_(1) 
+    	EndIf 
+    EndProcedure 
+    ;
+	;
+	;     
+    Procedure.i     Thread_MAME_Driver_Import(*Params.MAME_DRIVER_PARAMS_LIST)   
+    	
+			ResetList( *Params\mdil() )
+			
+			
+			Protected Listingsize.i = ListSize( *Params\mdil() )-1
+    	
+        	SetGadgetText(DC::#Text_001,"")
+        	SetGadgetText(DC::#Text_002,"")  
+        
+			While NextElement(*Params\mdil())
+				Delay(5)
+				
+				Debug "ID Index : " + Str(Startup::*LHGameDB\GameID)
+				Debug "Insert   : " + *Params\mdil()\Title
+				Debug "FileDev0 : " + *Params\mdil()\DriverName
+				Debug "Region   : " + *Params\mdil()\Region
+				
+				SetGadgetText(DC::#Text_001," .. Remaining: " + Str(Listingsize))
+				
+				SetGadgetText(DC::#Text_003,"Insert [" + *Params\mdil()\Title + "]")
+				
+				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", *Params\mdil()\Title)				
+				
+				Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
+				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "GameTitle", *Params\mdil()\Title, Startup::*LHGameDB\GameID) ; Force
+                
+				Delay(1)                
+                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)                         
+                
+                ; Screenshot Zelle hinzufügen
+                ;
+                ExecSQL::InsertRow(DC::#Database_002,"GameShot", "BaseGameID ", Str(Startup::*LHGameDB\GameID))
+                
+                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(202),Startup::*LHGameDB\GameID)
+                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(142),Startup::*LHGameDB\GameID)                            
+                
+                ;VEngine::Splitter_SetGet(#False)
+            	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),Startup::*LHGameDB\GameID)
+            	ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),1)                  
+                
+				Delay(1)                  
+
+				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", *Params\mdil()\DriverName, Startup::*LHGameDB\GameID)
+				
+				Delay(1)
+				
+				If ( Len( *Params\mdil()\Region ) > 0)
+					
+					RegionFound.i = #False
+					
+					For RowID = 1 To ExecSQL::CountRows(DC::#Database_001,"Language")
+						
+	            		LanguageID.i = ExecSQL::iRow(DC::#Database_001,"Language","id",0,RowID,"",1)
+	            		LanguageST.s = ExecSQL::nRow(DC::#Database_001,"Language","Locale","",RowID,"",1)
+	            		
+	            		If  ( UCase( *Params\mdil()\Region ) = UCase( LanguageST ) )	            			
+	            			RegionFound = #True
+	            			Debug "Founded"
+	            			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(LanguageID), Startup::*LHGameDB\GameID)
+	                    	Break
+	                    EndIf	                    		                    	
+	                Next RowID 
+	                
+	                
+	                ; Nicht Gefunden -> Füge die Region der Liste hinzu und dem Aktuellen Titel
+	                If ( RegionFound.i = #False )
+	                	ExecSQL::InsertRow(DC::#Database_001,"Language", "Locale ",  *Params\mdil()\Region)
+	                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(ExecSQL::LastRowID(DC::#Database_001,"Language")), Startup::*LHGameDB\GameID)
+	                EndIf	
+                EndIf
+                
+                Listingsize - 1
+				
+            Wend
+            
+        EndProcedure
+
+    ;
+    ;
+	;     
     Procedure.i     MAME_Driver_Import()   
     	
-    	Protected FileHandle.l, StrLine.s, StrRead.s, StrRegion.s
-    	
-    	
-    	Structure MAME_DRIVER_IMPORT_LIST
-        	DriverName.s
-        	Title.s
-        	Region.s
-        EndStructure
-        
+    	Protected FileHandle.l, StrLine.s, StrRead.s, StrRegion.s    	            
         
     	Structure MAME_DRIVER_REGION
         	Region.s
@@ -5335,6 +5433,10 @@ EndProcedure
     	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
     	
     	If ( Len( ExportPath$ ) >= 1 )
+    		
+    		; Intro
+			;
+    		vSys_MainButtonsConfig()
     		
     		SetGadgetText(DC::#Text_003,"Reading List")
     		
@@ -5476,6 +5578,7 @@ EndProcedure
     				
     				SetGadgetText(DC::#Text_003,"Reading List [" + ListSize( mdil() ) + "]")
     				
+    				Thread_HTTP_MAME_Roms_DoEvents() 
     			EndIf
     		Wend
     		
@@ -5525,70 +5628,21 @@ EndProcedure
         	EndIf
         	
         	ResetList( mdil() )
-        	
-			While NextElement(mdil())
-				Delay(5)
-				
-				Debug "ID Index : " + Str(Startup::*LHGameDB\GameID)
-				Debug "Insert   : " + mdil()\Title
-				Debug "FileDev0 : " + mdil()\DriverName
-				Debug "Region   : " + mdil()\Region
-				
-				SetGadgetText(DC::#Text_003,"Insert [" + mdil()\Title + "]")
-				
-				ExecSQL::InsertRow(DC::#Database_001,"Gamebase", "GameTitle ", mdil()\Title)				
-				
-				Startup::*LHGameDB\GameID = ExecSQL::LastRowID(DC::#Database_001,"Gamebase")
-				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "GameTitle", mdil()\Title, Startup::*LHGameDB\GameID) ; Force
-                
-				Delay(15)                
-                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)                         
-                
-                ; Screenshot Zelle hinzufügen
-                ;
-                ExecSQL::InsertRow(DC::#Database_002,"GameShot", "BaseGameID ", Str(Startup::*LHGameDB\GameID))
-                
-                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(202),Startup::*LHGameDB\GameID)
-                ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(142),Startup::*LHGameDB\GameID)                            
-                
-                ;VEngine::Splitter_SetGet(#False)
-            	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),Startup::*LHGameDB\GameID)
-            	ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),1)                  
-                
-				Delay(15)                  
 
-				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "MediaDev0", mdil()\DriverName, Startup::*LHGameDB\GameID)
-				
-				Delay(15)
-				
-				If ( Len( mdil()\Region ) > 0)
-					
-					RegionFound.i = #False
-					
-					For RowID = 1 To ExecSQL::CountRows(DC::#Database_001,"Language")
-						
-	            		LanguageID.i = ExecSQL::iRow(DC::#Database_001,"Language","id",0,RowID,"",1)
-	            		LanguageST.s = ExecSQL::nRow(DC::#Database_001,"Language","Locale","",RowID,"",1)
-	            		
-	            		If  ( UCase( mdil()\Region ) = UCase( LanguageST ) )	            			
-	            			RegionFound = #True
-	            			Debug "Founded"
-	            			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(LanguageID), Startup::*LHGameDB\GameID)
-	                    	Break
-	                    EndIf	                    		                    	
-	                Next RowID 
-	                
-	                
-	                ; Nicht Gefunden -> Füge die Region der Liste hinzu und dem Aktuellen Titel
-	                If ( RegionFound.i = #False )
-	                	ExecSQL::InsertRow(DC::#Database_001,"Language", "Locale ",  mdil()\Region)
-	                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "LanguageID", Str(ExecSQL::LastRowID(DC::#Database_001,"Language")), Startup::*LHGameDB\GameID)
-	                EndIf	
-                EndIf
-        
-				
-            Wend
-            
+            *Params.MAME_DRIVER_PARAMS_LIST = AllocateMemory(SizeOf(MAME_DRIVER_PARAMS_LIST))
+          	InitializeStructure(*Params, MAME_DRIVER_PARAMS_LIST)
+          	
+          	CopyList( mdil(), *Params\mdil() )		
+            		
+        	Protected MAME_Driver_Import.i
+        	MAME_Driver_Import = CreateThread(@Thread_MAME_Driver_Import(), *Params )  
+        	ThreadPriority(MAME_Driver_Import, 31) 
+        	
+        	While IsThread(MAME_Driver_Import)		                           
+        		While WindowEvent()                                    
+        		Wend
+        	Wend
+    	           
             SetGadgetText(DC::#Text_003,"...")
             
             ExecSQL::UpdateRow(DC::#Database_001,"Settings", "GameID", Str(Startup::*LHGameDB\GameID),1)
@@ -5612,7 +5666,8 @@ EndProcedure
             		Delay(10)        			
             		CurrentIndexID + 1
             		SetGadgetText(DC::#Text_003,".. Linking: [ " + CurrentIndexID +" ]" )
-        			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)
+            		ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PortID", Str(PortValID), CurrentIndexID)
+            		Thread_HTTP_MAME_Roms_DoEvents() 
         		Wend
         		SetGadgetText(DC::#Text_003,"...")
         	EndIf 
@@ -5633,32 +5688,11 @@ EndProcedure
            
            ClearList( mdil() )
            
-           
+           FreeStructure(*Params)
     	EndIf	
     	
     	 ProcedureReturn 
-   	EndProcedure
-    ;
-    ;
-	;
-    ;Procedure Thread_MAME_Roms_Get(t)    	
-    ;
-    ;
-	;
-    ;EndProcedure  
-    ;
-    ;
-	;    
-    Procedure Thread_HTTP_MAME_Roms_DoEvents() 
-    	Protected msg.MSG
-    	
-    	If PeekMessage_(msg,0,0,0,1) 
-    		TranslateMessage_(msg) 
-    		DispatchMessage_(msg) 
-    	Else 
-    		Sleep_(1) 
-    	EndIf 
-    EndProcedure
+   	EndProcedure  
     ;
     ;
 	;   
@@ -6571,12 +6605,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6116
-; FirstLine = 5770
+; CursorPosition = 5669
+; FirstLine = 5311
 ; Folding = 8-P--v--f6--b+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
+; DisableDebugger
 ; CurrentDirectory = \release
 ; Debugger = IDE
 ; Warnings = Display
