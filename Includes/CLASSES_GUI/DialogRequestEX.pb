@@ -1128,7 +1128,7 @@ CompilerIf #PB_Compiler_IsMainFile
                     ;RequestEX::Dialog_NetConnectPrint() 
                     ;RequestEX::Dialog_NetUsersPass()
                     ;RequestEX::Dialog_Restart()
-                    ;RequestEX::Dialog_Font("Verdana", 1, 1, 1 , 1, 20, RGB(255, 0, 0))
+                    ;Request::Dialog_Font("Verdana", 1, 1, 1 , 1, 20, RGB(255, 0, 0))
                     
                     MessageText$ = "Fritzchen schreibt aus dem Ferienlager:"      +#CR$+
                                    "Liebe Mami, lieber Papi. Mir geht es hier"    +#CR$+
@@ -1230,8 +1230,8 @@ CompilerIf #PB_Compiler_IsMainFile
 ;                   r = Request::MSG("Test", "Single Button Abbruch",MessageText$,5)
 ;                   r = Request::MSG("Test", "Single Button Quit"   ,MessageText$,6)
 ;                   
-;                   Request::*MsgEx\CheckBox_Txt = BoxText$
-;                   r = Request::MSG("Test", "Single Mit Checkbox"  ,MessageText$,1,0,"",1)
+                   Request::*MsgEx\CheckBox_Txt = BoxText$
+                   r = Request::MSG("Test", "Single Mit Checkbox"  ,MessageText$,1,0,"",1)
 ;                   
 ;                   
 ;                   Request::*MsgEx\User_BtnTextL = "Button Links"
@@ -1251,19 +1251,19 @@ CompilerIf #PB_Compiler_IsMainFile
 ;                   r = Request::MSG("Test", "3 Buttons Yes, No, Abort"  ,MessageText$,18)                 
 ;                   r = Request::MSG("Test", "3 Buttons Yes No, Quit"    ,MessageText$,19)                  
 ;                   
-;                   MessageText$ = MessageText$ + #CR$ + MessageText$ + "Benutze Anderen Font"   
-;                   
-;                   Request::*MsgEx\Fnt1 = FontID(Fonts::#_EUROSTILE_12)
-;                   Request::*MsgEx\Fnt2 = FontID(Fonts::#_EUROSTILE_12)
-;                   Request::*MsgEx\Fnt3 = FontID(Fonts::#_EUROSTILE_12)
-;                   Request::*MsgEx\User_BtnTextL = "Button Links"
-;                   Request::*MsgEx\User_BtnTextM = "Button Mitte"
-;                   Request::*MsgEx\User_BtnTextR = "Button Links"
-;                   Request::*MsgEx\Checkbox_On   = 1
-;                   Request::*MsgEx\CheckBox_Txt  = BoxText$
-;                   Request::*MsgEx\Return_String = BoxText$
-;                   r = Request::MSG("Test", "Dark Theme"    ,MessageText$,16,2,ProgramFilename(),0,1) 
-;                   Debug Request::*MsgEx\Return_String
+                  MessageText$ = "Checkbox Text"   
+                  
+;                  Request::*MsgEx\Fnt1 = FontID(Fonts::#_EUROSTILE_12)
+;                  Request::*MsgEx\Fnt2 = FontID(Fonts::#_EUROSTILE_12)
+;                  Request::*MsgEx\Fnt3 = FontID(Fonts::#_EUROSTILE_12)
+                  Request::*MsgEx\User_BtnTextL = "Button Links"
+                  Request::*MsgEx\User_BtnTextM = "Button Mitte"
+                  Request::*MsgEx\User_BtnTextR = "Button Rechts"
+                  Request::*MsgEx\Checkbox_On   = 1
+                  Request::*MsgEx\CheckBox_Txt  = BoxText$
+                  Request::*MsgEx\Return_String = BoxText$
+                  r = Request::MSG("Test", "Dark Theme"    ,MessageText$,16,2,ProgramFilename(),0,1) 
+                  Debug Request::*MsgEx\Return_String
 ;                   
 ;                   
 ;                   Request::*MsgEx\Fnt1 = FontID(Fonts::#_EUROSTILE_12)
@@ -1298,8 +1298,8 @@ CompilerIf #PB_Compiler_IsMainFile
 
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 919
-; FirstLine = 676
+; CursorPosition = 802
+; FirstLine = 558
 ; Folding = HCw-
 ; EnableAsm
 ; EnableThread
