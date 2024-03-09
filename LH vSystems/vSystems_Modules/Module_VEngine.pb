@@ -6094,53 +6094,54 @@ EndProcedure
 		        	*Params\Size = 0
 		        	*Params\Urls = ""
 		        	
-		        	If ( MRDL()\NotOK = #True ) And ( Result = 0 )
+		        	If ( MRDL()\NotOK = #True )
+		        		If ( Result = 0 ) Or ( Result = 4 )
 		        		
-				        SetGadgetText(DC::#Text_001,"Rom: " + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)  )
-				        SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")				       				        	
-			        	SetGadgetText(DC::#Text_003, ".. Get Size ..")
-			        	
-			        	Filesize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz." ) )			        				        	
-			        	If Filesize = 0
+					        SetGadgetText(DC::#Text_001,"Rom: " + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)  )
+					        SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")				       				        	
+				        	SetGadgetText(DC::#Text_003, ".. Get Size ..")
+				        	
+				        	Filesize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz." ) )			        				        	
+				        	If Filesize = 0
+				        		
+					        	SetGadgetText(DC::#Text_003, ".. Failure Zero: "+ GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) +"..")				        		
+					        	Delay( 1100 )
+				        		
+				        		Continue
+				        	EndIf	        				        		
+				        	
+				        	*Params\File = Directory + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ".zip"
+				        	*Params\Size = Filesize
+				        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz.")
+				        	
+				        	If ( Filesize = FileSize( *Params\File ) )			        	
+				        		ErrorCount - 1
+				        		Continue
+				        	EndIf	
+				        		
+				        	Thread_HTTP_MAME_Roms(*Params) 
+				        		
+			        		Protected HTTP_Thread.i
+			        		HTTP_Thread = CreateThread(@Thread_HTTP_MAME_Roms(),*Params)  
+			        		ThreadPriority(HTTP_Thread, 31) 
+			        
+			        		While IsThread(HTTP_Thread)		                           
+			            		While WindowEvent()                                    
+			            		Wend
+			        		Wend 	        		
 			        		
-				        	SetGadgetText(DC::#Text_003, ".. Failure Zero: "+ GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) +"..")				        		
-				        	Delay( 1100 )
+			        		Delay(500)
+			        		If Not Filesize = FileSize( *Params\File )
+			        			Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Sichern der Datei. Größe ist unterschielich." + #CRLF$ + "Local: " + MathBytes::FileSizeFormat( FileSize( *Params\File ) ) + #CRLF$ + "Remote: " + MathBytes::FileSizeFormat(Filesize)  ,2,2,"",0,0,DC::#_Window_001)
+			        			Continue
+			        		EndIf
 			        		
-			        		Continue
-			        	EndIf	        				        		
-			        	
-			        	*Params\File = Directory + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ".zip"
-			        	*Params\Size = Filesize
-			        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz.")
-			        	
-			        	If ( Filesize = FileSize( *Params\File ) )			        	
-			        		ErrorCount - 1
-			        		Continue
-			        	EndIf	
-			        		
-			        	Thread_HTTP_MAME_Roms(*Params) 
-			        		
-		        		Protected HTTP_Thread.i
-		        		HTTP_Thread = CreateThread(@Thread_HTTP_MAME_Roms(),*Params)  
-		        		ThreadPriority(HTTP_Thread, 31) 
-		        
-		        		While IsThread(HTTP_Thread)		                           
-		            		While WindowEvent()                                    
-		            		Wend
-		        		Wend 	        		
-		        		
-		        		Delay(500)
-		        		If Not Filesize = FileSize( *Params\File )
-		        			Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Sichern der Datei. Größe ist unterschielich." + #CRLF$ + "Local: " + MathBytes::FileSizeFormat( FileSize( *Params\File ) ) + #CRLF$ + "Remote: " + MathBytes::FileSizeFormat(Filesize)  ,2,2,"",0,0,DC::#_Window_001)
-		        			Continue
+			   				SetGadgetText(DC::#Text_001,"Rom: " + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)  )		            	
+					        SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")	
+					        SetGadgetText(DC::#Text_003, "...")
+					        ErrorCount - 1
+					        Delay(1100)
 		        		EndIf
-		        		
-		   				SetGadgetText(DC::#Text_001,"Rom: " + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)  )		            	
-				        SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")	
-				        SetGadgetText(DC::#Text_003, "...")
-				        ErrorCount - 1
-				        Delay(1100)
-		        		
 			        EndIf			        
 			        
 					If ( Result = 4 ) Or (Result = 5)			        
@@ -6570,8 +6571,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6115
-; FirstLine = 5767
+; CursorPosition = 6116
+; FirstLine = 5770
 ; Folding = 8-P--v--f6--b+-
 ; EnableAsm
 ; EnableXP
