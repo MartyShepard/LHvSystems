@@ -6368,9 +6368,10 @@ EndProcedure
 	    					EndIf
 	    					MRCL()\RomSet   = Trim( MainRom, Chr(32) )
 	    					MRCL()\RomClone = Trim( Cloned, Chr(32) ) 					
+	    					SetGadgetText(DC::#Text_003,"[..Get Titles ("+Str(ListSize( MRCL() ) ) +")..]")	    					
 	    				EndIf
 	    			EndIf
-	    			Thread_HTTP_MAME_Roms_DoEvents() 
+	    			Thread_HTTP_MAME_Roms_DoEvents()
 	    		Wend	    			    			    		
 	    		CloseFile(FileHandle)
 	    		
@@ -6389,6 +6390,8 @@ EndProcedure
 	    					ErrorRom.s = ""
 	    					ErrorRom   = Trim( Mid( StrLine,0, Position-1), Chr(32) )
 	    					
+	    					;SetGadgetText(DC::#Text_003,"[..Search Files..]")
+	    					
 	    					ResetList( MRCL() )
 	    					While NextElement(  MRCL() )
 	    						If  ( MRCL()\RomSet = ErrorRom )
@@ -6400,7 +6403,8 @@ EndProcedure
 	    							PosKlammerBeg.i = FindString( StrLine , " (",1)
 	    							PosKlammerEnd.i = FindString( StrLine , ") ",PosKlammerBeg + 1)
 	    						    						    					
-	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)	    						
+	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)
+	    							SetGadgetText(DC::#Text_003,"[..Search Files: "+MRCL()\MRCF()\Filename+" (Adding)..]")	
 	    							Break
 	    						EndIf
 	    						Thread_HTTP_MAME_Roms_DoEvents() 
@@ -6408,12 +6412,9 @@ EndProcedure
 	    					
 	    					If ( FindString( StrLine , "NOT FOUND - NO GOOD DUMP KNOWN",1, #PB_String_CaseSensitive) )
 	    						MRCL()\NoDump = "No Good Dump Known"	    						
-	    					EndIf
-	    					
-	    				EndIf
-						Continue
-	    			EndIf
-	    			
+	    					EndIf								    				
+	    				EndIf						
+	    			EndIf	    			
 	    		Wend	
 	    		CloseFile(FileHandle)
 	    		
@@ -6443,9 +6444,11 @@ EndProcedure
             	EndIf             		
             Wend	
             
+            SetGadgetText(DC::#Text_003,"")  
             
             If CountBad > 0
             	ResetList( MRCL() )
+            	CountNotFndA = CountNotFnd
             	While NextElement( MRCL() )
             		
 	            	If MRCL()\Bad = #True 
@@ -6463,13 +6466,17 @@ EndProcedure
 	            					ErrorNotFound + #CRLF$
 	            					While NextElement( MRCL()\MRCF() )
 	            						ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| File: " + MRCL()\MRCF()\Filename + " (Not Found) " + CloneMessage	
-	            						Thread_HTTP_MAME_Roms_DoEvents() 
+	            						Thread_HTTP_MAME_Roms_DoEvents()
+	            						SetGadgetText(DC::#Text_003,"[..Create Result ("+ Str(CountNotFndA) +")..]")
+	            						CountNotFndA - 1
 	            					Wend
 	            				EndIf		            						            				            				            				
 							EndIf	            			
 						EndIf            		            		
 					EndIf	
 				Wend
+				
+				SetGadgetText(DC::#Text_003,"") 
 				
             	Request::*MsgEx\Fnt2 = FontID(Fonts::#DEJAVUSANS_MONO_09)
             	Request::*MsgEx\User_BtnTextL = "Download"
@@ -6783,8 +6790,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6768
-; FirstLine = 6402
+; CursorPosition = 6409
+; FirstLine = 6049
 ; Folding = 8-P--v--f6--b+--
 ; EnableAsm
 ; EnableXP
