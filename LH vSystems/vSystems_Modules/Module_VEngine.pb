@@ -56,7 +56,10 @@
     Declare	 MAME_Driver_Import() 
     Declare	 MAME_Roms_Check_Import()
     Declare	 MAME_Roms_Check()    
-
+    Declare.i	 MAME_Roms_Backup(UserFile.s = "")
+    Declare	 Thread_HTTP_MAME_Roms_DoEvents() 
+    
+    Declare	 vSys_MainButtonsConfig(state.i = #True)
     
     Declare     ServiceOption(service$, Start.i = #True) 
 EndDeclareModule
@@ -1137,15 +1140,35 @@ Module VEngine
 	;
     Procedure vSys_MainButtonsConfig(state.i = #True)
     	
-            ButtonEX::Disable(DC::#Button_001, state)            
-            ButtonEX::Disable(DC::#Button_002, state) 
-            ButtonEX::Disable(DC::#Button_287, state)
-            ButtonEX::Disable(DC::#Button_010, state)
-            ButtonEX::Disable(DC::#Button_011, state)
-            ButtonEX::Disable(DC::#Button_012, state)
-            ButtonEX::Disable(DC::#Button_013, state)                            
-            ButtonEX::Disable(DC::#Button_014, state)            
-            ButtonEX::Disable(DC::#Button_016, state)
+        ; Anzahl der Items in der DB Prüfen
+        Protected Rows = ExecSQL::CountRows(DC::#Database_001,"Gamebase")  
+                
+        Select Rows
+            Case 0
+            	
+            	ButtonEX::Disable(DC::#Button_001, state)            
+            	ButtonEX::Disable(DC::#Button_002, state) 
+            	ButtonEX::Disable(DC::#Button_287, state)
+            	ButtonEX::Disable(DC::#Button_010, state)
+            	ButtonEX::Disable(DC::#Button_011, #True)
+            	ButtonEX::Disable(DC::#Button_012, #True)
+            	ButtonEX::Disable(DC::#Button_013, #True)                            
+            	ButtonEX::Disable(DC::#Button_014, #True)            
+            	ButtonEX::Disable(DC::#Button_016, #True)
+            	
+            Default
+        
+            	ButtonEX::Disable(DC::#Button_001, state)            
+            	ButtonEX::Disable(DC::#Button_002, state) 
+            	ButtonEX::Disable(DC::#Button_287, state)
+            	ButtonEX::Disable(DC::#Button_010, state)
+            	ButtonEX::Disable(DC::#Button_011, state)
+            	ButtonEX::Disable(DC::#Button_012, state)
+            	ButtonEX::Disable(DC::#Button_013, state)                            
+            	ButtonEX::Disable(DC::#Button_014, state)            
+            	ButtonEX::Disable(DC::#Button_016, state)
+        
+        EndSelect
             
     EndProcedure	
     ;****************************************************************************************************************************************************************
@@ -1320,7 +1343,8 @@ Module VEngine
                  PrgDesc$ = ExecSQL::nRow(DC::#Database_001,"Programs","ExShort_Name","",id,"",1)
              EndIf
                           
-             AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$): SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID)                         
+             AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$): SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID) 
+             Thread_HTTP_MAME_Roms_DoEvents() 
          Next RowID
          
          SendMessage_(GadgetID(DC::#ListIcon_001),#WM_SETREDRAW,1,0) 
@@ -1393,10 +1417,12 @@ Module VEngine
                 Startup::*LHGameDB\GameLS = 0                
                 Thread_LoadGameList_NoItems()
             Default
+            	vSys_MainButtonsConfig()
                 ;
                 ;
                 ; Liste Einträge Auf
-                Thread_LoadGameList_GetItems(Rows.i)                
+            	Thread_LoadGameList_GetItems(Rows.i)                
+            	vSys_MainButtonsConfig(#False)
                 Thread_LoadGameList_SelectItem()
         
         EndSelect      
@@ -5389,7 +5415,6 @@ EndProcedure
                 EndIf
                 
                 Listingsize - 1
-				
             Wend
             
         EndProcedure
@@ -5576,17 +5601,21 @@ EndProcedure
     				Debug "Read : " + StrRead
     				Debug "" 
     				
-    				SetGadgetText(DC::#Text_003,"Reading List [" + ListSize( mdil() ) + "]")
-    				
-    				Thread_HTTP_MAME_Roms_DoEvents() 
+    				SetGadgetText(DC::#Text_003,"Reading List [" + ListSize( mdil() ) + "]")    				    				
     			EndIf
+    			Thread_HTTP_MAME_Roms_DoEvents() 
     		Wend
     		
     		CloseFile(FileHandle)
   			Else
-            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
+  				Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Konnte Datei nicht öffnen!",2,2,"",0,0,DC::#_Window_001)
+           		ButtonEX::Disable(DC::#Button_001, false)            
+           		ButtonEX::Disable(DC::#Button_002, false) 
+           		ButtonEX::Disable(DC::#Button_287, false)  				
             	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)            	
+            	SetActiveGadget(DC::#ListIcon_001)            
+           		VEngine::Thread_LoadGameList_Action()
+           		vImages::Screens_Show()            	
                 ProcedureReturn  				
   			EndIf
   			
@@ -5596,8 +5625,13 @@ EndProcedure
   			;
   			If ( ls = 0 )
             	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Keine Titel zum Importieren gefunden",2,2,"",0,0,DC::#_Window_001)
+           		ButtonEX::Disable(DC::#Button_001, false)            
+           		ButtonEX::Disable(DC::#Button_002, false) 
+           		ButtonEX::Disable(DC::#Button_287, false)  				
             	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)            	
+            	SetActiveGadget(DC::#ListIcon_001)            
+           		VEngine::Thread_LoadGameList_Action()
+           		vImages::Screens_Show()            	
                 ProcedureReturn  				
             EndIf
             
@@ -5608,8 +5642,13 @@ EndProcedure
             ;
             Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  Str(ls) +" Titel Verknüpfen", "Ok zum Importieren der Titel?",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
             If ( Result = 1 ) 
-            	SetActiveWindow(DC::#_Window_001)           
-            	SetActiveGadget(DC::#ListIcon_001)             	
+           		ButtonEX::Disable(DC::#Button_001, false)            
+           		ButtonEX::Disable(DC::#Button_002, false) 
+           		ButtonEX::Disable(DC::#Button_287, false)  				
+            	SetActiveWindow(DC::#_Window_001)
+            	SetActiveGadget(DC::#ListIcon_001)            
+           		VEngine::Thread_LoadGameList_Action()
+           		vImages::Screens_Show()            	
             	ProcedureReturn 
             EndIf
             
@@ -5725,7 +5764,7 @@ EndProcedure
 	  hInet 	= InternetOpen_("", OpenType, #Null, #Null, 0) 
 	  hURL 		= InternetOpenUrl_(hInet, *Params\Urls , #Null, 0, #INTERNET_FLAG_RELOAD, 0) 
 	  
-	  SetGadgetText(DC::#Text_001,".. Get and Downalod ..")
+	  SetGadgetText(DC::#Text_001,".. Get and Download ..")
 	  SetGadgetText(DC::#Text_002, GetFilePart( File) + " ( Size: "+ EndSize + " ) ")	
 	  
 	  SetGadgetText(DC::#Text_003, "...")
@@ -5738,7 +5777,7 @@ EndProcedure
 	      isLoop=0 
 	    Else 
 	    	fBytes=fBytes+Bytes
-	  		SetGadgetText(DC::#Text_001,".. Downalod ..")	    		  		
+	  		SetGadgetText(DC::#Text_001,".. Download ..")	    		  		
 	      	SetGadgetText(DC::#Text_003, GetFilePart( File,#PB_FileSystem_NoExtension )+ ": " + EndSize + " / " + MathBytes::FileSizeFormat(fBytes) )
 	      WriteData(FileHandle, memID, Bytes) 
 	  EndIf 
@@ -5762,11 +5801,10 @@ EndProcedure
 		
            	SetActiveWindow(DC::#_Window_001)
            	SetActiveGadget(DC::#ListIcon_001)
+        	vSys_MainButtonsConfig(#False)           	
 			ListBox_GetData_LeftMouse(#True)           	
         	HideGadget(DC::#ListIcon_001,0)           
-        	HideGadget(DC::#Text_003,1)
-        	vSys_MainButtonsConfig(#False)        	
-        	
+        	HideGadget(DC::#Text_003,1)              	
 	EndProcedure		
 	;
 	;
@@ -5881,6 +5919,7 @@ EndProcedure
     				Continue
     			EndIf
     			
+    			Thread_HTTP_MAME_Roms_DoEvents() 
     			Wend
     			
     			CloseFile(FileHandle)
@@ -5948,7 +5987,8 @@ EndProcedure
     							Debug "Quellen Verzeichnis: " + Directory + MRIL()\rom + MRFL()\suffix    							
     							Break
     					EndSelect
-    				 Wend    				
+    				Wend    				
+    				Thread_HTTP_MAME_Roms_DoEvents() 
     			Wend	
     			
     		EndIf
@@ -6068,7 +6108,8 @@ EndProcedure
 	    						MRDL()\CopyOK = #False
 	    					EndIf    					    					
 	    			EndSelect
-    			EndIf
+	    		EndIf
+	    		Thread_HTTP_MAME_Roms_DoEvents() 
     		Wend	    		    		
     	EndIf
     	
@@ -6085,7 +6126,6 @@ EndProcedure
     	Protected DeviceCount.i 	= 0
     	Protected FileToDownload.s
     	Protected AchvHead.s		= "sptth" 
-    	Protected AchiPont.s 		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
     	
     	While NextElement( MRDL() )
     		If ( MRDL()\NotOK = #True )
@@ -6109,7 +6149,8 @@ EndProcedure
     			If ( MRDL()\CopyOK = #True )
     				DeviceCount + 1
     			EndIf	
-    		EndIf    		
+    		EndIf 
+    		Thread_HTTP_MAME_Roms_DoEvents() 
     	Wend
     	
     	If (ErrorCount > 0 )
@@ -6142,7 +6183,8 @@ EndProcedure
 					        SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")				       				        	
 				        	SetGadgetText(DC::#Text_003, ".. Get Size ..")
 				        	
-				        	Filesize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz." ) )			        				        	
+				        	Filesize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz." ) )			        				        	
+				        	
 				        	If Filesize = 0
 				        		
 					        	SetGadgetText(DC::#Text_003, ".. Failure Zero: "+ GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) +"..")				        		
@@ -6153,7 +6195,7 @@ EndProcedure
 				        	
 				        	*Params\File = Directory + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ".zip"
 				        	*Params\Size = Filesize
-				        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz.")
+				        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension) + ReverseString( "piz.")
 				        	
 				        	If ( Filesize = FileSize( *Params\File ) )			        	
 				        		ErrorCount - 1
@@ -6190,10 +6232,11 @@ EndProcedure
 				        	If ( MRDL()\RomDescription = "Driver" )  
 				        		FFH::_Recycle(  MRDL()\FullPath )
 				        		SetGadgetText(DC::#Text_003, "Delete to Recyclebin: " + GetFilePart( MRDL()\FullPath))
-				        		Delay(1000)
+				        		Delay(800)
 				        	EndIf	
 			        	EndIf			        
-			        EndIf			        
+			        EndIf
+			        Thread_HTTP_MAME_Roms_DoEvents() 
 		        Wend
 		    EndIf
     		
@@ -6212,8 +6255,9 @@ EndProcedure
             			Debug "Lösche : " +  MRDL()\FullPath
             			FFH::_Recycle(  MRDL()\FullPath )            			
             			SetGadgetText(DC::#Text_003, "Delete to Recyclebin: " + GetFilePart( MRDL()\FullPath))
-            			Delay(2000)
-            		EndIf	            		            		
+            			Delay(800)
+            		EndIf
+            		Thread_HTTP_MAME_Roms_DoEvents() 
             	Wend	
             EndIf	
         EndIf        
@@ -6325,8 +6369,8 @@ EndProcedure
 	    					MRCL()\RomSet   = Trim( MainRom, Chr(32) )
 	    					MRCL()\RomClone = Trim( Cloned, Chr(32) ) 					
 	    				EndIf
-	    			EndIf	
-	    			Continue
+	    			EndIf
+	    			Thread_HTTP_MAME_Roms_DoEvents() 
 	    		Wend	    			    			    		
 	    		CloseFile(FileHandle)
 	    		
@@ -6358,7 +6402,8 @@ EndProcedure
 	    						    						    					
 	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)	    						
 	    							Break
-	    						EndIf	    						
+	    						EndIf
+	    						Thread_HTTP_MAME_Roms_DoEvents() 
 	    					Wend
 	    					
 	    					If ( FindString( StrLine , "NOT FOUND - NO GOOD DUMP KNOWN",1, #PB_String_CaseSensitive) )
@@ -6418,6 +6463,7 @@ EndProcedure
 	            					ErrorNotFound + #CRLF$
 	            					While NextElement( MRCL()\MRCF() )
 	            						ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| File: " + MRCL()\MRCF()\Filename + " (Not Found) " + CloneMessage	
+	            						Thread_HTTP_MAME_Roms_DoEvents() 
 	            					Wend
 	            				EndIf		            						            				            				            				
 							EndIf	            			
@@ -6446,7 +6492,6 @@ EndProcedure
             		InitializeStructure(*Params, HTTP_INDEX)
 
 		        	Protected AchvHead.s		= "sptth" 
-    				Protected AchiPont.s 		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
     				Protected HTTP_Thread.i
     				CurrentRomSet = "" 
     				
@@ -6480,7 +6525,7 @@ EndProcedure
 				        		
 				        	EndIf
 				        	
-				        	FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + CurrentRomSet + ReverseString( "piz." ) )				        					        	
+				        	FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + CurrentRomSet + ReverseString( "piz." ) )				        					        	
 				        	If FileSize( Directory + CurrentRomSet + ".zip" ) = FileSize
 				        		SetGadgetText(DC::#Text_003, ".. File Exists: "+ CurrentRomSet +"..")				        		
 				        		Delay( 1500 )
@@ -6501,7 +6546,7 @@ EndProcedure
 				        			
 				        			SetGadgetText(DC::#Text_003, ".. Use Merged: "+ CurrentRomSet +"..")
 				        			
-				        			FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + CurrentRomSet + ReverseString( "piz." ) )
+				        			FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + CurrentRomSet + ReverseString( "piz." ) )
 				        			If FileSize( Directory + CurrentRomSet + ".zip" ) = FileSize
 				        				SetGadgetText(DC::#Text_003, ".. File Exists: "+ CurrentRomSet +"..")				        		
 				        				Delay( 1500 )				        		
@@ -6522,7 +6567,7 @@ EndProcedure
 
 				        	*Params\File = Directory + CurrentRomSet + ".zip"
 				        	*Params\Size = FileSize
-				        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( AchiPont ) + CurrentRomSet + ReverseString( "piz.")
+				        	*Params\Urls = ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + CurrentRomSet + ReverseString( "piz.")
 				        		
 				        	HTTP_Thread = CreateThread(@Thread_HTTP_MAME_Roms(),*Params)  
 				        	ThreadPriority(HTTP_Thread, 31) 
@@ -6534,7 +6579,7 @@ EndProcedure
 				            
 		        			Delay(500)
 		        			If Not Filesize = FileSize( *Params\File )
-		        				Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Sichern der Datei. Größe ist unterschielich." + #CRLF$ + "Local: " + MathBytes::FileSizeFormat( FileSize( *Params\File ) ) + #CRLF$ + "Remote: " + MathBytes::FileSizeFormat(Filesize)  ,2,2,"",0,0,DC::#_Window_001)
+		        				Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Sichern der Datei. Größe ist unterschiedlich." + #CRLF$ + "Local: " + MathBytes::FileSizeFormat( FileSize( *Params\File ) ) + #CRLF$ + "Remote: " + MathBytes::FileSizeFormat(Filesize)  ,2,2,"",0,0,DC::#_Window_001)
 		        				Continue
 		        			EndIf
 		        		
@@ -6590,7 +6635,8 @@ EndProcedure
 			            				EndIf	            				
 									EndIf	            			
 								EndIf            		            		
-							EndIf	
+							EndIf
+							Thread_HTTP_MAME_Roms_DoEvents() 
 						Wend
 						Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis",ErrorNotFound,11,0,ProgramFilename(),0,0,DC::#_Window_001)	
 					EndIf
@@ -6603,23 +6649,128 @@ EndProcedure
         EndIf
         
         MAME_End_Procedure()
-        ProcedureReturn 
-        	
-	EndProcedure
+        ProcedureReturn                 
+    EndProcedure
+    
+    Procedure.i MAME_Roms_Backup(UserFile.s = "")
+    	
+		vSys_MainButtonsConfig()
+    	
+        SetGadgetText(DC::#Text_001,"")
+        SetGadgetText(DC::#Text_002,"")    	      
+        
+        Protected Result.i
+        
+        Request::*MsgEx\Return_String = UserFile
+        Request::*MsgEx\User_BtnTextL = "Ok"
+        Request::*MsgEx\User_BtnTextR = "Abbruch"
+        Request::*MsgEx\User_BtnTextM = "Ändern"       
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup aus dem Internet beziehen? Datei ohne endung angeben" + #CRLF$ + #CRLF$ + "Zielverzeichnis: '" + Startup::*LHGameDB\FolderWWW + "'" ,16,-1,ProgramFilename(),0,1,DC::#_Window_001 )        
+        
+        Debug "Requester Eergebnis: " +  #CRLF$ + Str(Result)
+        If ( Result = 1 )
+        	MAME_End_Procedure()      	
+        	ProcedureReturn 
+        EndIf
+        
+        If ( Result = 2 )
+        	; Verzeichnis Asuwahl
+			; 		    		    		
+		    Directory.s = FFH::GetPathPBRQ("Ziel Verzeichnis Auswählen",Startup::*LHGameDB\Base_Path)
+		    If ( Len( Directory ) = 0 )
+				MAME_End_Procedure()
+		       	ProcedureReturn
+		    Else
+		       	 Startup::*LHGameDB\FolderWWW = Directory
+		       	 MAME_Roms_Backup()
+		    EndIf   	         
+        EndIf
+        
+        UserFile = Request::*MsgEx\Return_String
+        
+        If Len( UserFile ) = 0
+        	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Keine Datei angegeben!" ,2,1,ProgramFilename(),0,0,DC::#_Window_001 ) 
+        	MAME_Roms_Backup()
+        EndIf
+	    ;
+	    ; Verzeichnis Anlegen
+	    Select FileSize(Startup::*LHGameDB\FolderWWW)
+	    	Case -1: CreateDirectory( Startup::*LHGameDB\FolderWWW )                    
+	    EndSelect 
+	    
+	    If Not ( Result = 1 )
+		    SetGadgetText(DC::#Text_001,"Receive: " + UserFile)
+		    SetGadgetText(DC::#Text_002,"Local  : " + Startup::*LHGameDB\FolderWWW)
+		    SetGadgetText(DC::#Text_003, ".. Get Filesize ..")	
+		    
+		    Protected Head.s	= "sptth"
+		    Protected FileSize.q = FFH::HTTP_GetContentLength( ReverseString( Head ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + UserFile + ReverseString( "piz." ) )	    
+		    
+		    If FileSize( Startup::*LHGameDB\FolderWWW + UserFile + ReverseString( "piz." ) ) = FileSize
+		    	
+		    	SetGadgetText(DC::#Text_003, ".. File Exists ..")	    	
+		    	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' existiert bereits in dem Verzeichnis:" + #CRLF$ + #CRLF$ + Startup::*LHGameDB\FolderWWW ,2,1,ProgramFilename(),0,0,DC::#_Window_001 )      
+		    	MAME_Roms_Backup(UserFile)	
+		    	ProcedureReturn
+		    	
+		    ElseIf FileSize = 0
+		    	
+		    	SetGadgetText(DC::#Text_003, ".. File Not Found ..")
+	        	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' konnte nicht erreicht werden." ,2,1,ProgramFilename(),0,0,DC::#_Window_001 ) 
+	        	MAME_Roms_Backup(UserFile)
+	        	ProcedureReturn
+			EndIf	    
+			
+			
+			SetGadgetText(DC::#Text_001,"Remote : " + UserFile + " ("+ MathBytes::FileSizeFormat( FileSize )+ ")")
+		    SetGadgetText(DC::#Text_002,"Local  : " + Startup::*LHGameDB\FolderWWW)	    
+		    
+		    
+	        *Params.HTTP_INDEX = AllocateMemory(SizeOf(HTTP_INDEX))
+	        InitializeStructure(*Params, HTTP_INDEX)                
+	                        
+	        
+			*Params\File = Startup::*LHGameDB\FolderWWW +  UserFile + ReverseString( "piz." )
+			*Params\Size = FileSize
+			*Params\Urls = ReverseString( Head ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) +  Request::*MsgEx\Return_String + ReverseString( "piz.")        
+	        
+			Protected HTTP_Thread = CreateThread(@Thread_HTTP_MAME_Roms(),*Params)  
+			ThreadPriority(HTTP_Thread, 31) 
+			
+			While IsThread(HTTP_Thread)		                           
+				While WindowEvent()                                    
+				Wend
+			Wend
+			
+			Delay(500)
+			If Not Filesize = FileSize( *Params\File )
+				Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Sichern der Datei. Größe ist unterschiedlich." + #CRLF$ + "Local: " + MathBytes::FileSizeFormat( FileSize( *Params\File ) ) + #CRLF$ + "Remote: " + MathBytes::FileSizeFormat(Filesize)  ,2,2,"",0,0,DC::#_Window_001)
+			EndIf
+			
+			SetGadgetText(DC::#Text_001,"Received: " + UserFile + " ("+ MathBytes::FileSizeFormat( FileSize )+ ")")			            	
+		    SetGadgetText(DC::#Text_002,"Local   : " + Startup::*LHGameDB\FolderWWW)	  
+			SetGadgetText(DC::#Text_003, "...")                    		
+			
+			Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' heruntergeladen." + #CRLF$ + #CRLF$ +"Zielverzeichnis: '" + Startup::*LHGameDB\FolderWWW + "'" ,2,1,ProgramFilename(),0,0,DC::#_Window_001 )    
+			Delay(500)
+		EndIf
+        MAME_End_Procedure()
+        Thread_LoadGameList_Action()
+        ProcedureReturn         
+    EndProcedure    
 EndModule    
 
 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5670
-; FirstLine = 5321
-; Folding = 8-P--v--f6--b+-
+; CursorPosition = 6720
+; FirstLine = 6364
+; Folding = 8-P--v--f6--b+--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; DisableDebugger
-; CurrentDirectory = \release
+; CurrentDirectory = ..\Release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

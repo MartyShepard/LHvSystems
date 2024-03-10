@@ -335,7 +335,9 @@ DeclareModule Startup
         NBWindowAppName.s
         bvSystem_Restart.i          ; Wenn die Höhe des Fentser angegeben wird und vSystem neustartet, denb Konlikt vermiden das es schon im System Task Existiert
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
-                
+        aUseless.s
+        FolderWWW.s
+        
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
     
@@ -928,6 +930,8 @@ Module Startup
          Verify_DatabaseFiles() 
          
          *LHGameDB\bvSystem_Restart     = #False
+         *LHGameDB\aUseless     		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
+         *LHGameDB\FolderWWW			= *LHGameDB\Base_Path + "Systeme\INET\"
          
          ; Lösche Das Update Modul
           If FileSize(*LHGameDB\Base_Path + "_UpdateModul_.exe" )
@@ -987,9 +991,9 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 366
-; FirstLine = 298
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 933
+; FirstLine = 724
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

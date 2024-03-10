@@ -59,6 +59,17 @@ Module vImages
         
     EndProcedure
     
+    Procedure Thread_DoEvents() 
+    	Protected msg.MSG
+    	
+    	If PeekMessage_(msg,0,0,0,1) 
+    		TranslateMessage_(msg) 
+    		DispatchMessage_(msg) 
+    	Else 
+    		Sleep_(1) 
+    	EndIf 
+    EndProcedure 
+    
     ;**************************************************************************************************
     ;
     ; Resize Image to hold the Aspect Ration, Alternative als Thread
@@ -220,7 +231,8 @@ Module vImages
     Procedure Screens_GetDB()          
         Protected RowID.i = Startup::*LHGameDB\GameID        
         For n = 1 To Startup::*LHGameDB\MaxScreenshots            
-            Startup::SlotShots(n)\thumb[RowID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID")     
+        	Startup::SlotShots(n)\thumb[RowID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Thb",RowID,"BaseGameID")
+        	Thread_DoEvents() 
         Next                 
     EndProcedure   
     
@@ -271,6 +283,7 @@ Module vImages
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], -1)                
                 SetGadgetState(Startup::*LHImages\ScreenGDID[nSlot], Startup::*LHImages\CpScreenID[nSlot])                
             EndIf
+            Thread_DoEvents() 
         Next
         UnlockMutex( Startup::*LHGameDB\Images_Mutex)      
         If (*MemoryID > 1)
@@ -312,7 +325,8 @@ Module vImages
                 Case 7,15,23,31,39,47
                     Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
                     Startup::*LHGameDB\Images_Thread[8] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                     
-            EndSelect         
+            EndSelect
+            Thread_DoEvents() 
         Next  
         
     EndProcedure    
@@ -348,7 +362,8 @@ Module vImages
             
             If IsImage(Startup::*LHImages\NoScreenPB[n])                              
                 Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
-            EndIf                      
+            EndIf 
+            Thread_DoEvents() 
         Next            
     EndProcedure    
     ;******************************************************************************************************************************************
@@ -875,6 +890,7 @@ Module vImages
                 EndIf
                 Break
             EndIf
+            Thread_DoEvents() 
         Next
         Delay(250)
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
@@ -988,7 +1004,8 @@ Module vImages
                 Else
                     ProcedureReturn                    
                 EndIf                  
-            EndIf        
+            EndIf
+            Thread_DoEvents() 
         Next     
         vImages::Screens_SzeThumbnails_Reset(): Screens_Show()       
     EndProcedure      
@@ -1054,6 +1071,7 @@ Module vImages
                 ImageData = Screens_ShowWindow_GetDB(CurrentGadgetID, n)
                 Break
             EndIf
+            Thread_DoEvents() 
         Next 
         
         If ( ImageData = 0 )
@@ -1191,7 +1209,8 @@ Module vImages
                 Y + Startup::*LHGameDB\hScreenShotGadget + OffsetY-1
             Else
                 X + Startup::*LHGameDB\wScreenShotGadget + OffsetY-1
-            EndIf            
+            EndIf
+            Thread_DoEvents() 
         Next    
         
         SetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_InnerHeight, Y + Startup::*LHGameDB\hScreenShotGadget)
@@ -1363,9 +1382,9 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1362
-; FirstLine = 665
-; Folding = -cAWAEv0
+; CursorPosition = 161
+; FirstLine = 134
+; Folding = --A9AI+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

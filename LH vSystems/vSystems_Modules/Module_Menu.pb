@@ -2537,7 +2537,7 @@ Module INVMNU
         MenuItem(15, "5x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
         MenuItem(16, "6x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
         MenuBar()
-        OpenSubMenu( "Thumbnail Größen Option .." )        :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),24, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+        OpenSubMenu( "Thumbnail Höhen Option .." )        :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),24, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
              MenuItem(21 , "1 Thumbnail Pro Reihe")
              MenuItem(22 , "2 Thumbnail Pro Reihe")
              MenuItem(23 , "3 Thumbnail Pro Reihe")             
@@ -2581,7 +2581,8 @@ Module INVMNU
             Case 40: vEngine::MAME_Driver_Import()             	        
             Case 41: vEngine::MAME_Roms_Check_Import()
             Case 42: vEngine::MAME_Roms_Check()            	
-
+            Case 43: vEngine::MAME_Roms_Backup() 
+            	
                 ; Resetet die Fenster Position
             Case 20
                 ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosX", Str(0),1)    
@@ -2796,10 +2797,13 @@ Module INVMNU
             MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
             MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))
             MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       ,ImageID( DI::#_MNU_VSY ))
-            MenuBar()
+            MenuBar()            
             MenuItem(40 , "Import. Titel in die Datenbank"	     	,ImageID( DI::#_MNU_MAM ))
+			OpenSubMenu( "Mame Tools .."                             ,ImageID( DI::#_MNU_MAM ))               
             MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
- 			MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))             
+            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))
+            MenuItem(43 , "Tool : Backup aus dem Internet" 	      	,ImageID( DI::#_MNU_MAM )) 
+			CloseSubMenu()             
  			MenuBar()                     
             MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
             MenuBar()  
@@ -2849,8 +2853,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2801
-; FirstLine = 2539
+; CursorPosition = 2805
+; FirstLine = 2533
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP
