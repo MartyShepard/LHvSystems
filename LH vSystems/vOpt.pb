@@ -117,7 +117,6 @@
         Windows::Set_Instances(1, GetFilePart( ProgramFilename() ,#PB_FileSystem_NoExtension),"{BC0CFC12-12E4-4CBF-9D24-00D5263112AE}")      
          
         MagicGUI::SetGuiWindow()        
-
         ;
         ; Callback Events und Strind die im Hauptfenster 'verzahnt sind'
 
@@ -136,6 +135,7 @@
         GuruCallBack::ListGadgetSetCallback(DC::#ListIcon_001, DC::#_Window_001)
         GuruCallBack::SplitGadgetSetCallback(DC::#Splitter1, DC::#_Window_001)
         GuruCallBack::ScrollAreaGadgetSetCallback(DC::#Contain_10, DC::#_Window_001)
+        
 
         
                                                             Interact::MainCode()  
@@ -155,8 +155,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 62
-; FirstLine = 21
+; CursorPosition = 118
+; FirstLine = 88
 ; EnableAsm
 ; EnableThread
 ; EnableXP

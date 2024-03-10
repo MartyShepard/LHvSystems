@@ -840,7 +840,7 @@ Module vSystem
     EndProcedure     
     ;
     ;
-    ; Prüfng ob es schon gestartet ist
+	; Prüfng ob es schon gestartet ist  
     Procedure.i   System_CheckInstance()
                 
             FileName.s = GetFilePart( ProgramFilename() )            
@@ -853,12 +853,25 @@ Module vSystem
             Else   
             
             
-                *a = CreateSemaphore_(0, 0, 1, FileName)
-                            
-                If ( *a <> 0 ) And ( GetLastError_() = #ERROR_ALREADY_EXISTS )
+            	*a = CreateSemaphore_(0, 0, 1, FileName)            	
+            	
+                If ( *a <> 0 ) And ( GetLastError_() = #ERROR_ALREADY_EXISTS )                	
                     CloseHandle_(*a)                      
                     
-                    Request::MSG("", "Programm läuft", "Programm wurde zuvor schon gestartet." + #CR$ + "Pfad: '"+ProgramFilename() , 2, 2, ProgramFilename(), 0, 0, 0)            
+                    Protected ShortFile.s = GetFilePart( ProgramFilename(), #PB_FileSystem_NoExtension )
+                    
+                    Handle = FindWindowEx_(FindWindow_("vSystems: "+ ShortFile,0),0,"WindowClass_1",0)
+                    
+                    Request::MSG("", ShortFile + " läuft", "vSystems (Handle: "+ Str(Handle) +") wurde zuvor schon gestartet." + #CR$ + "Pfad: '"+FileName+"'", 2, 2, ProgramFilename(), 0, 0, 0)                
+                    
+                    If IsIconic_(Handle) = 1
+                    	ShowWindow_(Handle,#SW_RESTORE)
+                    EndIf    
+                    
+                    SetForegroundWindow_(Handle)                     
+                    ;
+					;BringWindowToTop_(Handle) 
+                    ;
                     End             
                 EndIf
             EndIf
@@ -1427,9 +1440,9 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1015
-; FirstLine = 461
-; Folding = DBjBg--
+; CursorPosition = 870
+; FirstLine = 534
+; Folding = jBzDhF-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

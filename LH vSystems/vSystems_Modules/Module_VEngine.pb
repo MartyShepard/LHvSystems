@@ -5728,7 +5728,7 @@ EndProcedure
            
            Delay(150)
                    	
-           Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls) + " Titel wurden Importiert" ,2,2,"",0,0,DC::#_Window_001)
+           Request::MSG(Startup::*LHGameDB\TitleVersion, "Successfully" , Str(ls) + " Titel wurden Importiert" ,2,0,"",0,0,DC::#_Window_001)
            SetActiveWindow(DC::#_Window_001)
            SetActiveGadget(DC::#ListIcon_001)
            
@@ -6659,6 +6659,14 @@ EndProcedure
         SetGadgetText(DC::#Text_001,"")
         SetGadgetText(DC::#Text_002,"")    	      
         
+        HideGadget(DC::#ListIcon_001,1)           
+        HideGadget(DC::#Text_003,0) 
+        	
+        SetActiveGadget(-1) 
+        
+        Intro$ = "[ ..25.12.1976.. ]"         
+        SetGadgetColor(DC::#Text_003, #PB_Gadget_BackColor, RGB(61,61,61)):SetGadgetText(DC::#Text_003,"[ ]"): Delay(85): Thread_LoadGameList_Anim(10, DC::#Text_003): SetGadgetText(DC::#Text_003,Intro$)
+        
         Protected Result.i
         
         Request::*MsgEx\Return_String = UserFile
@@ -6683,6 +6691,7 @@ EndProcedure
 		    Else
 		       	 Startup::*LHGameDB\FolderWWW = Directory
 		       	 MAME_Roms_Backup()
+		       	 ProcedureReturn
 		    EndIf   	         
         EndIf
         
@@ -6691,6 +6700,7 @@ EndProcedure
         If Len( UserFile ) = 0
         	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Keine Datei angegeben!" ,2,1,ProgramFilename(),0,0,DC::#_Window_001 ) 
         	MAME_Roms_Backup()
+        	ProcedureReturn
         EndIf
 	    ;
 	    ; Verzeichnis Anlegen
@@ -6710,14 +6720,17 @@ EndProcedure
 		    	
 		    	SetGadgetText(DC::#Text_003, ".. File Exists ..")	    	
 		    	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' existiert bereits in dem Verzeichnis:" + #CRLF$ + #CRLF$ + Startup::*LHGameDB\FolderWWW ,2,1,ProgramFilename(),0,0,DC::#_Window_001 )      
+		    	Delay(500)
 		    	MAME_Roms_Backup(UserFile)	
 		    	ProcedureReturn
-		    	
-		    ElseIf FileSize = 0
+		    EndIf
+		    
+		    If FileSize = 0
 		    	
 		    	SetGadgetText(DC::#Text_003, ".. File Not Found ..")
-	        	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' konnte nicht erreicht werden." ,2,1,ProgramFilename(),0,0,DC::#_Window_001 ) 
-	        	MAME_Roms_Backup(UserFile)
+		    	Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' konnte nicht erreicht werden." ,2,1,ProgramFilename(),0,0,DC::#_Window_001 ) 
+		    	Delay(500)
+	        	MAME_Roms_Backup(UserFile)	        	
 	        	ProcedureReturn
 			EndIf	    
 			
@@ -6764,8 +6777,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6720
-; FirstLine = 6364
+; CursorPosition = 5730
+; FirstLine = 5367
 ; Folding = 8-P--v--f6--b+--
 ; EnableAsm
 ; EnableXP
