@@ -6690,7 +6690,7 @@ EndProcedure
 		       	ProcedureReturn
 		    Else
 		       	 Startup::*LHGameDB\FolderWWW = Directory
-		       	 MAME_Roms_Backup()
+		       	 MAME_Roms_Backup(Request::*MsgEx\Return_String)
 		       	 ProcedureReturn
 		    EndIf   	         
         EndIf
@@ -6764,8 +6764,14 @@ EndProcedure
 		    SetGadgetText(DC::#Text_002,"Local   : " + Startup::*LHGameDB\FolderWWW)	  
 			SetGadgetText(DC::#Text_003, "...")                    		
 			
-			Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' heruntergeladen." + #CRLF$ + #CRLF$ +"Zielverzeichnis: '" + Startup::*LHGameDB\FolderWWW + "'" ,2,1,ProgramFilename(),0,0,DC::#_Window_001 )    
+            Request::*MsgEx\User_BtnTextL = "Ok"
+            Request::*MsgEx\User_BtnTextR = "Öffnen"			
+			Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Backup", #CRLF$ + "Backup '"+ UserFile +"' heruntergeladen." + #CRLF$ + #CRLF$ +"Zielverzeichnis: '" + Startup::*LHGameDB\FolderWWW + "' (Öffnen?)" ,10,-1,ProgramFilename(),0,0,DC::#_Window_001 )    
 			Delay(500)
+			If Result = 1 
+				FFH::ShellExec(Startup::*LHGameDB\FolderWWW, "explore")
+			EndIf
+			
 		EndIf
         MAME_End_Procedure()
         Thread_LoadGameList_Action()
@@ -6777,8 +6783,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5730
-; FirstLine = 5367
+; CursorPosition = 6768
+; FirstLine = 6402
 ; Folding = 8-P--v--f6--b+--
 ; EnableAsm
 ; EnableXP
