@@ -5448,7 +5448,7 @@ EndProcedure
         
         Delay(30)
   			  				  			
-        ExportFile$ = FFH::GetFilePBRQ("Export File",Startup::*LHGameDB\Base_Path, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
+        ExportFile$ = FFH::GetFilePBRQ("-ListDevices Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
         If ( Len( ExportFile$ ) = 0 )
            	SetActiveWindow(DC::#_Window_001)
             SetActiveGadget(DC::#ListIcon_001)          	
@@ -5869,7 +5869,7 @@ EndProcedure
         
         SetActiveGadget(-1) 
 
-    	ExportFile$ = FFH::GetFilePBRQ("Export File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
+    	ExportFile$ = FFH::GetFilePBRQ("-Listroms Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
     	If ( Len( ExportFile$ ) = 0 )
 			MAME_End_Procedure()
     		ProcedureReturn 
@@ -6305,7 +6305,7 @@ EndProcedure
     	
     	NewList MRCL.MAME_ROMS_CHECK_LIST()
     	
-    	ExportFile$ = FFH::GetFilePBRQ("Mame Exportet Verify File",Startup::*LHGameDB\Base_Path, #False, "Mame Verify Export File [Roms] (*.*)|*.*;", 0, #True)
+    	ExportFile$ = FFH::GetFilePBRQ("-VerifyRoms Exportet File",Startup::*LHGameDB\Base_Path, #False, "Mame Verify Export File [Roms] (*.*)|*.*;", 0, #True)
     	If ( Len( ExportFile$ ) = 0 )
 			MAME_End_Procedure()
     		ProcedureReturn 
@@ -6790,8 +6790,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6409
-; FirstLine = 6049
+; CursorPosition = 5459
+; FirstLine = 5111
 ; Folding = 8-P--v--f6--b+--
 ; EnableAsm
 ; EnableXP
