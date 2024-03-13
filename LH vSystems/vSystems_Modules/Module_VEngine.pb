@@ -7036,10 +7036,10 @@ EndProcedure
     						
     						AddElement( *Params\MSIP()\MSIF() )
     						If ( MACHINE_NOT_WORKING	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_NO_SOUND = #True
+    							*Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True
     						EndIf
     						If ( MACHINE_NO_SOUND	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True
+    							*Params\MSIP()\MSIF()\MACHINE_NO_SOUND = #True
     						EndIf
     						If ( MACHINE_WRONG_COLORS	= #True )
     							*Params\MSIP()\MSIF()\MACHINE_WRONG_COLORS = #True
@@ -7215,18 +7215,14 @@ EndProcedure
 					ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "Release", *Params\MSIP()\YEAR, DIL()\Index)
 
 					SetGadgetText(DC::#Text_004,"M.A.M.E.: Update " + *Params\MSIP()\NAME)
-					Flags.s = ""
-					While NextElement(  *Params\MSIP()\MSIF() )
-						If ( *Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True )
-							Flags + "- MACHINE_NOT_WORKING" + #CRLF$
-							*Params\MSIP()\PLATFORM = "Not Working"
-						EndIf
+					While NextElement(  *Params\MSIP()\MSIF() )	
 						
 						If ( *Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True )
-							Flags + "- MACHINE_IS_INCOMPLETE" + #CRLF$
 							*Params\MSIP()\PLATFORM = "Incomplete"
 						EndIf						
-						
+						If ( *Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True )
+							*Params\MSIP()\PLATFORM = "Not Working"
+						EndIf												
 					Wend				         
 					
 					PlatformFound.i = #False
@@ -7500,9 +7496,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7406
-; FirstLine = 6119
-; Folding = 8----v--f6--b+h8
+; CursorPosition = 7222
+; FirstLine = 6004
+; Folding = 8----v--f6--b+h-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
