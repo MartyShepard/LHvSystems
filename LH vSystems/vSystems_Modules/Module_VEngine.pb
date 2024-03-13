@@ -6851,10 +6851,6 @@ EndProcedure
     	If FindString( Stringline, SuchString , 1, #PB_String_CaseSensitive )    		    		    	    			    		
     		EnumKommas = 11; CountString(Stringline, Chr(44) )
     		
-    		If CountString(Stringline, Chr(44) ) > 11
-    			;Debug Stringline
-    		EndIf
-    		
     		For i = 1 To EnumKommas
     			
     			Celle.s = StringField(Stringline, i, Chr(44) )
@@ -6944,7 +6940,8 @@ EndProcedure
     						
     						strFULLNAME   = RTrim( strFULLNAME, Chr(34) )
     						strFULLNAME   = LTrim( strFULLNAME, Chr(34) )
-    						*Params\MSIP()\FULLNAME = strFULLNAME      						
+    						*Params\MSIP()\FULLNAME = strFULLNAME 
+    						Continue
     					Else    							
     						;
 							; Das abschliessende Ende Anführungszeichen nicht gefunden    							
@@ -6970,100 +6967,20 @@ EndProcedure
     					Flags.i  = CountString(strFLAGS, Chr(124) )
     					
     					MACHINE_NOT_WORKING.i 			= #False
-    					MACHINE_NO_SOUND.i 				= #False
-    					MACHINE_WRONG_COLORS.i 			= #False
-    					MACHINE_UNEMULATED_PROTECTION.i = #False
-    					MACHINE_MECHANICAL.i 			= #False
-    					MACHINE_NODEVICE_LAN.i 			= #False
-    					MACHINE_IS_SKELETON_MECHANICAL.i= #False
-    					MACHINE_IMPERFECT_SOUND.i 		= #False
-    					MACHINE_IMPERFECT_COLORS.i 		= #False
-    					MACHINE_SUPPORTS_SAVE.i 		= #False
     					MACHINE_IS_INCOMPLETE.i 		= #False
     					
     					If FindString(strFLAGS,"MACHINE_NOT_WORKING",0,1)
-    						;Debug "MACHINE_NOT_WORKING"
     						MACHINE_NOT_WORKING = #True
-    					EndIf
-    					If FindString(strFLAGS,"MACHINE_NO_SOUND",0,1)
-    						;Debug "MACHINE_NO_SOUND"
-    						MACHINE_NO_SOUND = #True    						
-    					EndIf    						
-    					If FindString(strFLAGS,"MACHINE_IMPERFECT_SOUND",0,1)
-    						;Debug "MACHINE_IMPERFECT_SOUND"
-    						MACHINE_IMPERFECT_SOUND = #True    						
-    					EndIf
-    					If FindString(strFLAGS,"MACHINE_IMPERFECT_COLORS",0,1)
-    						;Debug "MACHINE_IMPERFECT_COLORS"
-    						MACHINE_IMPERFECT_COLORS = #True     						
-    					EndIf
-    					If FindString(strFLAGS,"MACHINE_SUPPORTS_SAVE",0,1)
-    						;Debug "MACHINE_SUPPORTS_SAVE"
-    						MACHINE_SUPPORTS_SAVE = #True     						
-    					EndIf
-    					If FindString(strFLAGS,"MACHINE_WRONG_COLORS",0,1)
-    						;Debug "MACHINE_WRONG_COLORS"
-    						MACHINE_WRONG_COLORS = #True    						
-    					EndIf       						
-    					If FindString(strFLAGS,"MACHINE_UNEMULATED_PROTECTION",0,1)
-    						;Debug "MACHINE_UNEMULATED_PROTECTION"
-    						MACHINE_UNEMULATED_PROTECTION = #True    						
-    					EndIf      						
-    					If FindString(strFLAGS,"MACHINE_MECHANICAL",0,1)
-    						;Debug "MACHINE_MECHANICAL"
-    						MACHINE_MECHANICAL = #True     						
-    					EndIf      						
-    					If FindString(strFLAGS,"MACHINE_NODEVICE_LAN",0,1)
-    						;Debug "MACHINE_NODEVICE_LAN"
-    						MACHINE_NODEVICE_LAN = #True     						
-    					EndIf     						
-    					If FindString(strFLAGS,"MACHINE_IS_SKELETON_MECHANICAL",0,1)
-    						;Debug "MACHINE_IS_SKELETON_MECHANICAL"
-    						MACHINE_IS_SKELETON_MECHANICAL = #True     						
+    					EndIf    					
+    					If FindString(strFLAGS,"MACHINE_IS_INCOMPLETE",0,1)
+    						MACHINE_IS_INCOMPLETE = #True     						
     					EndIf
     					
-    					If (MACHINE_NOT_WORKING			  = #True) Or
-    					   (MACHINE_NO_SOUND 			  = #True) Or
-    					   (MACHINE_WRONG_COLORS 		  = #True) Or
-    					   (MACHINE_UNEMULATED_PROTECTION = #True) Or    					   
-    					   (MACHINE_MECHANICAL 			  = #True) Or
-    					   (MACHINE_NODEVICE_LAN 		  = #True) Or
-    					   (MACHINE_IS_SKELETON_MECHANICAL= #True) Or
-    					   (MACHINE_IMPERFECT_SOUND 	  = #True) Or
-    					   (MACHINE_IMPERFECT_COLORS 	  = #True) Or
-    					   (MACHINE_SUPPORTS_SAVE 		  = #True) Or
-    					   (MACHINE_IS_INCOMPLETE		  = #True)
+    					If (MACHINE_NOT_WORKING = #True) Or(MACHINE_IS_INCOMPLETE = #True)
     						
     						AddElement( *Params\MSIP()\MSIF() )
     						If ( MACHINE_NOT_WORKING	= #True )
     							*Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True
-    						EndIf
-    						If ( MACHINE_NO_SOUND	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_NO_SOUND = #True
-    						EndIf
-    						If ( MACHINE_WRONG_COLORS	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_WRONG_COLORS = #True
-    						EndIf
-    						If ( MACHINE_UNEMULATED_PROTECTION	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_UNEMULATED_PROTECTION = #True
-    						EndIf
-    						If ( MACHINE_MECHANICAL	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_MECHANICAL = #True
-    						EndIf
-    						If ( MACHINE_NODEVICE_LAN	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_NODEVICE_LAN = #True
-    						EndIf
-    						If ( MACHINE_IS_SKELETON_MECHANICAL	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_IS_SKELETON_MECHANICAL = #True
-    						EndIf
-    						If ( MACHINE_IMPERFECT_SOUND	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_IMPERFECT_SOUND = #True
-    						EndIf
-    						If ( MACHINE_IMPERFECT_COLORS	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_IMPERFECT_COLORS = #True
-    						EndIf
-    						If ( MACHINE_SUPPORTS_SAVE	= #True )
-    							*Params\MSIP()\MSIF()\MACHINE_SUPPORTS_SAVE = #True
     						EndIf
     						If ( MACHINE_IS_INCOMPLETE	= #True )
     							*Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True
@@ -7095,7 +7012,7 @@ EndProcedure
 	    		EndIf	    		
 	    		;SetGadgetText(DC::#Text_004,"M.A.M.E.: Sammle Information " + strFULLNAME)
 	    		;Thread_HTTP_MAME_Roms_DoEvents() 
-    		Next    		
+	    	Next  
     		ProcedureReturn #True
     	EndIf    		        			    	    
     	ProcedureReturn #False
@@ -7158,27 +7075,26 @@ EndProcedure
 	    				EndIf
 	    				StrRead.s   = ReadString(SourceFileHandle)
 	    				StrLine.s	= StrRead
-    				
-	    				If ( MAME_Roms_GetInfos_System("CONS(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
-	    					*Params\MSIP()\PLATFORM = "Konsole"
-	    					Continue
-	    				EndIf
-	    				
-	    				If ( MAME_Roms_GetInfos_System("GAME(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
-	    					*Params\MSIP()\PLATFORM = "Arcade"
-	    					Continue
-	    				EndIf	    				
-	    				
-	    				If ( MAME_Roms_GetInfos_System("COMP(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
-	    					*Params\MSIP()\PLATFORM = "Computer"	    					
-	    					Continue
-	    				EndIf
-	    				
-	    				If ( MAME_Roms_GetInfos_System("SYST(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
-	    					*Params\MSIP()\PLATFORM = "SoundSystem"
-	    					Continue
-	    				EndIf	    				
-						
+	    				If ( Len(StrLine) > 0 )
+	    						    					
+		    				If ( MAME_Roms_GetInfos_System("CONS(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
+		    					*Params\MSIP()\PLATFORM = "Konsole"
+		    					Continue
+		    					
+		    				ElseIf ( MAME_Roms_GetInfos_System("GAME(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
+		    					*Params\MSIP()\PLATFORM = "Arcade"
+		    					Continue
+		    					
+		    				ElseIf  ( MAME_Roms_GetInfos_System("COMP(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
+		    					*Params\MSIP()\PLATFORM = "Computer"	    					
+		    					Continue
+		    					
+		    				ElseIf ( MAME_Roms_GetInfos_System("SYST(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
+		    					*Params\MSIP()\PLATFORM = "SoundSystem"
+		    					Continue
+		    				EndIf
+		    				
+						EndIf
 	    			Wend	    		     		 	    		 
 	    		EndIf	
 	    		FileListSize - 1
@@ -7194,6 +7110,7 @@ EndProcedure
 	;
 	;	    
 	Procedure 		MAME_Roms_GetInfos_UpdateThread(*Params.MAME_SOURCECODE_INFO)
+		
 		;
 		;
 		; Informationen Setzen			
@@ -7203,11 +7120,8 @@ EndProcedure
 			ResetList( *Params\MSIP() )
 			While NextElement(  *Params\MSIP() )
 				
-				
-				If DIL()\RomFile = *Params\MSIP()\NAME
-					
-					ResetList( *Params\MSIP()\MSIF() )
-					
+				If ( UCase(DIL()\RomFile) = UCase(*Params\MSIP()\NAME) )
+															
 					Debug *Params\MSIP()\NAME
 					Debug *Params\MSIP()\YEAR
 					Debug *Params\MSIP()\SOURCECODE
@@ -7215,13 +7129,20 @@ EndProcedure
 					ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "Release", *Params\MSIP()\YEAR, DIL()\Index)
 
 					SetGadgetText(DC::#Text_004,"M.A.M.E.: Update " + *Params\MSIP()\NAME)
+    				If *Params\MSIP()\NAME = "jaguarcd"
+    					Debug ""
+    				EndIf	
+    				
+    				ResetList( *Params\MSIP()\MSIF() )
 					While NextElement(  *Params\MSIP()\MSIF() )	
 						
 						If ( *Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True )
 							*Params\MSIP()\PLATFORM = "Incomplete"
+							Debug *Params\MSIP()\PLATFORM
 						EndIf						
 						If ( *Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True )
 							*Params\MSIP()\PLATFORM = "Not Working"
+							Debug *Params\MSIP()\PLATFORM
 						EndIf												
 					Wend				         
 					
@@ -7233,7 +7154,6 @@ EndProcedure
 						
 						If  ( UCase( *Params\MSIP()\PLATFORM ) = UCase( PlatformST ) )	            			
 							PlatformFound = #True
-							Debug "Founded"
 							ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PlatformID", Str(PlatformID), DIL()\Index)
 							Break
 						EndIf	                    		                    	
@@ -7496,8 +7416,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7222
-; FirstLine = 6004
+; CursorPosition = 7121
+; FirstLine = 5921
 ; Folding = 8----v--f6--b+h-
 ; EnableAsm
 ; EnableXP
