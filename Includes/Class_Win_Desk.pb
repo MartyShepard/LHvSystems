@@ -201,12 +201,12 @@ Module DesktopEX
       
       ResetList(WindowList_())
       While NextElement(WindowList_())
-          Debug "Suche Nach dem Fenster: " +Search+ " [" + WindowList_()\Window_Name + "]"
+        ;  Debug "Suche Nach dem Fenster: " +Search+ " [" + WindowList_()\Window_Name + "]"
           FindPos = FindString(WindowList_()\Window_Name, Search,1,#PB_String_NoCase )
           If (FindPos)
-              Debug "===================================================================GEFUNDEN"
-              Debug "Suche Nach dem Fenster: " +Search+ " [" + WindowList_()\Window_Name + "]"
-              Debug "==========================================================================="             
+             ; Debug "===================================================================GEFUNDEN"
+             ; Debug "Suche Nach dem Fenster: " +Search+ " [" + WindowList_()\Window_Name + "]"
+             ; Debug "==========================================================================="             
               ProcedureReturn WindowList_()\Window_Handle
           EndIf     
       Wend
@@ -290,7 +290,7 @@ EndProcedure
       ResetList(WindowList_())
       While NextElement(WindowList_())  
         ShowWindow_(WindowList_()\Window_Handle, #SW_HIDE)
-        Debug "Minimiere "+WindowList_()\Window_Name
+       ; Debug "Minimiere "+WindowList_()\Window_Name
       Wend
     EndIf
     
@@ -304,7 +304,7 @@ EndProcedure
       
       ResetList(WindowList_())
       While NextElement(WindowList_())
-        ShowWindow_(WindowList_()\Window_Handle, #SW_SHOW)  :Debug "Memory: Maximiere "+WindowList_()\Window_Name
+        ShowWindow_(WindowList_()\Window_Handle, #SW_SHOW) ; :Debug "Memory: Maximiere "+WindowList_()\Window_Name
       Wend
       ClearList(WindowList_());: FreeList(WindowList_())
     Else
@@ -313,7 +313,7 @@ EndProcedure
         If DatabaseQuery(#LH_WINDOWLOG, "SELECT * FROM WindowPosition")
           While NextDatabaseRow(#LH_WINDOWLOG)
             Handle.i = Val(GetDatabaseString(#LH_WINDOWLOG,2))
-            ShowWindow_(Handle.i , #SW_SHOW)            :Debug "Database: Maximiere "+GetDatabaseString(#LH_WINDOWLOG,1)
+            ShowWindow_(Handle.i , #SW_SHOW)            ;:Debug "Database: Maximiere "+GetDatabaseString(#LH_WINDOWLOG,1)
             
           Wend
           FinishDatabaseQuery(#LH_WINDOWLOG)
@@ -333,7 +333,7 @@ EndProcedure
     Protected iPrcExplore
     
     ProcessEX::TaskListCreate()
-    iPrcExplore = ProcessEX::TaskListGetPID("explorer.exe"):Debug "ProcessID Explorer.exe :"+iPrcExplore
+    iPrcExplore = ProcessEX::TaskListGetPID("explorer.exe");:Debug "ProcessID Explorer.exe :"+iPrcExplore
     If (iPrcExplore <> 0)
       Repeat
         ProcessEX::KillProcess(iPrcExplore)
@@ -566,7 +566,7 @@ EndProcedure
         If GetWindowLongPtr_(ProgWindow,#GWL_STYLE)&#WS_DLGFRAME
             
             
-            Debug "Fensterrahmen: JA"
+           ; Debug "Fensterrahmen: JA"
             
             GetClientRect_(ProgWindow, @Clent);
             GetWindowRect_(ProgWindow, @Window)
@@ -792,10 +792,10 @@ DesktopEX::StartExplorer()
 CompilerEndIf
 
 
-; IDE Options = PureBasic 5.62 (Windows - x64)
-; CursorPosition = 10
-; FirstLine = 10
-; Folding = HAAA+
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 712
+; FirstLine = 332
+; Folding = 4PAB+
 ; EnableAsm
 ; EnableXP
 ; Executable = Test_Explorer_Ex.exe

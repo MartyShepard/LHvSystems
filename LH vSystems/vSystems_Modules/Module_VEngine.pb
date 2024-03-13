@@ -57,6 +57,7 @@
     Declare	 MAME_Roms_Check_Import()
     Declare	 MAME_Roms_Check()    
     Declare.i	 MAME_Roms_Backup(UserFile.s = "")
+    Declare.i	 MAME_Roms_GetInfos() 
     Declare	 Thread_HTTP_MAME_Roms_DoEvents() 
     
     Declare	 vSys_MainButtonsConfig(state.i = #True)
@@ -113,7 +114,63 @@ Module VEngine
     Structure MAME_DRIVER_PARAMS_LIST
     	List mdil.MAME_DRIVER_IMPORT_LIST()
     EndStructure
-        	
+    
+    Structure MAME_SOURCECODE_INFO_FLAGS
+    	MACHINE_NOT_WORKING.i
+    	MACHINE_NO_SOUND.i
+    	MACHINE_IMPERFECT_SOUND.i
+    	MACHINE_IMPERFECT_COLORS.i
+    	MACHINE_SUPPORTS_SAVE.i
+    	MACHINE_WRONG_COLORS.i
+    	MACHINE_UNEMULATED_PROTECTION.i
+    	MACHINE_MECHANICAL.i
+    	MACHINE_NODEVICE_LAN.i
+    	MACHINE_IS_SKELETON_MECHANICAL.i
+    	MACHINE_NO_COCKTAIL.i
+    	MACHINE_IS_BIOS_ROOT.i
+    	MACHINE_REQUIRES_ARTWORK.i
+    	MACHINE_CLICKABLE_ARTWORK.i
+    	MACHINE_UNOFFICIAL.i
+    	MACHINE_IS_INCOMPLETE.i
+    EndStructure	
+         
+    Structure MAME_SOURCECODE_INFO_PERFILE
+    	YEAR.s
+    	NAME.s
+    	PARENT.s
+    	COMPAT.s
+    	MACHINE.s
+    	INPUT.s
+    	CLASS.s
+    	INIT.s
+    	COMPANY.s
+    	FULLNAME.s
+    	FLAGS.s
+    	SOURCECODE.s
+    	PLATFORM.s
+    	List MSIF.MAME_SOURCECODE_INFO_FLAGS()
+    EndStructure
+    
+    Structure MAME_SOURCECODE_INFO_COLLECTION    	
+    	FullFilePath.s
+    EndStructure
+    
+    Structure MAME_SOURCECODE_INFO
+    	SingleElement.i
+    	List MSIC.MAME_SOURCECODE_INFO_COLLECTION()
+    	List MSIP.MAME_SOURCECODE_INFO_PERFILE()    	
+    EndStructure	
+    
+    Structure DATABASE_INDEX_LIST
+    	Index.i
+    	RomFile.s
+    	Section.s
+    	Single.i
+    	SingleFound.i
+    EndStructure	
+    
+    Global NewList DIL.DATABASE_INDEX_LIST()
+    
     Global MainEventMutex = CreateMutex()
     Global ProgrammMutex
       
@@ -5742,7 +5799,7 @@ EndProcedure
     ;
     ;
 	;   
-	Procedure Thread_HTTP_MAME_Roms(*Params.HTTP_INDEX) 
+	Procedure 		Thread_HTTP_MAME_Roms(*Params.HTTP_INDEX) 
 		
 	  Protected isLoop.b	= 1 
 	  Protected Bytes.l	= 0 
@@ -6269,7 +6326,7 @@ EndProcedure
 	;
 	;
 	;		
-	Procedure.i     MAME_Roms_Check()
+	Procedure.i 	MAME_Roms_Check()
 		
 		vSys_MainButtonsConfig()
     	
@@ -6658,8 +6715,10 @@ EndProcedure
         MAME_End_Procedure()
         ProcedureReturn                 
     EndProcedure
-    
-    Procedure.i MAME_Roms_Backup(UserFile.s = "")
+	;
+	;
+	;	    
+    Procedure.i 	MAME_Roms_Backup(UserFile.s = "")
     	
 		vSys_MainButtonsConfig()
     	
@@ -6783,16 +6842,667 @@ EndProcedure
         MAME_End_Procedure()
         Thread_LoadGameList_Action()
         ProcedureReturn         
-    EndProcedure    
+    EndProcedure   
+	;
+	;
+	;	    
+    Procedure.i 	MAME_Roms_GetInfos_System(SuchString.s, CodeFile.s, Stringline.s, sDebug.i, *Params.MAME_SOURCECODE_INFO, List DIL.DATABASE_INDEX_LIST())
+    	        		
+    	If FindString( Stringline, SuchString , 1, #PB_String_CaseSensitive )    		    		    	    			    		
+    		EnumKommas = 11; CountString(Stringline, Chr(44) )
+    		
+    		If CountString(Stringline, Chr(44) ) > 11
+    			;Debug Stringline
+    		EndIf
+    		
+    		For i = 1 To EnumKommas
+    			
+    			Celle.s = StringField(Stringline, i, Chr(44) )
+    			
+    			If ( Celle = " 0 )" )
+    				ProcedureReturn #True
+    			EndIf	
+    			Select i
+    				Case 1	; YEAR
+    					strYear.s = Trim( ReplaceString( Celle, SuchString, ""), Chr(32) )
+    					AddElement( *Params\MSIP() )
+    					*Params\MSIP()\SOURCECODE = CodeFile
+    					*Params\MSIP()\YEAR = strYear
+    					
+    				Case 2	; NAME (*) Rom Name in Medie String
+    					strNAME.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\NAME = strNAME
+    					
+    				Case 3	; PARENT
+    					strPARENT.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\PARENT = strPARENT
+    					
+    				Case 4	; COMPAT
+    					strCOMPAT.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\COMPAT = strCOMPAT    					
+    					
+    				Case 5	; MACHINE
+    					strMACHINE.s = Trim( Celle, Chr(32) ) 						
+    					*Params\MSIP()\MACHINE = strMACHINE
+    					
+    				Case 6	; INPUT
+    					strINPUT.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\INPUT = strINPUT
+    					
+    				Case 7	; CLASS
+    					strCLASS.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\CLASS = strCLASS
+    					
+    				Case 8	; INIT
+    					strINIT.s = Trim( Celle, Chr(32) )
+    					*Params\MSIP()\INIT = strINIT        					
+    				Case 9	; COMPANY
+    					strCOMPANY.s = Celle
+    					strCOMPANY   = Trim( strCOMPANY, Chr(32) ) 
+    					
+    					lPosQuote.i	 = 0
+    					rPosQuote.i	 = 0
+    					
+    					lPosQuote	 = FindString( strCOMPANY, Chr(34) )
+    					rPosQuote	 = FindString( strCOMPANY, Chr(34), lPosQuote+1)
+    					
+    					If ( lPosQuote > 0 ) And ( rPosQuote > 0 )
+    						strCOMPANY   = RTrim( strCOMPANY, Chr(34) )
+    						strCOMPANY   = LTrim( strCOMPANY, Chr(34) )
+    						*Params\MSIP()\COMPANY = strCOMPANY      						
+    						Continue
+    					Else
+    						;
+							; Das abschliessende Ende Anführungszeichen nicht gefunden      							
+    						tmpPos.i = FindString( Stringline, strCOMPANY, 0)
+    						If ( tmpPos > 0 )    								    							
+    							rPosQuote   = FindString( Stringline, Chr(34), tmpPos+1)
+    							
+    							strCOMPANY = Mid( Stringline, tmpPos , rPosQuote - tmpPos)
+    							strCOMPANY = RTrim( strCOMPANY, Chr(34) )
+    							strCOMPANY = LTrim( strCOMPANY, Chr(34) ) 
+    							qResult.i  = CountString(strCOMPANY, Chr(44) )
+    							Stringline = ReplaceString( Stringline, Chr(44), "",0,tmpPos,qResult)
+    							i	      = 9 
+    							*Params\MSIP()\COMPANY = strCOMPANY      							
+    							Continue
+    						EndIf    							  							
+    					EndIf	
+    					
+    					
+    				Case 10	; FULLNAME
+    					strFULLNAME.s = Celle
+    					strFULLNAME   = Trim( strFULLNAME, Chr(32) )  
+    					
+    					lPosQuote.i	 = 0
+    					rPosQuote.i	 = 0
+    					
+    					lPosQuote	 = FindString( strFULLNAME, Chr(34) )
+    					rPosQuote	 = FindString( strFULLNAME, Chr(34), lPosQuote+1)
+    					
+    					If ( lPosQuote > 0 ) And ( rPosQuote > 0 )
+    						
+    						strFULLNAME   = RTrim( strFULLNAME, Chr(34) )
+    						strFULLNAME   = LTrim( strFULLNAME, Chr(34) )
+    						*Params\MSIP()\FULLNAME = strFULLNAME      						
+    					Else    							
+    						;
+							; Das abschliessende Ende Anführungszeichen nicht gefunden    							
+    						tmpPos.i = FindString( Stringline, strFULLNAME, 0)
+    						If ( tmpPos > 0 )    								    							
+    							rPosQuote   = FindString( Stringline, Chr(34), tmpPos+1)
+    							
+    							strFULLNAME = Mid( Stringline, tmpPos , rPosQuote - tmpPos)
+    							strFULLNAME = RTrim( strFULLNAME, Chr(34) )
+    							strFULLNAME = LTrim( strFULLNAME, Chr(34) )    								
+    							qResult.i   = CountString(strFULLNAME, Chr(44) )
+    							Stringline  = ReplaceString( Stringline, Chr(44), "",0,tmpPos,qResult)
+    							i		  = 10
+    							*Params\MSIP()\FULLNAME = strFULLNAME       							
+    							Continue
+    						EndIf						
+    					EndIf
+    					
+    				Case 11	; FLAGS
+    					strFLAGS.s = Celle 
+    					; Weiviele und welche Flags
+    					
+    					Flags.i  = CountString(strFLAGS, Chr(124) )
+    					
+    					MACHINE_NOT_WORKING.i 			= #False
+    					MACHINE_NO_SOUND.i 				= #False
+    					MACHINE_WRONG_COLORS.i 			= #False
+    					MACHINE_UNEMULATED_PROTECTION.i = #False
+    					MACHINE_MECHANICAL.i 			= #False
+    					MACHINE_NODEVICE_LAN.i 			= #False
+    					MACHINE_IS_SKELETON_MECHANICAL.i= #False
+    					MACHINE_IMPERFECT_SOUND.i 		= #False
+    					MACHINE_IMPERFECT_COLORS.i 		= #False
+    					MACHINE_SUPPORTS_SAVE.i 		= #False
+    					MACHINE_IS_INCOMPLETE.i 		= #False
+    					
+    					If FindString(strFLAGS,"MACHINE_NOT_WORKING",0,1)
+    						;Debug "MACHINE_NOT_WORKING"
+    						MACHINE_NOT_WORKING = #True
+    					EndIf
+    					If FindString(strFLAGS,"MACHINE_NO_SOUND",0,1)
+    						;Debug "MACHINE_NO_SOUND"
+    						MACHINE_NO_SOUND = #True    						
+    					EndIf    						
+    					If FindString(strFLAGS,"MACHINE_IMPERFECT_SOUND",0,1)
+    						;Debug "MACHINE_IMPERFECT_SOUND"
+    						MACHINE_IMPERFECT_SOUND = #True    						
+    					EndIf
+    					If FindString(strFLAGS,"MACHINE_IMPERFECT_COLORS",0,1)
+    						;Debug "MACHINE_IMPERFECT_COLORS"
+    						MACHINE_IMPERFECT_COLORS = #True     						
+    					EndIf
+    					If FindString(strFLAGS,"MACHINE_SUPPORTS_SAVE",0,1)
+    						;Debug "MACHINE_SUPPORTS_SAVE"
+    						MACHINE_SUPPORTS_SAVE = #True     						
+    					EndIf
+    					If FindString(strFLAGS,"MACHINE_WRONG_COLORS",0,1)
+    						;Debug "MACHINE_WRONG_COLORS"
+    						MACHINE_WRONG_COLORS = #True    						
+    					EndIf       						
+    					If FindString(strFLAGS,"MACHINE_UNEMULATED_PROTECTION",0,1)
+    						;Debug "MACHINE_UNEMULATED_PROTECTION"
+    						MACHINE_UNEMULATED_PROTECTION = #True    						
+    					EndIf      						
+    					If FindString(strFLAGS,"MACHINE_MECHANICAL",0,1)
+    						;Debug "MACHINE_MECHANICAL"
+    						MACHINE_MECHANICAL = #True     						
+    					EndIf      						
+    					If FindString(strFLAGS,"MACHINE_NODEVICE_LAN",0,1)
+    						;Debug "MACHINE_NODEVICE_LAN"
+    						MACHINE_NODEVICE_LAN = #True     						
+    					EndIf     						
+    					If FindString(strFLAGS,"MACHINE_IS_SKELETON_MECHANICAL",0,1)
+    						;Debug "MACHINE_IS_SKELETON_MECHANICAL"
+    						MACHINE_IS_SKELETON_MECHANICAL = #True     						
+    					EndIf
+    					
+    					If (MACHINE_NOT_WORKING			  = #True) Or
+    					   (MACHINE_NO_SOUND 			  = #True) Or
+    					   (MACHINE_WRONG_COLORS 		  = #True) Or
+    					   (MACHINE_UNEMULATED_PROTECTION = #True) Or    					   
+    					   (MACHINE_MECHANICAL 			  = #True) Or
+    					   (MACHINE_NODEVICE_LAN 		  = #True) Or
+    					   (MACHINE_IS_SKELETON_MECHANICAL= #True) Or
+    					   (MACHINE_IMPERFECT_SOUND 	  = #True) Or
+    					   (MACHINE_IMPERFECT_COLORS 	  = #True) Or
+    					   (MACHINE_SUPPORTS_SAVE 		  = #True) Or
+    					   (MACHINE_IS_INCOMPLETE		  = #True)
+    						
+    						AddElement( *Params\MSIP()\MSIF() )
+    						If ( MACHINE_NOT_WORKING	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_NO_SOUND = #True
+    						EndIf
+    						If ( MACHINE_NO_SOUND	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True
+    						EndIf
+    						If ( MACHINE_WRONG_COLORS	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_WRONG_COLORS = #True
+    						EndIf
+    						If ( MACHINE_UNEMULATED_PROTECTION	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_UNEMULATED_PROTECTION = #True
+    						EndIf
+    						If ( MACHINE_MECHANICAL	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_MECHANICAL = #True
+    						EndIf
+    						If ( MACHINE_NODEVICE_LAN	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_NODEVICE_LAN = #True
+    						EndIf
+    						If ( MACHINE_IS_SKELETON_MECHANICAL	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_IS_SKELETON_MECHANICAL = #True
+    						EndIf
+    						If ( MACHINE_IMPERFECT_SOUND	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_IMPERFECT_SOUND = #True
+    						EndIf
+    						If ( MACHINE_IMPERFECT_COLORS	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_IMPERFECT_COLORS = #True
+    						EndIf
+    						If ( MACHINE_SUPPORTS_SAVE	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_SUPPORTS_SAVE = #True
+    						EndIf
+    						If ( MACHINE_IS_INCOMPLETE	= #True )
+    							*Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True
+    						EndIf
+    						
+    						
+    					EndIf
+    			EndSelect
+    			
+	    		If ( sDebug )
+	    			Debug "YEAR	: " + strYear + #CRLF$ +
+	    			      " NAME  	: " + strNAME +#CRLF$ +
+	    			      " PARENT	: " + strPARENT +#CRLF$ +
+	    			      " COMPAT	: " + strCOMPAT +#CRLF$ +
+	    			      " MACHINE	: " + strMACHINE +#CRLF$ +
+	    			      " INPUT	: " + strINPUT +#CRLF$ +
+	    			      " CLASS	: " + strCLASS + #CRLF$ +
+	    			      " INIT	: " + strINIT +#CRLF$ +
+	    			      " COMPANY	: " + strCOMPANY +#CRLF$ +
+	    			      " FULLNAME: " + strFULLNAME +#CRLF$ +
+	    			      " FLAGS	: " + strFLAGS + #CRLF$	    				    			
+	    		EndIf    			
+	    		;
+				;
+				; Nur das Aktuelle Rom Wurde gefunden
+	    		If ( DIL()\RomFile = strNAME) And ( *Params\SingleElement = #True ) And (DIL()\SingleFound = #False)
+	    			DIL()\SingleFound = #True
+	    			ProcedureReturn #True
+	    		EndIf	    		
+	    		;SetGadgetText(DC::#Text_004,"M.A.M.E.: Sammle Information " + strFULLNAME)
+	    		;Thread_HTTP_MAME_Roms_DoEvents() 
+    		Next    		
+    		ProcedureReturn #True
+    	EndIf    		        			    	    
+    	ProcedureReturn #False
+    	
+		; CONS(YEAR, NAME, PARENT, COMPAT, MACHINE, INPUT, CLASS, INIT, COMPANY, FULLNAME, FLAGS)
+    EndProcedure	
+    ;
+	;
+	;	    
+    Procedure 		MAME_Roms_GetInfos_FileThread(*Params.MAME_SOURCECODE_INFO)
+    	    	
+    	FileListSize.i =  ListSize( *Params\MSIC() )-1
+    	
+    	
+    		While NextElement(*Params\MSIC())    			   			    			
+    			
+    			If ( FindString( *Params\MSIC()\FullFilePath, "_v.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf
+    			If ( FindString( *Params\MSIC()\FullFilePath, "_m.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf
+    			If ( FindString(*Params\MSIC()\FullFilePath, "_copro.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf 
+    			If ( FindString( *Params\MSIC()\FullFilePath, "_kbd.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf
+    			If ( FindString( *Params\MSIC()\FullFilePath, "_dbg.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf
+    			If ( FindString( *Params\MSIC()\FullFilePath, "_tape.cpp") )
+    				FileListSize - 1
+    				Continue
+    			EndIf     			
+    			If ( FindString( *Params\MSIC()\FullFilePath, "\layout\") )
+    				FileListSize - 1
+    				Continue
+    			EndIf   			
+    			If ( FindString( *Params\MSIC()\FullFilePath, "\shared\") )
+    				FileListSize - 1
+    				Continue
+    			EndIf     			
+    			
+    			SourceFileHandle.l = ReadFile(#PB_Any, *Params\MSIC()\FullFilePath)
+    			SetGadgetText(DC::#Text_004,"M.A.M.E.: Durchsuche " + "("+ RSet( Str(FileListSize ),4, "#") + ") Datei(en) " + GetFilePart(*Params\MSIC()\FullFilePath) )
+    			;Thread_HTTP_MAME_Roms_DoEvents() 	
+    			
+    			If ( SourceFileHandle >= 0 )
+    			
+	    			While Eof(SourceFileHandle) = 0
+	    				
+	    				If ( DIL()\SingleFound = #True And DIL()\Single = #True )
+	    					Break;
+	    				EndIf
+	    				StrRead.s   = ReadString(SourceFileHandle)
+	    				StrLine.s	= StrRead
+    				
+	    				If ( MAME_Roms_GetInfos_System("CONS(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
+	    					*Params\MSIP()\PLATFORM = "Konsole"
+	    					Continue
+	    				EndIf
+	    				
+	    				If ( MAME_Roms_GetInfos_System("GAME(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True )
+	    					*Params\MSIP()\PLATFORM = "Arcade"
+	    					Continue
+	    				EndIf	    				
+	    				
+	    				If ( MAME_Roms_GetInfos_System("COMP(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
+	    					*Params\MSIP()\PLATFORM = "Computer"	    					
+	    					Continue
+	    				EndIf
+	    				
+	    				If ( MAME_Roms_GetInfos_System("SYST(", *Params\MSIC()\FullFilePath, StrLine, #False,*Params, DIL()) = #True)
+	    					*Params\MSIP()\PLATFORM = "SoundSystem"
+	    					Continue
+	    				EndIf	    				
+						
+	    			Wend	    		     		 	    		 
+	    		EndIf	
+	    		FileListSize - 1
+	    		CloseFile( SourceFileHandle )	    			    		
+	    		
+	    		If ( DIL()\SingleFound = #True And DIL()\Single = #True )
+	    			Break
+	    		EndIf	    		
+	    	Wend
+	    	
+	EndProcedure	
+    ;
+	;
+	;	    
+	Procedure 		MAME_Roms_GetInfos_UpdateThread(*Params.MAME_SOURCECODE_INFO)
+		;
+		;
+		; Informationen Setzen			
+		ResetList( DIL() )
+		While NextElement( DIL() )	
+			
+			ResetList( *Params\MSIP() )
+			While NextElement(  *Params\MSIP() )
+				
+				
+				If DIL()\RomFile = *Params\MSIP()\NAME
+					
+					ResetList( *Params\MSIP()\MSIF() )
+					
+					Debug *Params\MSIP()\NAME
+					Debug *Params\MSIP()\YEAR
+					Debug *Params\MSIP()\SOURCECODE
+					Debug *Params\MSIP()\PLATFORM
+					ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "Release", *Params\MSIP()\YEAR, DIL()\Index)
+
+					SetGadgetText(DC::#Text_004,"M.A.M.E.: Update " + *Params\MSIP()\NAME)
+					Flags.s = ""
+					While NextElement(  *Params\MSIP()\MSIF() )
+						If ( *Params\MSIP()\MSIF()\MACHINE_NOT_WORKING = #True )
+							Flags + "- MACHINE_NOT_WORKING" + #CRLF$
+							*Params\MSIP()\PLATFORM = "Not Working"
+						EndIf
+						
+						If ( *Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True )
+							Flags + "- MACHINE_IS_INCOMPLETE" + #CRLF$
+							*Params\MSIP()\PLATFORM = "Incomplete"
+						EndIf						
+						
+					Wend				         
+					
+					PlatformFound.i = #False
+					For RowID = 1 To ExecSQL::CountRows(DC::#Database_001,"Platform")
+						
+						PlatformID.i = ExecSQL::iRow(DC::#Database_001,"Platform","id",0,RowID,"",1)
+						PlatformST.s = ExecSQL::nRow(DC::#Database_001,"Platform","Platform","",RowID,"",1)
+						
+						If  ( UCase( *Params\MSIP()\PLATFORM ) = UCase( PlatformST ) )	            			
+							PlatformFound = #True
+							Debug "Founded"
+							ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PlatformID", Str(PlatformID), DIL()\Index)
+							Break
+						EndIf	                    		                    	
+					Next RowID 
+										
+					; Nicht Gefunden -> Füge die Region der Liste hinzu und dem Aktuellen Titel
+					If ( PlatformFound = #False )																							
+						ExecSQL::InsertRow(DC::#Database_001,"Platform", "Platform", *Params\MSIP()\PLATFORM)
+						ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PlatformID", Str(ExecSQL::LastRowID(DC::#Database_001,"Platform")), DIL()\Index)
+					EndIf	                
+				            
+					Debug Flags
+					Break
+				EndIf
+				;Thread_HTTP_MAME_Roms_DoEvents() 
+			Wend
+			;Thread_HTTP_MAME_Roms_DoEvents() 
+		Wend		
+    EndProcedure	
+    ;
+	;
+	;	        
+    Procedure 	 	MAME_Roms_GetInfos()
+    	
+    	
+		vSys_MainButtonsConfig()
+    	
+        SetGadgetText(DC::#Text_001,"")
+        SetGadgetText(DC::#Text_002,"")    	      
+        
+        Request::*MsgEx\User_BtnTextL = "Gewählt"
+        Request::*MsgEx\User_BtnTextR = "Abbruch"
+        Request::*MsgEx\User_BtnTextM = "Alle"         
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E", "Datanbank mit Infos füllen?" + #CRLF$ + #CRLF$ + "Dafür wird der Quelle Code von Mame benötigt. Diesen entpacken und das verzeichnis wählen." + #CRLF$ + "Es werden nur die Rom Namen im ersten Media Platzhalter abgefragt."+ #CRLF$ + #CRLF$ + "Nur den aktuellen gewählten Eintrag oder alle aktualisieren?",16,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+        If ( Result = 1 ) 
+			MAME_End_Procedure()
+        	ProcedureReturn 
+        EndIf    	
+
+        HideGadget(DC::#ListIcon_001,1)           
+        HideGadget(DC::#Text_003,0)
+         
+        Intro$ = "[ .. M.A.M.E. .. ]"         
+        SetGadgetColor(DC::#Text_003, #PB_Gadget_BackColor, RGB(61,61,61)):SetGadgetText(DC::#Text_003,"[ ]"): Delay(85): Thread_LoadGameList_Anim(10, DC::#Text_003): SetGadgetText(DC::#Text_003,Intro$)
+        
+    	
+        *Params.MAME_SOURCECODE_INFO = AllocateMemory(SizeOf(MAME_SOURCECODE_INFO))
+        InitializeStructure(*Params, MAME_SOURCECODE_INFO)
+        
+    	SizeList = CountGadgetItems(DC::#ListIcon_001)
+    	
+    	;
+		;Single Titel
+		;         
+    	*Params\SingleElement = #False
+    	
+    	If (Result = 0)
+    		*Params\SingleElement = #True
+    	EndIf
+    	
+    	HideGadget(DC::#Text_004,0)
+    	SetGadgetText(DC::#Text_004,"")
+    	
+    	If ( *Params\SingleElement = #False )
+	    	For i = 0 To SizeList - 1
+	    		
+	    		DataIndexID.i = GetGadgetItemData(DC::#ListIcon_001, i)
+	    		RomName.s     = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev0","",DataIndexID,"",1)
+	    		If ( Len( RomName ) > 0)
+	    			;
+					;
+	    			; Liste mit IDs die inder Datenbank sind     		
+	    		
+	    			AddElement( DIL() )
+	    				DIL()\Index = DataIndexID
+	    				DIL()\RomFile = RomName    		
+	    				DIL()\Section = "MediaDev0" 
+	    				DIL()\Single  = #False
+	    				DIL()\SingleFound = #False
+	    			Debug "ID Index       : " + RSet( Str( DataIndexID ),3,"0") + " >> Mediafile: " + RomName    			
+	    			SetGadgetText(DC::#Text_004,"M.A.M.E.: Hole Infos über " + RomName)
+	    			SetGadgetText(DC::#Text_003,".. Get Infos ..")
+	    		Else
+	    			;
+					; KEIN ROM - ERROR
+	    			; 
+	    		EndIf	
+	   			Thread_HTTP_MAME_Roms_DoEvents() 
+	    	Next
+	    Else
+	    	RomName.s     = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev0","",Startup::*LHGameDB\GameID,"",1)
+	    	If ( Len( RomName ) > 0)
+	    			AddElement( DIL() )
+	    				DIL()\Index = Startup::*LHGameDB\GameID
+	    				DIL()\RomFile = RomName    		
+	    				DIL()\Section = "MediaDev0"  
+	    				DIL()\Single  = #True
+	    				DIL()\SingleFound = #False
+	    				Debug "ID Index       : " + RSet( Str( Startup::*LHGameDB\GameID ),3,"0") + " >> Mediafile: " + RomName
+	    				SetGadgetText(DC::#Text_004,"M.A.M.E.: Hole Infos über " + RomName)
+	    				SetGadgetText(DC::#Text_003,".. Get Infos ..")	    				
+	    	Else
+	    		;
+				; KEIN ROM - ERROR
+	    		; 
+	    	EndIf
+	    	
+	    	
+    	EndIf
+    	
+    	SetGadgetText(DC::#Text_003,"")
+    	
+    	
+    	ResetList( DIL() )
+    	If ( ListSize( DIL() ) = 0 )
+    		 Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Keine Titel in der Datenbank gefunden" ,2,0,"",0,0,DC::#_Window_001)
+    		  HideGadget(DC::#Text_004,1)
+    		  SetGadgetText(DC::#Text_004,"")				
+			  MAME_End_Procedure()
+		     ProcedureReturn
+		EndIf 
+		 
+    	
+		Directory.s = FFH::GetPathPBRQ("Quelle Code Verzeichnis Auswählen",Startup::*LHGameDB\Base_Path)
+		If ( Len( Directory ) = 0 )
+    		  HideGadget(DC::#Text_004,1)
+    		  SetGadgetText(DC::#Text_004,"")				
+			  MAME_End_Procedure()
+		     ProcedureReturn
+		EndIf 
+		 	
+    	;
+		; 
+    	; Verzeichnis des Source Codes
+    	MameCodeDirectory.s = Directory;"B:\MSYS2_MAME\src\Mame\"
+    	MameCodeMaschines.s = "src\mame\"
+    	SourceDirectory.s   = MameCodeDirectory + MameCodeMaschines
+    	   	
+    	;
+		;
+		; Informationen Bekommen
+    	
+    	;If ( *Params\SingleElement = #True )
+    		ResetList( DIL() )
+    		FirstElement( DIL() )	
+    	;EndIf	
+    	
+    	If FileSize(SourceDirectory) = -2
+    		
+    		SetGadgetText(DC::#Text_003,".. do Filelist ..")
+    		SetGadgetText(DC::#Text_004,"M.A.M.E.: Dateien suche ...")
+    		
+			FFS::DelContent()
+    		
+    		FFS::GetContent(SourceDirectory,#True, #True, #True,"","*.cpp",0,#True,100,"")
+    		FFS::SortContent()
+    		SetGadgetText(DC::#Text_004,"")
+    		ResetList(FFS::FullFileSource())
+    		
+    		While NextElement( FFS::FullFileSource() )    			
+    			AddElement( *Params\MSIC() )
+    			*Params\MSIC()\FullFilePath =  FFS::FullFileSource()\FileName
+    			SetGadgetText(DC::#Text_003, GetFilePart(*Params\MSIC()\FullFilePath))
+    			Thread_HTTP_MAME_Roms_DoEvents() 	
+    		Wend	
+    		
+    		FFS::DelContent()
+    		Startup::*LHGameDB\Base_Shot = Startup::*LHGameDB\Base_Path + "Systeme\Shot\"
+    		
+    		If ( ListSize(  *Params\MSIC() ) = 0 )
+    			Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Keine Dateien gefunden [" + Str( ListSize(  *Params\MSIC() )) + "]" + #CRLF$ + SourceDirectory ,2,0,"",0,0,DC::#_Window_001)
+    		  	HideGadget(DC::#Text_004,1)
+    		  	SetGadgetText(DC::#Text_004,"")				
+			  	MAME_End_Procedure()
+		     	ProcedureReturn
+			EndIf    		
+			
+			Delay( 500 )
+			SetGadgetText(DC::#Text_003,".. Searching ..")
+			
+			ResetList(*Params\MSIC())
+			
+			Protected File_Thread = CreateThread(@MAME_Roms_GetInfos_FileThread(),*Params)  
+			ThreadPriority(File_Thread, 31) 
+			
+			While IsThread(File_Thread)		                           
+				While WindowEvent()                                    
+				Wend
+			Wend
+			
+			Delay( 500 )
+	    	
+	    EndIf	
+	    SetGadgetText(DC::#Text_003,"")
+    	;
+		;
+		; Informationen Setzen	    
+	    	ResetList( *Params\MSIP() )
+			Delay( 500 )			
+			SetGadgetText(DC::#Text_003,".. Update List ..")
+			
+			File_Thread = CreateThread(@MAME_Roms_GetInfos_UpdateThread(),*Params)  
+			ThreadPriority(File_Thread, 31) 
+			
+			While IsThread(File_Thread)		                           
+				While WindowEvent()                                    
+				Wend
+			Wend
+			
+			Delay( 500 )	
+			
+			ResetList( *Params\MSIP() )
+			
+			If ( ListSize(  *Params\MSIP() ) = 0 )
+				Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Keine Übereinstimmungen gefunden" ,2,0,"",0,0,DC::#_Window_001)
+				HideGadget(DC::#Text_004,1)
+				SetGadgetText(DC::#Text_004,"")				
+				MAME_End_Procedure()
+				ProcedureReturn
+			EndIf  			
+			
+	    If ( ListSize( DIL() ) > 0 )
+	    	ClearList( DIL() )
+	    EndIf
+	    
+	    SetGadgetText(DC::#Text_003,"")
+	    
+	    ClearStructure( *Params, MAME_SOURCECODE_INFO )
+	    
+	    If ( *Params > 0 )
+	    	FreeMemory( *Params )
+	    EndIf	
+	    
+    	HideGadget(DC::#Text_004,1)
+    	SetGadgetText(DC::#Text_004,"")	
+    	
+    	ButtonEX::Disable(DC::#Button_001, false)            
+    	ButtonEX::Disable(DC::#Button_002, false) 
+    	ButtonEX::Disable(DC::#Button_287, false)
+    	
+    	VEngine::Thread_LoadGameList_Action()
+    	vImages::Screens_Show()
+    	
+    	SetActiveWindow(DC::#_Window_001)
+    	SetActiveGadget(DC::#ListIcon_001)           
+    	
+    	ListBox_GetData_LeftMouse(#True)           
+    	
+    	Delay(150)
+    	
+    	Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Titel wurden mit Platform und Jahr aktualisiert" ,2,0,"",0,0,DC::#_Window_001)
+    	
+    	SetActiveWindow(DC::#_Window_001)
+    	SetActiveGadget(DC::#ListIcon_001)
+           
+    EndProcedure
 EndModule    
 
 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5459
-; FirstLine = 5111
-; Folding = 8-P--v--f6--b+--
+; CursorPosition = 7406
+; FirstLine = 6119
+; Folding = 8----v--f6--b+h8
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -2582,6 +2582,7 @@ Module INVMNU
             Case 41: vEngine::MAME_Roms_Check_Import()
             Case 42: vEngine::MAME_Roms_Check()            	
             Case 43: vEngine::MAME_Roms_Backup() 
+            Case 44: vEngine::MAME_Roms_GetInfos() 
             	
                 ; Resetet die Fenster Position
             Case 20
@@ -2747,8 +2748,8 @@ Module INVMNU
 
     ;*******************************************************************************************************************************************************************    
     Procedure Set_TrayMenu_ShotUtil()
-        
-        Protected ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
+    	
+        Protected ShotPath.s = Startup::*LHGameDB\Base_Shot
         Protected ShotSize.i = 0
                
         If ( FileSize(ShotPath) <> -2 )
@@ -2788,7 +2789,29 @@ Module INVMNU
             MenuItem(25, "Open Monitoring Log File"  ,ImageID( DI::#_MNU_MON ))            
         EndIf    
         
-    EndProcedure    
+    EndProcedure  
+    
+    ;*******************************************************************************************************************************************************************    
+    Procedure Set_Mame_Menu()        
+    	
+            MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
+            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))
+            MenuItem(43 , "Tool : Backup aus dem Internet" 	      	,ImageID( DI::#_MNU_MAM ))
+            MenuItem(44 , "Tool : Information auffüllen" 	       	,ImageID( DI::#_MNU_MAM ))    
+            
+            If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 0) 
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 0) 
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 0)             	
+            Else
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 1) 
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 1) 
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 1) 
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 1)             	
+            EndIf
+            
+    EndProcedure      
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
 
@@ -2799,10 +2822,8 @@ Module INVMNU
             MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       ,ImageID( DI::#_MNU_VSY ))
             MenuBar()            
             MenuItem(40 , "Import. Titel in die Datenbank"	     	,ImageID( DI::#_MNU_MAM ))
-			OpenSubMenu( "Mame Tools .."                             ,ImageID( DI::#_MNU_MAM ))               
-            MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
-            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))
-            MenuItem(43 , "Tool : Backup aus dem Internet" 	      	,ImageID( DI::#_MNU_MAM )) 
+			OpenSubMenu( "Mame Tools .."                            ,ImageID( DI::#_MNU_MAM ))               
+            Set_Mame_Menu() 
 			CloseSubMenu()             
  			MenuBar()                     
             MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
@@ -2853,8 +2874,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2805
-; FirstLine = 2533
+; CursorPosition = 2751
+; FirstLine = 2478
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

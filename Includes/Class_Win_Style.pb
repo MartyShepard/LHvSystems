@@ -72,16 +72,16 @@ Module WinGuru
                 iTaskLeiste.l = ProcessEX::TaskListGetPID("explorer.exe")
                 
                 If (iTaskLeiste.l <> 0)
-                    Debug "..................."                    
+                  ;  Debug "..................."                    
                     mi\rcMonitor\left   = DesktopWorkArea\left
                     mi\rcMonitor\right  = DesktopWorkArea\right - DesktopWorkArea\left
                     mi\rcMonitor\top    = DesktopWorkArea\top
                     mi\rcMonitor\bottom = DesktopWorkArea\bottom - DesktopWorkArea\top
-                    Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\left )
-                    Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
-                    Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
-                    Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
-                    Debug "..................."
+                  ;  Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\left )
+                  ;  Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
+                  ;  Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
+                  ;  Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
+                  ;  Debug "..................."
                     
                     ; Windows Options Abfrage "Taskbar Automatisch Ausblenden"
                     Select SHAppBarMessage_(#ABM_GETSTATE,Taskbar)
@@ -96,29 +96,29 @@ Module WinGuru
                             
                     EndSelect
 
-                    Debug "Center mi\rcMonitor\right  :" + Str(mi\rcMonitor\right )
-                    Debug "Center mi\rcMonitor\bottom :" + Str(mi\rcMonitor\bottom )
-                    Debug "..................."                
+                   ; Debug "Center mi\rcMonitor\right  :" + Str(mi\rcMonitor\right )
+                   ; Debug "Center mi\rcMonitor\bottom :" + Str(mi\rcMonitor\bottom )
+                   ; Debug "..................."                
                 EndIf
             EndIf   
             
             
-                    Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\Left )
-                    Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
-                    Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
-                    Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
-                    Debug "..................."
-                    Debug "Center W  :" + Str(W)
-                    Debug "Center H  :" + Str(H)
-                    Debug "Center mi\rcMonitor\right  - mi\rcMonitor\left - W: " + Str(mi\rcMonitor\right  - mi\rcMonitor\left - W)
-                    Debug "Center mi\rcMonitor\bottom - mi\rcMonitor\top  - H: " + Str(mi\rcMonitor\bottom - mi\rcMonitor\top  - H)
-                    Debug "..................."                    
+                   ; Debug "Center mi\rcMonitor\left  :" + Str(mi\rcMonitor\Left )
+                   ; Debug "Center mi\rcMonitor\right :" + Str(mi\rcMonitor\right )
+                   ; Debug "Center mi\rcMonitor\top   :" + Str(mi\rcMonitor\top )
+                   ; Debug "Center mi\rcMonitor\bottom:" + Str(mi\rcMonitor\bottom )
+                   ; Debug "..................."
+                   ; Debug "Center W  :" + Str(W)
+                   ; Debug "Center H  :" + Str(H)
+                   ; Debug "Center mi\rcMonitor\right  - mi\rcMonitor\left - W: " + Str(mi\rcMonitor\right  - mi\rcMonitor\left - W)
+                   ; Debug "Center mi\rcMonitor\bottom - mi\rcMonitor\top  - H: " + Str(mi\rcMonitor\bottom - mi\rcMonitor\top  - H)
+                   ; Debug "..................."                    
                     
             Left = mi\rcMonitor\Left + (mi\rcMonitor\right  - mi\rcMonitor\left - W) / 2
             Top  = mi\rcMonitor\top  + (mi\rcMonitor\bottom - mi\rcMonitor\top  - H) / 2         
-            Debug "Center Left :" + Str(left)
-            Debug "Center Top  :" + Str(Top )
-            Debug "..................."             
+            ;Debug "Center Left :" + Str(left)
+            ;Debug "Center Top  :" + Str(Top )
+            ;Debug "..................."             
             
             If (Top <= -1)
                 Top = 0
@@ -273,7 +273,7 @@ Module WinGuru
             Style_Limit(WindowID.i,W,H,#PB_Ignore ,#PB_Ignore )              
             SmartWindowRefresh(WindowID.i, UseSmart.l )
         Else
-            Debug "Fatal Error - Could Not Open Main Window"
+          ;  Debug "Fatal Error - Could Not Open Main Window"
             End
         EndIf                            
     EndProcedure
@@ -391,9 +391,9 @@ EndProcedure
     EndProcedure
 EndModule    
     
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 251
-; FirstLine = 177
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 74
+; FirstLine = 71
 ; Folding = n0
 ; EnableAsm
 ; EnableXP

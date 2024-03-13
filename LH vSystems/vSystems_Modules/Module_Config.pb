@@ -228,7 +228,8 @@ DeclareModule Startup
         Base_Pict.s{1024}           ;Databasee Datei, Covers,Screenshots
         Base_Strt.s{1024}           ;Databasee Datei, Enthält die Infos zum starten der Programme und Emulation
         SubF_Data.s{4096}           ;Unterverzeichnis für Daten "DATA"
-        SubF_vSys.s{4096}           ;Unterverzeichnis für Daten "VSYSDB"       
+        SubF_vSys.s{4096}			;Unterverzeichnis für Daten "VSYSDB"   
+        Base_Shot.s{4096}
         GameID.i                    ;RowID
         GameLS.i                    ;Beim Auflisten die Nummer der ListIcon Box Data asuwählen
         Switch.i                    ;Container Umschalter 0=Listbox;
@@ -863,6 +864,7 @@ Module Startup
          *LHGameDB\Base_Game            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\BASE.DB"
          *LHGameDB\Base_Pict            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\PICT.DB"
          *LHGameDB\Base_Strt            = *LHGameDB\Base_Path + "Systeme\Data\VSYSDB\STRT.DB"
+         *LHGameDB\Base_Shot            = *LHGameDB\Base_Path + "Systeme\SHOT\"
          *LHGameDB\UpdateSection        = -1
          *LHGameDB\DateFormat           = "%yyyy/%mm/%dd"
          *LHGameDB\PortablePath         = *LHGameDB\Base_Path
@@ -992,8 +994,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 933
-; FirstLine = 724
+; CursorPosition = 231
+; FirstLine = 139
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

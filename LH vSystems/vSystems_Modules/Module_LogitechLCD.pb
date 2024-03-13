@@ -738,8 +738,8 @@ CompilerIf #PB_Compiler_IsMainFile
 CompilerEndIf
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 146
-; FirstLine = 108
+; CursorPosition = 34
+; FirstLine = 30
 ; Folding = --v-
 ; EnableAsm
 ; EnableThread

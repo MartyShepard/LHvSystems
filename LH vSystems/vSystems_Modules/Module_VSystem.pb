@@ -117,12 +117,12 @@ Module vSystem
         HiProcess = OpenProcess_(#PROCESS_QUERY_INFORMATION| #PROCESS_VM_READ, 0, uPID)
         If ( HiProcess )
             Select GetPriorityClass_( HiProcess )
-                Case #IDLE_PRIORITY_CLASS         :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Niedrig"
-                Case #BELOW_NORMAL_PRIORITY_CLASS :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Niedriger als normal"
-                Case #NORMAL_PRIORITY_CLASS       :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Normal"
-                Case #ABOVE_NORMAL_PRIORITY_CLASS :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Höher als normal"
-                Case #HIGH_PRIORITY_CLASS         :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Hoch"
-                Case #REALTIME_PRIORITY_CLASS     :Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Echtzeit"
+                Case #IDLE_PRIORITY_CLASS         ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Niedrig"
+                Case #BELOW_NORMAL_PRIORITY_CLASS ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Niedriger als normal"
+                Case #NORMAL_PRIORITY_CLASS       ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Normal"
+                Case #ABOVE_NORMAL_PRIORITY_CLASS ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Höher als normal"
+                Case #HIGH_PRIORITY_CLASS         ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Hoch"
+                Case #REALTIME_PRIORITY_CLASS     ;:Debug "Priorität für " + szTaskName + " : (PID: "+ Str(uPID) +") - Echtzeit"
             EndSelect 
             CloseHandle_( HiProcess )            
         EndIf
@@ -274,14 +274,14 @@ Module vSystem
     ;
     Procedure   System_MemoryFree_Debug( List P32.PROCESSENTRY32(), szTaskname.s, PHandle.l, Result.i, Pid.l)
         
-        Debug "Free Ram : " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
-              " | Handle  : " + Str( PHandle)              + #TAB$ + 
-              " | Result  : " + Str( Result )              +
-              " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
-              " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
-              " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
-              " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
-              " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))             
+       ; Debug "Free Ram : " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
+       ;       " | Handle  : " + Str( PHandle)              + #TAB$ + 
+       ;       " | Result  : " + Str( Result )              +
+       ;       " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
+       ;       " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
+       ;       " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
+       ;       " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
+       ;       " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))             
     EndProcedure     
     ;
     ;
@@ -292,9 +292,9 @@ Module vSystem
         
         If ( Startup::*LHGameDB\Settings_Schwelle > 0 )
             PageDefault = 1048576
-            Debug "System Memory Free: Schwellenwert (Bytes) Minimum: " + Str( PageDefault ) + " - Maxmimum: "+ Str( Startup::*LHGameDB\Settings_Schwelle )
+           ; Debug "System Memory Free: Schwellenwert (Bytes) Minimum: " + Str( PageDefault ) + " - Maxmimum: "+ Str( Startup::*LHGameDB\Settings_Schwelle )
         Else
-            Debug "System Memory Free: Vollständig Clear Memory Cache)"
+           ; Debug "System Memory Free: Vollständig Clear Memory Cache)"
         EndIf   
         
                 
@@ -728,7 +728,7 @@ Module vSystem
             Debug "MenuIdx:" + Str( CompatibilitySystem()\MenuIndex) + #TAB$ + LSet( CompatibilitySystem()\OSModus$, 24, Chr(32) ) + "Num: " +  Str( CompatibilitySystem()\OSIDX)
             
             If ( CompatibilitySystem()\MenuIndex = MenuID )
-                Debug #CR$ + "Benutze: " + CompatibilitySystem()\OSModus$
+             ;   Debug #CR$ + "Benutze: " + CompatibilitySystem()\OSModus$
                 
                 sCmdString = GetGadgetText( DC::#String_103 )
                 If Len( sCmdString ) > 0
@@ -760,10 +760,10 @@ Module vSystem
         
         While NextElement(CompatibilityEmulation())
             
-            Debug "MenuIdx:" + Str( CompatibilityEmulation()\MenuIndex) + #TAB$ + LSet( CompatibilityEmulation()\Emulation$, 24, Chr(32) ) + "Num: " +  Str( CompatibilityEmulation()\EMUIDX)
+          ;  Debug "MenuIdx:" + Str( CompatibilityEmulation()\MenuIndex) + #TAB$ + LSet( CompatibilityEmulation()\Emulation$, 24, Chr(32) ) + "Num: " +  Str( CompatibilityEmulation()\EMUIDX)
             
             If ( CompatibilityEmulation()\MenuIndex = MenuID )
-                Debug #CR$ + "Benutze: " + CompatibilityEmulation()\Emulation$
+             ;   Debug #CR$ + "Benutze: " + CompatibilityEmulation()\Emulation$
                 
                 sCmdString = GetGadgetText( DC::#String_103 )
                 If Len( sCmdString ) > 0
@@ -795,10 +795,10 @@ Module vSystem
         
         While NextElement(UnrealCommandline())
             
-            Debug "MenuIdx:" + Str( UnrealCommandline()\MenuIndex) + #TAB$ + LSet( UnrealCommandline()\UDKModus$, 24, Chr(32) ) + "Num: " +  Str( UnrealCommandline()\UDKIDX)
+          ;  Debug "MenuIdx:" + Str( UnrealCommandline()\MenuIndex) + #TAB$ + LSet( UnrealCommandline()\UDKModus$, 24, Chr(32) ) + "Num: " +  Str( UnrealCommandline()\UDKIDX)
             
             If ( UnrealCommandline()\MenuIndex = MenuID )
-                Debug #CR$ + "Benutze: " + UnrealCommandline()\UDKModus$
+              ;  Debug #CR$ + "Benutze: " + UnrealCommandline()\UDKModus$
                 
                 sCmdString = GetGadgetText( DC::#String_103 )
                 If Len( sCmdString ) > 0
@@ -1179,7 +1179,7 @@ Module vSystem
         
         If  ( Startup::*LHGameDB\NBWindowhwnd > 0 )
             
-            Debug "Capture Screenshot"
+          ;  Debug "Capture Screenshot"
             
             Protected Window.RECT, Client.RECT, Directory.s =  Startup::*LHGameDB\Base_Path + "Systeme\", ImageFileName.s 
                        	            
@@ -1212,12 +1212,12 @@ Module vSystem
             
             
             If ( CaptureWindow(ImageFileName.s) = 0)
-            	Debug "ERROR ON CAPTURE: " + ImageFileName  
+            	;Debug "ERROR ON CAPTURE: " + ImageFileName  
             	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread_ERROR(), 5000)
             	Beep_(250,200) 
             	Delay(1250)
             Else
-            	Debug "CAPTURED: " + ImageFileName
+            	;Debug "CAPTURED: " + ImageFileName
             	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 5000)
             	Beep_(450,100)  
             	Delay(1250)            	
@@ -1271,7 +1271,7 @@ Module vSystem
              sTextLastLine.s = ""
              
              If ( Startup::*LHGameDB\Settings_Affinity => 0)
-             	Debug Startup::*LHGameDB\Settings_Affinity
+             	;Debug Startup::*LHGameDB\Settings_Affinity
              	sTextLastLine + "|CPU-"+Str(Startup::*LHGameDB\Settings_Affinity)
              EndIf 
              
@@ -1439,10 +1439,10 @@ EndModule
 ;     		SetWindowPlacement_(handle,@MyWindpl) 
 ;     	EndIf 
 ;     EndProcedure 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 870
-; FirstLine = 534
-; Folding = jBzDhF-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 32
+; FirstLine = 20
+; Folding = zxz8hF-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
