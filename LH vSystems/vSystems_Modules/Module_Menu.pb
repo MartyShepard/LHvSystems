@@ -2607,8 +2607,7 @@ Module INVMNU
     			Startup::*LHGameDB\SortXtendMode = #False
     			VEngine::Thread_LoadGameList_Sort()
     			
-    		Case 4  			    				
-    			
+    		Case 4  			    				    			
     			VEngine::Thread_LoadGameList_Sort()     				
     					
     		Case 45
@@ -2623,9 +2622,7 @@ Module INVMNU
     			
     			If ( bReloadSort = #True )
     				VEngine::Thread_LoadGameList_Action() 			
-    			EndIf	
-    			
-    			VEngine::Thread_LoadGameList_Sort()            	
+    			EndIf          	
     			
     		Case 46    			
     			bReloadSort.i = #False
@@ -2640,8 +2637,6 @@ Module INVMNU
     			If ( bReloadSort = #True )
     				VEngine::Thread_LoadGameList_Action() 			
     			EndIf	
-    			
-    			VEngine::Thread_LoadGameList_Sort() 
     			
     		Case 7                               
     			r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
@@ -2933,9 +2928,9 @@ Module INVMNU
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2616
-; FirstLine = 2355
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 2609
+; FirstLine = 2349
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

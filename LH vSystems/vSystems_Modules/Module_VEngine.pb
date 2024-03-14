@@ -1402,21 +1402,21 @@ Module VEngine
              
              
              ReleaseYear.s = ExecSQL::nRow(DC::#Database_001,"Gamebase","Release","",ExecSQL::_IOSQL()\nRowID,"",1) 
-                          
+             
              If ( Startup::*LHGameDB\SortMode = 5)
-             		Startup::*LHGameDB\SortXtendMode = #True
+             	Startup::*LHGameDB\SortXtendMode = #True
              	
-             		ButtonEx::Settext(DC::#Button_028, 0, "Release")             	
-             		ButtonEx::Settext(DC::#Button_028, 1, "Release")
+             	ButtonEx::Settext(DC::#Button_028, 0, "Release")             	
+             	ButtonEx::Settext(DC::#Button_028, 1, "Release")
              	
-             		AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +ReleaseYear)             	
+             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +LSet(ReleaseYear,10, Chr(32)))             	
              Else             	
-             		Startup::*LHGameDB\SortXtendMode = #False             	
-             		ButtonEx::Settext(DC::#Button_028, 0, "Program")             	
-             		ButtonEx::Settext(DC::#Button_028, 1, "Program")               	
-             		
-              		AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$)
-			 EndIf	
+             	Startup::*LHGameDB\SortXtendMode = #False             	
+             	ButtonEx::Settext(DC::#Button_028, 0, "Program")             	
+             	ButtonEx::Settext(DC::#Button_028, 1, "Program")               	
+             	
+             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$)
+             EndIf	
                           
              SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID) 
              Thread_HTTP_MAME_Roms_DoEvents() 
@@ -2455,13 +2455,16 @@ Module VEngine
             PrgDesc$ = ExecSQL::nRow(DC::#Database_001,"Programs","ExShort_Name","",id,"",1) 
         EndIf
         
+        If ( Startup::*LHGameDB\SortMode = 5)
+        			PrgDesc$ = LSet(DMMYYYY$, 10, Chr(32) )
+        EndIf	        
         
         Database_Set_ProgramTitle(DC::#String_006)          
         Database_Set_ProgramArgs(DC::#String_007)      
         
         SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),FsTitle$ ,0)
         SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),Pltform$ ,1)
-        SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),Lnguage$ ,2)
+        SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),Lnguage$ ,2)                                               
         SetGadgetItemText(DC::#ListIcon_001 ,GetGadgetState(DC::#ListIcon_001),PrgDesc$ ,3)        
         
     EndProcedure     
@@ -7477,9 +7480,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1638
-; FirstLine = 1601
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 1411
+; FirstLine = 1363
 ; Folding = 8-------f6--b+h-
 ; EnableAsm
 ; EnableXP

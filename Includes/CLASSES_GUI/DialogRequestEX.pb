@@ -347,7 +347,7 @@ DeclareModule Request
       ;
       ;________________________________________________________________________________________________________________________________          
       Procedure MSG_Internal_Image()
-          Protected nCountIcons, iMax, ImagePosY.i,cnIcons.i, ico.i, pIcon.l = -1
+          Protected nCountIcons, iMax, ImagePosY.i,cnIcons.i, ico.i, pIcon.l = 0
           
           Structure SHELLICONLIST
               hLarge.l
@@ -368,27 +368,49 @@ DeclareModule Request
           If ( Len(*MsgEx\Icon_Program) >= 1 ) And ( FileSize(*MsgEx\Icon_Program) >= 1 )
               
               ; GetIcons
-              cnIcons = ExtractIconEx_(*MsgEx\Icon_Program,-1,0,0,0)
+          	cnIcons = ExtractIconEx_(*MsgEx\Icon_Program,-1,0,0,0)
+          	Debug "DialogReuestEX: ExtracIconEx_ " + Str(cnIcons)
               For ico = 0 To cnIcons -1
                   AddElement(nCountIcons())
                   ExtractIconEx_(*MsgEx\Icon_Program,ico, @nCountIcons()\hLarge.l, @nCountIcons()\hSmall, cnIcons)
               Next  
               
               ResetList( nCountIcons() )
-              ForEach nCountIcons()
-                  If ( nCountIcons()\hLarge >= 1 )
-                      pIcon = nCountIcons()\hLarge
-                      Break;
-                  Else
-                    If ( nCountIcons()\hSmall >= 1 )
-                          pIcon = nCountIcons()\hSmall
-                        Break
-                    EndIf              
-                 EndIf   
-              Next  
-              FreeList( nCountIcons() )           
+              Debug "DialogReuestEX: nCountIcons() " + Str(ListSize ( nCountIcons() ))
+              If ListSize ( nCountIcons() ) > 0
+              	
+              	While NextElement( nCountIcons() )
+              		
+              		 If Not ( nCountIcons()\hLarge = 0 )
+              			pIcon = nCountIcons()\hLarge
+              			Debug "DialogReuestEX: Handle hLarge" + Str(pIcon)
+              			Break
+              			
+              		ElseIf Not ( nCountIcons()\hSmall = 0 )
+              			pIcon = nCountIcons()\hSmall
+              			Debug "DialogReuestEX: Handle hSmall" + Str(pIcon)
+              			Break
+              		EndIf
+              				
+              	Wend	
+              	FreeList( nCountIcons() )  
+              EndIf
+;               	ForEach nCountIcons()
+;               		If ( nCountIcons()\hLarge >= 1 )
+;               			pIcon = nCountIcons()\hLarge
+;               			Debug "DialogReuestEX: Handle hLarge" + Str(pIcon)
+;               			Break;
+;               		Else
+;               			If ( nCountIcons()\hSmall >= 1 )
+;               				pIcon = nCountIcons()\hSmall
+;               				Debug "DialogReuestEX: Handle hSmall" + Str(pIcon)
+;               				Break
+;               			EndIf              
+;               		EndIf   
+;               	Next  
+                      
               
-              If ( pIcon >= 1 )                  
+              If Not ( pIcon = 0 )                   
                   CreateImage(#REXICB,40,40, 32)           
                   StartDrawing(ImageOutput(#REXICB))
                   DrawingMode(#PB_2DDrawing_AllChannels)
@@ -1297,10 +1319,10 @@ CompilerIf #PB_Compiler_IsMainFile
 
 
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 802
-; FirstLine = 558
-; Folding = HCw-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 349
+; FirstLine = 243
+; Folding = HC5-
 ; EnableAsm
 ; EnableThread
 ; EnableXP
