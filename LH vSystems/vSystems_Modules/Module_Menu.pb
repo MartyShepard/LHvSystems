@@ -2796,8 +2796,11 @@ Module INVMNU
     	
             MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
             MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))
+            MenuBar()             
+            MenuItem(44 , "Tool : Informationen hinzufügen" 	  	,ImageID( DI::#_MNU_MAM ))             
+            MenuBar()   
             MenuItem(43 , "Tool : Backup aus dem Internet" 	      	,ImageID( DI::#_MNU_MAM ))
-            MenuItem(44 , "Tool : Information auffüllen" 	       	,ImageID( DI::#_MNU_MAM ))    
+     
             
             If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
@@ -2873,9 +2876,9 @@ Module INVMNU
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2751
-; FirstLine = 2478
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 2799
+; FirstLine = 2535
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

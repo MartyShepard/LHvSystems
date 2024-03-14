@@ -7277,7 +7277,7 @@ EndProcedure
 		EndIf 
 		 
     	
-		Directory.s = FFH::GetPathPBRQ("Quelle Code Verzeichnis Auswählen",Startup::*LHGameDB\Base_Path)
+		Directory.s = FFH::GetPathPBRQ("Quelle Code Verzeichnis Auswählen",Startup::*LHGameDB\FolderMameSource)
 		If ( Len( Directory ) = 0 )
     		  HideGadget(DC::#Text_004,1)
     		  SetGadgetText(DC::#Text_004,"")				
@@ -7290,7 +7290,7 @@ EndProcedure
     	; Verzeichnis des Source Codes
     	MameCodeDirectory.s = Directory;"B:\MSYS2_MAME\src\Mame\"
     	MameCodeMaschines.s = "src\mame\"
-    	SourceDirectory.s   = MameCodeDirectory + MameCodeMaschines
+    	Startup::*LHGameDB\FolderMameSource  = MameCodeDirectory + MameCodeMaschines
     	   	
     	;
 		;
@@ -7301,14 +7301,14 @@ EndProcedure
     		FirstElement( DIL() )	
     	;EndIf	
     	
-    	If FileSize(SourceDirectory) = -2
+    	If FileSize(Startup::*LHGameDB\FolderMameSource ) = -2
     		
     		SetGadgetText(DC::#Text_003,".. do Filelist ..")
     		SetGadgetText(DC::#Text_004,"M.A.M.E.: Dateien suche ...")
     		
 			FFS::DelContent()
     		
-    		FFS::GetContent(SourceDirectory,#True, #True, #True,"","*.cpp",0,#True,100,"")
+    		FFS::GetContent(Startup::*LHGameDB\FolderMameSource ,#True, #True, #True,"","*.cpp",0,#True,100,"")
     		FFS::SortContent()
     		SetGadgetText(DC::#Text_004,"")
     		ResetList(FFS::FullFileSource())
@@ -7324,7 +7324,7 @@ EndProcedure
     		Startup::*LHGameDB\Base_Shot = Startup::*LHGameDB\Base_Path + "Systeme\Shot\"
     		
     		If ( ListSize(  *Params\MSIC() ) = 0 )
-    			Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Keine Dateien gefunden [" + Str( ListSize(  *Params\MSIC() )) + "]" + #CRLF$ + SourceDirectory ,2,0,"",0,0,DC::#_Window_001)
+    			Request::MSG(Startup::*LHGameDB\TitleVersion, "Ausgeführt!" , "Keine Dateien gefunden [" + Str( ListSize(  *Params\MSIC() )) + "]" + #CRLF$ + Startup::*LHGameDB\FolderMameSource  ,2,0,"",0,0,DC::#_Window_001)
     		  	HideGadget(DC::#Text_004,1)
     		  	SetGadgetText(DC::#Text_004,"")				
 			  	MAME_End_Procedure()
@@ -7415,9 +7415,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7121
-; FirstLine = 5921
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 7279
+; FirstLine = 6062
 ; Folding = 8----v--f6--b+h-
 ; EnableAsm
 ; EnableXP

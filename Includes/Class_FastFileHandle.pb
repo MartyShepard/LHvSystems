@@ -28,7 +28,7 @@
         Declare.s GetClSIDVariable(Path$) 
         Declare.s SetClSIDVariable(Path$)        
         Declare.i ForceCreateDirectories(Path$)        
-        Declare.i CreateShortenedPath(GadgetID.L, Path.S, Handle.l, OptString$ = "")
+        Declare.i CreateShortenedPath(GadgetID.L, Path.S, Handle.l, OptString$ = "", Width.i = 10)
         Declare   PathPartsExt(sText.s, List CharList.s(), sChar$ = Chr(92))
         
         Declare.i GetDriveTypCheck(Drive$)
@@ -667,14 +667,14 @@ Module FFH
     
     
     
-    Procedure CreateShortenedPath(GadgetID.L, Path.S, Handle.l, OptString$ = "")
+    Procedure CreateShortenedPath(GadgetID.L, Path.S, Handle.l, OptString$ = "", Width.i = 10)
         Protected hDC.L
         Protected Result.L
                                 
         hDC = GetDC_(GadgetID(GadgetID))
         
         If hDC <> #False
-            Result = PathCompactPath_(hDC, @Path, Int((GadgetWidth(GadgetID) - 10) / 72.0 * GetDeviceCaps_(hDC, #LOGPIXELSX)))
+            Result = PathCompactPath_(hDC, @Path, Int((GadgetWidth(GadgetID) - Width) / 72.0 * GetDeviceCaps_(hDC, #LOGPIXELSX)))
             SetGadgetText(GadgetID, OptString$ + Path)
             ReleaseDC_(WindowID(Handle), hDC)
         EndIf
@@ -2076,9 +2076,9 @@ CompilerEndIf
     
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 23
-; FirstLine = 6
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 30
+; FirstLine = 11
 ; Folding = vPpBx4-
 ; EnableAsm
 ; EnableXP

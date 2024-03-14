@@ -113,27 +113,47 @@ Module FFS
     ;________________________________________________________________________________________________________________________________ 
     Procedure ToolWindow_GuiObjects_1(ChangedX,ChangedY,WindowsX,ToolGameIcon$)
         
-        OpenToolTip_Window(ChangedX,ChangedY) 
-        
+         ; Alpha Wert unterschied zum Hintergrund 14
+    	Protected vAlpha = 14
+    	Protected vBackGround_RGBA.l = RGBA(17-vAlpha, 17-vAlpha, 17-vAlpha,0)
+    	Protected HNDIcon.l = 0
+    	Protected IconBackground.l
+    	
         CanvasGadget(#_NotifyCanvas,0, 0, 284, 101)    
-        StartDrawing(CanvasOutput(#_NotifyCanvas)): DrawImage(ImageID(#_Notify_Image), 0, 0): StopDrawing()
+        	StartDrawing(CanvasOutput(#_NotifyCanvas))
+        	DrawImage(ImageID(#_Notify_Image), 0, 0)
+        	StopDrawing()
         DisableGadget(#_NotifyCanvas, #True) 
         
-        ButtonImageGadget(#_Notify__Icon, 9, 3, 40, 40, 0)
-        SetGadgetAttribute(#_Notify__Icon,#PB_Button_Image ,ExtractIcon_(0,ToolGameIcon$,0))
+        HNDIcon = ExtractIcon_(0,ToolGameIcon$,0)
         
-        TextGadget(#_NotifyString1, 60, 11, 200, 13, "Please Wait", #PB_Text_Center)
+         If Not ( HNDIcon = 0 )                  
+            	IconBackground = CreateImage(#PB_Any,40,40, 32)           
+                StartDrawing(ImageOutput(IconBackground))
+                DrawingMode(#PB_2DDrawing_AllChannels)
+                DrawImage(HNDIcon,0,0,40,40)
+                StopDrawing()                 
+         EndIf 
+
+		ImageGadget(#_Notify__Icon,  9, 4, 40, 40, ImageID(IconBackground))
+        
+        TextGadget(#_NotifyString1, 57, 28, 207, 16, "Please Wait", #PB_Text_Center)
         SetGadgetFont(#_NotifyString1, FontID(Fonts::#_FIXPLAIN7_12))
-        SetGadgetColor(#_NotifyString1, #PB_Gadget_BackColor,RGBA(71, 71, 71,0)):   SetGadgetColor(#_NotifyString1, #PB_Gadget_FrontColor,RGBA(255, 255, 255, 0));                                        
         
-        TextGadget(#_NotifyString2, 12, 45, 220, 16, "")
-        SetGadgetFont(#_NotifyString2, FontID(Fonts::#_SEGOEUI10N))
-        SetGadgetColor(#_NotifyString2, #PB_Gadget_BackColor,RGBA(226, 226, 227,0)): SetGadgetColor(#_NotifyString2, #PB_Gadget_FrontColor,RGBA(0, 0, 0, 0));   
+        SetGadgetColor(#_NotifyString1, #PB_Gadget_BackColor,vBackGround_RGBA )
+        SetGadgetColor(#_NotifyString1, #PB_Gadget_FrontColor,RGBA(120, 163, 188, 0));                                        
         
-        TextGadget(#_NotifyString3, 12, 71, 262, 14, "",#SS_LEFTNOWORDWRAP)
-        SetGadgetFont(#_NotifyString3, FontID(Fonts::#_SEGOEUI10N)) 
-        SetGadgetColor(#_NotifyString3, #PB_Gadget_BackColor,RGBA(71, 71, 71,0)):SetGadgetColor(#_NotifyString3, #PB_Gadget_FrontColor,RGBA(255, 255, 255, 0)); 
-                                                                                                                                                              ;         
+        TextGadget(#_NotifyString2, 9, 40, 220, 20, "")
+        SetGadgetFont(#_NotifyString2, FontID(Fonts::#_FIXPLAIN7_12))
+        SetGadgetColor(#_NotifyString2, #PB_Gadget_BackColor,vBackGround_RGBA)
+        SetGadgetColor(#_NotifyString2, #PB_Gadget_FrontColor,RGBA(113, 147, 165, 0));   
+        
+        TextGadget(#_NotifyString3, 9, 62, 264, 20, "",#SS_LEFTNOWORDWRAP)
+        SetGadgetFont(#_NotifyString3, FontID(Fonts::#_FIXPLAIN7_12)) 
+        
+        SetGadgetColor(#_NotifyString3, #PB_Gadget_BackColor,vBackGround_RGBA)
+        SetGadgetColor(#_NotifyString3, #PB_Gadget_FrontColor,RGBA(200, 200, 200, 0)); 
+       
                                                                                                                                                               ;         ProgressBarGadget(DC::#_PROGRESS_01,10, 76, WindowsX-20,  15, 1, Progress_iMax_Files.l, #PB_ProgressBar_Smooth)
     EndProcedure  
     
@@ -148,7 +168,9 @@ Module FFS
             ToolGameIcon$ = ProgramFilename()
         EndIf
         
-        If Transparenz.l < 1: Transparenz.l = 220: EndIf
+        If Transparenz.l < 1
+        	Transparenz.l = 220
+        EndIf
         
         SystemParametersInfo_(#SPI_GETWORKAREA,0,@DesktopWorkArea.RECT,0)
         
@@ -170,13 +192,22 @@ Module FFS
         EndIf    
         
         OpenToolTip_Window()
-        WindowsX = WindowWidth(#_NotifyWindow): WindowsY = WindowHeight(#_NotifyWindow): CloseWindow(#_NotifyWindow)
+        WindowsX = WindowWidth(#_NotifyWindow)
+        WindowsY = WindowHeight(#_NotifyWindow)
+        CloseWindow(#_NotifyWindow)
         
-        ChangedX = Primary_ScreenX-WindowsX-6: ChangedY = Primary_ScreenY-WindowsY-6  
-        ToolWindow_GuiObjects_1(ChangedX,ChangedY,WindowsX,ToolGameIcon$)
+        ChangedX = Primary_ScreenX-WindowsX-6
+        ChangedY = Primary_ScreenY-WindowsY-6  
+        
+        OpenToolTip_Window(ChangedX,ChangedY)
         
         SetWindowLongPtr_(WindowID(#_NotifyWindow),#GWL_EXSTYLE,GetWindowLongPtr_(WindowID(#_NotifyWindow),#GWL_EXSTYLE) | #WS_EX_LAYERED)
+        
         SetLayeredWindowAttributes_(WindowID(#_NotifyWindow), 0,  Transparenz, #LWA_ALPHA) 
+        
+        ToolWindow_GuiObjects_1(ChangedX,ChangedY,WindowsX,ToolGameIcon$)
+        
+        StickyWindow(#_NotifyWindow,1)
     EndProcedure            
     
     ;/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,7 +429,7 @@ Module FFS
                             If (*Params\Time_Current >= *Params\DisplayTime) And (*Params\DisplayGui.i = #True)
                                 SetGadgetText(#_NotifyString2,*Params\Searching$ ): Debug *Params\iDirectory
                                 
-                                FFH::CreateShortenedPath(#_NotifyString3,FileName$, #_NotifyWindow)
+                                FFH::CreateShortenedPath(#_NotifyString3,FileName$, #_NotifyWindow,"", 178)
                             EndIf
                             
                             *Params\iDirectory          = FileName$
@@ -794,10 +825,10 @@ CompilerIf #PB_Compiler_IsMainFile
     
     
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 133
-; FirstLine = 107
-; Folding = XAw
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 431
+; FirstLine = 315
+; Folding = -A+
 ; EnableAsm
 ; EnableThread
 ; EnableXP

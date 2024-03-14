@@ -338,6 +338,7 @@ DeclareModule Startup
         InfoWindow.OBJECT_EDIT_WINDOW; Einstellungen für das Infor Fenster
         aUseless.s
         FolderWWW.s
+        FolderMameSource.s
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
@@ -934,6 +935,7 @@ Module Startup
          *LHGameDB\bvSystem_Restart     = #False
          *LHGameDB\aUseless     		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
          *LHGameDB\FolderWWW			= *LHGameDB\Base_Path + "Systeme\INET\"
+         *LHGameDB\FolderMameSource		= "B:\MSYS2_MAME\src\Mame\"; *LHGameDB\Base_Path
          
          ; Lösche Das Update Modul
           If FileSize(*LHGameDB\Base_Path + "_UpdateModul_.exe" )
@@ -993,9 +995,9 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 231
-; FirstLine = 139
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 937
+; FirstLine = 709
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP
