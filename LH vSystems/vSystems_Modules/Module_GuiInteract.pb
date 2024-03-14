@@ -130,13 +130,15 @@ Module Interact
         VEngine::Switcher_Pres_List(DC::#Button_023)          
         ;
         ; Fenster Anzeigen
-  
+        
+        ;
+        ; Sortier Modus Configuration Laden
+        VEngine::Thread_LoadGameList_Sort(#False)        
         
         VEngine::Thread_LoadGameList_Action()                  
-
+        
         ;
-        ; Sortier Modus
-        VEngine::Thread_LoadGameList_Sort(#False)
+        ; Sortier Modus Anwenden        
         VEngine::Thread_LoadGameList_Sort() 
         
        
@@ -258,12 +260,16 @@ Module Interact
                             EndIf
                             
                         Case #VK_F4                                                       
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False)                            
-                                Startup::*LHGameDB\SortMode = 3
-                                VEngine::Thread_LoadGameList_Sort() 
-                                Continue
-                            EndIf
-                            
+                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False)                            
+                        			If 	(Startup::*LHGameDB\SortMode <= 4)
+                        				Startup::*LHGameDB\SortMode = 3
+                        			Else
+                        				Startup::*LHGameDB\SortMode = 5
+                        			EndIf
+                              VEngine::Thread_LoadGameList_Sort()
+                              Continue
+                            EndIf                                             
+                        	
                         Case #VK_RETURN                                                       
                             If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And ( GetActiveGadget() = DC::#ListIcon_001 )
                                 VEngine::DOS_Prepare()
@@ -550,7 +556,14 @@ Module Interact
                                         Case DC::#Button_025: Startup::*LHGameDB\SortMode = 0: VEngine::Thread_LoadGameList_Sort():Continue                                            
                                         Case DC::#Button_026: Startup::*LHGameDB\SortMode = 1: VEngine::Thread_LoadGameList_Sort():Continue   
                                         Case DC::#Button_027: Startup::*LHGameDB\SortMode = 2: VEngine::Thread_LoadGameList_Sort():Continue  
-                                        Case DC::#Button_028: Startup::*LHGameDB\SortMode = 3: VEngine::Thread_LoadGameList_Sort():Continue                                                                                          
+                                        Case DC::#Button_028:
+                                        	If ( Startup::*LHGameDB\SortXtendMode = #True )
+                                        		Startup::*LHGameDB\SortMode = 5
+                                        	Else	
+                                        		Startup::*LHGameDB\SortMode = 3
+                                        	EndIf
+                                        	VEngine::Thread_LoadGameList_Sort()
+                                        	Continue                                                                                          
                                     EndSelect                                                                                                      
                             EndSelect                            
                             
@@ -745,8 +758,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 391
-; FirstLine = 339
+; CursorPosition = 263
+; FirstLine = 682
 ; Folding = --
 ; EnableAsm
 ; EnableXP

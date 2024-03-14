@@ -2563,173 +2563,219 @@ Module INVMNU
     ;
     ;*******************************************************************************************************************************************************************    
     Procedure Get_TrayMenu(MenuID.i)
-        Select MenuID.i              
-            Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
-            Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
-            Case 8:  vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
-            Case 11: vDiskPath::ReConstrukt(4, #False); Search for All on Slot 4 
-            Case 12: vDiskPath::ReConstrukt(1, #True ); Search for Current Item on Slot 1
-            Case 13: vDiskPath::ReConstrukt(2, #True ); Search for Current Item on Slot 2                 
-            Case 14: vDiskPath::ReConstrukt(3, #True ); Search for Current Item on Slot 3
-            Case 15: vDiskPath::ReConstrukt(4, #True ); Search for Current Item on Slot 4   
-            Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow() 
-            Case 17: VEngine::Database_Remove(1,#True)  
-            Case 30: DesktopEX::CloseExplorer() 
-            Case 32: DesktopEX::SetTaskBar()
-            Case 35: vEngine::ServiceOption("uxsms", #False)                 
-            Case 34: vEngine::ServiceOption("uxsms", #True) 
-            Case 40: vEngine::MAME_Driver_Import()             	        
-            Case 41: vEngine::MAME_Roms_Check_Import()
-            Case 42: vEngine::MAME_Roms_Check()            	
-            Case 43: vEngine::MAME_Roms_Backup() 
-            Case 44: vEngine::MAME_Roms_GetInfos() 
-            	
-                ; Resetet die Fenster Position
-            Case 20
-                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosX", Str(0),1)    
-                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosY", Str(0),1)                
-                Startup::*LHGameDB\WindowPosition\X = 0
-                Startup::*LHGameDB\WindowPosition\Y = 0         
-                WinGuru::WindowPosition(DC::#_Window_001,Startup::*LHGameDB\WindowPosition\X,Startup::*LHGameDB\WindowPosition\Y)
-                
-            Case 1 :Startup::*LHGameDB\SortMode = 0: VEngine::Thread_LoadGameList_Sort()
-            Case 2 :Startup::*LHGameDB\SortMode = 1: VEngine::Thread_LoadGameList_Sort()
-            Case 3 :Startup::*LHGameDB\SortMode = 2: VEngine::Thread_LoadGameList_Sort()
-            Case 4 :Startup::*LHGameDB\SortMode = 3: VEngine::Thread_LoadGameList_Sort() 
-                
-            Case 7                               
-                r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
-                If ( r = 1 )                   
-                    SetActiveGadget(DC::#ListIcon_001)                
-                    ProcedureReturn
-                EndIf
-                Startup::*LHGameDB\bvSystem_Restart = #True
-                
-                vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
-                VEngine::Splitter_SetAll()
-               ; vEngine::Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
-               ; wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
-               ; sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
-                
-               ; If ( nHeight = 0)                          
-               ;     sHeight = 289
-               ; ElseIf ( nHeight > WHeight)  
-               ;     sHeight = Abs((wHeight+nHeight) +  sHeight)
-               ; ElseIf  ( nHeight < WHeight)
-               ;     sHeight = Abs((wHeight-nHeight) -  sHeight)
-               ; EndIf   
-                
-                ;Debug "Fenster Höhe ändern: "
-                ;Debug "Manuelle Eingabe: " + Str(Val(Request::*MsgEx\Return_String) )
-                ;Debug "Fensterhöhe     : " + Str(wHeight)
-                ;Debug "Splitterhöhe    : " + Str(GetGadgetState(DC::#Splitter1) )
-                ;Debug "................: "
-                ;Debug "Neue Fensterhöhe: " + Str(wHeight)
-                ;Debug "Neue Splitterhöhe: " + Str(sHeight)
-                ;Debug "................: "               
-                                
-                Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
-
-                
-                ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
-                ; Splitter Höhe
-                ;ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
-                ;ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
-                
-                
-                
-                a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
-                Delay( 5 )
-                If ( a > 0 )
-                    WriteStringN(a, "Restart..")
-                    RunProgram(ProgramFilename())               
-                    End
-                Else
-                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem beim Anlegen der Textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
-                EndIf    
-
-            Case 9 : vFont::SetDB(1) 
-            Case 10: vFont::SetDB(2)                 
-            Case 98: vUpdate::Update_Check()
-                
-            Case 18:
-                File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt"
-                If FileSize(File) <> -1
-                    FFH::ShellExec(File, "open")
-                Else
-                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-                EndIf    
-                
-            Case 19: 
-                File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt"
-                If FileSize(File) <> -1
-                    FFH::ShellExec(File, "open")
-                Else
-                   Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-                EndIf 
-                
-            Case 21:
-                Path.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
-                If FileSize(Path) = -2
-                    FFH::ShellExec(Path, "explore")
-                Else
-                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
-                EndIf
-                
-            Case 22:
-                Path.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
-                If FileSize(Path) = -2
-                    FFH::ShellExec(Path, "explore")
-                Else
-                    Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
-                EndIf                 
-                
-            Case 200 To 300
-                FFH::ShellExec(GetMenuItemText(CLSMNU::*MNU\HandleID[0], MenuID), "open")
-                
-            Case 23
-                ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"                
-                ShotSize.i = 0
-                
-                ShotSize = vItemTool::File_GetFiles(ShotPath)
-                If  (ShotSize > 0 )
-                    
-                    Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Löschen?","Alle Snapshot Dateie(n) löschen? ("+Str(ShotSize)+") " + #CR$ + "Pfad: " + ShotPath,11,2,"",0,0,DC::#_Window_001)
-                    If (Result = 0)                
-                        While NextElement(FFS::FullFileSource())
-                            Delay( 5 )
-                            DeleteFile( FFS::FullFileSource()\FileName )
-                        Wend
-                    EndIf    
-                    ClearList( FFS::FullFileSource() )
-                    
-                    Delay( 5 )
-                    ShotSize = vItemTool::File_GetFiles(ShotPath)
-                    If ( ShotSize > 0 )
-                        Request::MSG(Startup::*LHGameDB\TitleVersion, "Fehler", "Konnte alle Snapshot Dateie(n) nicht löschen" ,2,1,"",0,0,DC::#_Window_001 )
-                    Else
-                        Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
-                    EndIf
-                EndIf                    
-                
-           Case 24
-                If ( Startup::*LHGameDB\FileMonitoring = #False )
-                    Monitoring::Activate("C:\")
-                Else
-                    Monitoring::DeActivate()
-                EndIf
-                
-          Case 25
-                File.s = Startup::*LHGameDB\Monitoring\LatestLog
-                If FileSize(File) <> -1
-                    FFH::ShellExec(File, "open")
-                Else
-                   Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-               EndIf 
-               
-           Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
-                    
-        EndSelect       
+    	Select MenuID.i              
+    		Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
+    		Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
+    		Case 8:  vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
+    		Case 11: vDiskPath::ReConstrukt(4, #False) ; Search for All on Slot 4 
+    		Case 12: vDiskPath::ReConstrukt(1, #True ) ; Search for Current Item on Slot 1
+    		Case 13: vDiskPath::ReConstrukt(2, #True ) ; Search for Current Item on Slot 2                 
+    		Case 14: vDiskPath::ReConstrukt(3, #True ) ; Search for Current Item on Slot 3
+    		Case 15: vDiskPath::ReConstrukt(4, #True ) ; Search for Current Item on Slot 4   
+    		Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow() 
+    		Case 17: VEngine::Database_Remove(1,#True)  
+    		Case 30: DesktopEX::CloseExplorer() 
+    		Case 32: DesktopEX::SetTaskBar()
+    		Case 35: vEngine::ServiceOption("uxsms", #False)                 
+    		Case 34: vEngine::ServiceOption("uxsms", #True) 
+    		Case 40: vEngine::MAME_Driver_Import()             	        
+    		Case 41: vEngine::MAME_Roms_Check_Import()
+    		Case 42: vEngine::MAME_Roms_Check()            	
+    		Case 43: vEngine::MAME_Roms_Backup() 
+    		Case 44: vEngine::MAME_Roms_GetInfos() 
+    			
+    			; Resetet die Fenster Position
+    		Case 20
+    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosX", Str(0),1)    
+    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosY", Str(0),1)                
+    			Startup::*LHGameDB\WindowPosition\X = 0
+    			Startup::*LHGameDB\WindowPosition\Y = 0         
+    			WinGuru::WindowPosition(DC::#_Window_001,Startup::*LHGameDB\WindowPosition\X,Startup::*LHGameDB\WindowPosition\Y)
+    			
+    		Case 1
+    			Startup::*LHGameDB\SortMode = 0
+    			Startup::*LHGameDB\SortXtendMode = #False
+    			VEngine::Thread_LoadGameList_Sort()
+    			
+    		Case 2
+    			Startup::*LHGameDB\SortMode = 1
+    			Startup::*LHGameDB\SortXtendMode = #False
+    			VEngine::Thread_LoadGameList_Sort()
+    			
+    		Case 3
+    			Startup::*LHGameDB\SortMode = 2
+    			Startup::*LHGameDB\SortXtendMode = #False
+    			VEngine::Thread_LoadGameList_Sort()
+    			
+    		Case 4  			    				
+    			
+    			VEngine::Thread_LoadGameList_Sort()     				
+    					
+    		Case 45
+    			bReloadSort.i = #False
+    			
+    			If ( Startup::*LHGameDB\SortMode  >= 5 )
+    				bReloadSort.i = #True
+    			EndIf
+    			
+    			Startup::*LHGameDB\SortMode = 3
+    			Startup::*LHGameDB\SortXtendMode = #False
+    			
+    			If ( bReloadSort = #True )
+    				VEngine::Thread_LoadGameList_Action() 			
+    			EndIf	
+    			
+    			VEngine::Thread_LoadGameList_Sort()            	
+    			
+    		Case 46    			
+    			bReloadSort.i = #False
+    			
+    			If ( Startup::*LHGameDB\SortMode  <= 4 )
+    				bReloadSort.i = #True
+    			EndIf
+    			
+    			Startup::*LHGameDB\SortMode = 5
+    			Startup::*LHGameDB\SortXtendMode = #True
+    			
+    			If ( bReloadSort = #True )
+    				VEngine::Thread_LoadGameList_Action() 			
+    			EndIf	
+    			
+    			VEngine::Thread_LoadGameList_Sort() 
+    			
+    		Case 7                               
+    			r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
+    			If ( r = 1 )                   
+    				SetActiveGadget(DC::#ListIcon_001)                
+    				ProcedureReturn
+    			EndIf
+    			Startup::*LHGameDB\bvSystem_Restart = #True
+    			
+    			vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
+    			VEngine::Splitter_SetAll()
+    			; vEngine::Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+					; wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
+					; sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
+    			
+    			; If ( nHeight = 0)                          
+					;     sHeight = 289
+					; ElseIf ( nHeight > WHeight)  
+					;     sHeight = Abs((wHeight+nHeight) +  sHeight)
+					; ElseIf  ( nHeight < WHeight)
+					;     sHeight = Abs((wHeight-nHeight) -  sHeight)
+					; EndIf   
+    			
+    			;Debug "Fenster Höhe ändern: "
+					;Debug "Manuelle Eingabe: " + Str(Val(Request::*MsgEx\Return_String) )
+					;Debug "Fensterhöhe     : " + Str(wHeight)
+					;Debug "Splitterhöhe    : " + Str(GetGadgetState(DC::#Splitter1) )
+					;Debug "................: "
+					;Debug "Neue Fensterhöhe: " + Str(wHeight)
+					;Debug "Neue Splitterhöhe: " + Str(sHeight)
+					;Debug "................: "               
+    			
+    			Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
+    			
+    			
+    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
+    			; Splitter Höhe
+					;ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
+					;ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
+    			
+    			
+    			
+    			a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
+    			Delay( 5 )
+    			If ( a > 0 )
+    				WriteStringN(a, "Restart..")
+    				RunProgram(ProgramFilename())               
+    				End
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem beim Anlegen der Textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+    			EndIf    
+    			
+    		Case 9 : vFont::SetDB(1) 
+    		Case 10: vFont::SetDB(2)                 
+    		Case 98: vUpdate::Update_Check()
+    			
+    		Case 18:
+    			File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt"
+    			If FileSize(File) <> -1
+    				FFH::ShellExec(File, "open")
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+    			EndIf    
+    			
+    		Case 19: 
+    			File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt"
+    			If FileSize(File) <> -1
+    				FFH::ShellExec(File, "open")
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+    			EndIf 
+    			
+    		Case 21:
+    			Path.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
+    			If FileSize(Path) = -2
+    				FFH::ShellExec(Path, "explore")
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+    			EndIf
+    			
+    		Case 22:
+    			Path.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+    			If FileSize(Path) = -2
+    				FFH::ShellExec(Path, "explore")
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+    			EndIf                 
+    			
+    		Case 200 To 300
+    			FFH::ShellExec(GetMenuItemText(CLSMNU::*MNU\HandleID[0], MenuID), "open")
+    			
+    		Case 23
+    			ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"                
+    			ShotSize.i = 0
+    			
+    			ShotSize = vItemTool::File_GetFiles(ShotPath)
+    			If  (ShotSize > 0 )
+    				
+    				Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Löschen?","Alle Snapshot Dateie(n) löschen? ("+Str(ShotSize)+") " + #CR$ + "Pfad: " + ShotPath,11,2,"",0,0,DC::#_Window_001)
+    				If (Result = 0)                
+    					While NextElement(FFS::FullFileSource())
+    						Delay( 5 )
+    						DeleteFile( FFS::FullFileSource()\FileName )
+    					Wend
+    				EndIf    
+    				ClearList( FFS::FullFileSource() )
+    				
+    				Delay( 5 )
+    				ShotSize = vItemTool::File_GetFiles(ShotPath)
+    				If ( ShotSize > 0 )
+    					Request::MSG(Startup::*LHGameDB\TitleVersion, "Fehler", "Konnte alle Snapshot Dateie(n) nicht löschen" ,2,1,"",0,0,DC::#_Window_001 )
+    				Else
+    					Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
+    				EndIf
+    			EndIf                    
+    			
+    		Case 24
+    			If ( Startup::*LHGameDB\FileMonitoring = #False )
+    				Monitoring::Activate("C:\")
+    			Else
+    				Monitoring::DeActivate()
+    			EndIf
+    			
+    		Case 25
+    			File.s = Startup::*LHGameDB\Monitoring\LatestLog
+    			If FileSize(File) <> -1
+    				FFH::ShellExec(File, "open")
+    			Else
+    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+    			EndIf 
+    			
+    		Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
+    			
+    	EndSelect       
     EndProcedure
     ;*******************************************************************************************************************************************************************    
     Procedure Set_TrayMenu_LoggUtil()    
@@ -2814,71 +2860,82 @@ Module INVMNU
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 1)             	
             EndIf
             
-    EndProcedure      
+          EndProcedure 
+          
+    ;*******************************************************************************************************************************************************************    
+     Procedure Set_SortBUtton()
+     	
+     	Protected ButtonText.s = ButtonEx::Gettext(DC::#Button_028, 0)  
+    		MenuItem(4 , "Sortieren: "+ButtonText+"  " +Chr(9)+"F4" ,ImageID( DI::#_MNU_VSY ))
+    		MenuBar()             
+    		MenuItem(45, "Anzeigen : Programm"					       ,ImageID( DI::#_MNU_VSY ))  
+    		MenuItem(46, "Anzeigen : Release"						       ,ImageID( DI::#_MNU_VSY ))
+    		
+    EndProcedure      	
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
-
-        If IsWindow(DC::#_Window_001)                            
-            MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
-            MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
-            MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))
-            MenuItem(4 , "Sortieren: Programm  " +Chr(9)+"F4"       ,ImageID( DI::#_MNU_VSY ))
-            MenuBar()            
-            MenuItem(40 , "Import. Titel in die Datenbank"	     	,ImageID( DI::#_MNU_MAM ))
-			OpenSubMenu( "Mame Tools .."                            ,ImageID( DI::#_MNU_MAM ))               
-            Set_Mame_Menu() 
-			CloseSubMenu()             
- 			MenuBar()                     
-            MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
-            MenuBar()  
-            Set_TrayMenu_LoggUtil()   
-            MenuBar()              
-            Set_TrayMenu_ShotUtil()
-            MenuBar()
-            Set_TrayMenu_Monitor()
-            MenuBar()              
-            OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
-            MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
-            MenuItem(6 , "Alle Prüfen & Reparieren (Slot 2)"        ,ImageID( DI::#_MNU_RAL ))                       
-            MenuItem(8 , "Alle Prüfen & Reparieren (Slot 3)"        ,ImageID( DI::#_MNU_RAL ))                       
-            MenuItem(11, "Alle Prüfen & Reparieren (Slot 4)"        ,ImageID( DI::#_MNU_RAL ))
-            MenuBar() 
-            MenuItem(12, "Aktuellen Prüfen & Reparieren (Slot 1)"   ,ImageID( DI::#_MNU_RNE )) 
-            MenuItem(13, "Aktuellen Prüfen & Reparieren (Slot 2)"   ,ImageID( DI::#_MNU_RNE ))                        
-            MenuItem(14, "Aktuellen Prüfen & Reparieren (Slot 3)"   ,ImageID( DI::#_MNU_RNE )) 
-            MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
-            CloseSubMenu()       
-            MenuBar()            
-            MenuItem(34, "Enable : Aero/Uxsms"                      ,ImageID( DI::#_MNU_AEE ))
-            MenuBar()
-            MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
-            MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
-            MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
-            MenuBar()
-            OpenSubMenu( "Einstellungen"   							,ImageID( DI::#_MNU_VSP )) 
-            MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
-            MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
-            MenuBar()                   
-            MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
-            MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
-            MenuBar()            
-            MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
-            CloseSubMenu()
-            MenuBar()             
-        EndIf
-        	MenuItem(98, "vSystems Update"							,ImageID( DI::#_MNU_VSU ))        
-        	MenuItem(99, "vSystems Beenden"							,ImageID( DI::#_MNU_VSY ))
-
-
-            
-        
-        
+    	
+    	If IsWindow(DC::#_Window_001)                            
+    		MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
+    		MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
+    		MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))
+				Set_SortBUtton()         
+    		MenuBar()            
+    		MenuItem(40 , "Import. Titel in die Datenbank"	     	,ImageID( DI::#_MNU_MAM ))
+    		OpenSubMenu( "Mame Tools .."                            ,ImageID( DI::#_MNU_MAM ))               
+    		Set_Mame_Menu() 
+    		CloseSubMenu()             
+    		MenuBar()                     
+    		MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
+    		MenuBar()  
+    		Set_TrayMenu_LoggUtil()   
+    		MenuBar()              
+    		Set_TrayMenu_ShotUtil()
+    		MenuBar()
+    		Set_TrayMenu_Monitor()
+    		MenuBar()              
+    		OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
+    		MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
+    		MenuItem(6 , "Alle Prüfen & Reparieren (Slot 2)"        ,ImageID( DI::#_MNU_RAL ))                       
+    		MenuItem(8 , "Alle Prüfen & Reparieren (Slot 3)"        ,ImageID( DI::#_MNU_RAL ))                       
+    		MenuItem(11, "Alle Prüfen & Reparieren (Slot 4)"        ,ImageID( DI::#_MNU_RAL ))
+    		MenuBar() 
+    		MenuItem(12, "Aktuellen Prüfen & Reparieren (Slot 1)"   ,ImageID( DI::#_MNU_RNE )) 
+    		MenuItem(13, "Aktuellen Prüfen & Reparieren (Slot 2)"   ,ImageID( DI::#_MNU_RNE ))                        
+    		MenuItem(14, "Aktuellen Prüfen & Reparieren (Slot 3)"   ,ImageID( DI::#_MNU_RNE )) 
+    		MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
+    		CloseSubMenu()       
+    		MenuBar()            
+    		MenuItem(34, "Enable : Aero/Uxsms"                      ,ImageID( DI::#_MNU_AEE ))
+    		MenuBar()
+    		MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
+    		MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
+    		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
+    		MenuBar()
+    		OpenSubMenu( "Einstellungen"   							,ImageID( DI::#_MNU_VSP )) 
+    		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
+    		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
+    		MenuBar()                   
+    		MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
+    		MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
+    		MenuBar()            
+    		MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
+    		CloseSubMenu()
+    		MenuBar()             
+    	EndIf
+    	MenuItem(98, "vSystems Update"							,ImageID( DI::#_MNU_VSU ))        
+    	MenuItem(99, "vSystems Beenden"							,ImageID( DI::#_MNU_VSY ))
+    	
+    	
+    	
+    	
+    	
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 2799
-; FirstLine = 2535
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2616
+; FirstLine = 2355
 ; Folding = z5--
 ; EnableAsm
 ; EnableXP

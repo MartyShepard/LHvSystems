@@ -1346,7 +1346,7 @@ Module VEngine
              GadObjects_ClrRve()
          EndIf
          
-          ExecSQL::lRows(DC::#Database_001,"Gamebase","GameTitle",1,Rows,ExecSQL::_IOSQL(),"GameTitle","asc")          
+         ExecSQL::lRows(DC::#Database_001,"Gamebase","GameTitle",1,Rows,ExecSQL::_IOSQL(),"GameTitle","asc")          
          ResetList(ExecSQL::_IOSQL())
          LockMutex(MainEventMutex)         
          
@@ -1399,8 +1399,26 @@ Module VEngine
              If ( id <> 0 )              
                  PrgDesc$ = ExecSQL::nRow(DC::#Database_001,"Programs","ExShort_Name","",id,"",1)
              EndIf
+             
+             
+             ReleaseYear.s = ExecSQL::nRow(DC::#Database_001,"Gamebase","Release","",ExecSQL::_IOSQL()\nRowID,"",1) 
                           
-             AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$): SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID) 
+             If ( Startup::*LHGameDB\SortMode = 5)
+             		Startup::*LHGameDB\SortXtendMode = #True
+             	
+             		ButtonEx::Settext(DC::#Button_028, 0, "Release")             	
+             		ButtonEx::Settext(DC::#Button_028, 1, "Release")
+             	
+             		AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +ReleaseYear)             	
+             Else             	
+             		Startup::*LHGameDB\SortXtendMode = #False             	
+             		ButtonEx::Settext(DC::#Button_028, 0, "Program")             	
+             		ButtonEx::Settext(DC::#Button_028, 1, "Program")               	
+             		
+              		AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$)
+			 EndIf	
+                          
+             SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID) 
              Thread_HTTP_MAME_Roms_DoEvents() 
          Next RowID
          
@@ -1615,8 +1633,16 @@ Module VEngine
             Case #False
                 Startup::*LHGameDB\SortMode =  ExecSQL::iRow(DC::#Database_001,"Settings","SortOrder",0,1,"",1)
             Default 
-                
-                LVSORTEX::ListIconSortSetCol(DC::#ListIcon_001,Startup::*LHGameDB\SortMode)          
+            		;
+								;
+								; Wir haben nur 4 Spalten (0 - 3)
+            		Protected Column.i = Startup::*LHGameDB\SortMode
+            		
+            		If Column > 3
+            			Column = 3
+            		EndIf
+            		
+                LVSORTEX::ListIconSortSetCol(DC::#ListIcon_001,Column)          
                 LVSORTEX::ListIconSortListe(DC::#ListIcon_001,0)  
                 SetActiveGadget(DC::#ListIcon_001)
         EndSelect        
@@ -7452,9 +7478,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6897
-; FirstLine = 5656
-; Folding = 8----v--f6--b+h-
+; CursorPosition = 1638
+; FirstLine = 1601
+; Folding = 8-------f6--b+h-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

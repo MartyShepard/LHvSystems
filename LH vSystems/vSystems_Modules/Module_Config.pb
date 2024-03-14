@@ -339,6 +339,7 @@ DeclareModule Startup
         aUseless.s
         FolderWWW.s
         FolderMameSource.s
+        SortXtendMode.i
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
@@ -936,6 +937,7 @@ Module Startup
          *LHGameDB\aUseless     		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
          *LHGameDB\FolderWWW			= *LHGameDB\Base_Path + "Systeme\INET\"
          *LHGameDB\FolderMameSource		= "B:\MSYS2_MAME\src\Mame\"; *LHGameDB\Base_Path
+         *LHGameDB\SortXtendMode		= #False
          
          ; Lösche Das Update Modul
           If FileSize(*LHGameDB\Base_Path + "_UpdateModul_.exe" )
@@ -995,9 +997,9 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 937
-; FirstLine = 709
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 939
+; FirstLine = 708
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP
