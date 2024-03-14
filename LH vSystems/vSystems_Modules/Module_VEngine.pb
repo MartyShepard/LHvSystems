@@ -6862,6 +6862,42 @@ EndProcedure
     				Case 1	; YEAR
     					strYear.s = Trim( ReplaceString( Celle, SuchString, ""), Chr(32) )
     					AddElement( *Params\MSIP() )
+    					;
+						;
+    					; Kommentar String //
+						;
+    					If FindString( strYear, "//")
+    						;
+    						; Entferne Kommentar
+    						strYear = ReplaceString( strYear, "//", "")    						
+    					EndIf	
+    					If FindString( strYear, "year",0,#PB_String_CaseSensitive)
+    						;
+    						; Korrigiere Fake Jahr    						
+    						strYear = ReplaceString( strYear, "year", "1900")
+    						strYear = Trim( strYear, Chr(9) )
+    					EndIf
+    					If ( Right( strYear, 1) = "?" )
+    						strYear = Left(strYear, 4)
+    					EndIf
+    					
+    					If FindString( strYear, "?")
+    						;
+							; Korrigiere -soweit- Jahr      					
+    						strYear = ReplaceString( strYear, "?", "0",0,0, CountString( strYear, "?")+1 )
+    					EndIf    					
+    					strYear = Trim( strYear, Chr(32) )
+						;
+						; Existiert '?'
+    					If Len( strYear ) >= 5
+    						If ( Len( strYear ) = 14)
+    							strYear = Right(strYear,4)
+    						Else
+    							Debug CodeFile + ": '" + strYear + "'"
+    						EndIf	
+    						
+    					EndIf
+    					
     					*Params\MSIP()\SOURCECODE = CodeFile
     					*Params\MSIP()\YEAR = strYear
     					
@@ -7415,9 +7451,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 7279
-; FirstLine = 6062
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 6897
+; FirstLine = 5656
 ; Folding = 8----v--f6--b+h-
 ; EnableAsm
 ; EnableXP
