@@ -156,7 +156,7 @@
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 98
-; FirstLine = 54
+; FirstLine = 69
 ; EnableAsm
 ; EnableThread
 ; EnableXP

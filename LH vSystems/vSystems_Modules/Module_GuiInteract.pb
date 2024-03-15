@@ -138,10 +138,15 @@ Module Interact
         VEngine::Thread_LoadGameList_Action()                  
         
         ;
-        ; Sortier Modus Anwenden        
-        VEngine::Thread_LoadGameList_Sort() 
-        
-       
+				; Sortier Modus Anwenden
+        If ( Startup::*LHGameDB\SortMode >= 5)
+        	   Startup::*LHGameDB\SortMode = 1
+        	
+        	   VEngine::Thread_LoadGameList_Sort()
+        	   Startup::*LHGameDB\SortMode = 5
+       	Else
+        	 	VEngine::Thread_LoadGameList_Sort()
+        endif
         
         ;
         ; Migrate
@@ -758,8 +763,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 263
-; FirstLine = 682
+; CursorPosition = 148
+; FirstLine = 102
 ; Folding = --
 ; EnableAsm
 ; EnableXP
