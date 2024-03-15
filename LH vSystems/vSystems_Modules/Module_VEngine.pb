@@ -6423,6 +6423,7 @@ EndProcedure
     		Files.s
     		Clone.i
     		RomClone.s
+    		NeedRedump.s
     		List MRCF.MAME_ROMS_CHECK_FILES()
     	EndStructure   
     	
@@ -6459,7 +6460,7 @@ EndProcedure
 	    			
 	    			Position = FindString( StrLine , "romset",1)
 	    			If ( Position > 0 )	
-	    				If FindString( StrLine , " is bad",1) Or FindString( StrLine , " is good",1)	
+	    				If FindString( StrLine , " is bad",1) Or FindString( StrLine , " is good",1)	 Or FindString( StrLine , " is best available",1)
 	    					
 	    					AddElement( MRCL() )
 	    					
@@ -6475,6 +6476,11 @@ EndProcedure
 	    						MRCL()\Good	 = #True
 	    						Pos.i 	 = FindString( StrLine , " is good",1)	
 	    					EndIf
+	    					
+	    					If FindString( StrLine , " is best available",1)	 
+	    						MRCL()\Good	 = #True
+	    						Pos.i 	 = FindString( StrLine , " is best available",1)	
+	    					EndIf	    					
 	    					
 	    					MRCL()\Clone = #False	
 	    					MainRom 	 =  Mid( StrLine, Position + 7, Pos - (Position + 7) )
@@ -6512,10 +6518,7 @@ EndProcedure
 	    				If ( FindString( StrLine , ") - NOT FOUND",1, #PB_String_CaseSensitive) )
 	    					
 	    					ErrorRom.s = ""
-	    					ErrorRom   = Trim( Mid( StrLine,0, Position-1), Chr(32) )
-	    					
-	    					;SetGadgetText(DC::#Text_003,"[..Search Files..]")
-	    					
+	    					ErrorRom   = Trim( Mid( StrLine,0, Position-1), Chr(32) )    					
 	    					ResetList( MRCL() )
 	    					While NextElement(  MRCL() )
 	    						If  ( MRCL()\RomSet = ErrorRom )
@@ -6537,7 +6540,30 @@ EndProcedure
 	    					If ( FindString( StrLine , "NOT FOUND - NO GOOD DUMP KNOWN",1, #PB_String_CaseSensitive) )
 	    						MRCL()\NoDump = "No Good Dump Known"	    						
 	    					EndIf								    				
-	    				EndIf						
+	    				EndIf
+	    				
+	    				If ( FindString( StrLine , ") - NEEDS REDUMP",1, #PB_String_CaseSensitive) )
+	    					ErrorRom.s = ""
+	    					ErrorRom   = Trim( Mid( StrLine,0, Position-1), Chr(32) )    					
+	    					ResetList( MRCL() )
+	    					While NextElement(  MRCL() )
+	    						If  ( MRCL()\RomSet = ErrorRom )
+	    							MRCL()\NotFound = #True
+	    							MRCL()\Bad = #False    							
+	    							AddElement(  MRCL()\MRCF() )
+	    							
+	    							
+	    							PosKlammerBeg.i = FindString( StrLine , " (",1)
+	    							PosKlammerEnd.i = FindString( StrLine , ") ",PosKlammerBeg + 1)
+	    							
+	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)
+	    							SetGadgetText(DC::#Text_003,"[..Search Files: "+MRCL()\MRCF()\Filename+" (Adding)..]")	
+	    							Break
+	    						EndIf
+	    						Thread_HTTP_MAME_Roms_DoEvents() 
+	    					Wend
+	    					
+	    				EndIf	
 	    			EndIf	    			
 	    		Wend	
 	    		CloseFile(FileHandle)
@@ -7522,9 +7548,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6456
-; FirstLine = 6260
-; Folding = 8-------f6--b+6w
+; CursorPosition = 6462
+; FirstLine = 6114
+; Folding = 8-------f6--b+Zw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
