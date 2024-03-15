@@ -5425,10 +5425,10 @@ EndProcedure
     		Sleep_(1) 
     	EndIf 
     EndProcedure 
-    ;
+  ;
 	;
 	;     
-    Procedure.i     Thread_MAME_Driver_Import(*Params.MAME_DRIVER_PARAMS_LIST)   
+  Procedure.i  Thread_MAME_Driver_Import(*Params.MAME_DRIVER_PARAMS_LIST)   
     	
     	ResetList( *Params\mdil() )
     	
@@ -5509,10 +5509,35 @@ EndProcedure
    EndProcedure
   ;
   ;
-	;     
+	;
+  Procedure.s  MAME_Search_ExportFile(ExportFiles.s)  
+  	
+  	Protected ResultFile.s = ""
+  	
+  	FFS::DelContent()    		
+  	FFS::GetContent(Startup::*LHGameDB\Base_Path ,#True, #True, #True,"","*.txt",4,#False,100,"")
+  	FFS::SortContent()
+  	ResetList(FFS::FullFileSource())
+  	
+  	While NextElement( FFS::FullFileSource() )    			
+  		IndexFiles.s = GetFilePart( FFS::FullFileSource()\FileName,#PB_FileSystem_NoExtension)
+  		If UCase (IndexFiles) = UCase(ExportFiles)
+  				ResultFile = FFS::FullFileSource()\FileName
+					Break
+  		EndIf	
+  		Thread_HTTP_MAME_Roms_DoEvents() 	
+  	Wend	
+  	
+  	FFS::DelContent()
+  	
+  	ProcedureReturn  ResultFile
+  EndProcedure
+  ;
+  ;
+	;   
   Procedure.i  MAME_Driver_Import()   
     	
-    	Protected FileHandle.l, StrLine.s, StrRead.s, StrRegion.s    	            
+    	Protected FileHandle.l, StrLine.s, StrRead.s, StrRegion.s, ExportDirectory.s  	            
         
     	Structure MAME_DRIVER_REGION
         	Region.s
@@ -5526,7 +5551,7 @@ EndProcedure
         SetActiveGadget(-1) 
         
         ; Intro
-        ;
+				;
         Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E Import", "Mame Titel und Rom Namen Importieren?" + #CRLF$ + #CRLF$ + "Welche Datei?" +#CRLF$ +"Die Datei zum importieren muss vorher mit 'Mame.exe -listdevices' erstellt werden.",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
         If ( Result = 1 ) 
         	SetActiveWindow(DC::#_Window_001)           
@@ -5535,15 +5560,19 @@ EndProcedure
         EndIf
         
         Delay(30)
-  			  				  			
-        ExportFile$ = FFH::GetFilePBRQ("-ListDevices Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
+        
+        
+        ExportFile$ = MAME_Search_ExportFile("ROMS-DEVICES")  
         If ( Len( ExportFile$ ) = 0 )
-           	SetActiveWindow(DC::#_Window_001)
-            SetActiveGadget(DC::#ListIcon_001)          	
-        	ProcedureReturn 
-        EndIf	
-        	
-    	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
+        	ExportFile$ = FFH::GetFilePBRQ("-ListDevices Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Driver Export File [Devices] (*.*)|*.*;", 0, #True)
+        	If ( Len( ExportFile$ ) = 0 )
+        		SetActiveWindow(DC::#_Window_001)
+        		SetActiveGadget(DC::#ListIcon_001)          	
+        		ProcedureReturn 
+        	EndIf    			    			
+        EndIf
+    		        
+        ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
     	
     	If ( Len( ExportPath$ ) >= 1 )
     		
@@ -5842,8 +5871,8 @@ EndProcedure
     	
     	 ProcedureReturn 
    	EndProcedure  
-    ;
-    ;
+  ;
+  ;
 	;   
 	Procedure 		Thread_HTTP_MAME_Roms(*Params.HTTP_INDEX) 
 		
@@ -5971,13 +6000,16 @@ EndProcedure
         ResetList(  MRFL() )
         
         SetActiveGadget(-1) 
-
-    	ExportFile$ = FFH::GetFilePBRQ("-Listroms Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
-    	If ( Len( ExportFile$ ) = 0 )
-			MAME_End_Procedure()
-    		ProcedureReturn 
-    	EndIf
     	
+        ExportFile$ = MAME_Search_ExportFile("ROMS-LIST")  
+        If ( Len( ExportFile$ ) = 0 )
+        	ExportFile$ = FFH::GetFilePBRQ("-Listroms Exported File",Startup::*LHGameDB\Base_Path, #False, "Mame Listroms Export File [Roms] (*.*)|*.*;", 0, #True)
+        	If ( Len( ExportFile$ ) = 0 )
+        		MAME_End_Procedure()         	
+        		ProcedureReturn 
+        	EndIf    			    			
+        EndIf
+        
     	    	
     	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
     		
@@ -6429,11 +6461,15 @@ EndProcedure
     	
     	NewList MRCL.MAME_ROMS_CHECK_LIST()  	
     	
-    	ExportFile$ = FFH::GetFilePBRQ("-VerifyRoms Exportet File",Startup::*LHGameDB\Base_Path, #False, "Mame Verify Export File [Roms] (*.*)|*.*;", 0, #True)
-    	If ( Len( ExportFile$ ) = 0 )
-			MAME_End_Procedure()
-    		ProcedureReturn 
-    	EndIf
+      ExportFile$ = MAME_Search_ExportFile("ROMS-VERIFY")  
+       If ( Len( ExportFile$ ) = 0 )
+    		ExportFile$ = FFH::GetFilePBRQ("-VerifyRoms Exportet File",Startup::*LHGameDB\Base_Path, #False, "Mame Verify Export File [Roms] (*.*)|*.*;", 0, #True)
+       	If ( Len( ExportFile$ ) = 0 )
+       		MAME_End_Procedure()         	
+       		ProcedureReturn 
+       	EndIf    			    			
+       EndIf
+
     	
     	ExportPath$ = Getfile_Portbale_ModeOut(ExportFile$)
     		
@@ -7545,10 +7581,10 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6429
-; FirstLine = 6085
-; Folding = 8-------f6--b+Zw
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 6470
+; FirstLine = 6020
+; Folding = 8-------f6--bezg
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
