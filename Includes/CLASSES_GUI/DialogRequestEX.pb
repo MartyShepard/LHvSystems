@@ -347,119 +347,105 @@ DeclareModule Request
       ;
       ;________________________________________________________________________________________________________________________________          
       Procedure MSG_Internal_Image()
-          Protected nCountIcons, iMax, ImagePosY.i,cnIcons.i, ico.i, pIcon.l = 0
-          
-          Structure SHELLICONLIST
-              hLarge.l
-              hSmall.l
-          EndStructure    
-          NewList nCountIcons.SHELLICONLIST()
-          
-          If IsImage(#REXICA): FreeImage(#REXICA): EndIf
-          
-          Select *MsgEx\Icon_Message
-              Case 0: CatchImage(#REXICA, ?RequestEX_ICON0) ; Info        
-              Case 1: CatchImage(#REXICA, ?RequestEX_ICON1) ; Attention
-              Case 2: CatchImage(#REXICA, ?RequestEX_ICON2) ; Stop
-              Case 3: CatchImage(#REXICA, ?RequestEX_ICON3) ; help
-              Default
-          EndSelect    
-          
-          If ( Len(*MsgEx\Icon_Program) >= 1 ) And ( FileSize(*MsgEx\Icon_Program) >= 1 )
-              
-              ; GetIcons
-          	cnIcons = ExtractIconEx_(*MsgEx\Icon_Program,-1,0,0,0)
-          	Debug "DialogReuestEX: ExtracIconEx_ " + Str(cnIcons)
-              For ico = 0 To cnIcons -1
-                  AddElement(nCountIcons())
-                  ExtractIconEx_(*MsgEx\Icon_Program,ico, @nCountIcons()\hLarge.l, @nCountIcons()\hSmall, cnIcons)
-              Next  
-              
-              ResetList( nCountIcons() )
-              Debug "DialogReuestEX: nCountIcons() " + Str(ListSize ( nCountIcons() ))
-              If ListSize ( nCountIcons() ) > 0
-              	
-              	While NextElement( nCountIcons() )
-              		
-              		 If Not ( nCountIcons()\hLarge = 0 )
-              			pIcon = nCountIcons()\hLarge
-              			Debug "DialogReuestEX: Handle hLarge" + Str(pIcon)
-              			Break
-              			
-              		ElseIf Not ( nCountIcons()\hSmall = 0 )
-              			pIcon = nCountIcons()\hSmall
-              			Debug "DialogReuestEX: Handle hSmall" + Str(pIcon)
-              			Break
-              		EndIf
-              				
-              	Wend	
-              	FreeList( nCountIcons() )  
-              EndIf
-;               	ForEach nCountIcons()
-;               		If ( nCountIcons()\hLarge >= 1 )
-;               			pIcon = nCountIcons()\hLarge
-;               			Debug "DialogReuestEX: Handle hLarge" + Str(pIcon)
-;               			Break;
-;               		Else
-;               			If ( nCountIcons()\hSmall >= 1 )
-;               				pIcon = nCountIcons()\hSmall
-;               				Debug "DialogReuestEX: Handle hSmall" + Str(pIcon)
-;               				Break
-;               			EndIf              
-;               		EndIf   
-;               	Next  
-                      
-              
-              If Not ( pIcon = 0 )                   
-                  CreateImage(#REXICB,40,40, 32)           
-                  StartDrawing(ImageOutput(#REXICB))
-                  DrawingMode(#PB_2DDrawing_AllChannels)
-                  DrawImage(pIcon,0,0,40,40)
-                  StopDrawing()
-                  
-              EndIf            
-          EndIf  
-          
-          
-          If ( IsImage(#REXICA) And  Not IsImage(#REXICB) )
-              ImagePosY.i = 50
-              MSG_Internal_Paint(#REXICA)
-              ImageGadget(#REXIG1,20,ImagePosY,32,32,0): SetGadgetState(#REXIG1,ImageID(#REXICA))
-              ProcedureReturn
-          EndIf
-          
-          If ( Not IsImage(#REXICA) And  IsImage(#REXICB) )
-              ImagePosY.i = 50
-              MSG_Internal_Paint(#REXICB)
-              ImageGadget(#REXIG2,18,ImagePosY,40,40,0): SetGadgetState(#REXIG2,ImageID(#REXICB))
-              ProcedureReturn
-          EndIf
-          
-          If ( IsImage(#REXICA) And IsImage(#REXICB) )
-              
-              FreeImage(#REXICA)
-              ;
-              ; Select  22 Grösse
-              Select *MsgEx\Icon_Message
-                  Case 0: CatchImage(#REXICA, ?RequestEX_ICON4)         
-                  Case 1: CatchImage(#REXICA, ?RequestEX_ICON5)  
-                  Case 2: CatchImage(#REXICA, ?RequestEX_ICON6) 
-                  Case 3: CatchImage(#REXICA, ?RequestEX_ICON7)
-                  Default
-              EndSelect 
-              
-              ImagePosY.i = 4
-              ImagePosX.i = WindowWidth(#REXW0) - ( ImageWidth(#REXICA) + 4 )
-              MSG_Internal_Paint(#REXICA,1,155)           
-              ImageGadget(#REXIG1,ImagePosX,ImagePosY,32,32,0): SetGadgetState(#REXIG1,ImageID(#REXICA))
-              
-              ImagePosY.i = 50
-              MSG_Internal_Paint(#REXICB)
-              ImageGadget(#REXIG2,18,ImagePosY,40,40,0): SetGadgetState(#REXIG2,ImageID(#REXICB))
-              ProcedureReturn
-          EndIf     
-          
-          
+      	Protected nCountIcons, iMax, ImagePosY.i,cnIcons.i, ico.i, pIcon.l = 0
+      	
+      	Structure SHELLICONLIST
+      		hLarge.l
+      		hSmall.l
+      	EndStructure    
+      	NewList nCountIcons.SHELLICONLIST()
+      	
+      	If IsImage(#REXICA): FreeImage(#REXICA): EndIf
+      	
+      	Select *MsgEx\Icon_Message
+      		Case 0: CatchImage(#REXICA, ?RequestEX_ICON0) ; Info        
+      		Case 1: CatchImage(#REXICA, ?RequestEX_ICON1)	; Attention
+      		Case 2: CatchImage(#REXICA, ?RequestEX_ICON2)	; Stop
+      		Case 3: CatchImage(#REXICA, ?RequestEX_ICON3)	; help
+      		Default
+      	EndSelect    
+      	
+      	If ( Len(*MsgEx\Icon_Program) >= 1 ) And ( FileSize(*MsgEx\Icon_Program) >= 1 )
+      		
+      		; GetIcons
+      		cnIcons = ExtractIconEx_(*MsgEx\Icon_Program,-1,0,0,0)
+      		Debug "DialogReuestEX: ExtracIconEx_ " + Str(cnIcons)
+      		For ico = 0 To cnIcons -1
+      			AddElement(nCountIcons())
+      			ExtractIconEx_(*MsgEx\Icon_Program,ico, @nCountIcons()\hLarge.l, @nCountIcons()\hSmall, cnIcons)
+      		Next  
+      		
+      		ResetList( nCountIcons() )
+      		Debug "DialogReuestEX: nCountIcons() " + Str(ListSize ( nCountIcons() ))
+      		If ListSize ( nCountIcons() ) > 0
+      			
+      			While NextElement( nCountIcons() )
+      				
+      				If Not ( nCountIcons()\hLarge = 0 )
+      					pIcon = nCountIcons()\hLarge
+      					Debug "DialogReuestEX: Handle hLarge" + Str(pIcon)
+      					Break
+      					
+      				ElseIf Not ( nCountIcons()\hSmall = 0 )
+      					pIcon = nCountIcons()\hSmall
+      					Debug "DialogReuestEX: Handle hSmall" + Str(pIcon)
+      					Break
+      				EndIf
+      				
+      			Wend	
+      			FreeList( nCountIcons() )  
+      		EndIf                     
+      		
+      		If Not ( pIcon = 0 )                   
+      			CreateImage(#REXICB,40,40, 32)           
+      			StartDrawing(ImageOutput(#REXICB))
+      			DrawingMode(#PB_2DDrawing_AllChannels)
+      			DrawImage(pIcon,0,0,40,40)
+      			StopDrawing()
+      			
+      		EndIf            
+      	EndIf  
+      	
+      	
+      	If ( IsImage(#REXICA) And  Not IsImage(#REXICB) )
+      		ImagePosY.i = 50
+      		MSG_Internal_Paint(#REXICA)
+      		ImageGadget(#REXIG1,20,ImagePosY,32,32,0): SetGadgetState(#REXIG1,ImageID(#REXICA))
+      		ProcedureReturn
+      	EndIf
+      	
+      	If ( Not IsImage(#REXICA) And  IsImage(#REXICB) )
+      		ImagePosY.i = 50
+      		MSG_Internal_Paint(#REXICB)
+      		ImageGadget(#REXIG2,18,ImagePosY,40,40,0): SetGadgetState(#REXIG2,ImageID(#REXICB))
+      		ProcedureReturn
+      	EndIf
+      	
+      	If ( IsImage(#REXICA) And IsImage(#REXICB) )
+      		
+      		FreeImage(#REXICA)
+      		;
+					; Select  22 Grösse
+      		Select *MsgEx\Icon_Message
+      			Case 0: CatchImage(#REXICA, ?RequestEX_ICON4)         
+      			Case 1: CatchImage(#REXICA, ?RequestEX_ICON5)  
+      			Case 2: CatchImage(#REXICA, ?RequestEX_ICON6) 
+      			Case 3: CatchImage(#REXICA, ?RequestEX_ICON7)
+      			Default
+      		EndSelect 
+      		
+      		ImagePosY.i = 4
+      		ImagePosX.i = WindowWidth(#REXW0) - ( ImageWidth(#REXICA) + 4 )
+      		MSG_Internal_Paint(#REXICA,1,155)           
+      		ImageGadget(#REXIG1,ImagePosX,ImagePosY,32,32,0): SetGadgetState(#REXIG1,ImageID(#REXICA))
+      		
+      		ImagePosY.i = 50
+      		MSG_Internal_Paint(#REXICB)
+      		ImageGadget(#REXIG2,18,ImagePosY,40,40,0): SetGadgetState(#REXIG2,ImageID(#REXICB))
+      		ProcedureReturn
+      	EndIf     
+      	
+      	
       EndProcedure
       
       ;////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -965,20 +951,27 @@ DeclareModule Request
 
           
           If ( bDlgResize = #False )
-          ; Message text
+          	; Message text
+          		If (*MsgEx\Checkbox_On = 1) 
+          		 		rFntPixH-21
+          		 EndIf	          	
               FORM::TextObject(#REXT1,MessPosX ,MessPosY ,rFntPixW, rFntPixH,
                                *MsgEx\Fnt2,
                                *MsgEx\Col_TextFrn,
                                *MsgEx\Col_TextBck,
                                *MsgEx\Message_Text,*MsgEx\Text_Justify)
           Else    
-          
-              FORM::EditObject(#REXT1,MessPosX ,MessPosY ,rFntPixW+20, *MsgEx\WH-60,
+          		  If (*MsgEx\Checkbox_On = 1) 
+          		  		*MsgEx\WH-21
+          		  EndIf	
+              	FORM::EditObject(#REXT1,MessPosX ,MessPosY ,rFntPixW+20, *MsgEx\WH-60,
                                *MsgEx\Fnt2,
                                *MsgEx\Col_TextFrn,
                                *MsgEx\Col_TextBck,
                                *MsgEx\Text_Justify|#PB_Editor_ReadOnly,1) 
-                SetGadgetText(#REXT1, *MsgEx\Message_Text)
+              	SetGadgetText(#REXT1, *MsgEx\Message_Text)
+              	
+              	
                 
                 WinGuru::Center(#REXW0,WindowWidth(#REXW0),WindowHeight(#REXW0), #REXW0)
           EndIf
@@ -1319,9 +1312,9 @@ CompilerIf #PB_Compiler_IsMainFile
 
 
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 349
-; FirstLine = 243
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 955
+; FirstLine = 804
 ; Folding = HC5-
 ; EnableAsm
 ; EnableThread
