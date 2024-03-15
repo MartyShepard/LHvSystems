@@ -6427,7 +6427,7 @@ EndProcedure
     		List MRCF.MAME_ROMS_CHECK_FILES()
     	EndStructure   
     	
-    	NewList MRCL.MAME_ROMS_CHECK_LIST()
+    	NewList MRCL.MAME_ROMS_CHECK_LIST()  	
     	
     	ExportFile$ = FFH::GetFilePBRQ("-VerifyRoms Exportet File",Startup::*LHGameDB\Base_Path, #False, "Mame Verify Export File [Roms] (*.*)|*.*;", 0, #True)
     	If ( Len( ExportFile$ ) = 0 )
@@ -6634,11 +6634,8 @@ EndProcedure
     			
     			Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis",ErrorNotFound,10,0,ProgramFilename(),0,0,DC::#_Window_001)				
     			If ( Result = 0 )
-    				
-    				
     				; Verzeichnis Asuwahl
-						; 
-    				
+						;     				
     				Directory.s = FFH::GetPathPBRQ("M.A.M.E Rom(s) - Ziel Verzeichnis Auswählen",GetPathPart(ExportFile$))
     				If ( Len( Directory ) = 0 )
     					MAME_End_Procedure()
@@ -6786,25 +6783,26 @@ EndProcedure
     									If ( ListSize( MRCL()\MRCF() ) > 0 )  
     										
     										ResetList( MRCL()\MRCF() )
-    										ErrorNotFound + #CRLF$
     										While NextElement( MRCL()\MRCF() )
     											ErrorNotFound + #CRLF$ + "Download Error: " + LSet( MRCL()\RomSet,20,Chr(32) )  + "| File: " + MRCL()\MRCF()\Filename + " (Not Found) " + CloneMessage	
-    										Wend
-    										
+    										Wend    										
     									EndIf	            				
     								EndIf	            			
     							EndIf            		            		
     						EndIf
     						Thread_HTTP_MAME_Roms_DoEvents() 
     					Wend
-    					
-    					Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis mit Fehler",ErrorNotFound,2,1,ProgramFilename(),0,0,DC::#_Window_001)	
+    					If ( Len( ErrorNotFound ) > 0 )
+    						Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis mit Fehler",#CRLF$ + ErrorNotFound,2,1,ProgramFilename(),0,0,DC::#_Window_001)	
+    					Else
+    						CountBad = 0
+    					EndIf	
     				EndIf
     			EndIf
     		EndIf	
     		
     		If CountBad = 0
-    			Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis", Str( CountGood ) + " Rom(s) gefunden und Überprüft. Sets sind Komplett",2,0,ProgramFilename(),0,0,DC::#_Window_001)
+    			Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Ergebnis", Str( CountGood ) + " Rom(s) gefunden und Überprüft. Sets sind soweit Komplett",2,0,ProgramFilename(),0,0,DC::#_Window_001)
     		EndIf
     	EndIf
     	
@@ -7548,8 +7546,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6462
-; FirstLine = 6114
+; CursorPosition = 6429
+; FirstLine = 6085
 ; Folding = 8-------f6--b+Zw
 ; EnableAsm
 ; EnableXP
