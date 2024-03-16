@@ -6385,7 +6385,7 @@ EndProcedure
     						
     						SetGadgetText(DC::#Text_001,"Rom: " + GetFilePart( MRDL()\NotFound,#PB_FileSystem_NoExtension)  )		            	
     						SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(ErrorCount) + ")")	
-    						SetGadgetText(DC::#Text_003, ".. Ok ..")
+    						SetGadgetText(DC::#Text_003, ".. Finished ..")
     						ErrorCount - 1
     						Delay(800)
     					EndIf
@@ -6604,7 +6604,8 @@ EndProcedure
 	    					While NextElement(  MRCL() )
 	    						If  ( MRCL()\RomSet = ErrorRom )
 	    							MRCL()\NotFound = #True
-	    							MRCL()\Bad = #True    							
+	    							MRCL()\Bad = #True 
+	    							MRCL()\NeedRedump = "Needs Redump"
 	    							AddElement(  MRCL()\MRCF() )
 	    							
 	    							
@@ -6612,7 +6613,10 @@ EndProcedure
 	    							PosKlammerEnd.i = FindString( StrLine , ") ",PosKlammerBeg + 1)
 	    							
 	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)
-	    							SetGadgetText(DC::#Text_003,"[..Search Files: "+MRCL()\MRCF()\Filename+" (Adding)..]")	
+	    							SetGadgetText(DC::#Text_003,"[..Search Files: "+MRCL()\MRCF()\Filename+" (Adding)..]")
+	    							
+	    							MRCL()\MRCF()\Filename = MRCL()\MRCF()\Filename + "[!!]"
+	    							
 	    							Break
 	    						EndIf
 	    						Thread_HTTP_MAME_Roms_DoEvents() 
@@ -6663,6 +6667,7 @@ EndProcedure
     				Debug "No Dump   : " +  MRCL()\NoDump	
     				
     				DumpMessage.s = ""
+    				NeedsRedump.s = ""
     				
     				If MRCL()\Bad = #True 
     					If MRCL()\NotFound = #True
@@ -6670,6 +6675,9 @@ EndProcedure
     						If Len( MRCL()\NoDump ) > 0
     							DumpMessage = MRCL()\NoDump
     						EndIf	
+    						If Len( MRCL()\NeedRedump ) > 0
+    							NeedsRedump = MRCL()\NeedRedump
+    						EndIf    						
     							
     							CloneMessage = ""
     							If MRCL()\Clone = #True
@@ -6680,19 +6688,34 @@ EndProcedure
     								ResetList( MRCL()\MRCF() )
     								ErrorNotFound + #CRLF$
     								While NextElement( MRCL()\MRCF() )
-    									
-    									If FindString( MRCL()\MRCF()\Filename , "[**]",1)
+    									If FindString( MRCL()\MRCF()\Filename , "[!!]",1)
+    										ReGoodDumpFile.s = ReplaceString( MRCL()\MRCF()\Filename, "[!!]","" )      										  
+    										ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| [!!]: " + LSet( ReGoodDumpFile        ,16,Chr(32) ) + " (Not Found) " + CloneMessage
+    										  
+    									ElseIf FindString( MRCL()\MRCF()\Filename , "[**]",1)
     										NoGoodDumpFile.s = ReplaceString( MRCL()\MRCF()\Filename, "[**]","" )    										
     										ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| [**]: " + LSet( NoGoodDumpFile        ,16,Chr(32) ) + " (Not Found) " + CloneMessage
+    										
     									Else
     										ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| File: " + LSet( MRCL()\MRCF()\Filename,16,Chr(32) ) + " (Not Found) " + CloneMessage
+    										
     									EndIf
+    									
     									Thread_HTTP_MAME_Roms_DoEvents()
     									SetGadgetText(DC::#Text_003,"[..Create Result ("+ Str(CountNotFndA) +")..]")    									
     								Wend
-    								If Len( DumpMessage ) > 0
+    								
+    								If Len( DumpMessage ) > 0 And Len( NeedsRedump ) > 0
+    									
+    									ErrorNotFound + #CRLF$ + DumpMessage +  " [**]" + "/ " + NeedsRedump + " [!!]"
+    									
+    								ElseIf Len( DumpMessage ) > 0 And Len( NeedsRedump ) = 0
     									ErrorNotFound + #CRLF$ + DumpMessage +  " [**]" 
-    								EndIf
+    									
+    								ElseIf Len( DumpMessage ) = 0 And Len( NeedsRedump ) > 0	
+    									ErrorNotFound + #CRLF$  + NeedsRedump + " [!!]" 								
+    								EndIf		
+    								
 										CountNotFndA - 1    								
     							EndIf		            						            				            				            				
     						EndIf	            			
@@ -6745,6 +6768,7 @@ EndProcedure
     						
     						NoGoodDumps.i = 0
     						FileDumpsLs.i = 0
+   							FileReDumps.i = 0
     						If ( ListSize( MRCL()\MRCF() ) > 0 )  
     								ResetList( MRCL()\MRCF() )
     								While NextElement( MRCL()\MRCF() )    						
@@ -6752,6 +6776,10 @@ EndProcedure
     									If FindString( MRCL()\MRCF()\Filename , "[**]",1)
     										NoGoodDumps + 1    										
     									EndIf
+    									If FindString( MRCL()\MRCF()\Filename , "[!!]",1)    										
+    										FileReDumps + 1
+    									EndIf    									
+    									Thread_HTTP_MAME_Roms_DoEvents() 
     								Wend
     						EndIf	    						
     						
@@ -6761,6 +6789,20 @@ EndProcedure
     							Delay( 1100 )
     							Continue
     						EndIf	
+    						
+    						If ( FileReDumps = FileDumpsLs )
+    							SetGadgetText(DC::#Text_002,"Re-Dump Needed")
+    							SetGadgetText(DC::#Text_003,"..Re-Dump Needed..")    							
+    							Delay( 1100 )
+    							Continue
+    						EndIf  
+    						
+    						If ( (FileReDumps + NoGoodDumps) = FileDumpsLs )
+    							SetGadgetText(DC::#Text_002,"Re-Dump Needed/No Good Dump Known")
+    							SetGadgetText(DC::#Text_003,"..Re-Dump / No Good Dump..")    							
+    							Delay( 1100 )
+    							Continue
+    						EndIf    						
     							
     						If MRCL()\Clone = #True
     							
@@ -7639,9 +7681,9 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5897
-; FirstLine = 5179
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 6709
+; FirstLine = 5960
 ; Folding = 8-------f6--be1g
 ; EnableAsm
 ; EnableXP
