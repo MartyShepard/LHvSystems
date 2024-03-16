@@ -5895,26 +5895,28 @@ EndProcedure
 	  
 	  hInet 	= InternetOpen_("", OpenType, #Null, #Null, 0) 
 	  hURL 		= InternetOpenUrl_(hInet, *Params\Urls , #Null, 0, #INTERNET_FLAG_RELOAD, 0) 
-	  
-	  SetGadgetText(DC::#Text_001, GetFilePart( File) + " ( Size: "+ EndSize + " ) ")
-	  SetGadgetText(DC::#Text_002,".. Get and Download ..")			       				        	
-	  SetGadgetText(DC::#Text_003, "...")    						
-	  
-	  Delay( 250 )
-	  
-	  Repeat 
-	  	InternetReadFile_(hURL, memID, Buffer, @Bytes) 
-	  	If Bytes = 0 
-	  		isLoop=0 
-	  	Else 
-	  		fBytes=fBytes+Bytes
-	  		SetGadgetText(DC::#Text_002,".. Download ..")   		  		
-	  		SetGadgetText(DC::#Text_003, GetFilePart( File,#PB_FileSystem_NoExtension )+ ": " + EndSize + " / " + MathBytes::FileSizeFormat(fBytes) )
-	  		WriteData(FileHandle, memID, Bytes) 
-	  	EndIf 
 	  	
-	  	Thread_HTTP_MAME_Roms_DoEvents()
-	  Until isLoop=0 
+	  	SetGadgetText(DC::#Text_001, GetFilePart( File) + " ( Size: "+ EndSize + " ) ")
+		  SetGadgetText(DC::#Text_002,".. Get and Download ..")			       				        	
+		  SetGadgetText(DC::#Text_003, "...")    						
+		  
+		  Delay( 250 )
+		  
+		  Repeat 
+		  	InternetReadFile_(hURL, memID, Buffer, @Bytes) 
+		  	If Bytes = 0 
+		  		isLoop=0 
+		  	Else 
+		  		fBytes=fBytes+Bytes
+		  		SetGadgetText(DC::#Text_002,".. Download ..")   		  		
+		  		SetGadgetText(DC::#Text_003, GetFilePart( File,#PB_FileSystem_NoExtension )+ ": " + EndSize + " / " + MathBytes::FileSizeFormat(fBytes) )
+		  		WriteData(FileHandle, memID, Bytes) 
+		  	EndIf 
+		  	
+		  	Thread_HTTP_MAME_Roms_DoEvents()
+		  Until isLoop=0 
+
+		
 	  InternetCloseHandle_(hURL) 
 	  InternetCloseHandle_(hInet) 
 	  
@@ -6563,32 +6565,36 @@ EndProcedure
 	    			
 	    			Position.i	= -1
 	    			Position = FindString( StrLine , " : ",1)
-	    			If ( Position > 0 )		    			
-	    				If ( FindString( StrLine , ") - NOT FOUND",1, #PB_String_CaseSensitive) )
+	    			If ( Position > 0 )
+							  If ( FindString( StrLine , ") - NOT FOUND",1, #PB_String_CaseSensitive) )
 	    					
 	    					ErrorRom.s = ""
 	    					ErrorRom   = Trim( Mid( StrLine,0, Position-1), Chr(32) )    					
+	    					
 	    					ResetList( MRCL() )
+	    					
 	    					While NextElement(  MRCL() )
 	    						If  ( MRCL()\RomSet = ErrorRom )
+	    							
 	    							MRCL()\NotFound = #True
 	    							MRCL()\Bad = #True 	    							
 	    							AddElement(  MRCL()\MRCF() )
-	    							
-	    							
+	    								    							
 	    							PosKlammerBeg.i = FindString( StrLine , " (",1)
 	    							PosKlammerEnd.i = FindString( StrLine , ") ",PosKlammerBeg + 1)
 	    							
 	    							MRCL()\MRCF()\Filename = Mid( StrLine, Position + 3, ( PosKlammerBeg - 2) -  Position)
 	    							SetGadgetText(DC::#Text_003,"[..Search Files: "+MRCL()\MRCF()\Filename+" (Adding)..]")	
+	    							
+	    							If ( FindString( StrLine , "NOT FOUND - NO GOOD DUMP KNOWN",1, #PB_String_CaseSensitive) )
+	    								MRCL()\NoDump = "No Good Dump Known"
+	    								MRCL()\MRCF()\Filename = "[**]" + MRCL()\MRCF()\Filename
+	    							EndIf
 	    							Break
 	    						EndIf
-	    						Thread_HTTP_MAME_Roms_DoEvents() 
+	    						Thread_HTTP_MAME_Roms_DoEvents() 	    						
 	    					Wend
-	    					
-	    					If ( FindString( StrLine , "NOT FOUND - NO GOOD DUMP KNOWN",1, #PB_String_CaseSensitive) )
-	    						MRCL()\NoDump = "No Good Dump Known"	    						
-	    					EndIf								    				
+	    					Continue
 	    				EndIf
 	    				
 	    				If ( FindString( StrLine , ") - NEEDS REDUMP",1, #PB_String_CaseSensitive) )
@@ -6598,7 +6604,7 @@ EndProcedure
 	    					While NextElement(  MRCL() )
 	    						If  ( MRCL()\RomSet = ErrorRom )
 	    							MRCL()\NotFound = #True
-	    							MRCL()\Bad = #False    							
+	    							MRCL()\Bad = #True    							
 	    							AddElement(  MRCL()\MRCF() )
 	    							
 	    							
@@ -6648,12 +6654,22 @@ EndProcedure
     		If CountBad > 0
     			ResetList( MRCL() )
     			CountNotFndA = CountNotFnd
+    			
     			While NextElement( MRCL() )
+    				
+    				Debug ""
+    				Debug "ROM       : " +  MRCL()\RomSet
+    				Debug "ROM(Clone): " +  MRCL()\RomClone
+    				Debug "No Dump   : " +  MRCL()\NoDump	
+    				
+    				DumpMessage.s = ""
     				
     				If MRCL()\Bad = #True 
     					If MRCL()\NotFound = #True
     						
-    						If Len( MRCL()\NoDump )= 0 
+    						If Len( MRCL()\NoDump ) > 0
+    							DumpMessage = MRCL()\NoDump
+    						EndIf	
     							
     							CloneMessage = ""
     							If MRCL()\Clone = #True
@@ -6664,15 +6680,24 @@ EndProcedure
     								ResetList( MRCL()\MRCF() )
     								ErrorNotFound + #CRLF$
     								While NextElement( MRCL()\MRCF() )
-    									ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| File: " + MRCL()\MRCF()\Filename + " (Not Found) " + CloneMessage	
+    									
+    									If FindString( MRCL()\MRCF()\Filename , "[**]",1)
+    										NoGoodDumpFile.s = ReplaceString( MRCL()\MRCF()\Filename, "[**]","" )    										
+    										ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| [**]: " + LSet( NoGoodDumpFile        ,16,Chr(32) ) + " (Not Found) " + CloneMessage
+    									Else
+    										ErrorNotFound + #CRLF$ + "Rom: " + LSet( MRCL()\RomSet,20,Chr(32) )  +  "| File: " + LSet( MRCL()\MRCF()\Filename,16,Chr(32) ) + " (Not Found) " + CloneMessage
+    									EndIf
     									Thread_HTTP_MAME_Roms_DoEvents()
-    									SetGadgetText(DC::#Text_003,"[..Create Result ("+ Str(CountNotFndA) +")..]")
-    									CountNotFndA - 1
+    									SetGadgetText(DC::#Text_003,"[..Create Result ("+ Str(CountNotFndA) +")..]")    									
     								Wend
+    								If Len( DumpMessage ) > 0
+    									ErrorNotFound + #CRLF$ + DumpMessage +  " [**]" 
+    								EndIf
+										CountNotFndA - 1    								
     							EndIf		            						            				            				            				
     						EndIf	            			
     					EndIf            		            		
-    				EndIf	
+    	
     			Wend
 				
     			SetGadgetText(DC::#Text_003,"") 
@@ -6706,7 +6731,7 @@ EndProcedure
     					*Params\Urls = ""
     					
     					
-    					If MRCL()\Bad = #True And MRCL()\NotFound = #True And Len( MRCL()\NoDump ) = 0 
+    					If MRCL()\Bad = #True And MRCL()\NotFound = #True ;And Len( MRCL()\NoDump ) = 0 
     						
     						If CurrentRomSet = MRCL()\RomSet
     							Continue
@@ -6718,6 +6743,25 @@ EndProcedure
     						SetGadgetText(DC::#Text_002,"Dir: " + Directory + " (Remaining: " + Str(CountNotFnd) + ")")
     						SetGadgetText(DC::#Text_003, "...")	
     						
+    						NoGoodDumps.i = 0
+    						FileDumpsLs.i = 0
+    						If ( ListSize( MRCL()\MRCF() ) > 0 )  
+    								ResetList( MRCL()\MRCF() )
+    								While NextElement( MRCL()\MRCF() )    						
+    									FileDumpsLs + 1
+    									If FindString( MRCL()\MRCF()\Filename , "[**]",1)
+    										NoGoodDumps + 1    										
+    									EndIf
+    								Wend
+    						EndIf	    						
+    						
+    						If ( NoGoodDumps = FileDumpsLs )
+    							SetGadgetText(DC::#Text_002,"No Good Dump Known")
+    							SetGadgetText(DC::#Text_003,"..No Good Dump Known..")    							
+    							Delay( 1100 )
+    							Continue
+    						EndIf	
+    							
     						If MRCL()\Clone = #True
     							
     							SetGadgetText(DC::#Text_001,"Rom: " + CurrentRomSet + " (Cloned: "+ MRCL()\RomClone +")")
@@ -6728,6 +6772,7 @@ EndProcedure
     							
     						EndIf
     						
+    						SetGadgetText(DC::#Text_003, ".. Get Size ..")
     						FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + CurrentRomSet + ReverseString( "piz." ) )				        					        	
     						If FileSize( Directory + CurrentRomSet + ".zip" ) = FileSize
     							SetGadgetText(DC::#Text_003, ".. File Exists: "+ CurrentRomSet +"..")				        		
@@ -6740,15 +6785,15 @@ EndProcedure
     							
     						ElseIf FileSize = 0				        						        						        								        						
     							
-    							SetGadgetText(DC::#Text_003, ".. Failure Zero: "+ CurrentRomSet +"..")				        		
-    							Delay( 800 )
+    							SetGadgetText(DC::#Text_003, ".. Not Found: "+ CurrentRomSet +"..")				        		
+    							Delay( 500 )
     							;
 									;
 									; Try Merged Rom
     							If MRCL()\Clone = #True
     								CurrentRomSet = MRCL()\RomClone
     								
-    								SetGadgetText(DC::#Text_003, ".. Use Merged: "+ CurrentRomSet +"..")
+    								SetGadgetText(DC::#Text_003, ".. Get Merged: "+ CurrentRomSet +"..")
     								
     								FileSize.q = FFH::HTTP_GetContentLength( ReverseString( AchvHead ) + ":" + ReverseString( Startup::*LHGameDB\aUseless ) + CurrentRomSet + ReverseString( "piz." ) )
     								If FileSize( Directory + CurrentRomSet + ".zip" ) = FileSize
@@ -6761,7 +6806,7 @@ EndProcedure
     									Continue				        			
     									
     								ElseIf FileSize = 0	
-    									SetGadgetText(DC::#Text_003, ".. Failure Zero: "+ CurrentRomSet +"..")				        		
+    									SetGadgetText(DC::#Text_003, ".. Not Found: "+ CurrentRomSet +"..")				        		
     									Thread_HTTP_MAME_Roms_DoEvents() 
     									Delay( 800 )			        		
     									Continue
@@ -7495,7 +7540,7 @@ EndProcedure
     		While NextElement( FFS::FullFileSource() )    			
     			AddElement( *Params\MSIC() )
     			*Params\MSIC()\FullFilePath =  FFS::FullFileSource()\FileName
-    			SetGadgetText(DC::#Text_003, GetFilePart(*Params\MSIC()\FullFilePath))
+    			SetGadgetText(DC::#Text_003, ".. Collect: " + GetFilePart(*Params\MSIC()\FullFilePath))
     			Thread_HTTP_MAME_Roms_DoEvents() 	
     		Wend	
     		
@@ -7594,10 +7639,10 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 7252
-; FirstLine = 5752
-; Folding = 8-------f6--beUk
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 5897
+; FirstLine = 5179
+; Folding = 8-------f6--be1g
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
