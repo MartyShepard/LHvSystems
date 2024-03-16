@@ -7315,12 +7315,8 @@ EndProcedure
 					Debug *Params\MSIP()\PLATFORM
 					ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "Release", *Params\MSIP()\YEAR, DIL()\Index)
 
-					SetGadgetText(DC::#Text_004,"M.A.M.E.: Update " + *Params\MSIP()\NAME)
-    				If *Params\MSIP()\NAME = "jaguarcd"
-    					Debug ""
-    				EndIf	
-    				
-    				ResetList( *Params\MSIP()\MSIF() )
+					SetGadgetText(DC::#Text_004,"M.A.M.E.: Update " + *Params\MSIP()\NAME)    				
+    			ResetList( *Params\MSIP()\MSIF() )
 					While NextElement(  *Params\MSIP()\MSIF() )	
 						
 						If ( *Params\MSIP()\MSIF()\MACHINE_IS_INCOMPLETE = #True )
@@ -7351,13 +7347,9 @@ EndProcedure
 						ExecSQL::InsertRow(DC::#Database_001,"Platform", "Platform", *Params\MSIP()\PLATFORM)
 						ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "PlatformID", Str(ExecSQL::LastRowID(DC::#Database_001,"Platform")), DIL()\Index)
 					EndIf	                
-				            
-					Debug Flags
 					Break
 				EndIf
-				;Thread_HTTP_MAME_Roms_DoEvents() 
 			Wend
-			;Thread_HTTP_MAME_Roms_DoEvents() 
 		Wend		
     EndProcedure	
 	;
@@ -7602,10 +7594,10 @@ EndModule
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 6385
-; FirstLine = 5613
-; Folding = 8-------f6--be1g
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 7252
+; FirstLine = 5752
+; Folding = 8-------f6--beUk
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

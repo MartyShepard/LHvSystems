@@ -10,13 +10,118 @@ EndDeclareModule
 Module Interact
     Global Thread.l
     
+    Structure HTTP_CHECK
+        File.s
+        Urls.s
+        Size.q       
+    EndStructure 
+      
     Procedure.w MouseWheelDelta() 
       Protected x.w
       
       x.w = ((EventwParam()>>16)&$FFFF) 
       ProcedureReturn -(x / 120) 
+    EndProcedure
+    ;
+		;
+		;
+    Procedure.s vSystemsCheck_String(StringPosition.i,StringMemory.s)
+    	Protected QuoateBEG.i, QuoateEND.i
+    	
+    	If ( StringPosition < ( StringPosition+1 ) )
+    		QuoateBEG = FindString(StringMemory, Chr(34) , StringPosition+1)
+    		
+    		If ( QuoateBEG > StringPosition )
+    			QuoateEND = FindString(StringMemory, Chr(34) , QuoateBEG+1)
+    			
+    			ProcedureReturn  Mid(StringMemory, QuoateBEG +1, ( QuoateEND-1) - QuoateBEG)
+    		EndIf
+    		
+    	EndIf
+    			
     EndProcedure 
+    ;
+		;
+    ;
+    Procedure Thread_vSystemsCheck(t) 
 
+    	Protected isLoop.b	= 1 
+    	Protected Bytes.l	= 0 
+    	Protected fBytes.l	= 0 
+    	Protected Buffer.l	=4096 
+    	Protected OpenType.b	= 1 
+    	Protected memID
+    	Protected hInet
+    	Protected hURL
+    	Protected myMax
+    	Protected StrText.s
+    	Protected OldVersion.s     	
+    	Protected NewVersion.s
+    	Protected CurVersion.s
+    	Protected UrlString.s     	
+    	
+    	UrlString = "https://github.com/MartyShepard/LHvSystems/raw/main/LH%20vSystems/vSystems_Modules/Module_Version.pb" 
+    	
+    	hInet 	= InternetOpen_("", OpenType, #Null, #Null, 0) 
+    	
+    	hURL 		= InternetOpenUrl_(hInet, UrlString , #Null, 0, #INTERNET_FLAG_RELOAD, 0) 					
+    	
+    	If Not (hURL = 0)
+	    	*BufferString = AllocateMemory(Buffer) 
+	    	
+	    	Repeat 
+	    		InternetReadFile_(hURL, *BufferString, Buffer, @Bytes) 
+	    		If Bytes = 0 
+	    			isLoop=0 
+	    		Else 
+	    			fBytes=fBytes+Bytes
+	    			*BufferString = ReAllocateMemory( *BufferString, fBytes)
+	    		EndIf     		    		
+	    	Until isLoop=0 
+	    	
+	    	StrText = PeekS(*BufferString, fBytes, #PB_UTF8  )
+	    	
+	    	If fBytes > 0
+		    	NewVersionPos = FindString(StrText, "Version     =",0)
+		    	
+		    	NewVersion = vSystemsCheck_String(NewVersionPos,StrText)
+		    	
+		    	CurVersion = ReplaceString(Startup::*LHGameDB\VersionNumber, ".", "",0,0,CountString(Startup::*LHGameDB\VersionNumber,".")+1 )
+		    	CurVersion = ReplaceString(CurVersion,"b","")
+		    	
+		    	NewLong.i = Val( ReplaceString(ReplaceString(NewVersion,"b",""), ".", "",0,0,CountString(NewVersion,".") +1 ) )    	
+		    	CurLong.i = Val( CurVersion )    	
+		    	
+		    	If (CurLong = NewLong) 
+		    		;
+						; Gleiche Version
+		    			Debug "Aktuelle Version: " + Startup::*LHGameDB\VersionNumber 
+		    			Debug "Neue     Version: " + NewVersion+ "(Internet)"    			
+		    	Else
+		    		If (CurLong < NewLong)
+		    			Debug "Aktuelle Version ist veraltet"
+		    			Debug "Aktuelle Version: " + Startup::*LHGameDB\VersionNumber 
+		    			Debug "Neue     Version: " + NewVersion + "(Internet)"
+		    			
+		    			SetGadgetText( DC::#Text_005, GetGadgetText(DC::#Text_005) + " [ Neue Version Verfügbar ]")
+		    			HideGadget(  DC::#Text_004, 0)
+		    			SetGadgetText( DC::#Text_004, "Neue Version ist verfügbar. Version: " +  NewVersion)
+		    			
+		    		ElseIf (CurLong > NewLong)
+		    			Debug "Aktuelle Version ist Neuer"    			
+		    			Debug "Aktuelle Version: " + Startup::*LHGameDB\VersionNumber 
+		    			Debug "Neue     Version: " + NewVersion + "(Internet)"    		
+		    		EndIf
+		    	EndIf	
+		    EndIf
+		  EndIf
+		  
+    	InternetCloseHandle_(hURL) 
+    	InternetCloseHandle_(hInet)        	
+    	FreeMemory(*BufferString)     	
+    	
+    EndProcedure 
+	
     ;******************************************************************************************************************************************
     ;  Events die "Auschliesslich" Die Objecte der Strings behandeln    
     ;__________________________________________________________________________________________________________________________________________
@@ -146,8 +251,8 @@ Module Interact
         	   Startup::*LHGameDB\SortMode = 5
        	Else
         	 	VEngine::Thread_LoadGameList_Sort()
-        endif
-        
+        EndIf
+            		
         ;
         ; Migrate
         If ( Startup::*LHGameDB\BaseSVNMigrate = #True )
@@ -175,7 +280,9 @@ Module Interact
         
         Startup::*LHGameDB\bFirstBootUp = #False
         
-
+        
+        VersionsCheck.i = #True 
+        
         Repeat
             
         	;vSystem::System_InfoToolTip(#True)    
@@ -189,7 +296,20 @@ Module Interact
             ;
             EvntWait = MainCode_StringCallBack(EvntGadget, EvntwParam, EvntWait)                                                     
             
-          
+        ;
+				; Version Check
+				;  
+        If ( VersionsCheck.i = #True )
+    				Protected HTTPCHECK_Thread.i = CreateThread(@Thread_vSystemsCheck(),0)  
+    				ThreadPriority(HTTPCHECK_Thread, 31)     						
+    				While IsThread(HTTPCHECK_Thread)		                           
+    					While WindowEvent()                                        				
+    					Wend
+    				Wend
+    				VersionsCheck.i = #False
+    				HTTPCHECK_Thread = 0 
+    		EndIf		
+    		         
             
             Select EvntWait                                                           
                     
@@ -762,10 +882,10 @@ Module Interact
         
     EndProcedure  
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 148
-; FirstLine = 102
-; Folding = --
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 309
+; FirstLine = 141
+; Folding = P+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
