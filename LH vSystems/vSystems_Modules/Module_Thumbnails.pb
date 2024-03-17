@@ -14,6 +14,9 @@
     
     Declare.i   Get_ThumbnailSize(nSizeOption.i)
     
+    Declare		GetImagesSize(nSlot)
+    Declare		GetImagesSize_Reset()
+    
 EndDeclareModule
 
 Module vThumbSys
@@ -47,6 +50,18 @@ Module vThumbSys
         y.f
     EndStructure      
     
+    Structure Struct_OriginalImageSize
+        w.i
+        h.i
+        x.i
+        y.i
+        d.i
+        n.i
+        NoScreen.i
+    EndStructure
+    
+    Global NewList OIS.Struct_OriginalImageSize()
+    
     Global NewList Queue()
     
     Global ResizeMutex = 0
@@ -68,93 +83,172 @@ Module vThumbSys
             
         EndIf   
         
+      EndProcedure
+      Procedure.l ImageGet_OriginalSize(*Memory.STRUCT_REZIMAGES)
+      	
+
+      EndProcedure  	
+    Procedure GetImagesSize_Reset()
+    	
+    	If ( ListSize( OIS() ) > 0 )
+    		ClearList( OIS() )
+    	EndIf
+    	
+    EndProcedure  	
+    Procedure GetImagesSize(nSlot)
+    	    	   	
+    	AddElement( OIS() )
+    	OIS()\n = nSlot
+    	    	
+      *Shot = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")        					      					 					          
+                
+      If Not ( *Shot = 0 )
+      	
+      	*Buffer = AllocateMemory( *Shot )								      						                      
+      	TestImage.l = 0
+      	TestImage = CatchImage(#PB_Any, *Shot, *Buffer)
+      	
+      	; Get information about the image 
+      	GetObject_(ImageID(TestImage), SizeOf(BITMAP), @bmp.BITMAP) 
+      	
+;      	With bmp             
+;       		Debug "Slot           :" + Str( ThumbnailNum )
+;       		Debug "\bmWidth       :" + Str( \bmWidth) 
+;       		Debug "\bmHeight      :" + Str( \bmHeight)
+;       		Debug "\bmWidthBytes  :" + Str( \bmWidthBytes)
+;       		Debug "\bmBitsPixel   :" + Str( \bmBitsPixel)
+;       		Debug "\bmBits        :" + Str( \bmBits)
+;       		Debug "\bmPlanes      :" + Str( \bmPlanes)
+;       		Debug "\bmType        :" + Str( \bmType)      		
+;       		Debug "----------------------------------------"               
+      		OIS()\w = ImageWidth(TestImage); \bmWidth
+      		OIS()\h = ImageHeight(TestImage); \bmHeight
+      		OIS()\d = ImageDepth(TestImage);\bmBits
+      		OIS()\NoScreen = #False
+      		
+;      	EndWith      	
+      	
+      	FreeImage(TestImage)
+      	FreeMemory(*Buffer)
+      	*Shot = 0     
+      EndIf        	
     EndProcedure
+        
     ;*******************************************************************************************************************************************************************
     ;    
-    Procedure.l   Thread_Resize(*Memory.STRUCT_REZIMAGES)
-        Define.l OriW, OriH, w, h, oriAR, newAR, ImageBlank.l
-        Define.f fw, fh
-        
-        Protected Source.Struct_ImageSize, Factor.Struct_ImageFactor, OrgAspectRatio.f, NewAspectRatio.f, Copy.Struct_ImageSize
-                
-        
-        Source\w = ImageWidth( *Memory\ImageID)
-        Source\h = ImageHeight(*Memory\ImageID)
-        
-       
-        ; Calc Factor
-        Factor\w = *Memory\Width  / Source\w
-        Factor\h = *Memory\Height / Source\h
-        
-        ; Calc AspectRatio
-        OrgAspectRatio = Round( (Source\w / Source\h) * 10,0)
-        NewAspectRatio = Round( (*Memory\Width / *Memory\Height) * 10,0)
-        
-        ; AspectRatio already correct?
-        If     ( OrgAspectRatio = NewAspectRatio )
-                Copy\w = *Memory\Width
-                Copy\h = *Memory\Height
-            
-        ElseIf ( Source\w * Factor\h  <= *Memory\Width )
-            Copy\w = Source\w * Factor\h
-            Copy\h = Source\h * Factor\h
-            
-        ElseIf ( Source\h * Factor\w  <= *Memory\Height)
-            Copy\w = Source\w * Factor\w 
-            Copy\h = Source\h * Factor\w   
-        EndIf
-        
-        ResizeImage(*Memory\ImageID,Copy\w,Copy\h,#PB_Image_Smooth )
-        
-        Select *Memory\BoxStyle
-            Case 1
-                w = 0
-                h = 0
-                
-                Select *Memory\Alpha 
-                        Case #False: ImageBlank = CreateImage(#PB_Any,*Memory\Width,*Memory\Height) 
-                        Case #True : ImageBlank = CreateImage(#PB_Any,*Memory\Width,*Memory\Height,24,*Memory\ColorBlack.l)   
-                EndSelect                 
-                
-                If ( ImageBlank > 1 )
-                    If StartDrawing( ImageOutput( ImageBlank ) )
-                        
-                        Select *Memory\Alpha 
-                            Case #False: Box(0,0,*Memory\Width,*Memory\Height,*Memory\ColorBlack.l)                          
-                        EndSelect                 
-                        
-                        
-                        Select *Memory\Alpha 
-                            Case #False: DrawingMode(#PB_2DDrawing_AlphaBlend)
-                            Case #True : DrawingMode(#PB_2DDrawing_Default)
-                        EndSelect 
-                        
-                        
-                        If ( *Memory\Center = #True )
-                            w = *Memory\Width -  Abs(ImageWidth( *Memory\ImageID))
-                            h = *Memory\Height - Abs(ImageHeight(*Memory\ImageID))
-                            
-                            If ( w <> 0 )
-                                w / 2
-                            EndIf
-                            
-                            If ( h <> 0 )
-                                h / 2
-                            EndIf
-                            
-                        EndIf
-                        Select *Memory\Alpha 
-                            Case #False: DrawImage(ImageID(*Memory\ImageID), w, h)                                                                        
-                            Case #True : DrawAlphaImage(ImageID(*Memory\ImageID), w, h,*Memory\Level) 
-                                
-                        EndSelect            
-                        StopDrawing()
-                        GrabImage(ImageBlank,*Memory\ImageID, 0, 0, *Memory\Width, *Memory\Height) 
-                    EndIf
-                EndIf
-        EndSelect        
-               
-    EndProcedure
+      Procedure.l   Thread_Resize(*Memory.STRUCT_REZIMAGES)
+      	Define.l OriW, OriH, w, h, oriAR, newAR, ImageBlank.l
+      	Define.f fw, fh
+      	
+      	Protected Source.Struct_ImageSize, Factor.Struct_ImageFactor, OrgAspectRatio.f, NewAspectRatio.f, Copy.Struct_ImageSize
+      	
+      	
+      	Source\w = ImageWidth( *Memory\ImageID)
+      	Source\h = ImageHeight(*Memory\ImageID)
+      	
+      	
+      	; Calc Factor
+      	Factor\w = *Memory\Width  / Source\w
+      	Factor\h = *Memory\Height / Source\h
+      	
+      	; Calc AspectRatio
+      	OrgAspectRatio = Round( (Source\w / Source\h) * 10,0)
+      	NewAspectRatio = Round( (*Memory\Width / *Memory\Height) * 10,0)
+      	
+
+      	
+      	; AspectRatio already correct?
+      	If     ( OrgAspectRatio = NewAspectRatio )
+      		Copy\w = *Memory\Width
+      		Copy\h = *Memory\Height
+      		
+      	ElseIf ( Source\w * Factor\h  <= *Memory\Width )
+      		Copy\w = Source\w * Factor\h
+      		Copy\h = Source\h * Factor\h
+      		
+      	ElseIf ( Source\h * Factor\w  <= *Memory\Height)
+      		Copy\w = Source\w * Factor\w 
+      		Copy\h = Source\h * Factor\w   
+      	EndIf
+      	
+      	
+      	
+      	ResizeImage(*Memory\ImageID,Copy\w,Copy\h,#PB_Image_Smooth )
+      	
+      	Select *Memory\BoxStyle
+      		Case 1
+      			w = 0
+      			h = 0
+      			
+      			
+      			
+      			Select *Memory\Alpha 
+      				Case #False: ImageBlank = CreateImage(#PB_Any,*Memory\Width,*Memory\Height) 
+      				Case #True : ImageBlank = CreateImage(#PB_Any,*Memory\Width,*Memory\Height,32,*Memory\ColorBlack.l)   
+      			EndSelect                 
+      			
+      			If Not ( ImageBlank = 0 )
+      				If StartDrawing( ImageOutput( ImageBlank ) )
+      					
+      					
+      					Select *Memory\Alpha 
+      						Case #False: Box(0,0,*Memory\Width,*Memory\Height,*Memory\ColorBlack.l)                          
+      					EndSelect                 
+      					
+      					
+      					Select *Memory\Alpha 
+      						Case #False: DrawingMode(#PB_2DDrawing_AlphaBlend)
+      						Case #True : DrawingMode(#PB_2DDrawing_Transparent);DrawingMode(#PB_2DDrawing_Default)
+      					EndSelect 
+      					
+      					
+      					If ( *Memory\Center = #True )
+      						w = *Memory\Width -  Abs(ImageWidth( *Memory\ImageID))
+      						h = *Memory\Height - Abs(ImageHeight(*Memory\ImageID))
+      						
+      						If ( w <> 0 )
+      							w / 2
+      						EndIf
+      						
+      						If ( h <> 0 )
+      							h / 2
+      						EndIf
+      						
+      					EndIf
+      					
+      					
+      					Select *Memory\Alpha 
+      						Case #False: DrawImage(ImageID(*Memory\ImageID), w, h)                                                                        
+      						Case #True : DrawAlphaImage(ImageID(*Memory\ImageID), w, h,*Memory\Level) 
+      							
+      					EndSelect    
+      					
+      					Debug "ImageText " + Str( *Memory\ImageID) + " -- " + Str(ImageBlank)
+      					
+; 	      					ResetList( OIS() )
+; 	      					If ( ListSize( OIS() ) > 0 )
+; 	      						While NextElement( OIS() )
+; 	      							If OIS()\n = *memory\Slot
+; 	      								Debug OIS()\w
+; 	      								Debug OIS()\h
+; 	      								Debug OIS()\d
+; 	      								If Not ( OIS()\w = 0 )
+; 	      									DrawingFont(Fonts::#PC_Clone_09) 	
+; 	      									DrawText(1,*Memory\Height-18, Str( OIS()\w )+"x"+Str( OIS()\h )+"x"+Str( OIS()\d ), RGB(255,255,255))																					      									
+; 	      								EndIf	
+; 	      								Break
+; 	      							EndIf      							
+; 	      						Wend	      						
+; 	      					EndIf     
+									;DrawText(*Memory\Width-40,*Memory\Height-18, Str( *Memory\ImageID ), RGBA(255, 255, 255, 0),RGBA(0, 0, 0, 255) )	      					
+      					StopDrawing()     					
+      					GrabImage(ImageBlank,*Memory\ImageID, 0, 0, *Memory\Width, *Memory\Height)
+      					
+      				EndIf
+      			EndIf
+      	EndSelect        
+      	
+      EndProcedure
     
     Procedure.l ImageResizeEx_AddMem( *Memory.STRUCT_REZIMAGES, id.l, bs.i, rgb.l, h.i, w.i, c.i, alpha.i, level.i, slot.i)
          
@@ -168,13 +262,26 @@ Module vThumbSys
         *Memory\Level      = level
         *Memory\Slot       = slot
         *Memory\Thread     = -1
-    EndProcedure
+      EndProcedure
+       
+    Procedure ImageResizeEx_Thread_DoEvents(*Memory.STRUCT_REZIMAGES) 
+    	Protected msg.MSG
+    	
+    	If PeekMessage_(msg,0,0,0,1) 
+    		TranslateMessage_(msg)
+    		Thread_Resize(*Memory)
+    		DispatchMessage_(msg)
+    		
+    	Else 
+    		Sleep_(1)
+    		Thread_Resize(*Memory)
+    	EndIf 
+    EndProcedure     
     ;*******************************************************************************************************************************************************************
     ;      
     Procedure   ImageResizeEx_Thread(Image.l, w.i, h.i, BoxStyle.i = 0, Color.l = $000000, Center.i = #False, Alpha.i = #False, Level.i = 255, Slot.i = 0)
         
-        If IsImage(Image)            
-            
+        If IsImage(Image)                   							      					                	
             Select Slot
                 Case 0    
                 Case 1
@@ -187,12 +294,16 @@ Module vThumbSys
                         *Memory01\Mutex = CreateMutex()
                         
                         LockMutex( *Memory01\Mutex )   
-                        *Memory01\Thread = CreateThread(@Thread_Resize(),*Memory01)
+                        ;*Memory01\Thread = CreateThread(@Thread_Resize(),*Memory01)
+                        ;While IsThread(*Memory01\Thread)
+                        ;	Debug *Memory01\ImageID
+                        	ImageResizeEx_Thread_DoEvents(*Memory01)
+                        ;Wend	
                         
-                        
-                        If IsThread(*Memory01\Thread)
-                            WaitThread(*Memory01\Thread,5000)
-                        EndIf
+                        ;If IsThread(*Memory01\Thread)
+                        	;WaitThread(*Memory01\Thread,5000)
+                        	
+                        ;EndIf
                         UnlockMutex( *Memory01\Mutex  )
                     EndIf                                          
                     FreeStructure( *Memory01 )                     
@@ -206,12 +317,13 @@ Module vThumbSys
                         *Memory02\Mutex = CreateMutex()
                         
                         LockMutex( *Memory02\Mutex )   
-                        *Memory02\Thread = CreateThread(@Thread_Resize(),*Memory02)
-                        
-                        
-                        If IsThread(*Memory02\Thread)
-                            WaitThread(*Memory02\Thread,5000)
-                        EndIf
+;                         *Memory02\Thread = CreateThread(@Thread_Resize(),*Memory02)
+;                         
+;                         
+;                         If IsThread(*Memory02\Thread)
+;                         	 WaitThread(*Memory02\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory02)
                         UnlockMutex( *Memory02\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory02 )                    
@@ -225,12 +337,13 @@ Module vThumbSys
                         *Memory03\Mutex = CreateMutex()
                         
                         LockMutex( *Memory03\Mutex )   
-                        *Memory03\Thread = CreateThread(@Thread_Resize(),*Memory03)
-                        
-                        
-                        If IsThread(*Memory03\Thread)
-                            WaitThread(*Memory03\Thread,5000)
-                        EndIf   
+;                         *Memory03\Thread = CreateThread(@Thread_Resize(),*Memory03)
+;                         
+;                         
+;                         If IsThread(*Memory03\Thread)
+;                         	WaitThread(*Memory03\Thread,5000)
+;                         EndIf   
+                        ImageResizeEx_Thread_DoEvents(*Memory03)
                         UnlockMutex( *Memory03\Mutex  )
                         
                     EndIf                   
@@ -245,12 +358,13 @@ Module vThumbSys
                         *Memory04\Mutex = CreateMutex()
                         
                         LockMutex( *Memory04\Mutex )   
-                        *Memory04\Thread = CreateThread(@Thread_Resize(),*Memory04)
-                        
-                        
-                        If IsThread(*Memory04\Thread)
-                            WaitThread(*Memory04\Thread,5000)
-                        EndIf
+;                         *Memory04\Thread = CreateThread(@Thread_Resize(),*Memory04)
+;                         
+;                         
+;                         If IsThread(*Memory04\Thread)
+;                         	WaitThread(*Memory04\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory04)
                         UnlockMutex( *Memory04\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory04 )                    
@@ -264,12 +378,13 @@ Module vThumbSys
                         *Memory05\Mutex = CreateMutex()
                         
                         LockMutex( *Memory05\Mutex )   
-                        *Memory05\Thread = CreateThread(@Thread_Resize(),*Memory05)
-                        
-                        
-                        If IsThread(*Memory05\Thread)
-                            WaitThread(*Memory05\Thread,5000)
-                        EndIf
+;                         *Memory05\Thread = CreateThread(@Thread_Resize(),*Memory05)
+;                         
+;                         
+;                         If IsThread(*Memory05\Thread)
+;                         	WaitThread(*Memory05\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory05)
                         UnlockMutex( *Memory05\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory05 )                    
@@ -283,12 +398,13 @@ Module vThumbSys
                         *Memory06\Mutex = CreateMutex()
                         
                         LockMutex( *Memory06\Mutex )   
-                        *Memory06\Thread = CreateThread(@Thread_Resize(),*Memory06)
-                        
-                        
-                        If IsThread(*Memory06\Thread)
-                            WaitThread(*Memory06\Thread,5000)
-                        EndIf
+;                         *Memory06\Thread = CreateThread(@Thread_Resize(),*Memory06)
+;                         
+;                         
+;                         If IsThread(*Memory06\Thread)
+;                         	WaitThread(*Memory06\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory06)
                         UnlockMutex( *Memory06\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory06 )                    
@@ -302,12 +418,13 @@ Module vThumbSys
                         *Memory07\Mutex = CreateMutex()
                         
                         LockMutex( *Memory07\Mutex )   
-                        *Memory07\Thread = CreateThread(@Thread_Resize(),*Memory07)
-                        
-                        
-                        If IsThread(*Memory07\Thread)
-                            WaitThread(*Memory07\Thread,5000)
-                        EndIf
+;                         *Memory07\Thread = CreateThread(@Thread_Resize(),*Memory07)
+;                         
+;                         
+;                         If IsThread(*Memory07\Thread)
+;                         	WaitThread(*Memory07\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory07)
                         UnlockMutex( *Memory07\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory07 )                    
@@ -321,12 +438,13 @@ Module vThumbSys
                         *Memory08\Mutex = CreateMutex()
                         
                         LockMutex( *Memory08\Mutex )   
-                        *Memory08\Thread = CreateThread(@Thread_Resize(),*Memory08)
-                        
-                        
-                        If IsThread(*Memory08\Thread)
-                            WaitThread(*Memory08\Thread,5000)
-                        EndIf
+;                         *Memory08\Thread = CreateThread(@Thread_Resize(),*Memory08)
+;                         
+;                         
+;                         If IsThread(*Memory08\Thread)
+;                         	WaitThread(*Memory08\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory08)                        
                         UnlockMutex( *Memory08\Mutex  )
                     EndIf      
                     FreeStructure( *Memory08 )                    
@@ -340,12 +458,13 @@ Module vThumbSys
                         *Memory09\Mutex = CreateMutex()
                         
                         LockMutex( *Memory09\Mutex )   
-                        *Memory09\Thread = CreateThread(@Thread_Resize(),*Memory09)
-                        
-                        
-                        If IsThread(*Memory09\Thread)
-                            WaitThread(*Memory09\Thread,5000)
-                        EndIf
+;                         *Memory09\Thread = CreateThread(@Thread_Resize(),*Memory09)
+;                         
+;                         
+;                         If IsThread(*Memory09\Thread)
+;                         	WaitThread(*Memory09\Thread,5000)
+;                         EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory09)                          
                         UnlockMutex( *Memory09\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory09 )                    
@@ -359,13 +478,14 @@ Module vThumbSys
                         *Memory10\Mutex = CreateMutex()
                         
                         LockMutex( *Memory10\Mutex )   
-                        *Memory10\Thread = CreateThread(@Thread_Resize(),*Memory10)
-                        
-                        
-                        If IsThread(*Memory10\Thread)
-                            WaitThread(*Memory10\Thread,5000)
-                        EndIf
+;                         *Memory10\Thread = CreateThread(@Thread_Resize(),*Memory10)
+;                         
+;                         
+;                         If IsThread(*Memory10\Thread)
+;                         	WaitThread(*Memory10\Thread,5000)
+;                         EndIf
                         UnlockMutex( *Memory10\Mutex  )
+                        ImageResizeEx_Thread_DoEvents(*Memory10)                        
                     EndIf                   
                     FreeStructure( *Memory10 )                    
                 Case 11
@@ -378,13 +498,15 @@ Module vThumbSys
                         *Memory11\Mutex = CreateMutex()
                         
                         LockMutex( *Memory11\Mutex )   
-                        *Memory11\Thread = CreateThread(@Thread_Resize(),*Memory11)
-                        
-                        
-                        If IsThread(*Memory11\Thread)
-                            WaitThread(*Memory11\Thread,5000)
-                        EndIf
+;                         *Memory11\Thread = CreateThread(@Thread_Resize(),*Memory11)
+;                         
+;                         
+;                         If IsThread(*Memory11\Thread)
+;                             WaitThread(*Memory11\Thread,5000)
+;                         EndIf
+ 												ImageResizeEx_Thread_DoEvents(*Memory11)                         
                         UnlockMutex( *Memory11\Mutex  )
+                                               
                     EndIf                   
                     FreeStructure( *Memory11 )                    
                 Case 12
@@ -397,12 +519,13 @@ Module vThumbSys
                         *Memory12\Mutex = CreateMutex()
                         
                         LockMutex( *Memory12\Mutex )   
-                        *Memory12\Thread = CreateThread(@Thread_Resize(),*Memory12)
-                        
-                        
-                        If IsThread(*Memory12\Thread)
-                            WaitThread(*Memory12\Thread,5000)
-                        EndIf
+;                         *Memory12\Thread = CreateThread(@Thread_Resize(),*Memory12)
+;                         
+;                         
+;                         If IsThread(*Memory12\Thread)
+;                             WaitThread(*Memory12\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory12)                           
                         UnlockMutex( *Memory12\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory12 )                    
@@ -416,12 +539,13 @@ Module vThumbSys
                         *Memory13\Mutex = CreateMutex()
                         
                         LockMutex( *Memory13\Mutex )   
-                        *Memory13\Thread = CreateThread(@Thread_Resize(),*Memory13)
-                        
-                        
-                        If IsThread(*Memory13\Thread)
-                            WaitThread(*Memory13\Thread,5000)
-                        EndIf
+;                         *Memory13\Thread = CreateThread(@Thread_Resize(),*Memory13)
+;                         
+;                         
+;                         If IsThread(*Memory13\Thread)
+;                             WaitThread(*Memory13\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory13)                           
                         UnlockMutex( *Memory13\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory13 )                    
@@ -435,12 +559,13 @@ Module vThumbSys
                         *Memory14\Mutex = CreateMutex()
                         
                         LockMutex( *Memory14\Mutex )   
-                        *Memory14\Thread = CreateThread(@Thread_Resize(),*Memory14)
-                        
-                        
-                        If IsThread(*Memory14\Thread)
-                            WaitThread(*Memory14\Thread,5000)
-                        EndIf
+;                         *Memory14\Thread = CreateThread(@Thread_Resize(),*Memory14)
+;                         
+;                         
+;                         If IsThread(*Memory14\Thread)
+;                             WaitThread(*Memory14\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory14)                           
                         UnlockMutex( *Memory14\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory14 )                    
@@ -454,12 +579,13 @@ Module vThumbSys
                         *Memory15\Mutex = CreateMutex()
                         
                         LockMutex( *Memory15\Mutex )   
-                        *Memory15\Thread = CreateThread(@Thread_Resize(),*Memory15)
-                        
-                        
-                        If IsThread(*Memory15\Thread)
-                            WaitThread(*Memory15\Thread,5000)
-                        EndIf
+;                         *Memory15\Thread = CreateThread(@Thread_Resize(),*Memory15)
+;                         
+;                         
+;                         If IsThread(*Memory15\Thread)                        	
+;                             WaitThread(*Memory15\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory15)                           
                         UnlockMutex( *Memory15\Mutex  )
                     EndIf
                     FreeStructure( *Memory15 )                    
@@ -473,12 +599,13 @@ Module vThumbSys
                         *Memory16\Mutex = CreateMutex()
                         
                         LockMutex( *Memory16\Mutex )   
-                        *Memory16\Thread = CreateThread(@Thread_Resize(),*Memory16)
-                        
-                        
-                        If IsThread(*Memory16\Thread)
-                            WaitThread(*Memory16\Thread,5000)
-                        EndIf
+;                         *Memory16\Thread = CreateThread(@Thread_Resize(),*Memory16)
+;                         
+;                         
+;                         If IsThread(*Memory16\Thread)
+;                             WaitThread(*Memory16\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory16)                           
                         UnlockMutex( *Memory16\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory16 )                    
@@ -492,12 +619,13 @@ Module vThumbSys
                         *Memory17\Mutex = CreateMutex()
                         
                         LockMutex( *Memory17\Mutex )   
-                        *Memory17\Thread = CreateThread(@Thread_Resize(),*Memory17)
-                        
-                        
-                        If IsThread(*Memory17\Thread)
-                            WaitThread(*Memory17\Thread,5000)
-                        EndIf
+;                         *Memory17\Thread = CreateThread(@Thread_Resize(),*Memory17)
+;                         
+;                         
+;                         If IsThread(*Memory17\Thread)
+;                             WaitThread(*Memory17\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory17)                           
                         UnlockMutex( *Memory17\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory17 )                    
@@ -511,12 +639,13 @@ Module vThumbSys
                         *Memory18\Mutex = CreateMutex()
                         
                         LockMutex( *Memory18\Mutex )   
-                        *Memory18\Thread = CreateThread(@Thread_Resize(),*Memory18)
-                        
-                        
-                        If IsThread(*Memory18\Thread)
-                            WaitThread(*Memory18\Thread,5000)
-                        EndIf
+;                         *Memory18\Thread = CreateThread(@Thread_Resize(),*Memory18)
+;                         
+;                         
+;                         If IsThread(*Memory18\Thread)
+;                             WaitThread(*Memory18\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory18)                           
                         UnlockMutex( *Memory18\Mutex  )
                     EndIf                      
                     FreeStructure( *Memory18 )                    
@@ -530,12 +659,13 @@ Module vThumbSys
                         *Memory19\Mutex = CreateMutex()
                         
                         LockMutex( *Memory19\Mutex )   
-                        *Memory19\Thread = CreateThread(@Thread_Resize(),*Memory19)
-                        
-                        
-                        If IsThread(*Memory19\Thread)
-                            WaitThread(*Memory19\Thread,5000)
-                        EndIf
+;                         *Memory19\Thread = CreateThread(@Thread_Resize(),*Memory19)
+;                         
+;                         
+;                         If IsThread(*Memory19\Thread)
+;                             WaitThread(*Memory19\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory19)                           
                         UnlockMutex( *Memory19\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory19 )                    
@@ -549,12 +679,13 @@ Module vThumbSys
                         *Memory20\Mutex = CreateMutex()
                         
                         LockMutex( *Memory20\Mutex )   
-                        *Memory20\Thread = CreateThread(@Thread_Resize(),*Memory20)
-                        
-                        
-                        If IsThread(*Memory20\Thread)
-                            WaitThread(*Memory20\Thread,5000)
-                        EndIf
+;                         *Memory20\Thread = CreateThread(@Thread_Resize(),*Memory20)
+;                         
+;                         
+;                         If IsThread(*Memory20\Thread)
+;                             WaitThread(*Memory20\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory20)                           
                         UnlockMutex( *Memory20\Mutex  )
                     EndIf 
                     FreeStructure( *Memory20 )                    
@@ -568,12 +699,13 @@ Module vThumbSys
                         *Memory21\Mutex = CreateMutex()
                         
                         LockMutex( *Memory21\Mutex )   
-                        *Memory21\Thread = CreateThread(@Thread_Resize(),*Memory21)
-                        
-                        
-                        If IsThread(*Memory21\Thread)
-                            WaitThread(*Memory21\Thread,5000)
-                        EndIf
+;                         *Memory21\Thread = CreateThread(@Thread_Resize(),*Memory21)
+;                         
+;                         
+;                         If IsThread(*Memory21\Thread)
+;                             WaitThread(*Memory21\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory21)                           
                         UnlockMutex( *Memory21\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory21 )                    
@@ -587,12 +719,13 @@ Module vThumbSys
                         *Memory22\Mutex = CreateMutex()
                         
                         LockMutex( *Memory22\Mutex )   
-                        *Memory22\Thread = CreateThread(@Thread_Resize(),*Memory22)
-                        
-                        
-                        If IsThread(*Memory22\Thread)
-                            WaitThread(*Memory22\Thread,5000)
-                        EndIf
+;                         *Memory22\Thread = CreateThread(@Thread_Resize(),*Memory22)
+;                         
+;                         
+;                         If IsThread(*Memory22\Thread)
+;                             WaitThread(*Memory22\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory22)                           
                         UnlockMutex( *Memory22\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory22 )                    
@@ -606,12 +739,13 @@ Module vThumbSys
                         *Memory23\Mutex = CreateMutex()
                         
                         LockMutex( *Memory23\Mutex )   
-                        *Memory23\Thread = CreateThread(@Thread_Resize(),*Memory23)
-                        
-                        
-                        If IsThread(*Memory23\Thread)
-                            WaitThread(*Memory23\Thread,5000)
-                        EndIf
+;                         *Memory23\Thread = CreateThread(@Thread_Resize(),*Memory23)
+;                         
+;                         
+;                         If IsThread(*Memory23\Thread)
+;                             WaitThread(*Memory23\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory23)                           
                         UnlockMutex( *Memory23\Mutex  )
                     EndIf
                     FreeStructure( *Memory23 )                    
@@ -625,12 +759,13 @@ Module vThumbSys
                         *Memory24\Mutex = CreateMutex()
                         
                         LockMutex( *Memory24\Mutex )   
-                        *Memory24\Thread = CreateThread(@Thread_Resize(),*Memory24)
-                        
-                        
-                        If IsThread(*Memory24\Thread)
-                            WaitThread(*Memory24\Thread,5000)
-                        EndIf
+;                         *Memory24\Thread = CreateThread(@Thread_Resize(),*Memory24)
+;                         
+;                         
+;                         If IsThread(*Memory24\Thread)
+;                             WaitThread(*Memory24\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory24)                           
                         UnlockMutex( *Memory24\Mutex  )
                     EndIf
                     FreeStructure( *Memory24 )                    
@@ -644,12 +779,13 @@ Module vThumbSys
                         *Memory25\Mutex = CreateMutex()
                         
                         LockMutex( *Memory25\Mutex )   
-                        *Memory25\Thread = CreateThread(@Thread_Resize(),*Memory25)
-                        
-                        
-                        If IsThread(*Memory25\Thread)
-                            WaitThread(*Memory25\Thread,5000)
-                        EndIf
+;                         *Memory25\Thread = CreateThread(@Thread_Resize(),*Memory25)
+;                         
+;                         
+;                         If IsThread(*Memory25\Thread)
+;                             WaitThread(*Memory25\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory25)                           
                         UnlockMutex( *Memory25\Mutex  )
                     EndIf
                     FreeStructure( *Memory25 )                    
@@ -663,12 +799,13 @@ Module vThumbSys
                         *Memory26\Mutex = CreateMutex()
                         
                         LockMutex( *Memory26\Mutex )   
-                        *Memory26\Thread = CreateThread(@Thread_Resize(),*Memory26)
-                        
-                        
-                        If IsThread(*Memory26\Thread)
-                            WaitThread(*Memory26\Thread,5000)
-                        EndIf
+;                         *Memory26\Thread = CreateThread(@Thread_Resize(),*Memory26)
+;                         
+;                         
+;                         If IsThread(*Memory26\Thread)
+;                             WaitThread(*Memory26\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory26)                           
                         UnlockMutex( *Memory26\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory26 )
@@ -682,12 +819,13 @@ Module vThumbSys
                         *Memory27\Mutex = CreateMutex()
                         
                         LockMutex( *Memory27\Mutex )   
-                        *Memory27\Thread = CreateThread(@Thread_Resize(),*Memory27)
-                        
-                        
-                        If IsThread(*Memory27\Thread)
-                            WaitThread(*Memory27\Thread,5000)
-                        EndIf
+;                         *Memory27\Thread = CreateThread(@Thread_Resize(),*Memory27)
+;                         
+;                         
+;                         If IsThread(*Memory27\Thread)
+;                             WaitThread(*Memory27\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory27)                           
                         UnlockMutex( *Memory27\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory27 )                    
@@ -701,12 +839,13 @@ Module vThumbSys
                         *Memory28\Mutex = CreateMutex()
                         
                         LockMutex( *Memory28\Mutex )   
-                        *Memory28\Thread = CreateThread(@Thread_Resize(),*Memory28)
-                        
-                        
-                        If IsThread(*Memory28\Thread)
-                            WaitThread(*Memory28\Thread,5000)
-                        EndIf
+;                         *Memory28\Thread = CreateThread(@Thread_Resize(),*Memory28)
+;                         
+;                         
+;                         If IsThread(*Memory28\Thread)
+;                             WaitThread(*Memory28\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory28)                           
                         UnlockMutex( *Memory28\Mutex  )
                     EndIf                      
                     FreeStructure( *Memory28 )                    
@@ -720,12 +859,13 @@ Module vThumbSys
                         *Memory29\Mutex = CreateMutex()
                         
                         LockMutex( *Memory29\Mutex )   
-                        *Memory29\Thread = CreateThread(@Thread_Resize(),*Memory29)
-                        
-                        
-                        If IsThread(*Memory29\Thread)
-                            WaitThread(*Memory29\Thread,5000)
-                        EndIf
+;                         *Memory29\Thread = CreateThread(@Thread_Resize(),*Memory29)
+;                         
+;                         
+;                         If IsThread(*Memory29\Thread)
+;                             WaitThread(*Memory29\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory29)                           
                         UnlockMutex( *Memory29\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory29 )
@@ -739,12 +879,13 @@ Module vThumbSys
                         *Memory30\Mutex = CreateMutex()
                         
                         LockMutex( *Memory30\Mutex )   
-                        *Memory30\Thread = CreateThread(@Thread_Resize(),*Memory30)
-                        
-                        
-                        If IsThread(*Memory30\Thread)
-                            WaitThread(*Memory30\Thread,5000)
-                        EndIf
+;                         *Memory30\Thread = CreateThread(@Thread_Resize(),*Memory30)
+;                         
+;                         
+;                         If IsThread(*Memory30\Thread)
+;                             WaitThread(*Memory30\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory30)                           
                         UnlockMutex( *Memory30\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory30 )                       
@@ -758,12 +899,13 @@ Module vThumbSys
                         *Memory31\Mutex = CreateMutex()
                         
                         LockMutex( *Memory31\Mutex )   
-                        *Memory31\Thread = CreateThread(@Thread_Resize(),*Memory31)
-                        
-                        
-                        If IsThread(*Memory31\Thread)
-                            WaitThread(*Memory31\Thread,5000)
-                        EndIf
+;                         *Memory31\Thread = CreateThread(@Thread_Resize(),*Memory31)
+;                         
+;                         
+;                         If IsThread(*Memory31\Thread)
+;                             WaitThread(*Memory31\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory31)                            
                         UnlockMutex( *Memory31\Mutex  )
                     EndIf
                     FreeStructure( *Memory31 )                       
@@ -777,12 +919,13 @@ Module vThumbSys
                         *Memory32\Mutex = CreateMutex()
                         
                         LockMutex( *Memory32\Mutex )   
-                        *Memory32\Thread = CreateThread(@Thread_Resize(),*Memory32)
-                        
-                        
-                        If IsThread(*Memory32\Thread)
-                            WaitThread(*Memory32\Thread,5000)
-                        EndIf
+;                         *Memory32\Thread = CreateThread(@Thread_Resize(),*Memory32)
+;                         
+;                         
+;                         If IsThread(*Memory32\Thread)
+;                             WaitThread(*Memory32\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory32)                            
                         UnlockMutex( *Memory32\Mutex  )
                     EndIf 
                     FreeStructure( *Memory32 )                       
@@ -796,12 +939,13 @@ Module vThumbSys
                         *Memory33\Mutex = CreateMutex()
                         
                         LockMutex( *Memory33\Mutex )   
-                        *Memory33\Thread = CreateThread(@Thread_Resize(),*Memory33)
-                        
-                        
-                        If IsThread(*Memory33\Thread)
-                            WaitThread(*Memory33\Thread,5000)
-                        EndIf
+;                         *Memory33\Thread = CreateThread(@Thread_Resize(),*Memory33)
+;                         
+;                         
+;                         If IsThread(*Memory33\Thread)
+;                             WaitThread(*Memory33\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory33)                            
                         UnlockMutex( *Memory33\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory33 )                    
@@ -815,12 +959,13 @@ Module vThumbSys
                         *Memory34\Mutex = CreateMutex()
                         
                         LockMutex( *Memory34\Mutex )   
-                        *Memory34\Thread = CreateThread(@Thread_Resize(),*Memory34)
-                        
-                        
-                        If IsThread(*Memory34\Thread)
-                            WaitThread(*Memory34\Thread,5000)
-                        EndIf
+;                         *Memory34\Thread = CreateThread(@Thread_Resize(),*Memory34)
+;                         
+;                         
+;                         If IsThread(*Memory34\Thread)
+;                             WaitThread(*Memory34\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory34)                            
                         UnlockMutex( *Memory34\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory34 )                    
@@ -834,12 +979,13 @@ Module vThumbSys
                         *Memory35\Mutex = CreateMutex()
                         
                         LockMutex( *Memory35\Mutex )   
-                        *Memory35\Thread = CreateThread(@Thread_Resize(),*Memory35)
-                        
-                        
-                        If IsThread(*Memory35\Thread)
-                            WaitThread(*Memory35\Thread,5000)
-                        EndIf
+;                         *Memory35\Thread = CreateThread(@Thread_Resize(),*Memory35)
+;                         
+;                         
+;                         If IsThread(*Memory35\Thread)
+;                             WaitThread(*Memory35\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory35)                            
                         UnlockMutex( *Memory35\Mutex  )
                     EndIf                   
                     FreeStructure( *Memory35 )                    
@@ -853,12 +999,13 @@ Module vThumbSys
                         *Memory36\Mutex = CreateMutex()
                         
                         LockMutex( *Memory36\Mutex )   
-                        *Memory36\Thread = CreateThread(@Thread_Resize(),*Memory36)
-                        
-                        
-                        If IsThread(*Memory36\Thread)
-                            WaitThread(*Memory36\Thread,5000)
-                        EndIf
+;                         *Memory36\Thread = CreateThread(@Thread_Resize(),*Memory36)
+;                         
+;                         
+;                         If IsThread(*Memory36\Thread)
+;                             WaitThread(*Memory36\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory36)                            
                         UnlockMutex( *Memory36\Mutex  )
                     EndIf
                     FreeStructure( *Memory36 )                    
@@ -872,12 +1019,13 @@ Module vThumbSys
                         *Memory37\Mutex = CreateMutex()
                         
                         LockMutex( *Memory37\Mutex )   
-                        *Memory37\Thread = CreateThread(@Thread_Resize(),*Memory37)
-                        
-                        
-                        If IsThread(*Memory37\Thread)
-                            WaitThread(*Memory37\Thread,5000)
-                        EndIf
+;                         *Memory37\Thread = CreateThread(@Thread_Resize(),*Memory37)
+;                         
+;                         
+;                         If IsThread(*Memory37\Thread)
+;                             WaitThread(*Memory37\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory37)                            
                         UnlockMutex( *Memory37\Mutex  )
                     EndIf                    
                     FreeStructure( *Memory37 )
@@ -891,12 +1039,13 @@ Module vThumbSys
                         *Memory38\Mutex = CreateMutex()
                         
                         LockMutex( *Memory38\Mutex )   
-                        *Memory38\Thread = CreateThread(@Thread_Resize(),*Memory38)
-                        
-                        
-                        If IsThread(*Memory38\Thread)
-                            WaitThread(*Memory38\Thread,5000)
-                        EndIf
+;                         *Memory38\Thread = CreateThread(@Thread_Resize(),*Memory38)
+;                         
+;                         
+;                         If IsThread(*Memory38\Thread)
+;                             WaitThread(*Memory38\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory38)                            
                         UnlockMutex( *Memory38\Mutex  )
                     EndIf
                      FreeStructure( *Memory38 )                    
@@ -910,12 +1059,13 @@ Module vThumbSys
                         *Memory39\Mutex = CreateMutex()
                         
                         LockMutex( *Memory39\Mutex )   
-                        *Memory39\Thread = CreateThread(@Thread_Resize(),*Memory39)
-                        
-                        
-                        If IsThread(*Memory39\Thread)
-                            WaitThread(*Memory39\Thread,5000)
-                        EndIf
+;                         *Memory39\Thread = CreateThread(@Thread_Resize(),*Memory39)
+;                         
+;                         
+;                         If IsThread(*Memory39\Thread)
+;                             WaitThread(*Memory39\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory39)                            
                         UnlockMutex( *Memory39\Mutex  )
                     EndIf                    
                      FreeStructure( *Memory39 )
@@ -929,12 +1079,13 @@ Module vThumbSys
                         *Memory40\Mutex = CreateMutex()
                         
                         LockMutex( *Memory40\Mutex )   
-                        *Memory40\Thread = CreateThread(@Thread_Resize(),*Memory40)
-                        
-                        
-                        If IsThread(*Memory40\Thread)
-                            WaitThread(*Memory40\Thread,5000)
-                        EndIf
+;                         *Memory40\Thread = CreateThread(@Thread_Resize(),*Memory40)
+;                         
+;                         
+;                         If IsThread(*Memory40\Thread)
+;                             WaitThread(*Memory40\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory40)                            
                         UnlockMutex( *Memory40\Mutex  )
                     EndIf                     
                      FreeStructure( *Memory40 )
@@ -948,12 +1099,13 @@ Module vThumbSys
                         *Memory41\Mutex = CreateMutex()
                         
                         LockMutex( *Memory41\Mutex )   
-                        *Memory41\Thread = CreateThread(@Thread_Resize(),*Memory41)
-                        
-                        
-                        If IsThread(*Memory41\Thread)
-                            WaitThread(*Memory41\Thread,5000)
-                        EndIf
+;                         *Memory41\Thread = CreateThread(@Thread_Resize(),*Memory41)
+;                         
+;                         
+;                         If IsThread(*Memory41\Thread)
+;                             WaitThread(*Memory41\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory41)                            
                         UnlockMutex( *Memory41\Mutex  )
                     EndIf                    
                      FreeStructure( *Memory41 )
@@ -967,12 +1119,13 @@ Module vThumbSys
                         *Memory42\Mutex = CreateMutex()
                         
                         LockMutex( *Memory42\Mutex )   
-                        *Memory42\Thread = CreateThread(@Thread_Resize(),*Memory42)
-                        
-                        
-                        If IsThread(*Memory42\Thread)
-                            WaitThread(*Memory42\Thread,5000)
-                        EndIf
+;                         *Memory42\Thread = CreateThread(@Thread_Resize(),*Memory42)
+;                         
+;                         
+;                         If IsThread(*Memory42\Thread)
+;                             WaitThread(*Memory42\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory42)                            
                         UnlockMutex( *Memory42\Mutex  )
                     EndIf
                      FreeStructure( *Memory42 )
@@ -986,12 +1139,13 @@ Module vThumbSys
                         *Memory43\Mutex = CreateMutex()
                         
                         LockMutex( *Memory43\Mutex )   
-                        *Memory43\Thread = CreateThread(@Thread_Resize(),*Memory43)
-                        
-                        
-                        If IsThread(*Memory43\Thread)
-                            WaitThread(*Memory43\Thread,5000)
-                        EndIf
+;                         *Memory43\Thread = CreateThread(@Thread_Resize(),*Memory43)
+;                         
+;                         
+;                         If IsThread(*Memory43\Thread)
+;                             WaitThread(*Memory43\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory43)                            
                         UnlockMutex( *Memory43\Mutex  )
                     EndIf                      
                     FreeStructure( *Memory43 )
@@ -1006,12 +1160,13 @@ Module vThumbSys
                         *Memory44\Mutex = CreateMutex()
                         
                         LockMutex( *Memory44\Mutex )   
-                        *Memory44\Thread = CreateThread(@Thread_Resize(),*Memory44)
-                        
-                        
-                        If IsThread(*Memory44\Thread)
-                            WaitThread(*Memory44\Thread,5000)
-                        EndIf
+;                         *Memory44\Thread = CreateThread(@Thread_Resize(),*Memory44)
+;                         
+;                         
+;                         If IsThread(*Memory44\Thread)
+;                             WaitThread(*Memory44\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory44)                                
                         UnlockMutex( *Memory44\Mutex  )
                     EndIf                      
                     FreeStructure( *Memory44 )
@@ -1026,12 +1181,13 @@ Module vThumbSys
                         *Memory45\Mutex = CreateMutex()
                         
                         LockMutex( *Memory45\Mutex )   
-                        *Memory45\Thread = CreateThread(@Thread_Resize(),*Memory45)
-                        
-                        
-                        If IsThread(*Memory45\Thread)
-                            WaitThread(*Memory45\Thread,5000)
-                        EndIf
+;                         *Memory45\Thread = CreateThread(@Thread_Resize(),*Memory45)
+;                         
+;                         
+;                         If IsThread(*Memory45\Thread)
+;                             WaitThread(*Memory45\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory45)                                
                         UnlockMutex( *Memory45\Mutex  )
                     EndIf  
                     FreeStructure( *Memory45 )
@@ -1046,12 +1202,13 @@ Module vThumbSys
                         *Memory46\Mutex = CreateMutex()
                         
                         LockMutex( *Memory46\Mutex )   
-                        *Memory46\Thread = CreateThread(@Thread_Resize(),*Memory46)
-                        
-                        
-                        If IsThread(*Memory46\Thread)
-                            WaitThread(*Memory46\Thread,5000)
-                        EndIf
+;                         *Memory46\Thread = CreateThread(@Thread_Resize(),*Memory46)
+;                         
+;                         
+;                         If IsThread(*Memory46\Thread)
+;                             WaitThread(*Memory46\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory46)                                
                         UnlockMutex( *Memory46\Mutex  )
                     EndIf                   
                     
@@ -1066,12 +1223,13 @@ Module vThumbSys
                         *Memory47\Mutex = CreateMutex()
                         
                         LockMutex( *Memory47\Mutex )   
-                        *Memory47\Thread = CreateThread(@Thread_Resize(),*Memory47)
-                        
-                        
-                        If IsThread(*Memory47\Thread)
-                            WaitThread(*Memory47\Thread,5000)
-                        EndIf
+;                         *Memory47\Thread = CreateThread(@Thread_Resize(),*Memory47)
+;                         
+;                         
+;                         If IsThread(*Memory47\Thread)
+;                             WaitThread(*Memory47\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory47)                                
                         UnlockMutex( *Memory47\Mutex  )
                     EndIf                   
                     
@@ -1086,12 +1244,13 @@ Module vThumbSys
                         *Memory48\Mutex = CreateMutex()
                         
                         LockMutex( *Memory48\Mutex )   
-                        *Memory48\Thread = CreateThread(@Thread_Resize(),*Memory48)
-                        
-                        
-                        If IsThread(*Memory48\Thread)
-                            WaitThread(*Memory48\Thread,5000)
-                        EndIf
+;                         *Memory48\Thread = CreateThread(@Thread_Resize(),*Memory48)
+;                         
+;                         
+;                         If IsThread(*Memory48\Thread)
+;                             WaitThread(*Memory48\Thread,5000)
+;                           EndIf
+                         ImageResizeEx_Thread_DoEvents(*Memory48)                                
                         UnlockMutex( *Memory48\Mutex  )
                     EndIf                   
                     
@@ -1106,12 +1265,13 @@ Module vThumbSys
                         *Memory49\Mutex = CreateMutex()
                         
                         LockMutex( *Memory49\Mutex )   
-                        *Memory49\Thread = CreateThread(@Thread_Resize(),*Memory49)
-                        
-                        
-                        If IsThread(*Memory49\Thread)
-                            WaitThread(*Memory49\Thread,5000)
-                        EndIf
+;                         *Memory49\Thread = CreateThread(@Thread_Resize(),*Memory49)
+;                         
+;                         
+;                         If IsThread(*Memory49\Thread)
+;                             WaitThread(*Memory49\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory49)                                
                         UnlockMutex( *Memory49\Mutex  )
                     EndIf                     
                     
@@ -1126,12 +1286,13 @@ Module vThumbSys
                         *Memory50\Mutex = CreateMutex()
                         
                         LockMutex( *Memory50\Mutex )   
-                        *Memory50\Thread = CreateThread(@Thread_Resize(),*Memory50)
-                        
-                        
-                        If IsThread(*Memory50\Thread)
-                            WaitThread(*Memory50\Thread,5000)
-                        EndIf
+;                         *Memory50\Thread = CreateThread(@Thread_Resize(),*Memory50)
+;                         
+;                         
+;                         If IsThread(*Memory50\Thread)
+;                             WaitThread(*Memory50\Thread,5000)
+;                           EndIf
+                        ImageResizeEx_Thread_DoEvents(*Memory50)                                
                         UnlockMutex( *Memory50\Mutex  )                                                
                     EndIf                      
                     
@@ -1188,21 +1349,26 @@ Module vThumbSys
             ;
             ; Den alten Inhalt vorher Löschen
             If IsImage(Startup::*LHImages\CpScreenPB[n])
-                FreeImage(        Startup::*LHImages\CpScreenPB[n] )
+            	
+                ;FreeImage( Startup::*LHImages\CpScreenPB[n] )
                 
-                If ( Startup::*LHImages\CpScreenID[n] <> 0 )
-                    Startup::*LHImages\CpScreenID[n] = 0
-                EndIf
-            EndIf                
+                ;If ( Startup::*LHImages\CpScreenID[n] <> 0 )
+                ;    Startup::*LHImages\CpScreenID[n] = 0
+                ;EndIf
+            EndIf  
+            ;SaveImage( StructImagePB, "B:\Temp\"+n+".png",#PB_ImagePlugin_PNG)
             ;
             ; Erstelle eine Kopie und lege diesen handle in die Strukture, Mit Originaler Höhe und Breite              
              CopyImage(StructImagePB, Startup::*LHImages\CpScreenPB[n])
              
-             Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])                       	
+            ;Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])                       	
             
             ;
-            ; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
-                If ( Resize = #True )                 
+						; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
+             
+             
+             If ( Resize = #True )
+             				Debug n
                     ImageResizeEx_Thread(Startup::*LHImages\CpScreenPB[n],PbGadget_w,PbGadget_h, 1, GetGadgetColor(DC::#Contain_10,#PB_Gadget_BackColor) ,#True, #True, 255, n) 
                     ;Delay(25)
                 EndIf               
@@ -1225,15 +1391,15 @@ Module vThumbSys
         ; Get information about the image 
         GetObject_(ImageID(Startup::*LHImages\NoScreenPB[ThumbnailNum]), SizeOf(BITMAP), @bmp.BITMAP) 
         
-        ;With bmp             
-        ;    Debug "Slot           :" + Str( ThumbnailNum )
-        ;    Debug "\bmWidth       :" + Str( \bmWidth) 
-        ;    Debug "\bmHeight      :" + Str( \bmHeight)
-        ;    Debug "\bmWidthBytes  :" + Str( \bmWidthBytes)
-        ;    Debug "\bmBitsPixel   :" + Str( \bmBitsPixel)
-        ;    Debug "\bmBits        :" + Str( \bmBits)
-        ;    Debug "----------------------------------------"               
-        ;EndWith
+;         With bmp             
+;             Debug "Slot           :" + Str( ThumbnailNum )
+;             Debug "\bmWidth       :" + Str( \bmWidth) 
+;             Debug "\bmHeight      :" + Str( \bmHeight)
+;             Debug "\bmWidthBytes  :" + Str( \bmWidthBytes)
+;             Debug "\bmBitsPixel   :" + Str( \bmBitsPixel)
+;             Debug "\bmBits        :" + Str( \bmBits)
+;             Debug "----------------------------------------"               
+;         EndWith
         
     EndProcedure
     ;*******************************************************************************************************************************************************************
@@ -2536,8 +2702,8 @@ Module vThumbSys
     Procedure.l GetBig_FromDB(nSlotNum.i)
         Protected *Memory
         
-        *Memory = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlotNum)+ "_Big",ExecSQL::_IOSQL()\nRowID,"BaseGameID")
-                
+        *Memory = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlotNum)+ "_Big",ExecSQL::_IOSQL()\nRowID,"BaseGameID")              
+     
         ProcedureReturn *Memory
     EndProcedure    
     ;****************************************************************************************************************************************************************
@@ -2546,7 +2712,7 @@ Module vThumbSys
         Protected *Memory
         
         *Memory = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlotNum)+ "_thb",ExecSQL::_IOSQL()\nRowID,"BaseGameID") 
-        
+                
         ProcedureReturn *Memory
     EndProcedure 
     ;****************************************************************************************************************************************************************
@@ -2572,9 +2738,9 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 54
-; FirstLine = 78
-; Folding = vPAAAAAAAA+--
+; CursorPosition = 231
+; FirstLine = 189
+; Folding = -vPAAAAAAAAA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

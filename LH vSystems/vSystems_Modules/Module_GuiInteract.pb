@@ -309,8 +309,10 @@ Module Interact
     				VersionsCheck.i = #False
     				HTTPCHECK_Thread = 0 
     		EndIf		
-    		         
-            
+    		
+    		 vWindows::GadgetWindowCheck()
+        
+        
             Select EvntWait                                                           
                     
                                                                
@@ -320,10 +322,16 @@ Module Interact
                     ;***************************************************************************
                     ;        
                 Case #WM_MOUSEWHEEL
-                    If Form::IsOverObject( GadgetID( DC::#Contain_10 ) )
+                	If Form::IsOverObject( GadgetID( DC::#Contain_10 ) )
+                			;	SetActiveGadget( -1)
+                			;	SetActiveGadget( DC::#Contain_10)
                         SetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y, GetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y) + ( MouseWheelDelta() * GadgetHeight( DC::#Contain_10 ) ))                                             
                         Continue    
-                    EndIf                         
+                                        
+                  ElseIf Form::IsOverObject( GadgetID( DC::#ListIcon_001 ) )
+                				;SetActiveGadget( -1)
+                				;SetActiveGadget( DC::#ListIcon_001)
+                			EndIf	
                             
                 Case #WM_KEYUP                                               
                     Select EvntwParam 
@@ -882,12 +890,12 @@ Module Interact
         
     EndProcedure  
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 309
-; FirstLine = 141
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 312
+; FirstLine = 165
 ; Folding = P+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\MAME\
+; CurrentDirectory = ..\Release\
 ; EnableUnicode

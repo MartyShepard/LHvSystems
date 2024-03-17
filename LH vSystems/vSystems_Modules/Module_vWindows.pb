@@ -562,7 +562,8 @@ Module vWindows
 			ListEventParami = EventlParam()    : ListEventData   = EventData()                        
 			
 			Select ListEvent                      
-					
+				Case #WM_MOUSEWHEEL
+					Debug "#WM_MOUSEWHEEL"
 				Case #PB_Event_GadgetDrop                                                   
 				Case #PB_Event_Gadget
 					
@@ -1317,13 +1318,58 @@ Module vWindows
 		
 	EndProcedure      
 	
+  ;
+  ;  Window/ Gadget Check
+	;
+	Procedure GadgetWindowCheck()
+		
+		If Startup::*LHGameDB\Switch = 0
+			
+			If ( Form::IsOverObject( WindowID( DC::#_Window_001 ))) = 1 And Not (Startup::*LHGameDB\WindowIDCheck =  DC::#_Window_001)
+				
+				;SetActiveWindow( DC::#_Window_001)
+				Startup::*LHGameDB\WindowIDCheck =  DC::#_Window_001
+				SetActiveWindow( Startup::*LHGameDB\WindowIDCheck)	
+				
+				
+			ElseIf IsWindow(  DC::#_Window_006 )
+				If ( Form::IsOverObject( WindowID( DC::#_Window_006 ))) = 1 And Not (Startup::*LHGameDB\WindowIDCheck =  DC::#_Window_006)
+					;
+					;SetActiveWindow( DC::#_Window_006)
+					Startup::*LHGameDB\WindowIDCheck =  DC::#_Window_006
+					SetActiveWindow( Startup::*LHGameDB\WindowIDCheck)	
+					
+				EndIf				
+			EndIf      												
+			
+			If ( Startup::*LHGameDB\WindowIDCheck =  DC::#_Window_001 )
+				
+				If (Form::IsOverObject( GadgetID( DC::#Contain_10 ))) = 1 And Not (Startup::*LHGameDB\GadgetIDCheck =  DC::#Contain_10)
+					;
+					; Fix Mousewheel zwischen Liste und Thumbnail
+					;
+					Startup::*LHGameDB\GadgetIDCheck = DC::#Contain_10
+					SetActiveGadget(Startup::*LHGameDB\GadgetIDCheck)					
+					
+				ElseIf (Form::IsOverObject( GadgetID( DC::#ListIcon_001 ))) = 1  And Not (Startup::*LHGameDB\GadgetIDCheck =  DC::#ListIcon_001)
+					;
+					; Fix Mousewheel zwischen Liste und Thumbnail
+					;  				
+					Startup::*LHGameDB\GadgetIDCheck = DC::#ListIcon_001
+					SetActiveGadget(Startup::*LHGameDB\GadgetIDCheck)	
+					
+				EndIf							
+			EndIf	
+		EndIf	
+  	
+  EndProcedure  	
 EndModule 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 118
-; FirstLine = 3
-; Folding = RA9
+; CursorPosition = 565
+; FirstLine = 42
+; Folding = Bgw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

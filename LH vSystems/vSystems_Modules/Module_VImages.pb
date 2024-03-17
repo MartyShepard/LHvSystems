@@ -11,6 +11,7 @@
     Declare Screens_Menu_Delete_All()
     Declare Screens_Menu_Copy_Image(GadgetID.i)
     Declare Screens_Menu_Paste_Import(GadgetID.i)
+    Declare.s Screens_Menu_Info_Image()
     
     Declare Screens_Import(CurrentGadget.i, FileStream.s = "")
     
@@ -201,16 +202,16 @@ Module vImages
             ;
             ; Den alten Inhalt vorher Löschen
             If IsImage(Startup::*LHImages\CpScreenPB[n])
-                FreeImage(        Startup::*LHImages\CpScreenPB[n] )
+             ;   FreeImage(        Startup::*LHImages\CpScreenPB[n] )
                 
-                If ( Startup::*LHImages\CpScreenID[n] <> 0 )
-                    Startup::*LHImages\CpScreenID[n] = 0
-                EndIf
+             ;   If ( Startup::*LHImages\CpScreenID[n] <> 0 )
+             ;       Startup::*LHImages\CpScreenID[n] = 0
+             ;   EndIf
             EndIf                
             ;
             ; Erstelle eine Kopie und lege diesen handle in die Strukture, Mit Originaler Höhe und Breite              
             CopyImage(StructImagePB, Startup::*LHImages\CpScreenPB[n])          
-            Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])           
+            ;Startup::*LHImages\CpScreenID[n]  = ImageID(Startup::*LHImages\CpScreenPB[n])           
             
             ;
             ; Das Bild im Aspekt Ration Verhältnis an die Gadgets Anpassen
@@ -291,44 +292,60 @@ Module vImages
         EndIf    
         
     EndProcedure                         
-    
+
     Procedure Screens_Show_A_Thread(*interval)         
-        ;
-        ; Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID]        
-        ; Vorerst : :SlotShots(nSlot)\thumb Sollte nicht mehr als 50000 Items überschreuiten
-        
-        For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots                                              
-             Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")                          
-            Delay(*Interval)
-            Select nSlot
-                Case 4,12,20,28,36,44,52            
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread(),nSlot)     
-                Case 1,9,17,25,33,41,49
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[1] = CreateThread( vThumbSys::@MainThread_2(),nSlot)                                       
-                Case 2,10,18,26,34,42,50
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[2] = CreateThread( vThumbSys::@MainThread_3(),nSlot)                                         
-                Case 3,11,19,27,35,43,51
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
-                Case 8,16,24,32,40,48            
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[5] = CreateThread( vThumbSys::@MainThread_5(),nSlot)
-                Case 5,13,21,29,37,45
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[6] = CreateThread( vThumbSys::@MainThread_6(),nSlot)                      
-                Case 6,14,22,30,38,46
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[7] = CreateThread( vThumbSys::@MainThread_7(),nSlot)  
-                Case 7,15,23,31,39,47
-                    Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
-                    Startup::*LHGameDB\Images_Thread[8] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                     
-            EndSelect
-            Thread_DoEvents() 
-        Next  
-        
+    	;
+			; Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID]        
+			; Vorerst : :SlotShots(nSlot)\thumb Sollte nicht mehr als 50000 Items überschreiten
+    	
+    	;	vThumbSys::GetImagesSize_Reset()
+    	For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots 
+    		If IsImage(Startup::*LHImages\CpScreenPB[nSlot])
+    			FreeImage( Startup::*LHImages\CpScreenPB[nSlot] )	
+    		EndIf
+    		;
+				;	Funktion braucht zu lange
+				;vThumbSys::GetImagesSize(nSlot)
+    	Next
+    	
+    	For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots                                              
+    		Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")        		        		        		
+    		Delay(*Interval)
+    		Select nSlot
+    			Case 4,12,20,28,36,44,52 
+    				
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()                	
+    				Startup::*LHGameDB\Images_Thread[0] = CreateThread( vThumbSys::@MainThread(),nSlot)                		
+    			Case 1,9,17,25,33,41,49           		
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[1] = CreateThread( vThumbSys::@MainThread_2(),nSlot)                                       
+    			Case 2,10,18,26,34,42,50                 	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[2] = CreateThread( vThumbSys::@MainThread_3(),nSlot)                                         
+    				
+    			Case 3,11,19,27,35,43,51                	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[3] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
+    				
+    			Case 8,16,24,32,40,48                	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[5] = CreateThread( vThumbSys::@MainThread_5(),nSlot)
+    				
+    			Case 5,13,21,29,37,45                  	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[6] = CreateThread( vThumbSys::@MainThread_6(),nSlot)                      
+    				
+    			Case 6,14,22,30,38,46                  	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[7] = CreateThread( vThumbSys::@MainThread_7(),nSlot)  
+    				
+    			Case 7,15,23,31,39,47                  	
+    				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
+    				Startup::*LHGameDB\Images_Thread[8] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                     
+    		EndSelect            
+    		Thread_DoEvents()
+    	Next  
+    	
     EndProcedure    
     ;******************************************************************************************************************************************
     ;  Erster Start/ Lade und Sichere die Scrennshots
@@ -339,7 +356,7 @@ Module vImages
                    
         IntervalThread = CreateThread(@Screens_Show_A_Thread(), 2)
         If IntervalThread
-            WaitThread(IntervalThread)
+        	WaitThread(IntervalThread)
         EndIf
 
         Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
@@ -356,7 +373,8 @@ Module vImages
         ; Random Modus
         ; Würfel die 4 NoScreenshots Durcheinander
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)
+        	Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)
+        	Debug "NoScreen Nr. "+ Str(n) + "/ " + Str(Startup::*LHImages\NoScreenPB[n]) 
             
             Delay(1)
             
@@ -509,7 +527,8 @@ Module vImages
         Protected *MemScreenShot, RowID.i = Startup::*LHGameDB\GameID
         
         Startup::SlotShots(n)\bsize[RowID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",RowID,"BaseGameID")    
-        *MemScreenShot = Startup::SlotShots(n)\bsize[RowID]                    
+        *MemScreenShot = Startup::SlotShots(n)\bsize[RowID]  
+
         
         ProcedureReturn *MemScreenShot
     EndProcedure    
@@ -866,9 +885,38 @@ Module vImages
     ;******************************************************************************************************************************************
     ;  Lädt und Importiert die Screenshots über das menu
     ;__________________________________________________________________________________________________________________________________________ 
+    Procedure.s Screens_Menu_Info_Image()
+    	
+    	Protected Unknown.l, Format.l, Extension$,  Result.i
+    	
+    	For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    		
+    		If ( Form::IsOverObject( GadgetID( Startup::*LHImages\ScreenGDID[n] )) = 1 )
+    			
+    			Unknown.l  = Screens_Menu_Get_Original(n)
+    			If ( Unknown <> 0 )
+    				Extension$ = Screens_Menu_Save_Format(Unknown.l)
+    				
+    				If ( Len(Extension$) >= 1 )                 
+    					
+    					InfoString.s = UCase(Extension$) + " - " + Str(ImageWidth(Unknown)) + "x" + Str(ImageHeight(Unknown)) + "x"  + Str(ImageDepth(Unknown)) + "bit"
+    					InfoString   = "Bild: " + InfoString
+    					ProcedureReturn InfoString
+    				EndIf    
+    			EndIf
+    			ProcedureReturn ""
+    		EndIf
+    		Thread_DoEvents() 
+    	Next
+    	Delay(250)
+    	SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
+    EndProcedure  
+    ;******************************************************************************************************************************************
+    ;  Holt Infos
+		;__________________________________________________________________________________________________________________________________________ 
     Procedure Screens_Menu_Save_Image(CurrentGadget.i)
-        
-        Protected Unknown.l, Format.l, Extension$,  Result.i
+    	
+   Protected Unknown.l, Format.l, Extension$,  Result.i
         
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
             If ( CurrentGadget = Startup::*LHImages\ScreenGDID[n] ) 
@@ -894,8 +942,9 @@ Module vImages
         Next
         Delay(250)
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
-    EndProcedure  
-    
+        
+    	
+    EndProcedure
     ;******************************************************************************************************************************************
     ;  Lädt und Importiert die Screenshots über das menu
     ;__________________________________________________________________________________________________________________________________________ 
@@ -1062,12 +1111,14 @@ Module vImages
     ;  Bild Ins Fenster Packen
     ;__________________________________________________________________________________________________________________________________________     
     Procedure Screens_ShowWindow(CurrentGadgetID.i, hwnd)
-        
+    	
+
         Protected hFull, wFull, DskX, DskH, DskW, *MemScreenShot ,ForeignImage.l, ImageData.l
         
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
             
-            If ( CurrentGadgetID = Startup::*LHImages\ScreenGDID[n] ) 
+        	If ( CurrentGadgetID = Startup::*LHImages\ScreenGDID[n] ) 
+        				Debug "Image Anzeigen: GadgetID " + Str( CurrentGadgetID)      		
                 ImageData = Screens_ShowWindow_GetDB(CurrentGadgetID, n)
                 Break
             EndIf
@@ -1382,9 +1433,9 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 161
-; FirstLine = 134
-; Folding = --A9AI+-
+; CursorPosition = 906
+; FirstLine = 550
+; Folding = v-B+I00--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -272,12 +272,11 @@ Module FORM
     ;--------------------------------------------------------------------------------------------------------------------------------   
     ; Generate a gadget with Front, and Color
     ;____________________________________________________________________________________________________     
-    Procedure.l IsOverObject(hWnd)        
-        Protected p.POINT, Result
-        
-        GetWindowRect_(hWnd,r.RECT)         
-        GetCursorPos_(p.POINT) 
-        Result = PtInRect_(r,p\y << 32 + p\x) 
+    Procedure.l IsOverObject(hWnd)
+    		Protected p.POINT, Result    	          
+	        GetWindowRect_(hWnd,r.RECT)         
+	        GetCursorPos_(p.POINT) 
+	        Result = PtInRect_(r,p\y << 32 + p\x) 	      
         ProcedureReturn Result                           
     EndProcedure
     ;--------------------------------------------------------------------------------------------------------------------------------   
@@ -1117,10 +1116,10 @@ Module FORM
       ProcedureReturn Result.l 
     EndProcedure   
 EndModule
-; IDE Options = PureBasic 5.70 LTS (Windows - x64)
-; CursorPosition = 918
-; FirstLine = 396
-; Folding = 8XhAAvh
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 278
+; FirstLine = 196
+; Folding = 8XjAAvh
 ; EnableAsm
 ; EnableXP
 ; EnableUnicode

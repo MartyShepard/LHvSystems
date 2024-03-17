@@ -2512,9 +2512,11 @@ Module INVMNU
     ;*******************************************************************************************************************************************************************         
     EndProcedure    
     Procedure Set_ShotsMenu()
-        
-        MenuItem(1 , "Bild Laden...")           :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 0, #MF_BYPOSITION, ImageID( DI::#_MNU_LOD ),0) 
-        MenuBar()
+    	
+    	Protected ImageInfo.s = vImages::Screens_Menu_Info_Image()
+    	
+        MenuItem(1 , "Bild Laden...")           :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 0, #MF_BYPOSITION, ImageID( DI::#_MNU_LOD ),0)       
+        MenuBar()        
         MenuItem(2 , "Dieses Bild Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuItem(3 , "Alle Bilder Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuBar()
@@ -2542,7 +2544,12 @@ Module INVMNU
              MenuItem(22 , "2 Thumbnail Pro Reihe")
              MenuItem(23 , "3 Thumbnail Pro Reihe")             
              MenuItem(24 , "4 Thumbnail Pro Reihe")             
-        CloseSubMenu()               
+             CloseSubMenu()
+        If Len(ImageInfo) > 0
+        	MenuBar()
+        	MenuItem(25 , "Information..")
+        	MenuItem(26 , ImageInfo)               
+        EndIf	
         ;MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
         
         If Not IsImage( GetClipboardImage(#PB_Any) )
@@ -2928,10 +2935,10 @@ Module INVMNU
     EndProcedure
     
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 2609
-; FirstLine = 2349
-; Folding = z5--
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 2549
+; FirstLine = 72
+; Folding = D5--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

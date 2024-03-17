@@ -68,6 +68,9 @@ DeclareModule vWindows
     Declare OpenWindow_EditInfos()
     
     Declare DragnDrop_Support(DropGadget.i)
+    
+    Declare GadgetWindowCheck()
+    
 EndDeclareModule
 
 DeclareModule GuruCallBack
@@ -340,19 +343,22 @@ DeclareModule Startup
         FolderWWW.s
         FolderMameSource.s
         SortXtendMode.i
+        GadgetIDCheck.i
+        WindowIDCheck.i
+        FormIsChecked.i
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
     
     Structure STRUCT_LH_IMAGES
         
-        OrScreenID.l[100]             ;Die Pure Windows ID des Screenshot (Original, Unverändert)
-        OrScreenPB.l[100]             ;Die Pure Basic   ID des Screenshot (Original, Unverändert)
-        NoScreenID.l[100]             ;Die Pure Windows ID des NoScreenshot (Original, Unverändert)
-        NoScreenPB.l[100]             ;Die Pure Basic   ID des NoScreenshot  (Original, Unverändert)       
-        CpScreenID.l[100]             ;Die Pure Windows ID des Screenshot (Copy)
-        CpScreenPB.l[100]             ;Die Pure Basic   ID des Screenshot (Copy)        
-        ScreenGDID.l[100]             ;Die Pure Basic Gadget ID des Screenshot      
+        OrScreenID.l[51]             ;Die Pure Windows ID des Screenshot (Original, Unverändert)
+        OrScreenPB.l[51]             ;Die Pure Basic   ID des Screenshot (Original, Unverändert)
+        NoScreenID.l[51]             ;Die Pure Windows ID des NoScreenshot (Original, Unverändert)
+        NoScreenPB.l[51]             ;Die Pure Basic   ID des NoScreenshot  (Original, Unverändert)       
+        CpScreenID.l[51]             ;Die Pure Windows ID des Screenshot (Copy)
+        CpScreenPB.l[51]             ;Die Pure Basic   ID des Screenshot (Copy)        
+        ScreenGDID.l[51]             ;Die Pure Basic Gadget ID des Screenshot      
     EndStructure           
     Global *LHImages.STRUCT_LH_IMAGES       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))        
     
@@ -998,8 +1004,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 939
-; FirstLine = 708
+; CursorPosition = 360
+; FirstLine = 286
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

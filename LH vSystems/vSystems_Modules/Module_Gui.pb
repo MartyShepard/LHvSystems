@@ -2647,10 +2647,10 @@ Module MagicGUI
         EndIf
     EndProcedure    
 EndModule    
-; IDE Options = PureBasic 6.00 LTS (Windows - x64)
-; CursorPosition = 2324
-; FirstLine = 784
-; Folding = DAQ54
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 602
+; FirstLine = 138
+; Folding = DIQ54
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -7676,14 +7676,15 @@ EndProcedure
     	SetActiveGadget(DC::#ListIcon_001)
     	
     EndProcedure
+    
 EndModule    
 
 
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 6709
-; FirstLine = 5960
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 7678
+; FirstLine = 6205
 ; Folding = 8-------f6--be1g
 ; EnableAsm
 ; EnableXP
