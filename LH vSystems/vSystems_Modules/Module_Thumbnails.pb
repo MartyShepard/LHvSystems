@@ -265,17 +265,26 @@ Module vThumbSys
       EndProcedure
        
     Procedure ImageResizeEx_Thread_DoEvents(*Memory.STRUCT_REZIMAGES) 
-    	Protected msg.MSG
+    	Protected msg.MSG    	      
     	
+       *ImageBuffer.STRUCT_REZIMAGES       = AllocateStructure( STRUCT_REZIMAGES)
+       InitializeStructure ( *ImageBuffer, STRUCT_REZIMAGES)
+       
     	If PeekMessage_(msg,0,0,0,1) 
     		TranslateMessage_(msg)
-    		Thread_Resize(*Memory)
-    		DispatchMessage_(msg)
+    		Debug MSG\time
+    		DispatchMessage_(msg)    		
+    	Else
     		
-    	Else 
-    		Sleep_(1)
-    		Thread_Resize(*Memory)
+    		CopyStructure(*Memory, *ImageBuffer, STRUCT_REZIMAGES)
+    		
+    		Thread_Resize(*ImageBuffer)    		    		
+    		Sleep_(1)    		
+    		
+    		CopyStructure(*ImageBuffer, *Memory, STRUCT_REZIMAGES)    		    		   		
     	EndIf 
+    	
+			ClearStructure(*ImageBuffer,STRUCT_REZIMAGES)    	
     EndProcedure     
     ;*******************************************************************************************************************************************************************
     ;      
@@ -2738,8 +2747,8 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 231
-; FirstLine = 189
+; CursorPosition = 274
+; FirstLine = 241
 ; Folding = -vPAAAAAAAAA+
 ; EnableAsm
 ; EnableXP

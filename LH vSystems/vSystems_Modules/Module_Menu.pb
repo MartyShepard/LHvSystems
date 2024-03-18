@@ -2552,9 +2552,10 @@ Module INVMNU
         EndIf	
         ;MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
         
-        If Not IsImage( GetClipboardImage(#PB_Any) )
+        ;If Not IsImage( GetClipboardImage(#PB_Any) )
+        If ( vImages::Screens_Menu_Check_Clipboard() = #False)
             DisableMenuItem(CLSMNU::*MNU\HandleID[0], 19, 1)
-        EndIf 
+        EndIf
                      
     EndProcedure   
     
@@ -2936,8 +2937,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2549
-; FirstLine = 72
+; CursorPosition = 2555
+; FirstLine = 87
 ; Folding = D5--
 ; EnableAsm
 ; EnableXP

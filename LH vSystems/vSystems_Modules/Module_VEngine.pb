@@ -7555,9 +7555,13 @@ EndProcedure
 			; 
 			; Verzeichnis des Source Codes
     	MameCodeDirectory.s = Directory;"B:\MSYS2_MAME\src\Mame\"
-    	MameCodeMaschines.s = "src\mame\"
-    	Startup::*LHGameDB\FolderMameSource  = MameCodeDirectory + MameCodeMaschines
+
+    	If FileSize(MameCodeDirectory + "access\acvirus.cpp" )  = -1 
+    		Startup::*LHGameDB\FolderMameSource = MameCodeDirectory + "src\mame\"
+    	EndIf
     	
+    	Debug Startup::*LHGameDB\FolderMameSource   	
+
     	;
 			;
 			; Informationen Bekommen
@@ -7683,9 +7687,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7678
-; FirstLine = 6205
-; Folding = 8-------f6--be1g
+; CursorPosition = 7557
+; FirstLine = 6346
+; Folding = 8-------f6--be1w
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

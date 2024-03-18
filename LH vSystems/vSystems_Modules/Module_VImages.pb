@@ -11,6 +11,7 @@
     Declare Screens_Menu_Delete_All()
     Declare Screens_Menu_Copy_Image(GadgetID.i)
     Declare Screens_Menu_Paste_Import(GadgetID.i)
+    Declare.i Screens_Menu_Check_Clipboard()
     Declare.s Screens_Menu_Info_Image()
     
     Declare Screens_Import(CurrentGadget.i, FileStream.s = "")
@@ -52,11 +53,12 @@ Module vImages
     
     Procedure   Thumbnails_SetReDraw( bReDraw.i = #True )
         
-        Protected cnt
+       ; Protected cnt
         
-        For cnt = 1 To Startup::*LHGameDB\MaxScreenshots
-            ;SendMessage_( Startup::*LHImages\ScreenGDID[n], #WM_SETREDRAW,bReDraw,0)
-        Next
+       ; For cnt = 1 To Startup::*LHGameDB\MaxScreenshots
+        	;SendMessage_( Startup::*LHImages\ScreenGDID[n], #WM_SETREDRAW,bReDraw,0)
+        	
+       ; Next
         
     EndProcedure
     
@@ -355,10 +357,15 @@ Module vImages
         Protected IntervalThread.i
                    
         IntervalThread = CreateThread(@Screens_Show_A_Thread(), 2)
+        SendMessage_( DC::#Contain_10, #WM_SETREDRAW,#False,0)
+        	
+        	
         If IntervalThread
         	WaitThread(IntervalThread)
         EndIf
-
+        
+        SendMessage_( DC::#Contain_10, #WM_SETREDRAW,#True,0)
+        
         Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
     EndProcedure 
     
@@ -403,6 +410,59 @@ Module vImages
         EndIf   
         ProcedureReturn 0
     EndProcedure
+    ;******************************************************************************************************************************************
+    ; Übergibt das aktuelle Gadget
+    ;__________________________________________________________________________________________________________________________________________ 
+    Procedure.i Screens_Menu_GetSlot()
+    	
+    	Protected Unknown.l, Format.l, Extension$,  Result.i
+    	
+    	For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    		
+    		If ( Form::IsOverObject( GadgetID( Startup::*LHImages\ScreenGDID[n] )) = 1 )    			
+    				Debug "Slot Nummer: " + Str(n)
+						ProcedureReturn n
+    		EndIf
+    		Thread_DoEvents() 
+    	Next
+    	Debug "Slot Nummer Not found"
+    	ProcedureReturn -1         
+    EndProcedure
+    
+    ;******************************************************************************************************************************************
+    ; Übergibt das aktuelle Gadget
+    ;__________________________________________________________________________________________________________________________________________ 
+    Procedure.i Screens_Menu_GetGadget()
+    	
+    	Protected Unknown.l, Format.l, Extension$,  Result.i
+    	
+    	For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    		
+    		If ( Form::IsOverObject( GadgetID( Startup::*LHImages\ScreenGDID[n] )) = 1 )    			
+						ProcedureReturn GadgetID( Startup::*LHImages\ScreenGDID[n])
+    		EndIf
+    		Thread_DoEvents() 
+    	Next
+    	ProcedureReturn -1         
+    EndProcedure
+    
+    ;******************************************************************************************************************************************
+    ; Übergibt das aktuelle Gadget (Alterantiv)
+    ;__________________________________________________________________________________________________________________________________________ 
+    Procedure.i Screens_Menu_GetSlot_Alt(GadgetID.i)
+    	
+    	Protected Unknown.l, Format.l, Extension$,  Result.i
+    	
+    	For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    		
+    		  If ( GadgetID = Startup::*LHImages\ScreenGDID[n] )     		
+						ProcedureReturn n
+    		EndIf
+    		Thread_DoEvents() 
+    	Next
+    	n = -1
+    	ProcedureReturn GadgetID         
+    EndProcedure    
     
     ;******************************************************************************************************************************************
     ;  DDS (Texture)
@@ -833,6 +893,31 @@ Module vImages
         
         ProcedureReturn File$
     EndProcedure
+    
+    ;******************************************************************************************************************************************
+    ;  Glipboard Image Prüfung
+    ;__________________________________________________________________________________________________________________________________________       
+    Procedure.i Screens_Menu_Check_Clipboard()
+        
+        Protected Extension$, GenImage.l, *ImageData
+        
+        ClipBoardImage.l = GetClipboardImage(#PB_Any)
+        
+        If IsImage( ClipBoardImage.l )
+            
+            GenImage.l  = GrabImage(ClipBoardImage, #PB_Any,0,0, ImageWidth(ClipBoardImage),ImageHeight(ClipBoardImage))
+            
+            Debug ""
+            Debug "Import Clibboard Image"
+            Debug "Image Weite  : " + Str(ImageWidth(ClipBoardImage))
+            Debug "Image Höhe   : " + Str(ImageHeight(ClipBoardImage))
+            Debug "Image Format : " + Str(ImageFormat(ClipBoardImage))            
+                  
+            ProcedureReturn #True
+        EndIf                                       
+        ProcedureReturn #False                       
+      EndProcedure 
+      
     ;******************************************************************************************************************************************
     ;  Import image über der Ablage
     ;__________________________________________________________________________________________________________________________________________       
@@ -887,27 +972,25 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________ 
     Procedure.s Screens_Menu_Info_Image()
     	
-    	Protected Unknown.l, Format.l, Extension$,  Result.i
+    	Protected Unknown.l, Extension.s
+   	
+    	Slot.i = Screens_Menu_GetSlot()
     	
-    	For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    	If Not Slot   = -1
+    		Unknown.l  = Screens_Menu_Get_Original(Slot)
     		
-    		If ( Form::IsOverObject( GadgetID( Startup::*LHImages\ScreenGDID[n] )) = 1 )
+    		If ( Unknown <> 0 )
+    			Extension = Screens_Menu_Save_Format(Unknown.l)
     			
-    			Unknown.l  = Screens_Menu_Get_Original(n)
-    			If ( Unknown <> 0 )
-    				Extension$ = Screens_Menu_Save_Format(Unknown.l)
-    				
-    				If ( Len(Extension$) >= 1 )                 
-    					
-    					InfoString.s = UCase(Extension$) + " - " + Str(ImageWidth(Unknown)) + "x" + Str(ImageHeight(Unknown)) + "x"  + Str(ImageDepth(Unknown)) + "bit"
-    					InfoString   = "Bild: " + InfoString
-    					ProcedureReturn InfoString
-    				EndIf    
-    			EndIf
-    			ProcedureReturn ""
-    		EndIf
-    		Thread_DoEvents() 
-    	Next
+    			If ( Len(Extension) >= 1 )                     				
+    				InfoString.s = UCase(Extension) + " - " + Str(ImageWidth(Unknown)) + "x" + Str(ImageHeight(Unknown)) + "x"  + Str(ImageDepth(Unknown)) + "bit"
+    				InfoString   = "Bild: " + InfoString
+    				ProcedureReturn InfoString
+    			EndIf    
+    			
+    		EndIf    		
+    	EndIf
+    	ProcedureReturn ""
     	Delay(250)
     	SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
     EndProcedure  
@@ -916,30 +999,30 @@ Module vImages
 		;__________________________________________________________________________________________________________________________________________ 
     Procedure Screens_Menu_Save_Image(CurrentGadget.i)
     	
-   Protected Unknown.l, Format.l, Extension$,  Result.i
-        
-        For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            If ( CurrentGadget = Startup::*LHImages\ScreenGDID[n] ) 
-                Unknown.l  = Screens_Menu_Get_Original(n)
-                If ( Unknown <> 0 )
-                    Extension$ = Screens_Menu_Save_Format(Unknown.l)
-                                        
-                    If ( Len(Extension$) >= 1 )                 
-                        
-                        File$ = FFH::GetFilePBRQ("Speichere "+Extension$+" Bild", Screens_Menu_Set_Filename("", Extension$, n), #True, "." + LCase(Extension$))
-                        If ( File$ )
-                            Result = vItemTool::DialogRequest_Screens_Menu_Verfiy_File(File$)                        
-                            
-                            If ( Result = 0 )                        
-                                Screens_Menu_Save_ImageFormat(File$,Unknown.l,Extension$)
-                            EndIf  
-                       EndIf
-                    EndIf    
-                EndIf
-                Break
-            EndIf
-            Thread_DoEvents() 
-        Next
+   Protected Unknown.l, Format.l, Extension.s,  Result.i, File.s
+   
+        Slot.i = Screens_Menu_GetSlot_Alt(CurrentGadget)
+        If Not Slot   = -1
+        	
+        	Unknown = Screens_Menu_Get_Original(Slot)
+        	
+        	If ( Unknown <> 0 )
+        		Extension = Screens_Menu_Save_Format(Unknown.l)
+        		
+        		If ( Len(Extension) >= 1 )                 
+        			
+        			File.s = FFH::GetFilePBRQ("Speichere "+Extension+" Bild", Screens_Menu_Set_Filename("", Extension, n), #True, "." + LCase(Extension))
+        			If ( File )
+        				Result = vItemTool::DialogRequest_Screens_Menu_Verfiy_File(File)                        
+        				
+        				If ( Result = 0 )                        
+        					Screens_Menu_Save_ImageFormat(File, Unknown.l, Extension)
+        				EndIf  
+        				
+        			EndIf
+        		EndIf    
+        	EndIf       
+        EndIf
         Delay(250)
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
         
@@ -949,15 +1032,11 @@ Module vImages
     ;  Lädt und Importiert die Screenshots über das menu
     ;__________________________________________________________________________________________________________________________________________ 
     Procedure Screens_Menu_Copy_Image(CurrentGadget.i)
-        
-        Protected Unknown.l, Format.l, Extension$,  Result.i
-        
-        For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            If ( CurrentGadget = Startup::*LHImages\ScreenGDID[n] )                                               
-                SetClipboardImage(Screens_Menu_Get_Original(n))
-                Break
-            EndIf
-        Next
+               
+        Slot.i = Screens_Menu_GetSlot_Alt(CurrentGadget)
+        If Not Slot   = -1                                             
+           SetClipboardImage( Screens_Menu_Get_Original( Slot) )
+        EndIf        
         Delay(250)
         SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)          
     EndProcedure      
@@ -1433,9 +1512,9 @@ Module vImages
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 906
-; FirstLine = 550
-; Folding = v-B+I00--
+; CursorPosition = 360
+; FirstLine = 236
+; Folding = v-PwHpf--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
