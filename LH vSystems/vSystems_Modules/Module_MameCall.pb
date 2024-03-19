@@ -481,7 +481,8 @@ Module GuruCallBack
                                     
                                     SendMessage_( GadgetID( vInfo::Tab_GetGadget() ), #EM_GETTEXTRANGE, 0, txt)
                                     Select *el\msg
-                                        Case #WM_LBUTTONDOWN : RunProgram( PeekS( *Buffer) )
+                                    	Case #WM_LBUTTONDOWN
+                                    		RunProgram( PeekS( *Buffer) )
                                             
                                         Case #WM_RBUTTONDOWN :
                                             Startup::*LHGameDB\InfoWindow\bURLOpnWith = #False
@@ -1514,9 +1515,9 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 536
-; FirstLine = 375
-; Folding = XO-j+-
+; CursorPosition = 484
+; FirstLine = 345
+; Folding = fO-j+-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

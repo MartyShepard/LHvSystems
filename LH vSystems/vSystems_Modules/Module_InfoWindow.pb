@@ -48,7 +48,9 @@
     Declare     TextFile_GetFormat(szFile.s, EvntEditGadget = -1)
     Declare     TextFile_isPacked(szFile.s)
     
-    Declare.s   TextFile_Read(Filename. S, start_adr, end_adr, nEncode) 
+    Declare.s   TextFile_Read(Filename. S, start_adr, end_adr, nEncode)
+    Declare.s 	 TextFile_GetURL(szFile.s)
+    Declare.s   PB_GetPrivateProfileString(lpAppName.s, lpKeyName.s , lpDefault.s , lpReturnedString.s , nSize.i, lpFileName.s) 
 
 EndDeclareModule
 Module vInfo
@@ -1832,9 +1834,9 @@ EndModule
 ; Ctrl+Shift+L	        Fiddle bullet style.	
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 188
-; FirstLine = 140
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1539
+; FirstLine = 1284
 ; Folding = -bB+45f+-H-
 ; EnableAsm
 ; EnableXP

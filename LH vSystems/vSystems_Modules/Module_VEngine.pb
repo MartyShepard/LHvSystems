@@ -56,9 +56,10 @@
     Declare	 MAME_Driver_Import() 
     Declare	 MAME_Roms_Check_Import()
     Declare	 MAME_Roms_Check()    
-    Declare.i	 MAME_Roms_Backup(UserFile.s = "")
-    Declare.i	 MAME_Roms_GetInfos() 
+    Declare.i MAME_Roms_Backup(UserFile.s = "")
+    Declare.i MAME_Roms_GetInfos() 
     Declare	 Thread_HTTP_MAME_Roms_DoEvents() 
+    Declare	 MAME_Driver_Info_wwwAI() 
     
     Declare	 vSys_MainButtonsConfig(state.i = #True)
     
@@ -7680,16 +7681,106 @@ EndProcedure
     	SetActiveGadget(DC::#ListIcon_001)
     	
     EndProcedure
-    
+  ;
+	;
+	;
+  Procedure 		MAME_Driver_Info_wwwAI()
+  	
+  	Protected RomName.s
+  	
+			vSys_MainButtonsConfig()
+    	
+    	SetGadgetText(DC::#Text_001,"")
+    	SetGadgetText(DC::#Text_002,"")    	          	 	
+    	
+    	HideGadget(DC::#ListIcon_001,1)           
+    	HideGadget(DC::#Text_003,0)
+    	
+    	SetActiveGadget(-1) 
+    	
+    	Intro$ = "[ .. M.A.M.E. .. ]"         
+    	SetGadgetColor(DC::#Text_003, #PB_Gadget_BackColor, RGB(61,61,61)):SetGadgetText(DC::#Text_003,"[ ]"): Delay(85): Thread_LoadGameList_Anim(10, DC::#Text_003): SetGadgetText(DC::#Text_003,Intro$)
+    	    	    	    	
+    	SizeList = CountGadgetItems(DC::#ListIcon_001)
+    	
+    	;
+			;Single Titel
+			;             	
+    	If ( SizeList > 0 )
+    			
+    		RomName = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev0","",Startup::*LHGameDB\GameID,"",1)
+    		If ( Len( RomName ) > 0)    		
+    		Else
+    			;
+					; KEIN ROM - ERROR
+					; 
+    			RomName = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev1","",Startup::*LHGameDB\GameID,"",1)
+	    		If ( Len( RomName ) > 0)    		
+	    		Else
+	    			;
+						; KEIN ROM - ERROR
+						; 
+	    			RomName = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev2","",Startup::*LHGameDB\GameID,"",1)
+		    		If ( Len( RomName ) > 0)    		
+		    		Else
+		    			;
+							; KEIN ROM - ERROR
+							; 
+		    			RomName = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev3","",Startup::*LHGameDB\GameID,"",1)
+		    		EndIf	    			
+	    		EndIf    			
+    		EndIf
+    		    		
+    	EndIf
+    	
+    	Request::*MsgEx\Return_String = RomName
+    	Request::*MsgEx\User_BtnTextL = "Aufrufen"
+    	Request::*MsgEx\User_BtnTextR = "Abbruch"
+    	Request::*MsgEx\User_BtnTextM = "Download"       
+    	Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "M.A.M.E. Information", #CRLF$ + "Rom/ Driver/ Device Information von Arcade Italia Database beziehen?" ,16,-1,ProgramFilename(),0,1,DC::#_Window_001 )        
+    	  	    	
+    	If ( Result = 2 )
+    		MAME_Roms_Backup(Request::*MsgEx\Return_String)
+    		ProcedureReturn 
+    	EndIf
+    	
+    	If ( Result = 0 )   And ( Len(Request::*MsgEx\Return_String) > 0 )   		
+    		
+    	 szAsk.s = "=eman_emag?php.emam_oilgatted/ten.ailatiedacra.bda//:ptth"
+    	 szAsk   = ReverseString(szAsk) + Request::*MsgEx\Return_String
+    	 RunProgram( szAsk) 
+ 		    		
+    	EndIf	
+    	SetGadgetText(DC::#Text_001,"")
+    	SetGadgetText(DC::#Text_002,"")     	
+    	SetGadgetText(DC::#Text_003,"")
+    	HideGadget(DC::#Text_004,1)
+    	SetGadgetText(DC::#Text_004,"")	
+    	
+    	MAME_End_Procedure()
+    	
+    	ButtonEX::Disable(DC::#Button_001, false)            
+    	ButtonEX::Disable(DC::#Button_002, false) 
+    	ButtonEX::Disable(DC::#Button_287, false)
+    	
+    	SetActiveWindow(DC::#_Window_001)
+    	SetActiveGadget(DC::#ListIcon_001)           
+    	
+    	ListBox_GetData_LeftMouse(#True)  
+    	
+    	SetActiveWindow(DC::#_Window_001)
+    	SetActiveGadget(DC::#ListIcon_001)
+    	
+  EndProcedure  
 EndModule    
 
 
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7557
-; FirstLine = 6346
-; Folding = 8-------f6--be1w
+; CursorPosition = 7748
+; FirstLine = 6420
+; Folding = 8-------f6--be1h-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

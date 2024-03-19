@@ -2591,6 +2591,8 @@ Module INVMNU
     		Case 42: vEngine::MAME_Roms_Check()            	
     		Case 43: vEngine::MAME_Roms_Backup() 
     		Case 44: vEngine::MAME_Roms_GetInfos() 
+    		Case 44: vEngine::MAME_Roms_GetInfos() 
+    		Case 47: vEngine::MAME_Driver_Info_wwwAI() 
     			
     			; Resetet die Fenster Position
     		Case 20
@@ -2844,12 +2846,13 @@ Module INVMNU
     Procedure Set_Mame_Menu()        
     	
             MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
-            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MAM ))
+            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      ,ImageID( DI::#_MNU_MAM ))
             MenuBar()             
-            MenuItem(44 , "Tool : Informationen hinzufügen" 	  	,ImageID( DI::#_MNU_MAM ))             
+            MenuItem(44 , "Tool : Informationen hinzufügen" 	  ,ImageID( DI::#_MNU_MAM ))             
             MenuBar()   
-            MenuItem(43 , "Tool : Backup aus dem Internet" 	      	,ImageID( DI::#_MNU_MAM ))
-     
+            MenuItem(43 , "Tool : Backup aus dem Internet" 	    ,ImageID( DI::#_MNU_MAM ))
+            MenuBar() 
+            MenuItem(47 , "Tool : Database (ArcadeItalia)" 			,ImageID( DI::#_MNU_MAM ))     
             
             If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
@@ -2937,8 +2940,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2555
-; FirstLine = 87
+; CursorPosition = 2594
+; FirstLine = 131
 ; Folding = D5--
 ; EnableAsm
 ; EnableXP
