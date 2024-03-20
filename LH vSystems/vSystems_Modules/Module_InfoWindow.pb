@@ -1419,11 +1419,11 @@ Module vInfo
            szMod = "($) "
        EndIf
        
-       Debug "\nModify"
-       Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit1 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit1 ) 
-       Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit2 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit2 )        
-       Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit3 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit3 )        
-       Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit4 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit4 )        
+       ;Debug "\nModify"
+       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit1 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit1 ) 
+       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit2 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit2 )        
+       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit3 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit3 )        
+       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit4 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit4 )        
        
        szEditInfo + szMod + "Items: "+ Str( CountGadgetItems( DC::#ListIcon_001) ) + " - "
        szEditInfo + "Sel: "   + RSet( Str( GetGadgetState( DC::#ListIcon_001)+1 ), 3, Chr(32) ) + " | " 
@@ -1835,8 +1835,8 @@ EndModule
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1539
-; FirstLine = 1284
+; CursorPosition = 1422
+; FirstLine = 1011
 ; Folding = -bB+45f+-H-
 ; EnableAsm
 ; EnableXP

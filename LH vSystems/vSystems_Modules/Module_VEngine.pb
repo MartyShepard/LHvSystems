@@ -7778,8 +7778,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7748
-; FirstLine = 6420
+; CursorPosition = 908
+; FirstLine = 880
 ; Folding = 8-------f6--be1h-
 ; EnableAsm
 ; EnableXP

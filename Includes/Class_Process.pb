@@ -20,6 +20,7 @@
     Declare KillProcess(Pid)
     Declare.s GetProcessPriority(hProcess)
     Declare SetProcessPriority(hProcess, PriorityClass)
+    Declare.d DelayMicroSeconds(Time.d)
     
       
 EndDeclareModule
@@ -389,7 +390,7 @@ Module ProcessEX
     
     
 
-    Procedure DelayMicroSeconds(Time.d)
+    Procedure.d DelayMicroSeconds(Time.d)
         
       QueryPerformanceFrequency.q : QueryPerformanceFrequency_(@QueryPerformanceFrequency)
         
@@ -401,6 +402,7 @@ Module ProcessEX
         QueryPerformanceCounter_(@EndTime)
       Until (EndTime-StartTime)*1e6/QueryPerformanceFrequency > Time
       
+      ProcedureReturn EndTime.q 
     EndProcedure
   
     ;/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -578,9 +580,9 @@ CompilerIf #PB_Compiler_IsMainFile
             
 CompilerEndIf
 
-; IDE Options = PureBasic 5.62 (Windows - x64)
-; CursorPosition = 179
-; Folding = DRh-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 22
+; Folding = DRj-
 ; EnableAsm
 ; EnableXP
 ; EnableUnicode

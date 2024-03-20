@@ -2515,44 +2515,43 @@ Module INVMNU
     	
     	Protected ImageInfo.s = vImages::Screens_Menu_Info_Image()
     	
-        MenuItem(1 , "Bild Laden...")           :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 0, #MF_BYPOSITION, ImageID( DI::#_MNU_LOD ),0)       
+        MenuItem(1 , "Bild Laden...")           			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 0, #MF_BYPOSITION, ImageID( DI::#_MNU_LOD ),0)       
         MenuBar()        
-        MenuItem(2 , "Dieses Bild Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
-        MenuItem(3 , "Alle Bilder Speichern")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
+        MenuItem(2 , "Dieses Bild Speichern")   			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 2, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
+        MenuItem(3 , "Alle Bilder Speichern")   			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 3, #MF_BYPOSITION, ImageID( DI::#_MNU_SVE ),0)
         MenuBar()
-        MenuItem(18 , "Bild Kopieren")          :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
-        MenuItem(19 , "Bild Einfügen")          :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
+        MenuItem(18 , "Bild Kopieren")          			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
+        MenuItem(19 , "Bild Einfügen")          			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
         MenuBar()
-        MenuItem(4 , "Dieses Bild Löschen")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
-        MenuItem(5,  "Alle Bilder Löschen")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
+        MenuItem(4 , "Dieses Bild Löschen")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
+        MenuItem(5,  "Alle Bilder Löschen")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
         MenuBar()
-        MenuItem(20, "Splitter Höhe Einstellen"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)
-        MenuItem(9,  "...Gleiche Höhe für alle"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 12, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)          
+        MenuItem(20, "Splitter Höhe Einstellen")			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)
+        MenuItem(9,  "...Gleiche Höhe für alle")			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 12, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)          
         MenuBar()
-        MenuItem(8 , "Thumbnail zurücksetzen")  :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
-        MenuItem(10, "...Gleiche Höhe für alle"):SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),15, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
+        MenuItem(8 , "Thumbnail zurücksetzen")  			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),14, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)    
+        MenuItem(10, "...Gleiche Höhe für alle")			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),15, #MF_BYPOSITION, ImageID( DI::#_MNU_WMT ),0)
         MenuBar()
-        MenuItem(11, "1x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
-        MenuItem(12, "2x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
-        MenuItem(13, "3x1 Thumbnail Größe (*)") :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
-        MenuItem(14, "4x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),20, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)
-        MenuItem(15, "5x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
-        MenuItem(16, "6x1 Thumbnail Größe")     :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+        MenuItem(11, "1x1 Thumbnail Größe")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),17, #MF_BYPOSITION, ImageID( DI::#_MNU_TB1 ),0)
+        MenuItem(12, "2x1 Thumbnail Größe")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),18, #MF_BYPOSITION, ImageID( DI::#_MNU_TB2 ),0)
+        MenuItem(13, "3x1 Thumbnail Größe (*)") 			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),19, #MF_BYPOSITION, ImageID( DI::#_MNU_TB3 ),0)                       
+        MenuItem(14, "4x1 Thumbnail Größe")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),20, #MF_BYPOSITION, ImageID( DI::#_MNU_TB4 ),0)
+        MenuItem(15, "5x1 Thumbnail Größe")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),21, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)                         
+        MenuItem(16, "6x1 Thumbnail Größe")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
         MenuBar()
-        OpenSubMenu( "Thumbnail Höhen Option .." )        :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),24, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
+        OpenSubMenu( "Thumbnail Höhen Option .." )    :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),24, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0)
              MenuItem(21 , "1 Thumbnail Pro Reihe")
              MenuItem(22 , "2 Thumbnail Pro Reihe")
              MenuItem(23 , "3 Thumbnail Pro Reihe")             
              MenuItem(24 , "4 Thumbnail Pro Reihe")             
-             CloseSubMenu()
+        CloseSubMenu()
         If Len(ImageInfo) > 0
         	MenuBar()
-        	MenuItem(25 , "Information..")
-        	MenuItem(26 , ImageInfo)               
+        	MenuItem(25 , "Information..")							:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),26, #MF_BYPOSITION, ImageID( DI::#_MNU_PIN ),0)
+        	MenuItem(26 , ImageInfo			)								:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),27, #MF_BYPOSITION, ImageID( DI::#_MNU_PIN ),0)               
         EndIf	
         ;MenuItem(17, "7 Thumbnails Pro Reihe")   :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),22, #MF_BYPOSITION, ImageID( DI::#_MNU_TB5 ),0) 
         
-        ;If Not IsImage( GetClipboardImage(#PB_Any) )
         If ( vImages::Screens_Menu_Check_Clipboard() = #False)
             DisableMenuItem(CLSMNU::*MNU\HandleID[0], 19, 1)
         EndIf
@@ -2593,6 +2592,7 @@ Module INVMNU
     		Case 44: vEngine::MAME_Roms_GetInfos() 
     		Case 44: vEngine::MAME_Roms_GetInfos() 
     		Case 47: vEngine::MAME_Driver_Info_wwwAI() 
+    		Case 48: VEngine::Database_Remove()   
     			
     			; Resetet die Fenster Position
     		Case 20
@@ -2845,24 +2845,23 @@ Module INVMNU
     ;*******************************************************************************************************************************************************************    
     Procedure Set_Mame_Menu()        
     	
-            MenuItem(41 , "Tool : Sets/Roms Einsortieren" 			,ImageID( DI::#_MNU_MAM ))
-            MenuItem(42 , "Tool : Sets/Roms Überprüfen" 	      ,ImageID( DI::#_MNU_MAM ))
+            MenuItem(41 , "Sets/Roms Einsortieren" 				,ImageID( DI::#_MNU_MIR ))
+            MenuItem(42 , "Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MIV ))
             MenuBar()             
-            MenuItem(44 , "Tool : Informationen hinzufügen" 	  ,ImageID( DI::#_MNU_MAM ))             
+            MenuItem(44 , "Informationen hinzufügen" 	  	,ImageID( DI::#_MNU_MIF ))             
             MenuBar()   
-            MenuItem(43 , "Tool : Backup aus dem Internet" 	    ,ImageID( DI::#_MNU_MAM ))
-            MenuBar() 
-            MenuItem(47 , "Tool : Database (ArcadeItalia)" 			,ImageID( DI::#_MNU_MAM ))     
+            MenuItem(43 , "Backup aus dem Internet" 	   	,ImageID( DI::#_MNU_MWW ))            
+            MenuItem(47 , "Info Database (ArcadeItalia)" 	,ImageID( DI::#_MNU_MWW ))     
             
             If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 0) 
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 0) 
+            	;DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 0) 
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 0)             	
             Else
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 1) 
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 1) 
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 1) 
+            	;DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 1) 
             	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 1)             	
             EndIf
             
@@ -2873,10 +2872,10 @@ Module INVMNU
      	
      	Protected ButtonText.s = ButtonEx::Gettext(DC::#Button_028, 0)  
     		MenuItem(4 , "Sortieren: "+ButtonText+"  " +Chr(9)+"F4" ,ImageID( DI::#_MNU_VSY ))
-    		MenuBar()             
-    		MenuItem(45, "Anzeigen : Programm"					       ,ImageID( DI::#_MNU_VSY ))  
-    		MenuItem(46, "Anzeigen : Release"						       ,ImageID( DI::#_MNU_VSY ))
-    		
+    		OpenSubMenu( "Sortieren und Anzeigen .."                ,ImageID( DI::#_MNU_VSI ))   
+    		MenuItem(45, "Anzeigen : Programm"					       			,ImageID( DI::#_MNU_VSY ))  
+    		MenuItem(46, "Anzeigen : Release"						       			,ImageID( DI::#_MNU_VSY ))
+				CloseSubMenu()
     EndProcedure      	
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
@@ -2884,15 +2883,16 @@ Module INVMNU
     	If IsWindow(DC::#_Window_001)                            
     		MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
     		MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
-    		MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))
-				Set_SortBUtton()         
+    		MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))            
+    		Set_SortBUtton()     		  		       
     		MenuBar()            
-    		MenuItem(40 , "Import. Titel in die Datenbank"	     	,ImageID( DI::#_MNU_MAM ))
+    		MenuItem(40 , "Import. Titel in die Datenbank"	     		,ImageID( DI::#_MNU_MIP ))
     		OpenSubMenu( "Mame Tools .."                            ,ImageID( DI::#_MNU_MAM ))               
     		Set_Mame_Menu() 
     		CloseSubMenu()             
     		MenuBar()                     
-    		MenuItem(17, "Lösche Einträge = 1"                      ,ImageID( DI::#_MNU_SPL ))            
+    		MenuItem(48, "Eintrag/ Alle Löschen"                    ,ImageID( DI::#_MNU_SPL ))     		
+    		MenuItem(17, "Einträge Löschen bis auf 1"                     ,ImageID( DI::#_MNU_SPL ))     		
     		MenuBar()  
     		Set_TrayMenu_LoggUtil()   
     		MenuBar()              
@@ -2911,14 +2911,16 @@ Module INVMNU
     		MenuItem(14, "Aktuellen Prüfen & Reparieren (Slot 3)"   ,ImageID( DI::#_MNU_RNE )) 
     		MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
     		CloseSubMenu()       
-    		MenuBar()            
+    		MenuBar()
+    		OpenSubMenu( "Windows Einstellung .."                   ,ImageID( DI::#_MNU_SWN ))      		
     		MenuItem(34, "Enable : Aero/Uxsms"                      ,ImageID( DI::#_MNU_AEE ))
     		MenuBar()
     		MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
     		MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
-    		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))              
+    		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))
+    		CloseSubMenu()  
     		MenuBar()
-    		OpenSubMenu( "Einstellungen"   							,ImageID( DI::#_MNU_VSP )) 
+    		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
     		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
     		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
     		MenuBar()                   
@@ -2929,8 +2931,8 @@ Module INVMNU
     		CloseSubMenu()
     		MenuBar()             
     	EndIf
-    	MenuItem(98, "vSystems Update"							,ImageID( DI::#_MNU_VSU ))        
-    	MenuItem(99, "vSystems Beenden"							,ImageID( DI::#_MNU_VSY ))
+    	MenuItem(98, "vSystems Update"														,ImageID( DI::#_MNU_VSU ))        
+    	MenuItem(99, "vSystems Beenden"														,ImageID( DI::#_MNU_VSY ))
     	
     	
     	
@@ -2940,8 +2942,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2594
-; FirstLine = 131
+; CursorPosition = 2553
+; FirstLine = 90
 ; Folding = D5--
 ; EnableAsm
 ; EnableXP
