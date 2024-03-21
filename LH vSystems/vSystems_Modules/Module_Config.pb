@@ -346,6 +346,7 @@ DeclareModule Startup
         GadgetIDCheck.i
         WindowIDCheck.i
         FormIsChecked.i
+        LastSplitHeight.i
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
@@ -939,10 +940,10 @@ Module Startup
          Verify_Directories()
          Verify_DatabaseFiles() 
          
-         *LHGameDB\bvSystem_Restart     = #False
+         *LHGameDB\bvSystem_Restart = #False
          *LHGameDB\aUseless     		= "/degrem-emam/degrem-emam/daolnwod/gro.evihcra//"
-         *LHGameDB\FolderWWW			= *LHGameDB\Base_Path + "Systeme\INET\"
-         *LHGameDB\FolderMameSource		= "B:\MSYS2_MAME\src\Mame\"; *LHGameDB\Base_Path
+         *LHGameDB\FolderWWW				= *LHGameDB\Base_Path + "Systeme\INET\"
+         *LHGameDB\FolderMameSource	= "B:\MSYS2_MAME\src\Mame\"; *LHGameDB\Base_Path
          *LHGameDB\SortXtendMode		= #False
          
          ; Lösche Das Update Modul
@@ -1004,8 +1005,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 369
-; FirstLine = 280
+; CursorPosition = 348
+; FirstLine = 272
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

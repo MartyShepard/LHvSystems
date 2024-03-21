@@ -409,22 +409,14 @@ Module Interact
                                Continue                           
                             EndIf                            
                             
-                        Case #VK_UP, #VK_DOWN, #VK_0 To #VK_9, #VK_A To #VK_Z, 34, 33
-                            If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-                                vInfo::Modify_EndCheck()
-                                vInfo::Modify_Reset()
-                                VEngine::ListBox_GetData_KeyBoard(EvntwParam)
-                                VEngine::ListBox_GetData_LeftMouse()
-                                Debug "MainCode() Up/Down"
-                                Continue
-                            EndIf                                                                               
+                                                                              
                             
                         Default
                             If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
                             EndIf    
                             Debug "MainCode() Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
                     EndSelect     
-                    
+  		
                     ;
                     ; Registriere Hotkey CTRL-S für Speichern/Updaten                    
                 Case #WM_HOTKEY
@@ -434,9 +426,10 @@ Module Interact
                                  Continue
                              EndIf
                      EndSelect
-                                          
-                Case #WM_KEYDOWN
-                    
+                     
+                     
+                Case #WM_KEYDOWN                	
+
                     If ( GetAsyncKeyState_(#VK_CONTROL) & 32768 = 32768 And GetAsyncKeyState_(#VK_S) & 32768 = 32768 And Startup::*LHGameDB\Switch = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)                                 
                                  VEngine::Update_Changes()
                                  VEngine::ListBox_GetData_LeftMouse(#True)                                        
@@ -445,20 +438,35 @@ Module Interact
                     EndIf
                              
                     Select EvntwParam
+		                		Case #VK_UP, #VK_DOWN, #VK_0 To #VK_9, #VK_A To #VK_Z, 34, 33
+		                			
+		                			If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+		                				vInfo::Modify_EndCheck()
+		                				vInfo::Modify_Reset()
+		                				VEngine::ListBox_GetData_KeyBoard(EvntwParam)
+		                				VEngine::ListBox_GetData_LeftMouse()
+		                				Debug "MainCode() Up/Down"
+		                				Continue
+		                				
+		                			EndIf                     		
+                    		
                             ;
                             ; Beim Drücken der Taste wird die Thumbnail grösse geändert                            
                             ; 100 NumKey L w - 1
                             ; 102 NumKey R w + 1
                             ; 104 NumKey U h + 1
                             ;  98 NumKey D h - 1 
-                        Case #VK_F5, #VK_F6, 98, 100, 102, 104, 103, 105
-                            If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 )  And ( Startup::*LHGameDB\SwitchNoItems = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+		                		Case #VK_F5, #VK_F6, 98, 100, 102, 104, 103, 105
+
+		                			If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 )  And ( Startup::*LHGameDB\SwitchNoItems = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)               				
                                 ;
-                                ; Tastenwiederholung
+																; Tastenwiederholung
+                            		Debug "MainCode() Grössenänderung"
                                 EvntRepeat + 1
                                 vImages::Screens_ChgThumbnails(EvntwParam, #False, EvntRepeat,EvntWait)
-                                Continue
-                            EndIf                                                                             
+                                 Continue
+                          EndIf 
+                                                        
                         Default
                     EndSelect
                                              
@@ -891,9 +899,9 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 312
-; FirstLine = 165
-; Folding = P+
+; CursorPosition = 466
+; FirstLine = 359
+; Folding = f+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

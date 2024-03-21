@@ -4477,30 +4477,70 @@ Module VEngine
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Versteckt/ Öffnet die Screenshots
-    ;****************************************************************************************************************************************************************
+		;****************************************************************************************************************************************************************
+    Procedure.i Splitter_GetLastPosition(CurrentHeight.i,WindowHeight.i)
+    	
+    	Protected ResultHeight.i
+    	
+    	Rows = ExecSQL::CountRows(DC::#Database_001,"Gamebase")
+    	If ( Rows > 0 )
+    		ProcedureReturn ExecSQL::iRow(DC::#Database_001,"Gamebase","SplitHeight",0,Startup::*LHGameDB\GameID,"",1)    				
+    	Else
+    		
+    		If ( GetGadgetState(DC::#Splitter1) = 0 )
+    			;
+    			; SplitterGadget is ganz Oben (Fensterhöhe = 0)
+    		EndIf
+    		
+    		If ( GetGadgetState(DC::#Splitter1) = WindowHeight )
+    			;
+    			; Fenster Höhe ist gleich dem Splitter Gadget
+    		EndIf
+    		
+    		 ResultHeight = Startup::*LHGameDB\LastSplitHeight
+    		ProcedureReturn ResultHeight
+    	EndIf
+    	
+    EndProcedure
+    ;
+		;
+    ;
     Procedure PicSupport_Hide_Show()
-        
-        Protected SplitHeight.i        
-        SplitHeight = GetGadgetState(DC::#Splitter1)
-        h = WindowHeight(DC::#_Window_001 ) -30
-          
-            Select SplitHeight                    
-                    ;
-                    ; Höhe ist Obene -> Verschiebe komplett Nach Oben
-                Case 0                
-                    SetGadgetState(DC::#Splitter1,GadgetHeight(Startup::*LHImages\ScreenGDID[1]))
-                    
-                Case h
-                    ;
-                    ; Höhe ist Unten -> Verschiebe komplett Nach Oben                
-                    SetGadgetState(DC::#Splitter1,GadgetHeight(Startup::*LHImages\ScreenGDID[1]))
-                    
-                Default 
-                    SetGadgetState(DC::#Splitter1,h)
-            EndSelect
-        ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
-        
-        ProcedureReturn                
+    	
+    	Protected SplitHeight.i        
+    	
+    	Protected StepPxl.i 		= 3    	
+    	Protected CurrentH.i  	= GetGadgetState(DC::#Splitter1 )    	
+    	Protected MaxSplitH.i 	= ( WindowHeight(DC::#_Window_001 ) - 62) - GadgetY(DC::#ListIcon_001,#PB_Gadget_WindowCoordinate )
+    	Select CurrentH
+    			
+    		Case 0, MaxSplitH
+    			
+    			If ( CurrentH = 0 )
+    				;
+						; GadgetHeight( Startup::*LHImages\ScreenGDID[1] ) 
+    				
+						; Splitter ist ganz Oben - Setze die höhe auf die Stndar Screenshot grösse
+    				Startup::*LHGameDB\LastSplitHeight = Startup::*LHGameDB\hScreenShotGadget
+    				SetGadgetState(DC::#Splitter1, Startup::*LHGameDB\LastSplitHeight )
+    				  
+    				ProcedureReturn
+    			EndIf
+
+    			;
+    			; Splitter ist ganz unten   			    			  			    	
+    			SetGadgetState(DC::#Splitter1, Startup::*LHGameDB\LastSplitHeight)
+    		Default 
+    			;
+    			; Position ist nicht 0 oder gnaz unten, Position merken    			
+    			Startup::*LHGameDB\LastSplitHeight = CurrentH   			    			
+    			
+    			SetGadgetState(DC::#Splitter1,MaxSplitH)
+    	EndSelect
+    	
+    	ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
+    	
+    	ProcedureReturn                
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Setzt die Höhe des Splitters
@@ -4774,12 +4814,13 @@ EndProcedure
             Case 0
                 
             Default
-                vImages::Thumbnails_SetReDraw(#False)
+                ;vImages::Thumbnails_SetReDraw(#False)
+                ;DisableGadget( DC::#Contain_10, #True)
                 
                 *Thumbnail = AllocateMemory( SizeOf( POINT ) )                
                 *Thumbnail = vThumbSys::Get_ThumbnailSize(nSize)
                 
-                
+               
                 ResetList(ExecSQL::_IOSQL())                                                   
                 HideGadget(DC::#Text_004,0)
                 
@@ -4794,7 +4835,7 @@ EndProcedure
                 vImages::Screens_ChgThumbnails(0,#False)             
                 vImages::Screens_ChgThumbnails(0,#True,0, 257)
                 
-                vImages::Thumbnails_SetReDraw(#True)
+                ;vImages::Thumbnails_SetReDraw(#True)
                 
                 Splitter_SetHeight(*Thumbnail\y, #True)
         EndSelect  
@@ -7778,9 +7819,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 908
-; FirstLine = 880
-; Folding = 8-------f6--be1h-
+; CursorPosition = 4837
+; FirstLine = 4676
+; Folding = 8-------f6--49oD-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
