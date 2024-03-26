@@ -867,49 +867,56 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________       
     Procedure Screens_Menu_Paste_Import(GadgetID.i)
         
-        Protected Extension$, GenImage.l, *ImageData
-        
-        ClipBoardImage.l = GetClipboardImage(#PB_Any)
-        
-        If IsImage( ClipBoardImage.l )
-            
-            GenImage.l  = GrabImage(ClipBoardImage, #PB_Any,0,0, ImageWidth(ClipBoardImage),ImageHeight(ClipBoardImage))
-            
-            Debug ""
-            Debug "Import Clibboard Image"
-            Debug "Image Weite  : " + Str(ImageWidth(ClipBoardImage))
-            Debug "Image Höhe   : " + Str(ImageHeight(ClipBoardImage))
-            Debug "Image Format : " + Str(ImageFormat(ClipBoardImage))            
-                  
-            For n = 1 To Startup::*LHGameDB\MaxScreenshots
-                If ( GadgetID = Startup::*LHImages\ScreenGDID[n] )                             
-                    
-                    If ( Screens_Overwrite(n) = 0 )
-                        ProcedureReturn 
-                    EndIf    
-                    
-                    HideGadget(DC::#Text_004,0)  
-                    
-                    Startup::*LHGameDB\bisImageDBChanged = #True 
-
-                   *ImageData = EncodeImage(GenImage, #PB_ImagePlugin_PNG)
-
-                    If Not ( *ImageData = 0 )
-                        ExecSQL::ImageSet(DC::#Database_002,"GameShot","Shot"+ Str(n) +"_Big","",Startup::*LHGameDB\GameID,1,*ImageData,"BaseGameID"):Delay(1)  
-                    EndIf
-                    
-                    Screens_Copy_ResizeToGadget(n.i,GenImage.l, Startup::*LHImages\ScreenGDID[n]) 
-                    
-                    FreeImage ( ClipBoardImage.l )
-                    FreeImage ( GenImage.l       )
-
-                    Screens_Import_Save_Thumbnail(n)
-                    
-                    Screens_Show(): SetGadgetText(DC::#Text_004,""): HideGadget(DC::#Text_004,1): Break                        
-                EndIf                
-            Next                 
-        EndIf                                       
-        ProcedureReturn                        
+    	Protected Extension$, GenImage.l, *ImageData, nSlot.i
+    	
+    	ClipBoardImage.l = GetClipboardImage(#PB_Any)
+    	
+    	If IsImage( ClipBoardImage.l )
+    		
+    		GenImage.l  = GrabImage(ClipBoardImage, #PB_Any,0,0, ImageWidth(ClipBoardImage),ImageHeight(ClipBoardImage))
+    		
+    		Debug ""
+    		Debug "Import Clibboard Image"
+    		Debug "Image Weite  : " + Str(ImageWidth(ClipBoardImage))
+    		Debug "Image Höhe   : " + Str(ImageHeight(ClipBoardImage))
+    		Debug "Image Format : " + Str(ImageFormat(ClipBoardImage))     
+    		Debug "Image Tiefe  : " + Str(ImageDepth(ClipBoardImage,#PB_Image_OriginalDepth))     		
+    		
+    		For n = 1 To Startup::*LHGameDB\MaxScreenshots
+    			If ( GadgetID = Startup::*LHImages\ScreenGDID[n] )                             
+    				nSlot = n
+    				Break
+    			EndIf
+    		Next    
+    		
+    		If ( Screens_Overwrite(nSlot) = 0 )
+    			If IsImage( GenImage )
+    				FreeImage( GenImage )
+    			EndIf	
+    			ProcedureReturn 
+    		EndIf    
+    		
+    		HideGadget(DC::#Text_004,0)  
+    		
+    		Startup::*LHGameDB\bisImageDBChanged = #True 
+    		
+    		*ImageData = EncodeImage(ClipBoardImage, #PB_ImagePlugin_PNG)
+    		
+    		If Not ( *ImageData = 0 )
+    			ExecSQL::ImageSet(DC::#Database_002,"GameShot","Shot"+ Str(nSlot) +"_Big","",Startup::*LHGameDB\GameID,1,*ImageData,"BaseGameID"):Delay(1)  
+    			
+    			Screens_Copy_ResizeToGadget(nSlot, GenImage, Startup::*LHImages\ScreenGDID[nSlot]) 
+    			
+    			If IsImage( GenImage )
+    				FreeImage( GenImage )
+    			EndIf	
+    			
+    			Screens_Import_Save_Thumbnail(nSlot)    			
+    		EndIf
+    		
+    		Screens_Show(): SetGadgetText(DC::#Text_004,""): HideGadget(DC::#Text_004,1)                       
+    	EndIf                                    
+    	ProcedureReturn                        
     EndProcedure          
     ;******************************************************************************************************************************************
     ;  Lädt und Importiert die Screenshots über das menu
@@ -1794,9 +1801,9 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1369
-; FirstLine = 717
-; Folding = -PA1zigB5B-
+; CursorPosition = 902
+; FirstLine = 568
+; Folding = -PA1zygB5B-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
