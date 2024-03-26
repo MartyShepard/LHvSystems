@@ -24,7 +24,7 @@
     Declare.i StringGadgetCursorY(Gadget)
     Declare.i IsInteger(value.s)
     Declare   StringGadgetTextSelect(Gadget.i, DontMoveCrt=#True, Min=0,Max=-1)
-    Declare   ImageResizeEx(ImageID.l,Width.l,Height.l,ColorBack=$000000,Alpha.i = #False, Level.i = 255 )
+    Declare.l ImageResizeEx(ImageID.l,Width.l,Height.l,ColorBack=$000000,Alpha.i = #False, Level.i = 255 )
     Declare   ImageResizeEx_Thread(ImageID.l, w, h, BoxStyle = 0, Color = $000000, Center = #False, Alpha = #False, Level = 255)
     Declare.s Get_GadgetClass(GadgetObject.i,ShowClassDebug = #False)
     Declare   ResizeGadgetOS_Windows(Class.s, ClassLong.l, Update = #False)
@@ -954,57 +954,62 @@ Module FORM
     ;
     ; Resize Image to hold the Aspect Ration
     ;
-    Procedure ImageResizeEx(ImageID.l,Width.l,Height.l,ColorBack=$000000,Alpha.i = #False, Level.i = 255 )
-        
-        If ImageID = 0
-            Debug "Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" ImageID IST NULL"
-            ProcedureReturn
-        EndIf    
-        
-        Define.l OriW, OriH, w, h, oriAR, newAR
-        Define.f fw, fh
-  
-        
-        OriW = ImageWidth(ImageID)
-        OriH = ImageHeight(ImageID)
-
-        If (OriH > OriW And Height < Width) Or (OriH < OriW And Height > Width)
-            ;Swap Width, Height
-        EndIf
-
-        ; Calc Factor
-        fw = Width/OriW
-        fh = Height/OriH
-
-        ; Calc AspectRatio
-        oriAR = Round((OriW / OriH) * 10,0)
-        newAR = Round((Width / Height) * 10,0)
-
-        ; AspectRatio already correct?
-        If oriAR = newAR 
-            w = Width
-            h = Height
-            
-        ElseIf OriW * fh <= Width
-            w = OriW * fh
-            h = OriH * fh
-            
-        ElseIf OriH * fw <= Height
-            w = OriW * fw
-            h = OriH * fw  
-        EndIf
-
-        ResizeImage(ImageID,w,h,#PB_Image_Smooth) 
-        
-        Select Alpha
-               Case #True
-                CreateImage(DC::#ImageBlank,ImageWidth(ImageID),ImageHeight(ImageID),24,RGB(61,61,61))
-                    StartDrawing(ImageOutput(DC::#ImageBlank))
-                        DrawingMode(#PB_2DDrawing_Default)
-                        DrawAlphaImage(ImageID(ImageID), 0, 0,Level) 
-                    StopDrawing() 
-                GrabImage(DC::#ImageBlank,ImageID, 0, 0, ImageWidth(ImageID), ImageHeight(ImageID)) 
-        EndSelect
+    Procedure.l ImageResizeEx(ImageID.l,Width.l,Height.l,ColorBack=$000000,Alpha.i = #False, Level.i = 255 )
+    	
+    	If Not ImageID(ImageID) Or  ImageID = 0
+    		Debug "Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" ImageID IST NULL"
+    		ProcedureReturn
+    	EndIf    
+    	
+    	Define.l OriW, OriH, w, h, oriAR, newAR
+    	Define.f fw, fh
+    	
+    	
+    	OriW = ImageWidth(ImageID)
+    	OriH = ImageHeight(ImageID)
+    	
+    	If (OriH > OriW And Height < Width) Or (OriH < OriW And Height > Width)
+    		;Swap Width, Height
+    	EndIf
+    	
+    	; Calc Factor
+    	fw = Width/OriW
+    	fh = Height/OriH
+    	
+    	; Calc AspectRatio
+    	oriAR = Round((OriW / OriH) * 10,0)
+    	newAR = Round((Width / Height) * 10,0)
+    	
+    	; AspectRatio already correct?
+    	If oriAR = newAR 
+    		w = Width
+    		h = Height
+    		
+    	ElseIf OriW * fh <= Width
+    		w = OriW * fh
+    		h = OriH * fh
+    		
+    	ElseIf OriH * fw <= Height
+    		w = OriW * fw
+    		h = OriH * fw  
+    	EndIf
+    	
+    	ResizeImage(ImageID,w,h,#PB_Image_Raw);#PB_Image_Smooth) 
+    	
+    	Select Alpha
+    		Case #True
+    			If ImageWidth(ImageID) < 32000 Or ImageWidth(ImageID) < 32000 
+	    			CreateImage(DC::#ImageBlank,ImageWidth(ImageID),ImageHeight(ImageID),24,RGB(61,61,61))
+	    			StartDrawing(ImageOutput(DC::#ImageBlank))
+	    			DrawingMode(#PB_2DDrawing_Default)
+	    			DrawAlphaImage(ImageID(ImageID), 0, 0,Level) 
+	    			StopDrawing() 
+	    			ImageID = GrabImage(DC::#ImageBlank,#PB_Any, 0, 0, ImageWidth(ImageID), ImageHeight(ImageID))    			
+	    			FreeImage(DC::#ImageBlank)
+    			EndIf
+    	EndSelect
+    	
+    	ProcedureReturn ImageID
     EndProcedure  
    ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    ;
@@ -1117,9 +1122,9 @@ Module FORM
     EndProcedure   
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 278
-; FirstLine = 196
-; Folding = 8XjAAvh
+; CursorPosition = 1002
+; FirstLine = 466
+; Folding = 8XjAAv8
 ; EnableAsm
 ; EnableXP
 ; EnableUnicode

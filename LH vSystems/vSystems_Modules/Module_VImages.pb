@@ -11,13 +11,17 @@
     Declare Screens_Menu_Delete_All()
     Declare Screens_Menu_Copy_Image(GadgetID.i)
     Declare Screens_Menu_Paste_Import(GadgetID.i)
+    
+    Declare.i Screen_GetThumnbailSlot( ThumbnailGadget.i )
+    
     Declare.i Screens_Menu_Check_Clipboard()
     Declare.s Screens_Menu_Info_Image()
     
     Declare Screens_Import(CurrentGadget.i, FileStream.s = "")
     
     Declare Screens_Show()   
-    Declare Screens_ShowWindow(CurrentGadgetID.i, hwnd)
+    Declare Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i)
+    Declare Screens_ShowWindow_Info()
     
     Declare.i Screens_SetThumbnails(OffsetX.i = 4,OffsetY.i = 4)
     Declare Screens_SzeThumbnails_Reset()
@@ -26,6 +30,10 @@
     Declare Screens_Copy_ResizeToGadget(n.i,StructImagePB.i, ImageGadgetID.i, Resize.i = #True)
     
     Declare     Thumbnails_SetReDraw( bReDraw.i = #True )
+    
+    Declare		Window_ZoomScroll(ZoomDelta.w = 0)    
+    Declare.l	Window_GetCurrentRaw( CurrentGadgetID.i )
+    Declare.i	Window_GetCurrentPbs( ImageData.l       )
     
     
     
@@ -302,7 +310,7 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________  
     Procedure NoScreens_Prepare()        
         
-        Debug "START: NoScreens_Prepare()" 
+        Debug "Start: NoScreens_Prepare()" 
         Protected n.i
         
         ; Random Modus
@@ -311,7 +319,8 @@ Module vImages
         	Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)        	        	
           Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
                       
-          Debug "NoScreen Nr. " + RSet( Str(n),2,"0" ) + " / NoScreenPB: " + RSet( Str(Startup::*LHImages\NoScreenPB[n]),4,"0") + " / NoScreenID: " + Str(Startup::*LHImages\NoScreenID[n])
+          ;Debug "NoScreen Nr. " + RSet( Str(n),2,"0" ) + " / NoScreenPB: " + RSet( Str(Startup::*LHImages\NoScreenPB[n]),4,"0") + " / NoScreenID: " + Str(Startup::*LHImages\NoScreenID[n])
+          
           ProcessEX::DelayMicroSeconds(1)      
          Next
     EndProcedure    
@@ -918,7 +927,7 @@ Module vImages
     			Extension = Screens_Menu_Save_Format(Unknown.l)
     			
     			If ( Len(Extension) >= 1 )                     				
-    				InfoString.s = UCase(Extension) + " - " + Str(ImageWidth(Unknown)) + "x" + Str(ImageHeight(Unknown)) + "x"  + Str(ImageDepth(Unknown)) + "bit"
+    				InfoString.s = UCase(Extension) + " - " + Str(ImageWidth(Unknown)) + "x" + Str(ImageHeight(Unknown)) + "x"  + Str(ImageDepth(Unknown,#PB_Image_OriginalDepth)) + "bit"
     				InfoString   = "Slot "+Slot+": " + InfoString
     				ProcedureReturn InfoString
     			EndIf    
@@ -946,7 +955,7 @@ Module vImages
         		
         		If ( Len(Extension) >= 1 )                 
         			
-        			File.s = FFH::GetFilePBRQ("Speichere "+Extension+" Bild", Screens_Menu_Set_Filename("", Extension, n), #True, "." + LCase(Extension))
+        			File.s = FFH::GetFilePBRQ("Speichere "+Extension+" Bild", Screens_Menu_Set_Filename("", Extension, Slot), #True, "." + LCase(Extension))
         			If ( File )
         				Result = vItemTool::DialogRequest_Screens_Menu_Verfiy_File(File)                        
         				
@@ -1080,180 +1089,408 @@ Module vImages
         EnableGadgetDrop(Startup::*LHImages\ScreenGDID[n], #PB_Drop_Files , #PB_Drag_Copy)
     Next  
     EndProcedure        
-    ;******************************************************************************************************************************************
-    ;  Fenster Grösse  Anpassen
-    ;__________________________________________________________________________________________________________________________________________     
-    Procedure Screens_ShowWindow_ReszWindow(hwnd, ImageHeight.i, DeskHeight.i, DeskWidth.i)             
-        ;
-        ; Fenstergrösse Setzen ( + 60 = Leiste Oben und Unten)
+    ;
+		;
+		;
+    Procedure 	Screens_ShowWindow_Info()
+    	
+    	Protected sMsg.s
+    	
+    	sMsg + "Original "
+    	sMsg + Startup::*LHimgEdit\bmOrig\format
+    	sMsg + " "    	
+    	sMsg + Str( Startup::*LHimgEdit\bmOrig\w )
+    	sMsg + "x"
+    	sMsg + Str( Startup::*LHimgEdit\bmOrig\h )
+    	sMsg + "x"
+    	sMsg + Str( Startup::*LHimgEdit\bmOrig\bits )
+    	sMsg + " Dateigröße: "
+    	sMsg + Startup::*LHimgEdit\bmOrig\imgsize
 
-        If ( ImageHeight > DeskHeight + 61 )                
-            ResizeWindow(hwnd, 0, 0, DeskWidth, DeskHeight) 
-        Else
-            ResizeWindow(hwnd, 0, 0, DeskWidth, DeskHeight + 60)
-                        
-            If WindowHeight(hwnd) < ImageHeight + 60
-                ResizeWindow(hwnd, 0, 0, DeskWidth, DeskHeight) 
-            EndIf    
-        EndIf                               
-    EndProcedure   
-    ;******************************************************************************************************************************************
-    ;  Im ScrolGadget die #SM_CXVSCROLL berücksichtigen
-    ;__________________________________________________________________________________________________________________________________________     
-    Procedure.l Screens_ShowWindow_ReszScrolls(hwnd, ImageWidth.i, ImageHeight.i, DeskWidth.i, DeskHeight.i) 
-        
-        ;
-        ;
-        If  (ImageWidth = DeskWidth) And (ImageHeight = DeskHeight)
-            ProcedureReturn
-            
-        ElseIf ( ImageWidth <> DeskWidth) And (ImageHeight <> DeskHeight)
-            ProcedureReturn
-            
-        ElseIf ( ImageWidth <= DeskWidth + GetSystemMetrics_(#SM_CXVSCROLL)  ) And (ImageHeight >= DeskHeight)
-            
-            ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, WindowWidth(hwnd)+GetSystemMetrics_(#SM_CXVSCROLL), #PB_Ignore)
-            ProcedureReturn
-            
-        ElseIf ( ImageWidth >= DeskWidth ) And (ImageHeight <= DeskHeight + GetSystemMetrics_(#SM_CXVSCROLL) )              
-            ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, #PB_Ignore, WindowHeight(hwnd)+GetSystemMetrics_(#SM_CXVSCROLL))                     
-            ProcedureReturn
-        EndIf 
-        
+     	SetGadgetText(DC::#Text_140, sMsg)
+     	
     EndProcedure
+    ;
+		;
+		;
+    Procedure.q	Get_BitmapSize(imagedata.l)
+    	Protected *ImageBuffer, ImageSize.q
+    	
+    	If IsImage( imagedata )
+
+    		If Not ( ImageFormat(ImageData) = 0 )
+    			
+    			Select ImageFormat(ImageData)
+    				Case #PB_ImagePlugin_JPEG			:	Debug "Bild liegt im JPG Format vor"    					
+    				Case #PB_ImagePlugin_JPEG2000	: Debug "Bild liegt im JPEG2000 Format vor"     					
+    				Case #PB_ImagePlugin_PNG			: Debug "Bild liegt im PNG Format vor"      					
+    				Case #PB_ImagePlugin_TGA			: Debug "Bild liegt im TGA Format vor"      				    					
+    				Case #PB_ImagePlugin_TIFF			: Debug "Bild liegt im TIFF Format vor"      					
+    				Case #PB_ImagePlugin_BMP			: Debug "Bild liegt im BMP Format vor"      					
+    				Case #PB_ImagePlugin_ICON			: Debug "Bild liegt im ICON Format vor"     					
+    				Case #PB_ImagePlugin_GIF			: Debug "Bild liegt im GIF Format vor"  
+    				Default
+    					Debug "FEHELR Unbekanntes Format"	
+    					
+    			EndSelect
+    			
+    			*ImageBuffer = EncodeImage(ImageData, ImageFormat(ImageData),0,ImageDepth(ImageData,#PB_Image_OriginalDepth))
+    		Else
+
+    			*ImageBuffer = EncodeImage(ImageData, #PB_ImagePlugin_PNG,0,ImageDepth(ImageData,#PB_Image_OriginalDepth))
+    		EndIf
+    		
+    		ImageSize.q = MemorySize(*ImageBuffer)
+    		
+    		FreeMemory(*ImageBuffer)
+    	EndIf
+    	ProcedureReturn ImageSize
+    EndProcedure
+		;
+		;
+		;
+    Procedure.i Window_GetCurrentPbs(ImageData.l)
+    	Protected Result.i = 0
+    	
+    	Result = CopyImage(ImageData, DC::#EditImage)
+    	
+    	If Not ( Result = 0 )      		    		    		
+    		ProcedureReturn Result
+    	EndIf    	
+    	
+    EndProcedure     
+    ;
+		;
+		;   	
+    Procedure Window_ConvertDepth(Source.l,Destination.l,Depth.i, width.i, height.i)
+    	    	
+    	If Not ( ImageDepth(Source) = Depth )    		  
+    		NewImage.l = CreateImage(Destination, width, height, Depth)
+    		StartDrawing( ImageOutput( NewImage ))
+    		DrawImage( ImageID( Source ),0,0 )
+    		StopDrawing()    		
+    	Else
+    		NewImage.l = CopyImage(Source,Destination)    		    		
+    	EndIf
+    	    	
+    	ProcedureReturn NewImage    	
+    	
+    EndProcedure
+    ;
+		;
+		;     
+    Procedure.l Window_GetCurrentInfo( ImageData.l, CurrentGadgetID.i, nSlot.i)
+   	   	
+    	NewDepthID.l = Window_ConvertDepth(ImageData, #PB_Any, 32, ImageWidth( ImageData ), ImageHeight( ImageData ) )    	
+    	
+    	If IsImage( ImageData )
+    		FreeImage( ImageData )
+    	EndIf
+    	
+    	ProcedureReturn NewDepthID
+    	
+    EndProcedure	
+    ;
+		;
+		;
+    Procedure.l Window_GetCurrentRaw( CurrentGadgetID.i )
+    	
+    	Protected ImageData.l
+    	
+    	For n = 1 To Startup::*LHGameDB\MaxScreenshots    		
+    		
+    		If ( CurrentGadgetID = Startup::*LHImages\ScreenGDID[n] )
+    			;
+					;
+					; Das original Bild aus der DB holen
+					;
+    			;
+    			ImageData = Screens_Menu_Get_Original(n)    			
+    			If ( ImageData = 0)
+    				;
+    				; Hole NoScreen Image
+						ImageData = CopyImage(Startup::*LHImages\NoScreenPB[n],#PB_Any )
+    			EndIf
+    			
+    			If Not ( ImageData = 0 )
+    				
+    				Startup::*LHimgEdit\cPBID 	 			= CurrentGadgetID
+    				
+    				Startup::*LHimgEdit\OrgData 			= CopyImage( ImageData, #PB_Any)
+    				Startup::*LHimgEdit\bmOrig\w 	  	= ImageWidth(ImageData)
+    				Startup::*LHimgEdit\bmOrig\h 	  	= ImageHeight(ImageData)
+    				Startup::*LHimgEdit\bmOrig\bits 	= ImageDepth(ImageData, #PB_Image_OriginalDepth)
+    				Startup::*LHimgEdit\bmOrig\format	=	Screens_Menu_Save_Format(ImageData) 
+    				Startup::*LHimgEdit\bmOrig\rawsize=	Get_BitmapSize(imagedata)
+    				Startup::*LHimgEdit\bmOrig\imgsize=	MathBytes::Bytes2String( Startup::*LHimgEdit\bmOrig\rawsize)
+    				
+    				
+    				;
+    				; Convert to 32Bit for Zoom Mode    				
+    				ImageData = Window_GetCurrentInfo( ImageData, CurrentGadgetID, n)    				
+    				
+    				Startup::*LHimgEdit\CpyData 			= CopyImage( ImageData, #PB_Any)
+    				Startup::*LHimgEdit\bmCopy\w 	  	= Startup::*LHimgEdit\bmOrig\w
+    				Startup::*LHimgEdit\bmCopy\h 	  	= Startup::*LHimgEdit\bmOrig\h 
+    				Startup::*LHimgEdit\bmCopy\bits 	= ImageDepth(ImageData, #PB_Image_OriginalDepth)
+    				Startup::*LHimgEdit\bmCopy\format	=	Screens_Menu_Save_Format(ImageData) 
+    				Startup::*LHimgEdit\bmCopy\rawsize=	Get_BitmapSize(imagedata)
+    				Startup::*LHimgEdit\bmCopy\imgsize=	MathBytes::Bytes2String( Startup::*LHimgEdit\bmCopy\rawsize)  
+    				
+    			EndIf	
+    			ProcedureReturn ImageData    			   			
+    		EndIf
+    	Next
+    EndProcedure    
+    ;
+		;
+		;
+    Procedure 	 Screen_ShowWindow_ChangeImgSize(ImageData.l, NewWidth.i = #PB_Ignore, NewHeight.i = #PB_Ignore, ThumbnailSlot.i = -1)
+    	
+    	If ( NewWidth  = #PB_Ignore )
+    		NewWidth  = ImageWidth (Startup::*LHimgEdit\CpyData )
+    	EndIf	
+    	If ( NewHeight = #PB_Ignore )
+    		NewHeight = ImageHeight(Startup::*LHimgEdit\CpyData )
+    	EndIf      		
+    							
+    	Startup::*LHimgEdit\CpyData = CopyImage( FORM::ImageResizeEx(ImageData, NewWidth, NewHeight),#PB_Any)
+;     	If IsImage( ImageData)
+;     		FreeImage( ImageData )
+;     	EndIf	
+    	
+  
+    	
+    EndProcedure
+    ;
+		;
+		;      
+    Procedure.i Screen_ShowWindow_GetDimensionW(Hwnd.i, ImageDim.i, WindowDim.i, TaskbarHeight.i, BorderSize.i, TitlebarBorderSize.i, SnapSize.i, ThumbnailSlot.i, ImageData.l)
+    	;
+			; Procedure Return Übergibt die Fenster Weite      	
+    	If ( ImageDim = WindowDim) : Debug " -- Bild Weite Hat die selbe Desktop Weite"
+    		
+    		Screen_ShowWindow_ChangeImgSize(ImageData,  WindowDim - ( BorderSize * 4 ),#PB_Ignore,ThumbnailSlot)    		
+    		ProcedureReturn ImageDim
+    	EndIf
+    	
+    	If ( ImageDim > WindowDim) : Debug " -- Bild Weite ist größer als der Desktop : Nutze Desktop Weite"   		
+    		Screen_ShowWindow_ChangeImgSize(ImageData,  WindowDim - ( BorderSize * 4 ), #PB_Ignore,ThumbnailSlot)
+    		
+    		ProcedureReturn WindowDim - (BorderSize * 2) 
+    	EndIf	
+    	
+    	If ( ImageDim <  WindowDim)	: Debug " -- Bild Weite ist kleiner als der Desktop: Nutze die Bild Weite"
+    		
+    		ProcedureReturn ImageDim + (BorderSize * 2) 
+    	EndIf     	
+    	
+    EndProcedure      
+    ;
+		;
+		;
+    Procedure.i Screen_ShowWindow_GetDimensionH(Hwnd.i, ImageDim.i, WindowDim.i, TaskbarHeight.i, BorderSize.i, TitlebarBorderSize.i, SnapSize.i, ThumbnailSlot.i, ImageData.l)      	
+    	;
+			; Procedure Return Übergibt die Fenster Höhe 
+    	Protected nSlot.i = ThumbnailSlot
+    	
+    	If ( ImageDim = WindowDim) : Debug " -- Bild Höhe Hat die selbe Desktop Höhe" 
+    		Screen_ShowWindow_ChangeImgSize( ImageData, #PB_Ignore , WindowDim - ( (SnapSize * 2)  ), nSlot )      		      	
+    		
+    		ProcedureReturn ImageDim - (TitlebarBorderSize * 2) 
+    	EndIf 
+    	
+    	If ( ImageDim > WindowDim) : Debug " -- Bild Höhe ist größer als Desktop : Nutze Desktop Höhe"
+    		Screen_ShowWindow_ChangeImgSize( ImageData, #PB_Ignore , WindowDim - ( (SnapSize * 2) + (TitlebarBorderSize * 2) ), nSlot )
+    		
+    		ProcedureReturn WindowDim - (TitlebarBorderSize * 2)   			        			        			
+    	EndIf
+    	
+    	If ( ImageDim <  WindowDim): Debug " -- Bild Höhe ist kleiner als der Desktop: Nutze die Bild Höhe"	      	     		
+    		
+    		If ( ImageDim + (SnapSize * 2) >  WindowDim )      			
+    			Screen_ShowWindow_ChangeImgSize(ImageData, #PB_Ignore, ImageDim - ( (SnapSize * 2) - (TitlebarBorderSize * 2) ), nSlot )
+    			
+    			ProcedureReturn WindowDim - (TitlebarBorderSize * 2)
+    		Else
+    			
+    			ProcedureReturn ImageDim + ( SnapSize * 2 )
+    		EndIf
+    	EndIf     	
+    	
+    	
+    EndProcedure
+    ;
+		;
+		;
+    Procedure.i 		Screen_ShowWindow_AreaHeight()
+    	
+    	;
+			; Code not finished
+    	;
+    	Protected ImageH.i = Startup::*LHimgEdit\bmCopy\h
+    	Protected GadgtH.i = GadgetHeight (DC::#Contain_11 )
+    	Protected InnerH.i = GetGadgetAttribute (DC::#Contain_11,#PB_ScrollArea_InnerHeight )
+    	Protected WindowH  = WindowWidth (  DC::#_Window_004 )
+    	
+    	Top  = Abs( GadgetHeight(DC::#Contain_11  ) + ( GadgetY(DC::#Contain_11  )  - GadgetHeight(DC::#Contain_11  ) - WindowHeight(  DC::#_Window_004 )) / 2 ) 
+    	Startup::*LHimgEdit\bmCopy\y = Top 
+    	
+    	SM_CXHSCROLL.i = GetSystemMetrics_(#SM_CXHSCROLL)
+    	
+    	Debug "Image  Höhe : " + Str( ImageH )
+    	Debug "Gadget Höhe : " + Str( GadgtH ) 
+    	Debug "Innere Höhe : " + Str( InnerH )
+     	Debug "FensterHöhe : " + Str( WindowH)    	
+
+    	PositionY.i = ( GadgtH - ImageH ) /2
+    	
+    	Debug "Position Y  : " + Str( PositionY )
+    	
+    	If ( ImageH >= GadgtH+Top+30 )
+    		PositionY /2
+    		ShowScrollBar_(GadgetID(DC::#Contain_11 ), #SB_VERT, #True)    		
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_Y,-PositionY ) 
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight, ImageH )    		    		    		
+    	Else
+    		ShowScrollBar_(GadgetID(DC::#Contain_11 ), #SB_VERT, #False)
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight, GadgtH )    		
+    	EndIf	
+    	ProcedureReturn PositionY
+    	
+    EndProcedure
+    ;
+		;
+		;
+    Procedure.i 		Screen_ShowWindow_AreaWidth()
+    	
+    	
+    	;
+			; Code not finished
+    	;    	
+    	Protected ImageW.i = Startup::*LHimgEdit\bmCopy\w
+    	Protected GadgtW.i = GadgetWidth (DC::#Contain_11 )
+    	Protected InnerW.i = GetGadgetAttribute (DC::#Contain_11,#PB_ScrollArea_InnerWidth )
+    	Protected WindowW  = WindowWidth (  DC::#_Window_004 )
+    	
+    	Left = Abs( GadgetWidth (DC::#Contain_11  ) + ( GadgetX(DC::#Contain_11  )  - GadgetWidth (DC::#Contain_11  ) - WindowWidth (  DC::#_Window_004 )) / 2 )
+    	Startup::*LHimgEdit\bmCopy\x = Left 
+    	
+    	SM_CXVSCROLL.i = GetSystemMetrics_(#SM_CXVSCROLL) 
+    	
+    	Debug "Image  Weite: " + Str( ImageW )
+    	Debug "Gadget Weite: " + Str( GadgtW ) 
+    	Debug "Innere Weite: " + Str( InnerW )
+    	Debug "FensterWeite: " + Str( WindowW)    	
+    	    	
+    	PositionX.i = ( GadgtW - ImageW ) /2
+
+    	Debug "Position X  : " + Str( PositionX )
+    	
+    	If ( ImageW > GadgtW )
+    		PositionX / 2  
+    		ShowScrollBar_(GadgetID(DC::#Contain_11 ), #SB_HORZ, #True)
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_X,-PositionX ) 
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth, ImageW )
+    		;PositionX + ( SM_CXVSCROLL/2)
+    	Else
+    		ShowScrollBar_(GadgetID(DC::#Contain_11 ), #SB_HORZ, #False)
+    		SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth, GadgtW )
+    	EndIf	
+    	ProcedureReturn PositionX
+    	
+    EndProcedure    
+		;
+		;
+    ;
+    Procedure 		Screen_ShowWindow_SetAreaScroll()
+    	
+    	Protected AreaID.i =  DC::#Contain_11 		
+
+    	If ( Startup::*LHimgEdit\bmCopy\w < 32767 ) Or ( Startup::*LHimgEdit\bmCopy\h < 32767 )   		
+   			ResizeGadget(DC::#ImageCont11    ,Screen_ShowWindow_AreaWidth(), Screen_ShowWindow_AreaHeight(), Startup::*LHimgEdit\bmCopy\w, Startup::*LHimgEdit\bmCopy\h) 
+   		EndIf	
+
+    EndProcedure    
     ;******************************************************************************************************************************************
     ;  Bild Ins Fenster Packen
     ;__________________________________________________________________________________________________________________________________________     
-    Procedure Screens_ShowWindow(CurrentGadgetID.i, hwnd)
+    Procedure Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i)
     	
+    		Debug #CRLF$ + "Screens ShowWindow ([Thumbnail Gadget] " + CurrentGadgetID + ",[Hwnd] " + Hwnd + ")"
+    		
+    		HideGadget(DC::#Text_004,0)
+    		SetGadgetText(DC::#Text_004, "Lade und Öffne Bild .. [ Extrahiere aus der DB ID " + CurrentGadgetID + "]")
+    		
+        Protected DesktopW.i	= DesktopEX::MonitorInfo_Display_Size(#False,#True)        
+        Protected DesktopH.i	= DesktopEX::MonitorInfo_Display_Size(#True)
 
-        Protected hFull, wFull, DskX, DskH, DskW, *MemScreenShot ,ForeignImage.l, ImageData.l
-        
-        For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            
-        	If ( CurrentGadgetID = Startup::*LHImages\ScreenGDID[n] )    		
-                ImageData = Screens_ShowWindow_GetDB(CurrentGadgetID, n)
-                Break
-            EndIf
-            Thread_DoEvents() 
-        Next 
-        
-        If ( ImageData = 0 )
-            hfull = ImageHeight(Startup::*LHImages\NoScreenPB[n])                   
-            wFull = ImageWidth (Startup::*LHImages\NoScreenPB[n])
-            CopyImage( Startup::*LHImages\NoScreenPB[n], Startup::*LHImages\OrScreenPB[n])
-            
-        Else
-            
-            CatchImage(Startup::*LHImages\OrScreenPB[n], ImageData, MemorySize(ImageData)) 
-            
-            If IsImage(Startup::*LHImages\OrScreenPB[n])                                                      
-                hfull = ImageHeight(Startup::*LHImages\OrScreenPB[n])
-                wFull = ImageWidth(Startup::*LHImages\OrScreenPB[n])                
-                FreeMemory(ImageData)            
-                
-            EndIf   
-        EndIf                  
+      	Protected TaskbarH.i	= DesktopEX::Get_TaskbarHeight(Hwnd, #True)        
+        		
+        Protected BordSize.i	=	FORM::WindowSizeBorder(Hwnd)
+        Protected TitlSize.i	=	FORM::WindowSizeTitleB(Hwnd)
 
-        ;
-        ;
-        DskH = DesktopEX::MonitorInfo_Display_Size(#True)
-        DskW = DesktopEX::MonitorInfo_Display_Size(#False,#True)
+        Protected WindowW.i = 0
+        Protected WindowH.i = 0
         
-        If ( hfull >= DskH )
-            TskH = DesktopEX::Get_TaskbarHeight(hwnd, #True)
-            If (TskH <> 0 )
-                DskX = hfull - TskH
-                DskH = hfull - DskX
-            EndIf    
-            ;
-            ; Höhe der Fenster Rahmen abziehen (Ink. Titlebar)
-            DskH - FORM::WindowSizeBorder(hwnd) 
-            DskH - FORM::WindowSizeTitleB(hwnd)              
-        Else
-            DskH = hfull
-        EndIf
+        Protected SnapSize.i  = 30
         
-        If ( wFull >= DskW )
-            DskX = Abs(wFull - DskW)
-            DskW = Abs(wFull - DskX)
-            DskW - (FORM::WindowSizeBorder(hwnd)*2)
-        Else
-            DskW = wFull
-        EndIf                   
+        Protected ImageData = vImages::Window_GetCurrentRaw( CurrentGadgetID )
         
-        
-        If ( DskW < 64 ): DskW = 64: EndIf
-        If ( DskH < 64 ): DskH = 64: EndIf         
-        
-        ;
-        ; Resize Image (Test höhe)
-        If ( ImageHeight(Startup::*LHImages\OrScreenPB[n]) > DesktopEX::MonitorInfo_Display_Size(#True) Or 
-             ImageWidth(Startup::*LHImages\OrScreenPB[n])  > DesktopEX::MonitorInfo_Display_Size(#False,#True))
-            
-            
-            TskH = DesktopEX::Get_TaskbarHeight(hwnd, #True)
-            If ( TskH <> 0 )
-                TskH = DesktopEX::MonitorInfo_Display_Size(#True) - TskH
-            EndIf
-            
-            TskH + 30
-            FORM::ImageResizeEx(Startup::*LHImages\OrScreenPB[n],DskW,DskH-TskH)
-            
-            AltH =  ImageHeight(Startup::*LHImages\OrScreenPB[n])
-            AltW =  ImageWidth(Startup::*LHImages\OrScreenPB[n])
-            ;
-            ; 
-            Screens_ShowWindow_ReszWindow(hwnd, AltH, AltH, AltW )
-            
-            ;
-            ;
-            ResizeGadget(DC::#Contain_11, #PB_Ignore, #PB_Ignore , AltW, AltH )  
-            SetGadgetAttribute(DC::#Contain_11,#PB_ScrollArea_InnerWidth,AltW)
-            SetGadgetAttribute(DC::#Contain_11,#PB_ScrollArea_InnerHeight,AltH)
-            ;
-            ;
-            Screens_ShowWindow_ReszScrolls(hwnd, AltW, AltH, AltW, AltH) 
-            
-            ;
-            ResizeGadget(DC::#ImageCont11,#PB_Ignore, #PB_Ignore,AltW ,AltH )
-            
-            ;
-            ; Den Container Zentrieren
-            WinGuru::Center(hwnd,AltW, AltH+30, hwnd)  
-            
-        Else  
-            ;
-            ; 
-            Screens_ShowWindow_ReszWindow(hwnd, hfull, DskH, DskW)
-            
-            ;
-            ;
-            ResizeGadget(DC::#Contain_11, #PB_Ignore, #PB_Ignore , DskW, DskH )  
-            SetGadgetAttribute(DC::#Contain_11,#PB_ScrollArea_InnerWidth,wFull)
-            SetGadgetAttribute(DC::#Contain_11,#PB_ScrollArea_InnerHeight,hfull)
-            
-            
-            Screens_ShowWindow_ReszScrolls(hwnd, wFull, hfull, DskW, DskH) 
-            
-            ;
-            ;
-            ResizeGadget(DC::#ImageCont11,#PB_Ignore, #PB_Ignore,wFull ,hfull )
-            
-            ;
-            ; Den Container Zentrieren
-            WinGuru::Center(hwnd,DskW, DskH, hwnd)            
-        EndIf
+        If IsImage( ImageData ) And Not ( ImageData = 0 )
+        	
+        	; AKuelle Grösse des Bildes (Hinterlegt als Oroiginal in der Datenbank)
+					; 
+        	ThumbnailSlot.i = Screen_GetThumnbailSlot(CurrentGadgetID)
+        	ImageWidth .i   = ImageWidth ( ImageData )         	
+        	ImageHeight.i   = ImageHeight( ImageData )                   
+        	
+        	If Not ( Startup::*LHimgEdit\CpyData = 0 )
+        		       		
+        		Debug " Desktop Size (Weite/Höhe):" + Str( DesktopW ) + "x" + Str( DesktopH ) 
+        		Debug " Taskbar Höhe             :" + Str( TaskbarH )
+        		Debug " Rahmen Größe             :" + Str( BordSize )
+        		Debug " Title Border Größe       :" + Str( TitlSize )          		
+        		Debug " Bild Größe   (Weite/Höhe):" + Str( ImageWidth ) + "x" + Str( ImageHeight )
+        		
+        		Debug " Weite des Bildes Prüfen  :"
+        		WindowW.i = Screen_ShowWindow_GetDimensionW(Hwnd, ImageWidth , DesktopW, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)  
+        		
+        		Debug " Höhe des Bildes Prüfen  :"      		
+        		WindowH.i = Screen_ShowWindow_GetDimensionH(Hwnd, ImageHeight, DesktopH, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)        		
+        		
+        		Debug " Fenstergröße (Weite/Höhe):" + Str( WindowW ) + "x" + Str( WindowH )
+        		
+  					Startup::*LHimgEdit\bmCopy\x = 0
+						Startup::*LHimgEdit\bmCopy\y = 0
+						Startup::*LHimgEdit\bmCopy\w = ImageWidth (Startup::*LHimgEdit\CpyData )
+						Startup::*LHimgEdit\bmCopy\h = ImageHeight(Startup::*LHimgEdit\CpyData )
+						
+						SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth  , Startup::*LHimgEdit\bmCopy\w )
+						SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight , Startup::*LHimgEdit\bmCopy\h )
+						
+        		ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, WindowW-(BordSize*2), WindowH)
+        		 
+						If IsImage( ImageData )
+        			FreeImage( ImageData )
+        		EndIf	
+        		
+        		WinGuru::Center(Hwnd, WindowW, WindowH, Hwnd) 
+        		
+        		vImages::Window_ZoomScroll()         		        		
+        		
+        		If ImageWidth >= WindowW
+        				ShowWindow_(WindowID(Hwnd), #SW_MAXIMIZE)
+        				DesktopEX::Get_TaskbarHeight(Hwnd)
+        		EndIf		
+        		
+    				HideGadget(DC::#Text_004,1)
+    				SetGadgetText(DC::#Text_004, "")        		
+        	EndIf
+        EndIf	
 
-        
-        ;
-        ; Mindesgrösse Gestelgen
-        WindowBounds(hwnd,60,60,#PB_Ignore,#PB_Ignore)
-        ;
-        ; Lege eine Kopie jeweils in das Gadget 
-        SetGadgetState(DC::#ImageCont11, -1)                
-        SetGadgetState(DC::#ImageCont11, ImageID(Startup::*LHImages\OrScreenPB[n]))        
-    EndProcedure    
+     EndProcedure
+
     ;******************************************************************************************************************************************
     ;  Setze Thumbnail Grösse. LastImage = Die Letzte ImageGadget Nummer (Anzahl)
     ;__________________________________________________________________________________________________________________________________________ 
@@ -1447,11 +1684,119 @@ Module vImages
         Screens_ChgThumbnails(0,#False)      
         Screens_ChgThumbnails(0,#True,0, 257)        
     EndProcedure    
-EndModule
+    ;
+		;
+		;
+    Procedure.w MouseWheelDelta() 
+      Protected x.w     
+      x.w = ( (EventwParam() >>16) &$FFFF )
+Debug "EventwParam: " + Str(x)
+      ProcedureReturn -(x / 120) 
+    EndProcedure
+    ;
+		;
+		;
+
+    Procedure.i Screen_GetThumnbailSlot( ThumbnailGadget.i )
+    	Protected nSlot.i
+    	
+    	For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots   
+    		If ( ThumbnailGadget = Startup::*LHImages\ScreenGDID[n] )
+    			ProcedureReturn nSlot
+    		EndIf    		
+    	Next    	
+    EndProcedure
+    ;
+		;
+		;
+    Procedure.i Window_SetImage(ScrollArea.i, ImageBox.i, x.i, y.i, Width.i, Height.i)
+    	
+     	If IsImage( Startup::*LHimgEdit\OrgData )
+     		Debug "Original Daten"
+     	EndIf     	
+     	
+     	If IsImage( Startup::*LHimgEdit\CpyData )
+     		FreeImage(  Startup::*LHimgEdit\CpyData )
+     	EndIf
+     	
+     	Startup::*LHimgEdit\CpyData = CopyImage(Startup::*LHimgEdit\OrgData , #PB_Any)
+     	
+     	DisableGadget(ImageBox, #True)     	
+     	FORM::ImageResizeEx(Startup::*LHimgEdit\CpyData , Width, Height,GetGadgetColor( ScrollArea ,#PB_Gadget_BackColor),#True)
+
+   		Screen_ShowWindow_SetAreaScroll()      	
+   		
+   		SetGadgetState(ImageBox, ImageID( Startup::*LHimgEdit\CpyData ) ) 
+   		;DisableGadget(ImageBox, #False )
+   		RedrawWindow_(GadgetID(ImageBox), #Null, #Null, #RDW_INVALIDATE | #RDW_ERASE | #RDW_ALLCHILDREN | #RDW_UPDATENOW)
+
+    	
+    EndProcedure    
+		;
+		;
+		;
+    Procedure.i Window_ZoomScroll_Max()
+    	
+    	If ( Startup::*LHimgEdit\bmCopy\w > 32767 ) Or ( Startup::*LHimgEdit\bmCopy\h > 32767 )
+    		;
+				; MAX Gadget is 32767
+    		    		
+    		If ( Startup::*LHimgEdit\bmCopy\w > 35516 ) Or ( Startup::*LHimgEdit\bmCopy\h > 35516 )
+
+    			sMsg.s = GetGadgetText(DC::#Text_140) + " Max Zoom Reached"
+    			
+    			SetGadgetText(DC::#Text_140, "") 
+    			SetGadgetText(DC::#Text_140, sMsg)     			
+    			Startup::*LHimgEdit\MaxReached = #True
+    		Else
+    			
+    			Startup::*LHimgEdit\MaxReached = #False
+    			Screens_ShowWindow_Info()
+    		EndIf    		
+    	EndIf
+    	ProcedureReturn Startup::*LHimgEdit\MaxReached
+    	    	
+    EndProcedure
+		;
+		;
+    ;    
+    Procedure Window_ZoomScroll(ZoomDelta.w = 0)     	    	    	
+
+    	Protected x	=	Startup::*LHimgEdit\bmCopy\x
+    	Protected y	=	Startup::*LHimgEdit\bmCopy\y 
+    	Protected w	=	Startup::*LHimgEdit\bmCopy\w 
+    	Protected h	=	Startup::*LHimgEdit\bmCopy\h      		
+    	
+    	Debug "--------------------------------------------"
+    	Debug "PB ID: " + Str( Startup::*LHimgEdit\CpyData )    	
+    	Debug "Start (Weite): "+ Str(w) + "x" + Str(h) + " :(Höhe) / " + " Depth: " + Str(ImageDepth(Startup::*LHimgEdit\CpyData ))      	
+    	
+    	Startup::*LHimgEdit\mWheelActiv = #True 
+    	
+    	w+( w*( -ZoomDelta )/100 )
+    	h+( h*( -ZoomDelta )/100 )    	
+    	    	
+    	Startup::*LHimgEdit\bmCopy\x = x
+    	Startup::*LHimgEdit\bmCopy\y = y
+    	Startup::*LHimgEdit\bmCopy\w = w
+    	Startup::*LHimgEdit\bmCopy\h = h
+    	     	
+    	If Window_ZoomScroll_Max() = #True
+    		ProcedureReturn 
+    	EndIf	   				
+    		
+    	Window_SetImage(DC::#Contain_11, DC::#ImageCont11, x, y, w, h) 
+    	Startup::*LHimgEdit\mWheelActiv = #False
+    	
+    	Debug "Ziel (Weite): "+ Str(w) + "x" + Str(h) + " :(Höhe) / " + " Depth: " + Str(ImageDepth(Startup::*LHimgEdit\CpyData ))  
+    	    	
+    EndProcedure	
+  EndModule
+  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 197
-; FirstLine = 147
-; Folding = --D9-74--
+; CursorPosition = 1369
+; FirstLine = 717
+; Folding = -PA1zigB5B-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -821,39 +821,45 @@ Module MagicGUI
     ;  Screenshot Fenster (Wenn man auf einem Thumnail Doppelklickt)
     ;__________________________________________________________________________________________________________________________________________    
     Procedure.i InteractiveGadgets_Window_004_Def(Resize.i = 0, SnapHeight = 30)
-        
-        
+
         Protected ObjPosSpace.i
         
         *ObjPos\x = 0 
         *ObjPos\y = SnapHeight                  
         *ObjPos\w = *r\w
         *ObjPos\h = *r\h        
-        ObjPosSpace.i = 4
+        ObjPosSpace.i = 4       	
+        
+        Protected Font_StR.i    = FontID(Fonts::#_FIXPLAIN7_12)  
         
         Select Resize
                 ;
                 ; Build Mode
             Case 0                               
                 ScrollAreaGadget(DC::#Contain_11, *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h-(*ObjPos\y*2),1,1,1,#PB_ScrollArea_BorderLess|#PB_ScrollArea_Center)
-                ;Form::GadgetClip(DC::#Contain_11,#True)
-                
-                
+								SetWindowLongPtr_(GadgetID(DC::#Contain_11), #GWL_STYLE, GetWindowLongPtr_(GadgetID(DC::#Contain_11), #GWL_STYLE) | #WS_CLIPSIBLINGS)
                 *ObjPos\x = 0 
                 *ObjPos\y = 0
                 *ObjPos\w = GadgetWidth(DC::#Contain_11)
                 *ObjPos\h = GadgetHeight(DC::#Contain_11)                
                 
-                ImageGadget(DC::#ImageCont11,0,0,1,1,0)
-                Form::GadgetClip(DC::#Contain_11,#True)                
+                	ImageGadget(DC::#ImageCont11,0,0,1,1,0)
+                	Form::GadgetClip(DC::#Contain_11,#True)                                
                 
                 CloseGadgetList()
                 SetGadgetColor(DC::#Contain_11,#PB_Gadget_BackColor,*ObjPos\c\rgb_backgrd)  
+                
+                *ObjPos\x = 4 
+                *ObjPos\y = WindowHeight(DC::#_Window_004) - 24                
+                *ObjPos\w = 200
+                *ObjPos\h = 20  
+                FORM::TextObject(DC::#Text_140,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h,Font_StR,*ObjPos\c\rgb_strFrCk,$1F1F1F,"DC::#Text_140",0)
+                
                 ;
                 ; Resize Mode
-            Case 1               
-                ResizeGadget(DC::#Contain_11    ,#PB_Ignore, SnapHeight, *r\w, *r\h-60)                    
-                
+              Case 1    
+              		ResizeGadget(DC::#Contain_11    , #PB_Ignore , SnapHeight, *r\w, *r\h-60)
+            			ResizeGadget(DC::#Text_140      , #PB_Ignore , WindowHeight(DC::#_Window_004) - 20 ,WindowWidth(DC::#_Window_004)-30,#PB_Ignore)            		
         EndSelect        
     EndProcedure          
     ;******************************************************************************************************************************************
@@ -2648,9 +2654,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 602
-; FirstLine = 138
-; Folding = DIQ54
+; CursorPosition = 839
+; FirstLine = 161
+; Folding = DAJ54
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

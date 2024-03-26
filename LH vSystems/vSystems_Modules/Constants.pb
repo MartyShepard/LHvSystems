@@ -171,6 +171,9 @@ DeclareModule DC
 		; Archiv manager
 		#Text_137: #Text_138: #Text_139
 		
+		; Image Window
+		#Text_140
+		
 	EndEnumeration
 	Debug "- Text Gadget    #1601 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
 	
@@ -239,6 +242,9 @@ DeclareModule DC
 		
 		; Archiv Container
 		#Contain_20
+		
+		; Screenshot Window
+		#Contain_21		
 	EndEnumeration
 	Debug "- Container      #3101 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
 	
@@ -258,7 +264,8 @@ DeclareModule DC
 		#DesignBox003
 		#DesignBox004
 		#DesignBox005
-		#DesignBox006		
+		#DesignBox006
+		#EditImage
 	EndEnumeration
 	Debug "- Sondstige      #3251 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))            
 	
@@ -274,8 +281,8 @@ EndDeclareModule
 Module DC
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 171
-; FirstLine = 143
+; CursorPosition = 246
+; FirstLine = 214
 ; Folding = -
 ; EnableAsm
 ; EnableXP

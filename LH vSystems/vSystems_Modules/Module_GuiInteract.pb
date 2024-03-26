@@ -117,8 +117,10 @@ Module Interact
 		  EndIf
 		  
     	InternetCloseHandle_(hURL) 
-    	InternetCloseHandle_(hInet)        	
-    	FreeMemory(*BufferString)     	
+    	InternetCloseHandle_(hInet)  
+    	If Not ( *BufferString = 0 )
+    		FreeMemory(*BufferString)     	
+    	EndIf	
     	
     EndProcedure 
 	
@@ -899,8 +901,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 466
-; FirstLine = 359
+; CursorPosition = 120
+; FirstLine = 78
 ; Folding = f+
 ; EnableAsm
 ; EnableXP

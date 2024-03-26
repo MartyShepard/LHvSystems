@@ -543,18 +543,21 @@ Module vWindows
 	Procedure OpenWindow_Sys3(ImageGadgetID)                        
 		
 		Protected  CloseList.i = #False, hwnd.i       
+	
+		SetActiveGadget(-1):hwnd = MagicGUI::DefaultWindow(DC::#_Window_004): GuruCallBack::PostEvents_Resize(hwnd) 		
+		vImages::Screens_ShowWindow(ImageGadgetID, DC::#_Window_004)				
 		
-		SetActiveGadget(-1):hwnd = MagicGUI::DefaultWindow(DC::#_Window_004): GuruCallBack::PostEvents_Resize(hwnd)  
-		vImages::Screens_ShowWindow(ImageGadgetID, DC::#_Window_004)
 		GuruCallBack::ScrollAreaGadgetSetCallback(DC::#Contain_11, DC::#_Window_004)
-		
+				
 		;
-		; FileSystem im String      
-		HideWindow(hwnd,0)           
+		; FileSystem im String      		         
 		FORM::WindowFlickeringEvade(hwnd)
 		
-		
-		
+		SetActiveWindow( DC::#_Window_004 )
+		SetActiveGadget( DC::#Contain_11  )
+
+		vImages::Screens_ShowWindow_Info()
+		HideWindow(hwnd,0) 
 		Repeat
 			ListEvent       = WaitWindowEvent(): ListEventWindow = EventWindow()
 			ListEventGadget = EventGadget()    : ListEventType   = EventType()
@@ -562,8 +565,7 @@ Module vWindows
 			ListEventParami = EventlParam()    : ListEventData   = EventData()                        
 			
 			Select ListEvent                      
-				Case #WM_MOUSEWHEEL
-					Debug "#WM_MOUSEWHEEL"
+					
 				Case #PB_Event_GadgetDrop                                                   
 				Case #PB_Event_Gadget
 					
@@ -584,11 +586,37 @@ Module vWindows
 						Case DC::#Contain_11
 					EndSelect
 					
-			EndSelect
-			;
-			;
-			
+			EndSelect	
+						
 		Until CloseList.i = #True:
+		
+			;
+			;
+			; Clear Structure
+			Startup::*LHimgEdit\cPBID 	 = 0
+			If IsImage( Startup::*LHimgEdit\OrgData )
+				FreeImage( Startup::*LHimgEdit\OrgData )
+			EndIf
+			If IsImage( Startup::*LHimgEdit\CpyData )
+				FreeImage( Startup::*LHimgEdit\CpyData )
+			EndIf			
+
+		
+	
+			Startup::*LHimgEdit\bmOrig\x = #Null
+			Startup::*LHimgEdit\bmOrig\y = #Null
+			Startup::*LHimgEdit\bmOrig\w = #Null
+			Startup::*LHimgEdit\bmOrig\h = #Null
+			Startup::*LHimgEdit\bmOrig\rawsize = #Null			
+			Startup::*LHimgEdit\bmOrig\imgsize = ""	
+			
+			Startup::*LHimgEdit\bmCopy\x = #Null
+			Startup::*LHimgEdit\bmCopy\y = #Null
+			Startup::*LHimgEdit\bmCopy\w = #Null
+			Startup::*LHimgEdit\bmCopy\h = #Null
+			Startup::*LHimgEdit\bmCopy\rawsize = #Null			
+			Startup::*LHimgEdit\bmCopy\imgsize = ""				
+			
 	EndProcedure              
 	;
 	;
@@ -1367,8 +1395,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 565
-; FirstLine = 42
+; CursorPosition = 567
+; FirstLine = 45
 ; Folding = Bgw
 ; EnableAsm
 ; EnableXP

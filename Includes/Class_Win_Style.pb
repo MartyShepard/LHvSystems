@@ -114,12 +114,12 @@ Module WinGuru
                    ; Debug "Center mi\rcMonitor\bottom - mi\rcMonitor\top  - H: " + Str(mi\rcMonitor\bottom - mi\rcMonitor\top  - H)
                    ; Debug "..................."                    
                     
-            Left = mi\rcMonitor\Left + (mi\rcMonitor\right  - mi\rcMonitor\left - W) / 2
+            Left = mi\rcMonitor\Left + (mi\rcMonitor\right  - mi\rcMonitor\left - W) / 2            
             Top  = mi\rcMonitor\top  + (mi\rcMonitor\bottom - mi\rcMonitor\top  - H) / 2         
-            ;Debug "Center Left :" + Str(left)
-            ;Debug "Center Top  :" + Str(Top )
-            ;Debug "..................."             
-            
+            Debug "Center Left :" + Str(left)
+            Debug "Center Top  :" + Str(Top )
+            Debug "..................."                         
+      
             If (Top <= -1)
                 Top = 0
             EndIf            
@@ -391,9 +391,9 @@ EndProcedure
     EndProcedure
 EndModule    
     
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 74
-; FirstLine = 71
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 116
+; FirstLine = 78
 ; Folding = n0
 ; EnableAsm
 ; EnableXP

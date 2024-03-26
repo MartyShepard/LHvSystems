@@ -372,6 +372,36 @@ DeclareModule Startup
     EndStructure            
     Global Dim SlotShots.STRUCT_MEMIMAGES(50)    
     
+    Structure EDIT_XY_IMAGES
+    	x.i
+    	y.i
+    	w.i
+    	h.i
+    	bits.i
+    	format.s
+    	rawsize.q
+    	imgsize.s
+    EndStructure
+    Structure EDIT_XY_SCROLLAREAGADGET
+    	x.i
+    	y.i
+    	w.i
+    	h.i
+    EndStructure
+    
+    Structure EDIT_LH_IMAGES
+    	cPBID.i
+    	CpyData.l    	
+    	OrgData.l
+    	mWheelActiv.i
+    	MaxReached.i
+    	GadgetMax.i
+    	bmCopy.EDIT_XY_IMAGES
+    	bmOrig.EDIT_XY_IMAGES
+    	SGDID.EDIT_XY_SCROLLAREAGADGET
+    EndStructure
+    
+		Global *LHimgEdit.EDIT_LH_IMAGES       = AllocateMemory(SizeOf(EDIT_LH_IMAGES))       
     ;
     ;****************************************************************************************************************************************************
     Declare Prepare()
@@ -1005,8 +1035,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 348
-; FirstLine = 272
+; CursorPosition = 397
+; FirstLine = 303
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP

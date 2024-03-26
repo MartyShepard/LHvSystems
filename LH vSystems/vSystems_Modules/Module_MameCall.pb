@@ -917,33 +917,83 @@ Module GuruCallBack
    EndProcedure   
    
    ;******************************************************************************************************************************************
-    ;  SplitterGadget Callback Event
+    ;  ScrollAreaGadget Callback Event
     ;__________________________________________________________________________________________________________________________________________          
    Procedure.i ScrollAreaGadgetCallBack(hwnd, msg, wParam, lParam) 
-       
-       Protected *sc.SplitterGadgetData = GetWindowLongPtr_(hwnd, #GWL_USERDATA) 
-       
-       Select msg
-               ;
-               ;==================================================================================================================
-               ;               
-           Case #WM_VSCROLL
-               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_VSCROLL       " + Str(#PB_Compiler_Line)) 
-               ;SendMessage_( GadgetID( *sc\gadget), msg, #SB_THUMBTRACK,#SB_THUMBPOSITION)
-           Case #WM_HSCROLL
-               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_HSCROLL       " + Str(#PB_Compiler_Line))                      
-           Case #SB_THUMBTRACK
-               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBTRACK    " + Str(#PB_Compiler_Line))                                           
-           Case #SB_THUMBPOSITION
-               ;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBPOSITION " + Str(#PB_Compiler_Line))
-               ;
-               ;==================================================================================================================
-               ;                                 
-               
-       EndSelect        
-       ProcedureReturn CallWindowProc_(*sc\oldprc, hwnd, msg, wParam, lParam) 
-         
-     EndProcedure    
+   	
+   	Protected *sc.ScrollAreaGadgetData = GetWindowLongPtr_(hwnd, #GWL_USERDATA) 
+   	Protected SifMainH.SCROLLINFO, SifMainV.SCROLLINFO
+   	
+   	
+
+   		Select msg
+   			Case #WM_MOUSEWHEEL   				
+   					;
+   					;
+   				If IsWindow( DC::#_Window_004 )
+   						Debug "Mousewheel Picture Mode"
+   						Protected DeltaX.w
+   						DeltaX = ( (wParam >>16) &$FFFF )   						  
+   						vImages::Window_ZoomScroll(DeltaX / 120) 
+   				EndIf
+   				;
+					;==================================================================================================================
+					;               
+   				;Case #WM_VSCROLL       		
+   				;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_VSCROLL       " + Str(#PB_Compiler_Line)) 
+   				;SendMessage_( GadgetID( *sc\gadget), msg, #SB_THUMBTRACK,#SB_THUMBPOSITION)
+   				;Case #WM_HSCROLL
+   				;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #WM_HSCROLL       " + Str(#PB_Compiler_Line))                      
+   				;Case #SB_THUMBTRACK
+   				;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBTRACK    " + Str(#PB_Compiler_Line))                                           
+   				;Case #SB_THUMBPOSITION
+   				;Request::SetDebugLog("#ScrollArea "+Str(hwnd)+" "+ #PB_Compiler_Module + " #SB_THUMBPOSITION " + Str(#PB_Compiler_Line))
+   				;
+					;==================================================================================================================
+					;
+   			;Case #WM_PAINT												;: Debug "#WM_PAINT"
+   			Case #WM_HSCROLL											;: Debug "#WM_HSCROLL" 
+   				If IsWindow( DC::#_Window_004 )
+   					With SifMainH
+   						\cbSize = SizeOf(SCROLLINFO)
+   						\fMask = #SIF_ALL
+   					EndWith
+   					
+   					GetScrollInfo_(hWnd, #SB_HORZ, SifMainH)
+   					PosH = SifMainH\nTrackPos
+   					Debug "Pos Horizontal" + Str(PosH)
+   				EndIf	
+   			Case #WM_VSCROLL											;: Debug "#WM_VSCROLL"
+   				If IsWindow( DC::#_Window_004 )
+   					With SifMainV
+   						\cbSize = SizeOf(SCROLLINFO)
+   						\fMask = #SIF_ALL
+   					EndWith
+   					
+   					GetScrollInfo_(hWnd, #SB_VERT, SifMainV)
+   					PosV = SifMainV\nTrackPos
+   					Debug "Pos Vertical " + Str(PosV)
+   				EndIf	   				
+   			;Case #SM_CXHSCROLL										: Debug "#SM_CXHSCROLL"
+   			;Case #SM_CYVSCROLL										: Debug "#SM_CYVSCROLL"
+   				
+   			;Case #WM_IME_SETCONTEXT								: Debug "#WM_IME_SETCONTEXT"
+   			;Case #WM_MOUSEACTIVATE								: Debug "#WM_MOUSEACTIVATE"
+   				
+   			;Case #WM_PARENTNOTIFY									: Debug "#WM_PARENTNOTIFY" 
+   				
+				;Case #WM_NCHITTEST										:	Debug "#WM_NCHITTEST"  
+				;Case 32																;: Debug "?"					
+   			Default
+   				;Debug "$" + Hex(msg) + " - Dec: " + Str(msg)
+   				
+   				
+   		EndSelect        
+   		
+   	 
+   	ProcedureReturn CallWindowProc_(*sc\oldprc, hwnd, msg, wParam, lParam) 
+   	
+   EndProcedure    
     ;******************************************************************************************************************************************
     ; SplitterGadget Callback Event/ Set
     ;__________________________________________________________________________________________________________________________________________      
@@ -1515,9 +1565,9 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 484
-; FirstLine = 345
-; Folding = fO-j+-
+; CursorPosition = 934
+; FirstLine = 758
+; Folding = fPvjv-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

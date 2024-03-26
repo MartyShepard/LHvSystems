@@ -501,8 +501,6 @@ Module MathBytes
 	EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 50
-; FirstLine = 24
 ; Folding = ---
 ; EnableAsm
 ; EnableXP
