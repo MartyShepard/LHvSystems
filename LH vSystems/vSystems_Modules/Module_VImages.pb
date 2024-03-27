@@ -238,7 +238,7 @@ Module vImages
     Procedure Screens_Show_A_Thread(*interval)         
     	    	
     	For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots                                                  		
-
+Debug Startup::*LHGameDB\GameID
     		Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")        		        		        		
     		ProcessEX::DelayMicroSeconds(*Interval)
     		Select nSlot
@@ -1801,8 +1801,8 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 902
-; FirstLine = 568
+; CursorPosition = 240
+; FirstLine = 223
 ; Folding = -PA1zygB5B-
 ; EnableAsm
 ; EnableXP

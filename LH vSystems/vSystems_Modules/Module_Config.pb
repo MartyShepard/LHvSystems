@@ -367,8 +367,8 @@ DeclareModule Startup
     ; ******************************************************************************
     ; Strukture Hält 50 Screenshots   
     Structure STRUCT_MEMIMAGES      
-        thumb.i[50]
-        bsize.i[50]               
+        thumb.i[100000]
+        bsize.i[100000]               
     EndStructure            
     Global Dim SlotShots.STRUCT_MEMIMAGES(50)    
     
@@ -1035,11 +1035,11 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 397
-; FirstLine = 303
+; CursorPosition = 370
+; FirstLine = 282
 ; Folding = 9D+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = Release\
+; CurrentDirectory = ..\Release\
 ; EnableUnicode

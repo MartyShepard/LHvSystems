@@ -7170,11 +7170,17 @@ EndProcedure
     					;
 							; Existiert '?'
     					If Len( strYear ) >= 5
-    						If ( Len( strYear ) = 14)
-    							strYear = Right(strYear,4)
-    						Else
-    							Debug CodeFile + ": '" + strYear + "'"
-    						EndIf	
+    						;If ( Len( strYear ) = 14)
+    							For nYear = 1948 To 2030
+    								If FindString( strYear, Str(nYear),1)
+    									strYear = Str(nYear)
+    									Break
+    								EndIf
+    								Debug CodeFile + ": '" + strYear + "'"
+    							Next
+    						;Else
+    							
+    						;EndIf	
     						
     					EndIf
     					
@@ -7819,9 +7825,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4837
-; FirstLine = 4676
-; Folding = 8-------f6--49oD-
+; CursorPosition = 7174
+; FirstLine = 5245
+; Folding = 8-------f6--49AE+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

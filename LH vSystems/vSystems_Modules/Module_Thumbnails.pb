@@ -250,7 +250,12 @@ Module vThumbSys
     						
     						FreeImage(ImageBlank)
     						
-    						Startup::*LHImages\CpScreenID[n] = ImageID(ThumbHold(n)\ImageID)
+    						ProcessEX::DelayMicroSeconds(10)
+    						
+    						If IsImage( ThumbHold(n)\ImageID )
+    							Startup::*LHImages\CpScreenID[n] = ImageID(ThumbHold(n)\ImageID)
+    						EndIf	
+    						
     					EndIf
     				EndIf
     		EndSelect        
@@ -525,8 +530,8 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 346
-; FirstLine = 265
+; CursorPosition = 252
+; FirstLine = 179
 ; Folding = zPA5
 ; EnableAsm
 ; EnableXP
