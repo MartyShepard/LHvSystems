@@ -456,7 +456,7 @@ Module vWindows
 											CloseList = GuruCallBack::PostEvents_Close(hwnd):  
 											
 										Case DC::#Button_278
-											CLSMNU::SetGetMenu_(ListEventGadget,DC::#_Window_003, #PB_Any, 0, GadgetWidth(ListEventGadget) - 30, 32, 4,4, #True)                                             
+											CLSMNU::SetGetMenu_(ListEventGadget,DC::#_Window_003, #PB_Any, 0, GadgetWidth(ListEventGadget) - 30, 32, 4,3, #false)                                             
 									EndSelect
 							EndSelect                     
 							
@@ -1395,9 +1395,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 567
-; FirstLine = 45
-; Folding = Bgw
+; CursorPosition = 458
+; FirstLine = 103
+; Folding = Bw2
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

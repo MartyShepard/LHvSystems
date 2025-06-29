@@ -143,6 +143,9 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","European")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","France")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Germany")
+                ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ DE")
+                ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ JP")                
+                ExecSQL::InsertRow(BaseID,"Language", "Locale","Deutsch")                 
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Hong-Kong")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Italy")                
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Japan")
@@ -235,6 +238,8 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nintendo 3DS")
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nintendo DS")
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nintendo DSi")
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nintendo Switch 1")
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nintendo Switch 2")                  
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Nokia N-Gage")
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Oric 1 Atmos")
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Panasonic Real 3DO")
@@ -250,12 +255,17 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 95"); (~1995-1997)                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 98"); (~1998-1999)                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows Me"); (~2000) 
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC PC Windows 2000"); (~2000)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 2000"); (~2000)
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows XP"); (~2001) 
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows Vista"); (~2007)                 
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 7"); (~2009)                 
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 8"); (~2012)                 
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 10"); (~2015)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 11"); (~2021)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 12"); (~2026)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 13"); (~????)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 14"); (~2015)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 15"); (~2015)                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega 32X")     ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega 32X CD")  ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega Dreamcast");
@@ -268,7 +278,8 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation")  ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 2");
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 3");                
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 4");                
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 4");
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 5");                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation Portable");
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Vita")                ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Spectravideo")             ;
@@ -278,7 +289,9 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Wonderswan")                ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Wonderswan Color")          ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","XBox 360")                  ;
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","XBox One")                  ;
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","XBox One")									;
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","XBox Series S")							;
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","XBox Series X")             ;                 
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Xbox Classic")              ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","ZX Spectrum");                
                 
@@ -441,8 +454,8 @@ Module DB_Create
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 40
-; FirstLine = 148
+; CursorPosition = 241
+; FirstLine = 42
 ; Folding = --
 ; EnableAsm
 ; EnableXP

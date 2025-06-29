@@ -225,7 +225,7 @@ Module vItemTool
                 ChildWindow = DC::#_Window_001
         EndSelect  
         
-        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,11,-1,ProgramFilename(),0,0,ChildWindow )
+        Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,ButtonNum,-1,ProgramFilename(),0,0,ChildWindow )
         
         ;
         ; Aktivere das Richtige in dem Jeweiligen Fenster
@@ -823,9 +823,9 @@ Module vItemTool
     EndProcedure
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 817
-; FirstLine = 156
-; Folding = XAAA5
+; CursorPosition = 227
+; FirstLine = 120
+; Folding = XcAA5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

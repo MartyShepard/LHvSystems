@@ -59,44 +59,48 @@
         XIncludeFile ".\vSystems_Modules\Module_Registry.pbi"
         XIncludeFile ".\vSystems_Modules\Module_Firewall.pb"        
     
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"     ; DB_Create::           
-        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              ; Startup::
-        XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"          ; Monitor::    
-        XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"
-        XIncludeFile ".\vSystems_Modules\Module_UnrealHelper.pb"
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    ; DB_Migrate::           
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"				; DB_Create::           
+        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              	; Startup::
+        XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"						; Monitor:: 
+        XIncludeFile ".\vSystems_Modules\Module_Menu_vSystem.pb"        	;	vSystemHelp::
+        XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"					;
+        XIncludeFile ".\vSystems_Modules\Module_SaveSupport.pb"						; SaveTool:: 
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Unreal.pb"						; UnrealHelp::
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Unity.pb"						;	UnityHelp::
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Emulation.pb"				; PortsHelp::        
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    	; DB_Migrate::           
               
-        XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                ; Include Modules, Global Code Module (Menu System)              
+        XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                	; Include Modules, Global Code Module (Menu System)              
               
-        XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       ; vFont::
-        XIncludeFile ".\vSystems_Modules\Module_KeyShortCut.pb"         ; vKeys::        
-        XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            ; vItemTool::
-        XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          ; vThumbSys::
-        XIncludeFile ".\vSystems_Modules\Module_VImages.pb"             ; vImage::
-        XIncludeFile ".\vSystems_Modules\Module_InfoWindow.pb"          ; vInfo::
-        XIncludeFile ".\vSystems_Modules\Module_VSystem.pb"             ; vSystem::         
-        XIncludeFile ".\vSystems_Modules\Module_VEngine.pb"             ; vEngine::       
-        XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            ; vDiskPath::
-        XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            ; vInfoMenu::
-        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"			  ; vItem64E::
-        XIncludeFile ".\vSystems_Modules\Module_ArchivManager.pb"       ; vItem64E::        
+        XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       	; vFont::
+        XIncludeFile ".\vSystems_Modules\Module_KeyShortCut.pb"         	; vKeys::        
+        XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            	; vItemTool::
+        XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          	; vThumbSys::
+        XIncludeFile ".\vSystems_Modules\Module_VImages.pb"             	; vImage::
+        XIncludeFile ".\vSystems_Modules\Module_InfoWindow.pb"          	; vInfo::
+        XIncludeFile ".\vSystems_Modules\Module_VSystem.pb"             	; vSystem::         
+        XIncludeFile ".\vSystems_Modules\Module_VEngine.pb"             	; vEngine::       
+        XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            	; vDiskPath::
+        XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            	; vInfoMenu::
+        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"			  			; vItem64E::
+        XIncludeFile ".\vSystems_Modules\Module_ArchivManager.pb"       	; vItem64E::        
         BackupRestart:       
         vSystem::System_CheckInstance()
         
         Startup::Prepare()                               
         
-        XIncludeFile ".\vSystems_Modules\Module_Gui.pb"                 ; Haupt Fenster
-        XIncludeFile ".\vSystems_Modules\Module_MameCall.pb"            ; Callback für das Programm
-        XIncludeFile ".\vSystems_Modules\Module_vWindows.pb"            ; Externe Fenster/ Code Sachen
+        XIncludeFile ".\vSystems_Modules\Module_Gui.pb"                 	; Haupt Fenster
+        XIncludeFile ".\vSystems_Modules\Module_MameCall.pb"            	; Callback für das Programm
+        XIncludeFile ".\vSystems_Modules\Module_vWindows.pb"            	; Externe Fenster/ Code Sachen
               
         ; Update System
-        XIncludeFile ".\vSystems_Modules\Module_Update.pb"              ; Update System
+        XIncludeFile ".\vSystems_Modules\Module_Update.pb"              	; Update System
         ; Menu System
                
-        XIncludeFile ".\vSystems_Modules\Module_Menu.pb"                ; Beinhaltet die Individuellen Menüs        
+        XIncludeFile ".\vSystems_Modules\Module_Menu.pb"                	; Beinhaltet die Individuellen Menüs        
               
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Update.pb"    ; DB_Update:: 
-        XIncludeFile ".\vSystems_Modules\Module_GuiInteract.pb"         ; Haupt Code Geschichten
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Update.pb"    		; DB_Update:: 
+        XIncludeFile ".\vSystems_Modules\Module_GuiInteract.pb"         	; Haupt Code Geschichten
         
 
         ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
@@ -154,17 +158,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 87
-; FirstLine = 42
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 77
+; FirstLine = 27
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = Release\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; CurrentDirectory = D:\Painkiller-Serie\
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

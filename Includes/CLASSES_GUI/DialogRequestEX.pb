@@ -452,7 +452,9 @@ DeclareModule Request
       ;
       ;________________________________________________________________________________________________________________________________                   
       Procedure.i MSG_Internal_Return(ObjectID)
-          
+      	
+      	*MsgEx\ReturnCode = -1
+      	
           Select *MsgEx\ButtonStyle
               Case 0 To 9
                   If ( ObjectID = #REXB2 )
@@ -516,7 +518,7 @@ DeclareModule Request
           If IsImage(#REXICB): FreeImage(#REXICB): EndIf
                    
           ;AnimateWindow_(WindowID(#REXW0),1125,#AW_BLEND|#AW_HIDE)
-          StickyWindow(#REXW0,0): Delay(55): HideWindow(#REXW0,1): CloseWindow(#REXW0)        
+          StickyWindow(#REXW0,0): Delay(55): HideWindow(#REXW0,1): CloseWindow(#REXW0)     
           ProcedureReturn #True
       EndProcedure   
       
@@ -544,6 +546,7 @@ DeclareModule Request
       Procedure MSG_Internal_MouseToDefBtn(ObjectID)       
                   Protected hWnd.i
                   Protected GadgetRect.RECT
+                  
                   
                   If IsWindow_(ObjectID)
                       hWnd=ObjectID
@@ -666,7 +669,19 @@ DeclareModule Request
       
       ;////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ;
-      ;________________________________________________________________________________________________________________________________     
+			;________________________________________________________________________________________________________________________________ 
+      Procedure MSG_Internal_MouseUpdate(GadgetID.i)
+      	
+      			; TODO: Mouse Position and Cick Update
+                  ;BlockInput_(#True)
+                  ;ButtonEX::Disable(GadgetID, 1)
+                  ;MSG_Internal_MouseToDefBtn(GadgetID)
+                  ;Delay(55)                  
+                  ;ButtonEX::Disable(GadgetID, 0)
+                  ;ButtonEX::SetState(GadgetID, 0)
+									;BlockInput_(#False)           	
+                  
+      EndProcedure
       Procedure MSG_Internal_SetBtn(*MsgEx.MsgReqEx)
           
           Protected BtnH.l = 20, BtnW.l = 83, PosY.l = WindowHeight(#REXW0) - 25, TTT1$, TTT2$, TTT3$
@@ -688,7 +703,7 @@ DeclareModule Request
                                 #REXBTNGR11P,
                                 #REXBTNGR11D,*MsgEx\User_BtnTextM,*MsgEx\User_BtnTextM,*MsgEx\User_BtnTextM,GetSysColor_(#COLOR_3DFACE))           
                   
-                  MSG_Internal_MouseToDefBtn(#REXB2)
+           					MSG_Internal_MouseUpdate(#REXB2)
                   
                   ;======================================================================================================================================
                   ; Two Button Version            
@@ -708,8 +723,8 @@ DeclareModule Request
                                 #REXBTNGR11D,*MsgEx\User_BtnTextR,*MsgEx\User_BtnTextR,*MsgEx\User_BtnTextR,GetSysColor_(#COLOR_3DFACE))            
                   
                   Select  *MsgEx\Default_Btn
-                      Case 0: MSG_Internal_MouseToDefBtn(#REXB1)
-                      Case 1: MSG_Internal_MouseToDefBtn(#REXB3)
+                      Case 0: MSG_Internal_MouseUpdate(#REXB1)
+                      Case 1: MSG_Internal_MouseUpdate(#REXB3)
                   EndSelect
                   
                   ;======================================================================================================================================
@@ -738,9 +753,9 @@ DeclareModule Request
                                 #REXBTNGR11D,*MsgEx\User_BtnTextR,*MsgEx\User_BtnTextR,*MsgEx\User_BtnTextR,GetSysColor_(#COLOR_3DFACE))            
                   
                   Select  *MsgEx\Default_Btn
-                      Case 0: MSG_Internal_MouseToDefBtn(#REXB1)
-                      Case 1: MSG_Internal_MouseToDefBtn(#REXB2)                          
-                      Case 1: MSG_Internal_MouseToDefBtn(#REXB3)
+                      Case 0: MSG_Internal_MouseUpdate(#REXB1)
+                      Case 1: MSG_Internal_MouseUpdate(#REXB2)                          
+                      Case 1: MSG_Internal_MouseUpdate(#REXB3)
                   EndSelect                                  
           EndSelect
           
@@ -749,18 +764,25 @@ DeclareModule Request
           TTT3$ = "'Escape' (" +*MsgEx\User_BtnTextR+ ")"
           
           If IsGadget(#REXB1)
-              SSTTIP::TooltTip(WindowID(#REXW0), #REXB1, TTT1$, "", 0)
+          	SSTTIP::TooltTip(WindowID(#REXW0), #REXB1, TTT1$, "", 0)
+          	ButtonEX::Disable(#REXB1,1)
           EndIf            
           
-          If IsGadget(#REXB3)
-              SSTTIP::TooltTip(WindowID(#REXW0), #REXB3, TTT3$ , "", 0)
+          If IsGadget(#REXB2)
+          	SSTTIP::TooltTip(WindowID(#REXW0), #REXB3, TTT3$ , "", 0)
+          	ButtonEX::Disable(#REXB2,1)
           EndIf
           
           If ( Not IsGadget(#REXB1) And Not IsGadget(#REXB3) )
               If IsGadget(#REXB2)
                   SSTTIP::TooltTip(WindowID(#REXW0), #REXB2, TTT2$, "", 0)
-              EndIf
-          EndIf          
+                EndIf
+                ButtonEX::Disable(#REXB2,1)  
+            EndIf 
+            
+          
+          
+                    
           
           
       EndProcedure       
@@ -777,8 +799,9 @@ DeclareModule Request
           
           ;
           ; 
-          Delay( 50 )
-          
+          Delay( 25 )
+          ;Protected CursorPoint.POINT
+          ;GetCursorPos_(@CursorPoint)
           If ( ParentID = #Null) 
               ParentID =  0
               WP_NonID = 0
@@ -1029,39 +1052,59 @@ DeclareModule Request
           ;
           ;==================================================================================================================             
           Delay( 5 )
-          HideWindow(#REXW0,0)                     
+          HideWindow(#REXW0,0)         
+          rQuit = #False 
           
           Repeat    
               EvntWait = WaitWindowEvent(): EvntWindow = EventWindow(): EvntGadget = EventGadget(): EvntType   = EventType()
               EvntMenu = EventMenu()      : EvntwParam = EventwParam(): EvntlParam = EventlParam(): EvntData   = EventData()           
+                            
+             
               
-              
+	          If IsGadget(#REXB1) 
+	          	ButtonEX::Disable(#REXB1,0)
+	          EndIf
+	          If IsGadget(#REXB2)                	
+	          	ButtonEX::Disable(#REXB2,0)
+	          EndIf              
+	          If IsGadget(#REXB3)                	
+	          	ButtonEX::Disable(#REXB3,0)
+	          EndIf  
+	          
+	          If rQuit = #True
+	          	Break
+	          EndIf
+	          	          
               Select EvntWait                                          
-                  Case #WM_KEYUP
-                      
+                  Case #WM_KEYDOWN
+                  	
+                  	If ( GetAsyncKeyState_(13) & 32768 = 32768) Or ( GetAsyncKeyState_(27) & 32768 = 32768)
                       Select EvntwParam
                           Case 13 
                               ; Return
-                              If IsGadget(#REXB1)                                  
-                              	rQuit= MSG_Internal_Return(#REXB1)                             	
-                                  
-                              ElseIf Not IsGadget(#REXB1)    
+                          	If IsGadget(#REXB1)
+                          			ButtonEX::SetState(#REXB1,1)
+                          			rQuit= MSG_Internal_Return(#REXB1)                           			                                  
+                          		ElseIf Not IsGadget(#REXB1)    
+                          			ButtonEX::SetState(#REXB2,1)
                               	rQuit= MSG_Internal_Return(#REXB2)                            	
-                              EndIf    
-                                  
+                              EndIf                                                                
                           Case 27
                               ; ESC
-                              If IsGadget(#REXB1)
+                          	If IsGadget(#REXB1)
+                          			ButtonEX::SetState(#REXB3,1)
                               	rQuit= MSG_Internal_Return(#REXB3)                             	
                               EndIf    
-                      EndSelect        
-                  Case #PB_Event_CloseWindow
+                          EndSelect
+                       EndIf  
+                     Case #PB_Event_CloseWindow
+                     		
                   Case #PB_Event_Gadget
 
                         
                       Select EvntType                              
-                      	Case #PB_EventType_LeftClick
-                      		rClicked = #True
+                      	Case #PB_EventType_LeftButtonDown
+                      				;rClicked = #True                    
                       EndSelect 
                       
                       Select EvntGadget
@@ -1093,7 +1136,7 @@ DeclareModule Request
                               
                       EndSelect
               EndSelect    
-          Until rQuit = #True
+          Until EvntWait = #PB_Event_CloseWindow 
                     
           SetWindowCallback(0, #REXW0)
          
@@ -1107,6 +1150,7 @@ DeclareModule Request
               DisableWindow(*MsgEx\WP_NonID,0)
           EndIf 
           
+          ;SetCursorPos_(CursorPoint\x,CursorPoint\Y)
           ProcedureReturn *MsgEx\ReturnCode
           
           
@@ -1313,14 +1357,14 @@ CompilerIf #PB_Compiler_IsMainFile
 
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 955
-; FirstLine = 804
-; Folding = HC5-
+; CursorPosition = 801
+; FirstLine = 652
+; Folding = PC5--
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = C:\Workbench\Utilities DesignICO\Programme\Dropbox FUSION.ico
 ; Executable = Test_Requester.exe
-; CurrentDirectory = Release\
+; CurrentDirectory = D:\NewGame\
 ; CompileSourceDirectory
 ; EnableUnicode

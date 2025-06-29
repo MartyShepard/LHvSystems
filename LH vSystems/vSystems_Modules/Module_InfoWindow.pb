@@ -218,29 +218,15 @@ Module vInfo
     Procedure.i Modify_EndCheck()
         Protected bSave.i = -1
         
-        If ( Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = 1 )
-             bSave.i + 1
+        If ( Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = 1 ) Or
+           ( Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = 1 ) Or
+           ( Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = 1 ) Or
+           ( Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = 1 )
+           
+        	bSave.i + 1
             ;
             ; Frage um zu Speichern
-        EndIf
-        
-        If ( Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = 1 )
-            bSave.i + 1
-            ;
-            ; Frage um zu Speichern
-        EndIf
-        
-        If ( Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = 1 )
-            bSave.i + 1
-            ;
-            ; Frage um zu Speichern
-        EndIf
-        
-        If ( Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = 1 )
-            bSave.i + 1
-            ;
-            ; Frage um zu Speichern
-        EndIf        
+        EndIf      
         
         If ( bSave >= 0 )
              
@@ -287,42 +273,27 @@ Module vInfo
     Procedure   Modify_Pressed(EvntGadget.i)
                         
         Select EvntGadget
-            Case DC::#Text_128: 
-                Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = IsModified(EvntGadget)
-                
-                If ( Startup::*LHGameDB\InfoWindow\Modified\szTxt1 = GetGadgetText( EvntGadget ) )
-                     Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = 0           
-                     ProcedureReturn 
-                EndIf                                  
-                ProcedureReturn
-                
-            Case DC::#Text_129: 
-                Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = IsModified(EvntGadget)              
-                
-                If ( Startup::*LHGameDB\InfoWindow\Modified\szTxt2 = GetGadgetText( EvntGadget ) )
-                     Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = 0
-                     ProcedureReturn 
-                EndIf                                  
-                ProcedureReturn
-                
-            Case DC::#Text_130: 
-                
-                Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = IsModified(EvntGadget)
-                
-                If ( Startup::*LHGameDB\InfoWindow\Modified\szTxt3 = GetGadgetText( EvntGadget ) )
-                     Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = 0
-                     ProcedureReturn 
-                EndIf                                  
-                ProcedureReturn                
-                
-            Case DC::#Text_131: 
-                Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = IsModified(EvntGadget)              
-                
-                If ( Startup::*LHGameDB\InfoWindow\Modified\szTxt4 = GetGadgetText( EvntGadget ) )
-                     Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = 0
-                     ProcedureReturn 
-                EndIf                                  
-                ProcedureReturn                
+        	Case DC::#Text_128,DC::#Text_129,DC::#Text_130,DC::#Text_131: 
+        		
+          		If ( Len(Startup::*LHGameDB\InfoWindow\Modified\szTxt1 ) > 0 And EvntGadget = DC::#Text_128)
+          			Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = IsModified(EvntGadget)
+          			ProcedureReturn
+              EndIf
+              
+          		If ( Len(Startup::*LHGameDB\InfoWindow\Modified\szTxt2 ) > 0 And EvntGadget = DC::#Text_129)
+          			Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = IsModified(EvntGadget)
+          			ProcedureReturn
+          		EndIf
+          		
+          		If ( Len(Startup::*LHGameDB\InfoWindow\Modified\szTxt3 ) > 0 And EvntGadget = DC::#Text_130)
+          			Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = IsModified(EvntGadget)
+          			ProcedureReturn
+              EndIf          		
+              
+          		If ( Len(Startup::*LHGameDB\InfoWindow\Modified\szTxt4 ) > 0 And EvntGadget = DC::#Text_131)
+          			Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = IsModified(EvntGadget)
+          			ProcedureReturn
+          		EndIf             
         EndSelect        
                 
         
@@ -330,7 +301,7 @@ Module vInfo
    ;**************************************************************************************************************************************************************** 
    ;    
     Procedure   Modify_Reset()     
-        
+    	  	
         Startup::*LHGameDB\InfoWindow\Modified\bEdit1 = 0
         Startup::*LHGameDB\InfoWindow\Modified\bEdit2 = 0        
         Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = 0
@@ -338,7 +309,7 @@ Module vInfo
         Startup::*LHGameDB\InfoWindow\Modified\szTxt1 = ""
         Startup::*LHGameDB\InfoWindow\Modified\szTxt2 = ""
         Startup::*LHGameDB\InfoWindow\Modified\szTxt3 = ""
-        Startup::*LHGameDB\InfoWindow\Modified\szTxt4 = ""
+        Startup::*LHGameDB\InfoWindow\Modified\szTxt4 = ""      
         
     EndProcedure   
    ;****************************************************************************************************************************************************************
@@ -1835,10 +1806,10 @@ EndModule
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1422
-; FirstLine = 1011
-; Folding = -bB+45f+-H-
+; CursorPosition = 303
+; FirstLine = 275
+; Folding = -fJ+45f+-H-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = Release\
+; CurrentDirectory = D:\NewGame\

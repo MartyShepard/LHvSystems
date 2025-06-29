@@ -265,6 +265,11 @@ Module Interact
             Startup::*LHGameDB\ProgrammQuit = #True
         EndIf
         
+        ;
+        ; initialisierung Unity Helper Modus
+        UseModule PortsHelp
+            DataModes(PortCommandline.CmpPortModus())
+        UnuseModule PortsHelp         
         
         ;
         ; initialisierung des Compatibility Modus
@@ -278,6 +283,12 @@ Module Interact
             DataModes(UnrealCommandline.CmpUDKModus())
         UnuseModule UnrealHelp             
         
+        ;
+        ; initialisierung Unity Helper Modus
+        UseModule UnityHelp
+            DataModes(UnityCommandline.CmpUnityModus())
+        UnuseModule UnityHelp   
+            
         AutoOpen()
         
         Startup::*LHGameDB\bFirstBootUp = #False
@@ -335,11 +346,15 @@ Module Interact
                 				;SetActiveGadget( DC::#ListIcon_001)
                 			EndIf	
                             
-                Case #WM_KEYUP                                               
+                Case #WM_KEYDOWN                                             
                     Select EvntwParam 
                         ;
                         ; Beim Loslassen der Taste wird die grössse gespeichert
-                        Case #VK_F5, 102, 104,103 ; Grösser
+                    	Case #VK_F5, 102, 104,103 ; Grösser
+                          	If (GetAsyncKeyState_(#VK_F5) & 32768 = 32768) Or
+                          	   (GetAsyncKeyState_(102) & 32768 = 32768) Or
+                          		 (GetAsyncKeyState_(104) & 32768 = 32768) Or
+                          		 (GetAsyncKeyState_(103) & 32768 = 32768)                 		
                             If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
                                 ;
                                 ; Resete Tastenwiederholung
@@ -348,67 +363,75 @@ Module Interact
                                 ;
                                 vImages::Screens_ChgThumbnails(0,#True,EvntRepeat,EvntWait)  
                                 Continue
-                            EndIf 
-                        Case #VK_F6, 98, 100,105 ; Kleiner (Kein Neuladen der Images)
-                            If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-                                ;
-                                ; Resete Tastenwiederholung
-                                EvntRepeat = 0                                
-                                ;
-                                ;
-                                vImages::Screens_ChgThumbnails(0,#True,EvntRepeat,-999)                                                                
-                                Continue
-                            EndIf                          
-                            
+                              EndIf
+                            EndIf                            
+                          Case #VK_F6, 98, 100,105 ; Kleiner (Kein Neuladen der Images)
+                          	If (GetAsyncKeyState_(#VK_F6) & 32768 = 32768) Or
+                          	   (GetAsyncKeyState_(98) & 32768 = 32768) Or
+                          		 (GetAsyncKeyState_(100) & 32768 = 32768) Or
+                          		 (GetAsyncKeyState_(105) & 32768 = 32768)
+                          		
+	                            If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+	                                ;
+	                                ; Resete Tastenwiederholung
+	                                EvntRepeat = 0                                
+	                                ;
+	                                ;
+	                                vImages::Screens_ChgThumbnails(0,#True,EvntRepeat,-999)                                                                
+	                                Continue
+	                            EndIf                          
+                            EndIf
                         Case #VK_DELETE
-                            If (Startup::*LHGameDB\Switch = 0)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+                            If (Startup::*LHGameDB\Switch = 0)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_DELETE) & 32768 = 32768)
                                 VEngine::Database_Remove()  
                                 Continue
                             EndIf                           
                             ;  
                             ; Benutzer Drückt Escape im Editor Fenster
                         Case #VK_ESCAPE:
-                            If (Startup::*LHGameDB\Switch = 1)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+                            If (Startup::*LHGameDB\Switch = 1)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_ESCAPE) & 32768 = 32768) 
                                 VEngine::ListBox_GetData_LeftMouse(#True)                                        
                                 VEngine::Switcher_Pres_List( DC::#Button_024)
                                 Continue
                             EndIf    
                         Case #VK_F1                           
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F1) & 32768 = 32768) 
                                 Startup::*LHGameDB\SortMode = 0
                                 VEngine::Thread_LoadGameList_Sort()                            
                                 Continue
                             EndIf
                             
                         Case #VK_F2
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False)                            
+                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F2) & 32768 = 32768)                             
                                 Startup::*LHGameDB\SortMode = 1
                                 VEngine::Thread_LoadGameList_Sort()                          
                                 Continue
                             EndIf
                             
                         Case #VK_F3                           
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False)                            
+                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F3) & 32768 = 32768) 
                                 Startup::*LHGameDB\SortMode = 2
                                 VEngine::Thread_LoadGameList_Sort()
                                 Continue
                             EndIf
                             
                         Case #VK_F4                                                       
-                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False)                            
-                        			If 	(Startup::*LHGameDB\SortMode <= 4)
-                        				Startup::*LHGameDB\SortMode = 3
-                        			Else
-                        				Startup::*LHGameDB\SortMode = 5
-                        			EndIf
-                              VEngine::Thread_LoadGameList_Sort()
-                              Continue
+                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F4) & 32768 = 32768)                        		
+	                        			If 	(Startup::*LHGameDB\SortMode <= 4)
+	                        				Startup::*LHGameDB\SortMode = 3
+	                        			Else
+	                        				Startup::*LHGameDB\SortMode = 5
+	                        			EndIf
+	                              VEngine::Thread_LoadGameList_Sort()
+	                              Continue
                             EndIf                                             
                         	
                         Case #VK_RETURN                                                       
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And ( GetActiveGadget() = DC::#ListIcon_001 )
-                                VEngine::DOS_Prepare()
-                               Continue                           
+                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And ( GetActiveGadget() = DC::#ListIcon_001 )                        		
+                        		If (GetAsyncKeyState_(#VK_RETURN) & 32768 = 32768)
+                        				VEngine::DOS_Prepare()
+                        				Continue  
+                        			EndIf                                                      
                             EndIf                            
                             
                                                                               
@@ -417,21 +440,8 @@ Module Interact
                             If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
                             EndIf    
                             Debug "MainCode() Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
-                    EndSelect     
-  		
-                    ;
-                    ; Registriere Hotkey CTRL-S für Speichern/Updaten                    
-                Case #WM_HOTKEY
-                    Select EvntwParam
-                        Case 1
-                            If ( Startup::*LHGameDB\Switch = 1 )
-                                 Continue
-                             EndIf
-                     EndSelect
-                     
-                     
-                Case #WM_KEYDOWN                	
-
+                        EndSelect
+                        
                     If ( GetAsyncKeyState_(#VK_CONTROL) & 32768 = 32768 And GetAsyncKeyState_(#VK_S) & 32768 = 32768 And Startup::*LHGameDB\Switch = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)                                 
                                  VEngine::Update_Changes()
                                  VEngine::ListBox_GetData_LeftMouse(#True)                                        
@@ -470,7 +480,22 @@ Module Interact
                           EndIf 
                                                         
                         Default
-                    EndSelect
+                    EndSelect                        
+  		
+                    ;
+                    ; Registriere Hotkey CTRL-S für Speichern/Updaten                    
+                Case #WM_HOTKEY
+                    Select EvntwParam
+                        Case 1
+                            If ( Startup::*LHGameDB\Switch = 1 )
+                                 Continue
+                             EndIf
+                     EndSelect
+                     
+                     
+                ;Case #WM_KEYDOWN                	
+
+
                                              
                      
                 Case #PB_Event_Gadget                    
@@ -901,11 +926,11 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 120
-; FirstLine = 78
+; CursorPosition = 270
+; FirstLine = 197
 ; Folding = f+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

@@ -28,7 +28,7 @@ DeclareModule INVMNU
     Declare     Set_C64Menu(MenuID.i)
     Declare     Get_C64Menu(MenuID.i, GadgetID.i)  
     
-    Declare     Set_AppMenu()
+    Declare     Set_AppMenu(MenuID.i)
     Declare     Get_AppMenu(MenuID.i, GadgetID.i)
     
     
@@ -221,7 +221,14 @@ DeclareModule Startup
         LogFile.s
         LogHandle.i
         LatestLog.s
-    EndStructure
+      EndStructure
+      
+    Structure FILE_SAVESUPPORT
+        Directory.s
+        SavePath.s
+        SaveFile.s
+        SaveHandle.i        
+    EndStructure      
     
     Structure STRUCT_LH_DATABASE        
         TitleVersion.s{255}         ;Version und Title
@@ -268,8 +275,9 @@ DeclareModule Startup
         Settings_hkeyShot.i         ;Hotkey Modifier für das Aufnehmen der Screenshots
         Settings_hkeyMMBT.i         ;Hotkey Modifier für das Aufnehmen der Screenshots        
         Settings_fMonitor.i         ;Sepaerates Aktivieren des Monitoring der Datei Aktivität wenn das Spiel/Programm gestartet wird
-        Settings_MameHelp.i		;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen
-        Settings_aExecute.i         ;Alternativer Process für das Ausführen von programmen
+        Settings_MameHelp.i					;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen
+        Settings_aExecute.i					;Alternativer Process für das Ausführen von programmen
+        Settings_SaveTool.i					;Save Support: Backup/Restore
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
@@ -284,6 +292,8 @@ DeclareModule Startup
         
         FileMonitoring.i            ;Acrivate/DeActivateed with #True/False
         Monitoring.FILE_MONITORING  ;
+        
+        SaveTool.FILE_SAVESUPPORT
         
         hSplitterDef.i              ;Die Splitter Standard Höhe
         hSplitterSav.i              ;Die Alten Höhe
@@ -347,6 +357,8 @@ DeclareModule Startup
         WindowIDCheck.i
         FormIsChecked.i
         LastSplitHeight.i
+        Max_Saves_List.i					; Maximal Entrys ab Unreal Menüleist
+        ExitSignal.i
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
@@ -412,17 +424,27 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
         ;
-		; Version 0.52b
-		; Kompatibilitäts Assisitenten erweitert. Alle Modi's und Fixe sind mit "%c<Mode/Fix>" startbar
-		; Text Speichen Openfile ist jetzt Createfile mit Backup
-		; Update und Korrektur für den Portable Path Modus
+				; Version 0.59.9
+				;	Temporär CursorPos abgeschaltet
+				; CTRL+S im Editor (Speichern des Texts) und dann dem anwählen eines anderen Eintrags das "Fenster zum Speichern" gefixed
+				; Unity Commanlined hinzugefügt
+				; Output std und Error wurde nicht freigeben und routine überarbeitet
+				; Menu im Programm Editor überarbeitet        
+        ; Mehr Hilfe und wie was funktioniert hinzugefügt
+        
+        ;
+				; Version 0.52b
+				; Kompatibilitäts Assisitenten erweitert. Alle Modi's und Fixe sind mit "%c<Mode/Fix>" startbar
+				; Text Speichen Openfile ist jetzt Createfile mit Backup
+				; Update und Korrektur für den Portable Path Modus
         ; Bessere Extension Auflösung
-		;
-	    ; Version 0.51b
-	    ; Alternative Windows API Process für das Ausführen von Programmen falls die Routine von Purebasic
-	    ; nicht greift. "%altexe"
-	    ; Logitech LCD Support (Mono erstmal)
+				;
+	    	; Version 0.51b
+	    	; Alternative Windows API Process für das Ausführen von Programmen falls die Routine von Purebasic
+	    	; nicht greift. "%altexe"
+	    	; Logitech LCD Support (Mono erstmal)
         ; 
         ;
         ; Version 0.50b
@@ -937,7 +959,10 @@ Module Startup
          *LHGameDB\bUpdateProcess       = #False
          
          *LHGameDB\Monitoring\LogFile   = "StdWatch.txt"
-         *LHGameDB\Monitoring\LogPath   = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"       
+         *LHGameDB\Monitoring\LogPath   = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+         
+         *LHGameDB\SaveTool\SavePath     = Startup::*LHGameDB\Base_Path + "Systeme\SAVE\"
+         *LHGameDB\SaveTool\SaveFile     = *LHGameDB\SaveTool\SavePath + "vSystem-SaveSupport.ini"
 
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
@@ -979,7 +1004,9 @@ Module Startup
          ; Lösche Das Update Modul
           If FileSize(*LHGameDB\Base_Path + "_UpdateModul_.exe" )
               DeleteFile( *LHGameDB\Base_Path + "_UpdateModul_.exe" )
-          EndIf 
+            EndIf
+            
+          *LHGameDB\ExitSignal			= #False
          
      EndProcedure 
     ;****************************************************************************************************************************************************
@@ -1035,9 +1062,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 370
-; FirstLine = 282
-; Folding = 9D+
+; CursorPosition = 434
+; FirstLine = 401
+; Folding = +D+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

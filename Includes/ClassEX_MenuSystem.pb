@@ -96,7 +96,7 @@ Module CLSMNU
             Case 1: INVMNU::Set_ShotsMenu()                
             Case 2: INVMNU::Set_PopMenu1()                  
             Case 3: INVMNU::Set_C64Menu(*MNU\HandleID) ;Handle wird für die Checkmarks benötigt             
-            Case 4: INVMNU::Set_AppMenu()              ; Vordefierte Programme  
+            Case 4: INVMNU::Set_AppMenu(*MNU\HandleID) ;Vordefierte Programme  
             Case 5: ;INVMNU::Set_MainMnu()              ; Hauptmenu 
             Default                
                 Set_Layout_TestMenu() 
@@ -243,9 +243,9 @@ Module CLSMNU
     EndProcedure
     
 EndModule   
-; IDE Options = PureBasic 5.70 LTS (Windows - x64)
-; CursorPosition = 140
-; FirstLine = 146
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 98
+; FirstLine = 26
 ; Folding = z-
 ; EnableAsm
 ; EnableXP

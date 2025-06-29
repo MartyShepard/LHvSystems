@@ -1794,10 +1794,41 @@ Module VEngine
                 SendMessage_(GadgetID(DC::#String_109), #EM_SETCUEBANNER, 0, *szMemFile)                
                 SendMessage_(GadgetID(DC::#String_110), #EM_SETCUEBANNER, 0, *szMemFile)                
                 
+                FreeMemory(*szMemFile) 
                 FreeMemory(*szMemLang)
                 FreeMemory(*szMemSysm)
                 FreeMemory(*szMemDate)
-                FreeMemory(*szMemFile)                 
+                
+								If Len(GetGadgetText(DC::#String_008) ) = 0
+										*szMemFile1 = AllocateMemory(256)
+										PokeS(*szMemFile1, "<Media/ Image/ Rom/ Cart/ Iso 1 ( Doppelklick Öffnet Auswahl Fenster )>", -1, #PB_Unicode) 
+										SendMessage_(GadgetID(DC::#String_008), #EM_SETCUEBANNER, 0, *szMemFile1)
+										FreeMemory(*szMemFile1)  
+								EndIf
+				
+								If Len(GetGadgetText(DC::#String_009) ) = 0
+										*szMemFile2 = AllocateMemory(256)
+										PokeS(*szMemFile2, "<Media/ Image/ Rom/ Cart/ Iso 2 ( Doppelklick Öffnet Auswahl Fenster )>", -1, #PB_Unicode) 							
+										SendMessage_(GadgetID(DC::#String_009), #EM_SETCUEBANNER, 0, *szMemFile2)
+										FreeMemory(*szMemFile2) 							
+								EndIf							
+					
+								If Len(GetGadgetText(DC::#String_010) ) = 0	
+										*szMemFile3 = AllocateMemory(256)
+										PokeS(*szMemFile3, "<Media/ Image/ Rom/ Cart/ Iso 3 ( Doppelklick Öffnet Auswahl Fenster )>", -1, #PB_Unicode) 							
+										SendMessage_(GadgetID(DC::#String_010), #EM_SETCUEBANNER, 0, *szMemFile3) 								
+										FreeMemory(*szMemFile3) 							
+								EndIf							
+							
+								If Len(GetGadgetText(DC::#String_011) ) = 0	
+										*szMemFile4 = AllocateMemory(256)
+										PokeS(*szMemFile4, "<Media/ Image/ Rom/ Cart/ Iso 4 ( Doppelklick Öffnet Auswahl Fenster )>", -1, #PB_Unicode) 							
+										SendMessage_(GadgetID(DC::#String_011), #EM_SETCUEBANNER, 0, *szMemFile4)							
+										FreeMemory(*szMemFile4) 							
+								EndIf                
+                
+
+                                
                 ProcedureReturn  1
             EndIf    
         EndIf
@@ -2550,50 +2581,72 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                       
     Procedure DOS_Thread_OutPut(*Params.PROGRAM_BOOT)
         
-    	Protected stdout.s, NewLines.i , nul.s
-    	    	
-    	If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow ) 
+    	Protected stdout.s, NewLines.i, stLogging.s, Result.i
+    	
+    	If Startup::*LHGameDB\ExitSignal = #True
+    		  ProcedureReturn
+    		EndIf
     		
-    		 	If (Startup::*LHGameDB\Settings_bNoOutPt = #False)                
-    		 		
-    		 		*Params\Logging + #CR$ + ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)    		 		                
-                	Debug #TAB$ + "Standard Output Log: " + *Params\Logging
-                
-                
-                	If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And ( *Params\StdOutL )                	
-                    	WriteStringN(*Params\StdOutL, *Params\Logging )                                                          
-                    	*Params\Logging = "";
-               		 Else
+    	If Not IsProgram(Startup::*LHGameDB\Thread_ProcessLow)	
+    		ProcedureReturn 
+    	EndIf
+    	
+    	If ( Startup::*LHGameDB\Settings_bSaveLog = #False ) Or (Startup::*LHGameDB\Settings_bNoOutPt = #True)
+    		ProcedureReturn 
+    	EndIf
+    		
+    	If AvailableProgramOutput( Startup::*LHGameDB\Thread_ProcessLow )
+    		
+    		stLogging = ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8) 
+    		
+    		Debug "Programm Läuft"
+    		If 			(Startup::*LHGameDB\Settings_bNoOutPt = #False)
+    						*Params\Logging + stLogging + Chr(13) + Chr(10)
+    				    
+    						Debug #TAB$ + "Standard Output Log: " + stLogging
+    						stLogging = Chr(0)
+    						; Zuviele Linefeeds
+    						;NewLines = CountString(*Params\Logging, Chr(10) )
+    						;If ( NewLines > 200 )
+    						;	*Params\Logging = Chr(0)
+    					 	;	Debug #TAB$ + "Standard Output Log NewLines > 200: Clear"
+    						;EndIf     						
+    						
+    		ElseIf ( Startup::*LHGameDB\Settings_bSaveLog = #True ) 
+    				
+    			If ( (*Params\StdOutL) > 0 )
+    				If IsFile(*Params\StdOutL)
+    						Result = WriteStringN(*Params\StdOutL, stLogging ) 
+    						Debug #TAB$ + "Standard Output Log Leite Um (Result "+Str(Result)+"): " + stLogging
+    					EndIf
+    				EndIf
+    		EndIf	
+    			
+    		;
+				; Fehler stdOut
+    		If 			(Startup::*LHGameDB\Settings_bNoOutPt = #False) And IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
+    				
+    				stdout.s = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
+    				    				      						
+    				If ( Len( stdout.s)  > 0 )
+    					*Params\StError + stdout.s
+    					stdout = Chr(0)
+    					Debug #TAB$ + "Error Output Log: " + stdout 
+    				EndIf
+    					
+    		ElseIf ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And IsProgram( Startup::*LHGameDB\Thread_ProcessLow ) 
+    			
+    			If (*Params\ErrorLg) > 0
+    				If IsFile(*Params\StdOutL)
+    					WriteStringN(*Params\ErrorLg,stdout)
+    					Debug #TAB$ + "Error Output Log Schreibe in den String: " + stdout
+    				EndIf
+    			EndIf
+    		EndIf
+    		
+    		
 
-                    	NewLines = CountString(*Params\Logging, Chr(10) )
-                    	If ( NewLines > 200 )
-                        	*Params\Logging = "";
-                    	EndIf                     
-                    EndIf                 
-                    
-                
-                	If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                		
-                		stdout = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
-                
-                    	If ( Len( stdout)  > 0 )
-                        	*Params\StError + stdout                        
-                        	Debug #TAB$ + "Error Output Log: " + *Params\StError 
-                        
-                        	If ( Startup::*LHGameDB\Settings_bSaveLog = #True ) And  ( *Params\ErrorLg )
-                            	WriteStringN(*Params\ErrorLg,*Params\StError)
-                            	*Params\StError = ""
-                            EndIf	
-                        EndIf                        
-                    EndIf                    
-                    
-                Else
-                	nul = ReadProgramString( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
-                	If IsProgram( Startup::*LHGameDB\Thread_ProcessLow )
-                		nul = ReadProgramError( Startup::*LHGameDB\Thread_ProcessLow ,#PB_UTF8)
-                	EndIf                	
-                EndIf
-        EndIf
+    	EndIf
         
     EndProcedure    
     ;****************************************************************************************************************************************************************
@@ -3305,7 +3358,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_FreeMemE = #False   ; Free Memory (For 32Bit, 4GB > Over Size 3.2GB) 
         Startup::*LHGameDB\Settings_Schwelle = -1
         Startup::*LHGameDB\Settings_bBlockFW = #False
-        Startup::*LHGameDB\Settings_bNoOutPt = #False;
+        Startup::*LHGameDB\Settings_bNoOutPt = #True; Stand kein Output
         Startup::*LHGameDB\Settings_GetSmtrc = #True;
         Startup::*LHGameDB\Settings_bSaveLog = #False;
         Startup::*LHGameDB\Settings_hkeyKill = #True ;
@@ -3313,6 +3366,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_fMonitor = #False;
         Startup::*LHGameDB\Settings_MameHelp = #False;  
         Startup::*LHGameDB\Settings_aExecute = #False
+        Startup::*LHGameDB\Settings_SaveTool = #False        
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
@@ -3682,21 +3736,32 @@ Module VEngine
         ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
-             Startup::*LHGameDB\Settings_hkeyKill = #True
+             Startup::*LHGameDB\Settings_hkeyKill = #False
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Terminate Programm (Ausgeschaltet)")  
         EndIf          
          
         ;
         ;
-        ; Disable Output
-        szCommand.s = "%noout"          
+        ; Enable Output
+        szCommand.s = "%shout"          
         ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
-             Startup::*LHGameDB\Settings_bNoOutPt = #True
+             Startup::*LHGameDB\Settings_bNoOutPt = #False
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
         EndIf  
-                 
+        
+        ;
+        ;
+        ; Save Support
+        szCommand.s = "%savetool"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_SaveTool = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Save Support (Backup and Restore)")  
+        EndIf 
+           
         ;
         ;
         ; Redirect Output
@@ -3924,7 +3989,7 @@ Module VEngine
                         ResetList(CompatibilityEmulation())                    
                         For LstIndex = 0 To ListSize(CompatibilityEmulation()) 
                             NextElement(CompatibilityEmulation())
-                            sCmpEmu$ = CompatibilityEmulation()\Emulation$
+                            sCmpEmu$ = CompatibilityEmulation()\Modus
                             
                             If UCase( sCompArg$ ) = UCase( sCmpEmu$ )
                                 
@@ -4207,7 +4272,8 @@ Module VEngine
             Select SvLogErrorSz
                 Case 0 To 60
                     DeleteFile(SvFileSaved$ + SvLogErrorMs$ )
-                Default
+                  Default
+                  	CloseFile( SvLogErrorSz)
                     SvLogResult   + 1
                     SvLogMessage$ = SvLogErrorMs$ + " Datei vorhanden"
             EndSelect       
@@ -4216,7 +4282,8 @@ Module VEngine
             Select SvLogErrorSz
                 Case 0 To 60
                     DeleteFile(SvFileSaved$ + SvLogStdout$ )
-                Default
+                  Default
+                  	CloseFile( SvLogStdOutSz)
                     SvLogResult   + 2
                     SvLogMessage$ = SvLogStdout$ + " Datei vorhanden"
             EndSelect             
@@ -4227,7 +4294,8 @@ Module VEngine
             
                        
             If ( SvLogResult > 1)               
-                               
+            	
+            	
                 Select  SvLogResult                   
                     Case 2:  Request::*MsgEx\User_BtnTextM = "Stdout Öffnen": SvFileSaved$ + SvLogErrorMs$ + ".txt"    
                     Default: Request::*MsgEx\User_BtnTextM = "Error Öffnen" : SvFileSaved$ + SvLogStdout$  + ".txt"
@@ -4262,24 +4330,56 @@ Module VEngine
                     Case -1: CreateDirectory( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" )                    
                 EndSelect 
                 
-                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt")      
-                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt")
-            
+								Date.s = FormatDate("%yyyy-%mm-%dd#", Date())
+								Time.s = FormatDate("%hh-%ii-%ss"		, Date())
+								
+                If FileSize( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\Error.txt") > 0
+                	RenameFile( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\Error.txt",
+                	            Startup::*LHGameDB\Base_Path + "Systeme\LOGS\Errors-Preview"+"["+ Date + Time + "]"+".txt")
+                EndIf
+                
+                If FileSize( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\StdOut.txt") > 0
+                	RenameFile( Startup::*LHGameDB\Base_Path + "Systeme\LOGS\StdOut.txt",
+                	            Startup::*LHGameDB\Base_Path + "Systeme\LOGS\StdOut-Preview"+"["+ Date + Time + "]"+".txt")
+								EndIf
+								
+                *Params\ErrorLg =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "Error.txt")      
+                *Params\StdOutL =  OpenFile( #PB_Any,  Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "StdOut.txt")
+                
                 If ( *Params\ErrorLg )
-                    WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )                        
+                    WriteString(*Params\ErrorLg, "vSystems Logging: ERRORS" + #CR$ + #CR$ )
                 EndIf
                 If ( *Params\StdOutL )
-                    WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )                        
+                    WriteString(*Params\StdOutL, "vSystems Logging: Standard" + #CR$ + #CR$ )
                 EndIf            
             EndIf        
-        EndProcedure               
+          EndProcedure
+    ;****************************************************************************************************************************************************************
+    ; Section Save Funktion Backup
+    ;****************************************************************************************************************************************************************      
+		Procedure DOS_SaveSupport_Backup(*Params.PROGRAM_BOOT)
+			
+			
+    EndProcedure
+    ;****************************************************************************************************************************************************************
+    ; Section Save Funktion Restore 
+    ;****************************************************************************************************************************************************************      
+    Procedure DOS_SaveSupport_Restore(*Params.PROGRAM_BOOT)
+    	
+    	
+    EndProcedure     
     ;****************************************************************************************************************************************************************
     ; Section Programm Starten
-    ;****************************************************************************************************************************************************************
+		;****************************************************************************************************************************************************************
+
+        	
     Procedure DOS_Prepare()
         
         Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i
-               
+        
+        Startup::*LHGameDB\ExitSignal = #False
+        Startup::*LHGameDB\Thread_ProcessName = ""
+            
         *Params.PROGRAM_BOOT = AllocateMemory(SizeOf(PROGRAM_BOOT))
         InitializeStructure(*Params, PROGRAM_BOOT)
         
@@ -4297,9 +4397,9 @@ Module VEngine
             *Params\Command         = ExecSQL::nRow(Base,Table$,"Args_Default","",PrgID,"",1)
             *Params\Logging         = ""
             *Params\ExError         = 0
-            *Params\PrgFlag         = #PB_Program_Open|#PB_Program_Read|#PB_Program_Error
-            *Params\StError         = ""
-    
+            *Params\PrgFlag         = #PB_Program_Open
+            *Params\StError         = ""           
+            
             ;
             ; Normalisiere, 
             *Params\PrgPath         = GetPathPart(*Params\Program)
@@ -4309,35 +4409,42 @@ Module VEngine
             *Params\hThread 		= 0 
             *Params\hProcess		= 0
             
+            If ( Startup::*LHGameDB\Settings_bSaveLog = #True) Or (Startup::*LHGameDB\Settings_bNoOutPt = #False)
+            	*Params\PrgFlag  			= #PB_Program_Open|#PB_Program_Read|#PB_Program_Error
+    				EndIf 
+            
             If ( Startup::*LHGameDB\Settings_NBNoShot = #False )
                 ; Reset NoBorder Handle Vars
                 VSystem::System_NoBorder_Handle_Reset()
             EndIf
              
             
-            If (Len(*Params\Program) = 0 )       	
-            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
-            	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)            	
-                ProcedureReturn
-            EndIf 
-            
-            If (FileSize(*Params\PrgPath) <> -2 )            	
-            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Program Folder Does Not Exists",2,2,"",0,0,DC::#_Window_001)
-            	SetActiveWindow(DC::#_Window_001)
-            	SetActiveGadget(DC::#ListIcon_001)            	
-                ProcedureReturn
-            EndIf 
-            
-            If (FileSize(*Params\PrgPath + *Params\Program  ) = -1 )            
-            	Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
-            	SetActiveWindow(DC::#_Window_001)
+            If (Len(*Params\Program) = 0 )	Or	(FileSize(*Params\PrgPath) <> -2 )	Or	(FileSize(*Params\PrgPath + *Params\Program  ) = -1 )
+            	
+            	;Delay(25)
+            	;keybd_event_(#VK_RETURN, 0, 0, #Null)
+            	;Delay(250)
+            	
+            	If (Len(*Params\Program) = 0 )
+            		Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Please Select a Program",2,2,"",0,0,DC::#_Window_001)
+            	ElseIf (FileSize(*Params\PrgPath) <> -2 )
+            		Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Program Folder Does Not Exists",2,2,"",0,0,DC::#_Window_001)
+            	ElseIf (FileSize(*Params\PrgPath + *Params\Program  ) = -1 )
+            		
+            	;	vItemTool::DialogRequest_Def( "W.T.F: ","No Program to Run. Cant Find it..",2)
+            		
+            		Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","No Program to Run. Cant Find it..",2,2,"",0,0,DC::#_Window_001)
+            	EndIf
+            	
+            	;Delay(250)
+            	SetActiveWindow(DC::#_Window_001)            	
             	SetActiveGadget(DC::#ListIcon_001)
-                ProcedureReturn
-            EndIf              
-                       
+              ProcedureReturn
+            EndIf               
+            
+            
             ;
-			; Prüfe Nach Speziellen Kommandos
+						; Prüfe Nach Speziellen Kommandos
             *Params\Command         = DOS_Device(*Params\Command, *Params\Program, 0, *Params\PrgPath)
             
             ;If *Params\Command  = "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
@@ -4354,14 +4461,36 @@ Module VEngine
             ; Markiere Item welches gestartet ist
             vItemTool::Item_Process_Loaded()
             
-            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
-                 ;
-                 ; Aktviere MONITOR Disk Activity
-                 Monitoring::DeActivate()
-                 Delay( 5 )
-                 Monitoring::Activate("C:\")
-            EndIf             
-            
+            If ( Startup::*LHGameDB\Settings_Asyncron = #False )
+            	
+	            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
+	                 ;
+	                 ; Aktviere MONITOR Disk Activity
+	                 Monitoring::DeActivate()
+	                 Delay( 5 )
+	                 Monitoring::Activate("C:\")
+	            EndIf             
+	            
+	            If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
+	            			Debug "SaveSupport: Init Restore"
+	            	
+	            			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+	            	
+	            			If ( SaveTool::SaveFile_GetRestore() = #True )
+	            		
+	            				DoDelay.i = SaveTool::SaveFile_GetRestoreDelay()
+	            				Debug "SaveSupport: Restore Delay = " +Str(DoDelay) 
+	            				Debug "SaveSupport: Restore Copy"
+	            										SaveTool::SaveContent_Restore(1,0)           				            				
+	            				Delay(DoDelay)
+	            			Else
+	            				Debug "SaveSupport: Restore Clean List Only"
+	            				SaveTool::CleanListing()
+	            			EndIf	
+	            EndIf			            
+	          EndIf
+	            
+	            
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
             _Action1 = CreateThread(@DOS_Thread(),*Params)                                             
@@ -4370,9 +4499,7 @@ Module VEngine
             ;
             ; ======================================================================================== Loop
             While IsThread(_Action1) 
-                
-
-                
+               
                 Delay(1)                                                       
                 vKeys::Init_Capture()
                 
@@ -4399,7 +4526,7 @@ Module VEngine
                 			EndIf
                 			
                 		Case 30 
-                			If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )                               
+                			If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )
                 			EndIf                            
                 	EndSelect
                 EndIf
@@ -4410,57 +4537,95 @@ Module VEngine
             Wend  
             ; ======================================================================================== Loop
             
-            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
-                ;
-                ; Aktviere Monitor Disk Activity
-                Monitoring::DeActivate()
-                Startup::*LHGameDB\Settings_fMonitor = #False
-            EndIf
-            
             ;
             ; Minimiert vSystems/ Setzt den Zustand des programms Wieder her. Minimiren befindet sich Modul 
             ; DOS_Thread_GameMode(*Params.PROGRAM_BOOT)
             ; Sollte das Programm Asyncron gestartet werden lass das Window in Ruhe
             If ( Startup::*LHGameDB\Settings_Asyncron = #False )
                  Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)  
-            EndIf    
+            
+               
+		            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
+		                ;
+		                ; Aktviere Monitor Disk Activity
+		                Monitoring::DeActivate()
+		                Startup::*LHGameDB\Settings_fMonitor = #False
+		            EndIf
+		            
+		            
+		            If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
+		            			Debug "SaveSupport: Init Backup"
+		            			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+		            			
+		            			If ( SaveTool::SaveFile_GetBackup() = #True )            	          			
+		            					  DoDelay.i = SaveTool::SaveFile_GetBackupDelay()
+		            						DoCmprs.i = SaveTool::SaveFile_GetBackupCompress() 
+		            						Debug "SaveSupport: Backup Delay = " +Str(DoDelay)
+		            						Delay( DoDelay )            				
+		            										Debug "SaveSupport: Backup Copy"
+		            										SaveTool::SaveContent_Backup(2,0)
+		            				 					 
+		            						If ( DoCmprs = #True )
+		        											Debug "SaveSupport: Backup Compress Start"
+		        											Delay(25)
+		        											SaveTool::SaveContent_Read()
+		            				 				 	SaveTool::SaveContent_Compress()
+		            				 				 	Delay(25)
+		            				 				 	SaveTool::CleanListing()
+		            				 				 	Debug "SaveSupport: Backup Compress Finished"
+		            						EndIf 				  
+		            					Else
+		            				Debug "SaveSupport: Backup Clean List Only"
+		            				SaveTool::CleanListing()
+		            			EndIf	           			            	    
+		           	EndIf
+            EndIf 		
+   
             
             ;
+						;
+            If (Startup::*LHGameDB\Settings_bNoOutPt = #False)     
+            	If ( Len(*Params\Logging) >= 1 )  Or  ( Len(*Params\StError) >= 1 )   
+            		
+            		If (Startup::*LHGameDB\ExitSignal = #True)
+            			If ( Len(*Params\Logging) >= 1 ) 
+            				*Params\Logging + Chr(13) + "Programm Abruch vom User"
+            			EndIf
+            			
+            			If ( Len(*Params\StError) >= 1 )  
+            				*Params\StError + Chr(13) + "Programm Abruch vom User"
+            			EndIf
+            		EndIf            		
+            		ReturnCodes = CountString(*Params\StError, Chr(13) )
+            		NewLines    = CountString(*Params\StError, Chr(10) )
+            		Delay(3)
+            		Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
+            		SetActiveWindow(DC::#_Window_001)
+            		SetActiveGadget(DC::#ListIcon_001)                         
+            	EndIf         
             ;
-            If  ( Startup::*LHGameDB\Settings_bSaveLog = #True )  And (Startup::*LHGameDB\Settings_bNoOutPt = #True)           
-                If ( *Params\ErrorLg )
+            ;
+						ElseIf  ( Startup::*LHGameDB\Settings_bSaveLog = #True ) ; And (Startup::*LHGameDB\Settings_bNoOutPt = #False) 
+							
+								If (Startup::*LHGameDB\ExitSignal = #True)
+									WriteStringN(*Params\ErrorLg, Chr(13) + "Programm Abruch vom User"  ) 
+									WriteStringN(*Params\StdOutL, Chr(13) + "Programm Abruch vom User"  )
+								EndIf
+                If ( *Params\ErrorLg ) > 0
                     CloseFile( *Params\ErrorLg )
                 EndIf
-                If ( *Params\StdOutL )
+                If ( *Params\StdOutL ) > 0
                     CloseFile( *Params\StdOutL )
                 EndIf
+                ; Saved Log? Message to the user
+                DOS_Output_SaveLog(*Params\PrgPath + *Params\Program)
             EndIf
             
-            ;
-            ;
-            If (Startup::*LHGameDB\Settings_bNoOutPt = #True)    
-                *Params\StError = "";
-            Else                                   
-            	If  ( Len(*Params\StError) >= 1 ) And ( Startup::*LHGameDB\Settings_bSaveLog = #False )                         
-                	ReturnCodes = CountString(*Params\StError, Chr(13) )
-                	NewLines    = CountString(*Params\StError, Chr(10) )
-                	Delay(3)
-                	Request::MSG(Startup::*LHGameDB\TitleVersion, "("+Str(ReturnCodes)+ "/ "+Str( NewLines) +") W.T.F. Output: " + GetFilePart(*Params\Program),*Params\Logging + Chr(13) + Chr(13) + *Params\StError,2,2,*Params\PrgPath + *Params\Program,0,0,DC::#_Window_001)
-            		SetActiveWindow(DC::#_Window_001)
-            		SetActiveGadget(DC::#ListIcon_001)                	
-                Else                
-                	
-            		; Saved Log? Message to the user
-            		If ( Startup::*LHGameDB\Settings_bSaveLog = #True )
-                		DOS_Output_SaveLog(*Params\PrgPath + *Params\Program)
-                	EndIf                  
-                EndIf	
-                
-            EndIf            
-            
+
+		
             ;
             ; Markiere Item welches gestartet ist
-            vItemTool::Item_Process_UnLoaded()   
+            vItemTool::Item_Process_UnLoaded()
             
             ;
             ; NoBorder, Screenshot Aktiv
@@ -4893,7 +5058,7 @@ EndProcedure
             szText.s = ""
             szText.s = GetGadgetText( DC::#Text_131  )      
             ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", szText ,Startup::*LHGameDB\GameID) 
-            
+        	
             vInfo::Modify_Reset()
             vInfo::Caret_GetPosition()
             
@@ -7169,19 +7334,14 @@ EndProcedure
     					strYear = Trim( strYear, Chr(32) )
     					;
 							; Existiert '?'
-    					If Len( strYear ) >= 5
-    						;If ( Len( strYear ) = 14)
+    					If Len( strYear ) >= 5    					
     							For nYear = 1948 To 2030
     								If FindString( strYear, Str(nYear),1)
     									strYear = Str(nYear)
     									Break
     								EndIf
-    								Debug CodeFile + ": '" + strYear + "'"
-    							Next
-    						;Else
-    							
-    						;EndIf	
-    						
+    								; Debug CodeFile + ": '" + strYear + "'"
+    							Next    						
     					EndIf
     					
     					*Params\MSIP()\SOURCECODE = CodeFile
@@ -7489,7 +7649,41 @@ EndProcedure
     EndProcedure	
 	;
 	;
-	;	        
+	;
+  Procedure 		Mame_Roms_GetInfos_Thread(CurrentThread.i)
+    	
+    	  				
+    		WM_MsgID.i = WindowEvent()	: Debug "(Hex) $" + RSet( Hex(WM_MsgID),6,"0") + " / Dec: " +Str(WM_MsgID)
+    		Select WM_MsgID
+    			Case #WM_KEYDOWN
+    			Case #WM_KEYUP    						
+    			Case #WM_CHAR
+    				
+    				If IsThread( CurrentThread ) And ( EventwParam() = 27 ) ; 27 = Taste ESC
+    					PauseThread( CurrentThread )
+    					
+    					Delay( 1000 )
+    					
+    					Request::*MsgEx\User_BtnTextL = "Weiter"
+    					Request::*MsgEx\User_BtnTextR = "Abbruch"			
+    					Result = Request::MSG(Startup::*LHGameDB\TitleVersion,  "Operation Abbrechen?", "Import von Infos abbrechen" ,10,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+    					
+    					If ( Result = 1 )
+    						HideGadget(DC::#Text_004,1)
+    						SetGadgetText(DC::#Text_004,"")				
+    						MAME_End_Procedure()
+    						ProcedureReturn #False
+    					Else
+    						ResumeThread( CurrentThread )
+    						ProcedureReturn #True
+    					EndIf		    									
+    				EndIf    						
+    		EndSelect
+    	ProcedureReturn #True
+  EndProcedure
+	;
+	;
+	;    
   Procedure 	 	MAME_Roms_GetInfos()
     	
     	
@@ -7656,10 +7850,13 @@ EndProcedure
     		
     		Protected File_Thread = CreateThread(@MAME_Roms_GetInfos_FileThread(),*Params)  
     		ThreadPriority(File_Thread, 31) 
-    		
-    		While IsThread(File_Thread)		                           
-    			While WindowEvent()                                    
-    			Wend
+    		While IsThread(File_Thread)
+    			
+    			While WindowEvent()  
+    				If ( Mame_Roms_GetInfos_Thread(File_Thread) =	#False )
+    					KillThread(File_Thread)
+    				EndIf
+    			Wend	    			
     		Wend
     		
     		Delay( 500 )
@@ -7825,13 +8022,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 7174
-; FirstLine = 5245
-; Folding = 8-------f6--49AE+
+; CursorPosition = 4399
+; FirstLine = 4356
+; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\Adult The Klub\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

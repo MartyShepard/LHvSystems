@@ -10,9 +10,11 @@
     Declare.i   System_GetCurrentMemoryUsage()
     Declare.i   System_GetMemoryUsage(ProcID)
     
-    Declare     System_Compat_MenuItemW(MenuID)    
-    Declare     System_Compat_MenuItemE(MenuID)
-    Declare     System_Unreal_MenuItemC(MenuID)    
+    Declare     System_MenuItemW_Compat(MenuID)    
+    Declare     System_MenuItemE_Compat(MenuID)
+    Declare     System_MenuItemC_Unreal(MenuID)    
+    Declare     System_MenuItemD_Unity(MenuID)
+    Declare     System_MenuItemB_Emulation(MenuID)  
     
     Declare.i   System_CheckInstance()
     
@@ -30,7 +32,7 @@ EndDeclareModule
 
 Module vSystem
     
-    Global ShowDebugNB.i = #False       ; Deboug Output for NoBorder
+    Global ShowDebugNB.i = #False       ; Debug Output for NoBorder
     ;
     ; Setz und Holt sich die PriorityClass vom Fremden programm
     Global NewList NoBorderList.PROCESSENTRY32() 
@@ -712,10 +714,28 @@ Module vSystem
             Startup::*LHGameDB\NBClient\right = 0;
             Startup::*LHGameDB\NBClient\bottom= 0;
     EndProcedure
+    
+   Procedure.i Caret_SetPosition()
+                        
+            g.i = GadgetID( DC::#String_103 ): SetActiveGadget(  DC::#String_103 )  
+            
+            Protected Range.CHARRANGE, ncLine.i, nColumn.i, Caret.Point
+            
+            ;
+            ; Cursor X: Line
+            SendMessage_(g,  #EM_EXGETSEL, 0, @Range)
+                     
+            Range\cpMax = Len(GetGadgetText(DC::#String_103))
+            Range\cpMin = Len(GetGadgetText(DC::#String_103))
+            
+            SendMessage_(g, #EM_SETSEL, Range\cpMax, Range\cpMin)
+            
+        ProcedureReturn -1
+   EndProcedure    
     ;
     ;
     ; Aufruf des Compatibility Mode to the Commandline über dem menu
-    Procedure   System_Compat_MenuItemW(MenuID)
+    Procedure   System_MenuItemW_Compat(MenuID) 
         
         Protected sCmdString.s
         
@@ -724,9 +744,7 @@ Module vSystem
         ResetList(CompatibilitySystem())                                     
         
         While NextElement(CompatibilitySystem())
-            
-            Debug "MenuIdx:" + Str( CompatibilitySystem()\MenuIndex) + #TAB$ + LSet( CompatibilitySystem()\OSModus$, 24, Chr(32) ) + "Num: " +  Str( CompatibilitySystem()\OSIDX)
-            
+                        
             If ( CompatibilitySystem()\MenuIndex = MenuID )
              ;   Debug #CR$ + "Benutze: " + CompatibilitySystem()\OSModus$
                 
@@ -737,8 +755,9 @@ Module vSystem
                 
                 If FindString( sCmdString, "%c"+ CompatibilitySystem()\OSModus$, 1) = 0
                     sCmdString + "%c"+CompatibilitySystem()\OSModus$
-                EndIf
+                EndIf                
                 SetGadgetText( DC::#String_103 , sCmdString)
+                Caret_SetPosition()
                 Break
             EndIf    
         Wend        
@@ -750,7 +769,7 @@ Module vSystem
     ;
     ;
     ; Aufruf des Compatibility Mode to the Commandline über dem menu
-    Procedure   System_Compat_MenuItemE(MenuID)
+    Procedure   System_MenuItemE_Compat(MenuID)
         
         Protected sCmdString.s
         
@@ -759,33 +778,36 @@ Module vSystem
         ResetList(CompatibilityEmulation())                                     
         
         While NextElement(CompatibilityEmulation())
-            
-          ;  Debug "MenuIdx:" + Str( CompatibilityEmulation()\MenuIndex) + #TAB$ + LSet( CompatibilityEmulation()\Emulation$, 24, Chr(32) ) + "Num: " +  Str( CompatibilityEmulation()\EMUIDX)
-            
+                        
             If ( CompatibilityEmulation()\MenuIndex = MenuID )
-             ;   Debug #CR$ + "Benutze: " + CompatibilityEmulation()\Emulation$
                 
                 sCmdString = GetGadgetText( DC::#String_103 )
                 If Len( sCmdString ) > 0
                     sCmdString + Chr(32)
                 EndIf
                 
-                If FindString( sCmdString, "%c"+ CompatibilityEmulation()\Emulation$, 1) = 0
-                    sCmdString + "%c"+CompatibilityEmulation()\Emulation$
-                EndIf
+                If ( CompatibilityEmulation()\bCharSwitch = #True )
+                		If FindString( sCmdString, "%c"+ CompatibilityEmulation()\Modus, 1) = 0
+                    	sCmdString + "%c"+CompatibilityEmulation()\Modus
+                    EndIf
+                Else                    
+                   If FindString( sCmdString, CompatibilityEmulation()\Modus, 1) = 0
+                       sCmdString + CompatibilityEmulation()\Modus
+                   EndIf  
+                EndIf                  	
                 SetGadgetText( DC::#String_103 , sCmdString)
+                Caret_SetPosition()
                 Break
             EndIf    
         Wend        
         
-        UnuseModule Compatibility             
-        
+        UnuseModule Compatibility                     
     EndProcedure    
     
     ;
     ;
     ; Aufruf für Unreal Commandlines
-    Procedure   System_Unreal_MenuItemC(MenuID)
+    Procedure   System_MenuItemC_Unreal(MenuID)
         
         Protected sCmdString.s
         
@@ -807,7 +829,7 @@ Module vSystem
                 
                 If ( UnrealCommandline()\bCharSwitch = 2 )
                     
-                    szUnrealExecCommand$ = UnrealCommandline()\UDKModus$
+                    szUnrealExecCommand$ = UnrealCommandline()\Modus
                     If FindString( sCmdString, "-" + "ExecCmds=", 1) = 0
                         sCmdString + "-ExecCmds=" + Chr(34) + szUnrealExecCommand$ + Chr(34)                                                
                     Else
@@ -817,19 +839,21 @@ Module vSystem
                         
                     EndIf 
                     SetGadgetText( DC::#String_103 , sCmdString)
+                    Caret_SetPosition()
                     Break
                 Else                                              
                     
                     If ( UnrealCommandline()\bCharSwitch = #True )
-                        If FindString( sCmdString, "-"+ UnrealCommandline()\UDKModus$, 1) = 0
-                            sCmdString + "-"+UnrealCommandline()\UDKModus$
+                        If FindString( sCmdString, "-"+ UnrealCommandline()\Modus, 1) = 0
+                            sCmdString + "-"+UnrealCommandline()\Modus
                         EndIf
                     Else
-                        If FindString( sCmdString, UnrealCommandline()\UDKModus$, 1) = 0
-                            sCmdString + UnrealCommandline()\UDKModus$
+                        If FindString( sCmdString, UnrealCommandline()\Modus, 1) = 0
+                            sCmdString + UnrealCommandline()\Modus
                         EndIf  
                     EndIf    
                     SetGadgetText( DC::#String_103 , sCmdString)
+                    Caret_SetPosition()
                     Break
                 EndIf    
             EndIf   
@@ -837,7 +861,115 @@ Module vSystem
         
         UnuseModule UnrealHelp             
         
-    EndProcedure     
+      EndProcedure
+      
+    ;
+    ;
+    ; Aufruf für Unreal Commandlines
+    Procedure   System_MenuItemD_Unity(MenuID)
+        
+        Protected sCmdString.s
+        
+        UseModule UnityHelp
+        
+        ResetList(UnityCommandline())                                     
+        
+        While NextElement(UnityCommandline())
+            
+          ;  Debug "MenuIdx:" + Str( UnityCommandline()\MenuIndex) + #TAB$ + LSet( UnityCommandline()\UDKModus$, 24, Chr(32) ) + "Num: " +  Str( UnityCommandline()\UDKIDX)
+            
+            If ( UnityCommandline()\MenuIndex = MenuID )
+              ;  Debug #CR$ + "Benutze: " + UnityCommandline()\UDKModus$
+                
+                sCmdString = GetGadgetText( DC::#String_103 )
+                If Len( sCmdString ) > 0
+                    sCmdString + Chr(32)
+                EndIf
+                
+                If ( UnityCommandline()\bCharSwitch = 2 )
+                    
+                    ;szUnUnityExecCommand$ = UnityCommandline()\UnityModus$
+                    ;If FindString( sCmdString, "-" + "ExecCmds=", 1) = 0
+                    ;    sCmdString + "-ExecCmds=" + Chr(34) + szUnUnityExecCommand$ + Chr(34)                                                
+                    ;Else
+                    ;    If FindString( sCmdString, szUnUnityExecCommand$, 1) = 0                         
+                    ;       sCmdString = ReplaceString( sCmdString, "-ExecCmds="+Chr(34), "-ExecCmds="+Chr(34)+szUnUnityExecCommand$+",")
+                    ;    EndIf    
+                    ;    
+                    ;EndIf 
+                    ;SetGadgetText( DC::#String_103 , sCmdString)
+                    ;Break
+                Else                                              
+                    
+                    If ( UnityCommandline()\bCharSwitch = #True )
+                        If FindString( sCmdString, "-"+ UnityCommandline()\Modus, 1) = 0
+                            sCmdString + "-"+UnityCommandline()\Modus
+                        EndIf
+                    Else
+                        If FindString( sCmdString, UnityCommandline()\Modus, 1) = 0
+                            sCmdString + UnityCommandline()\Modus
+                        EndIf  
+                    EndIf    
+                    SetGadgetText( DC::#String_103 , sCmdString)
+                    Caret_SetPosition()
+                    Break
+                EndIf    
+            EndIf   
+        Wend        
+        
+        UnuseModule UnityHelp             
+        
+      EndProcedure
+      
+    ;
+    ;
+    ; Aufruf für Unreal Commandlines
+    Procedure   System_MenuItemB_Emulation(MenuID)
+        
+        Protected sCmdString.s
+        
+        UseModule PortsHelp
+        
+        ResetList(PortCommandline())                                     
+        
+        While NextElement(PortCommandline())
+            
+          ;  Debug "MenuIdx:" + Str( PortCommandline()\MenuIndex) + #TAB$ + LSet( PortCommandline()\UDKModus$, 24, Chr(32) ) + "Num: " +  Str( PortCommandline()\UDKIDX)
+            
+            If ( PortCommandline()\MenuIndex = MenuID )
+              ;  Debug #CR$ + "Benutze: " + PortCommandline()\UDKModus$
+                
+                sCmdString = GetGadgetText( DC::#String_103 )
+                If Len( sCmdString ) > 0
+                    sCmdString + Chr(32)
+                EndIf
+
+                If ( PortCommandline()\bCharSwitch = #True )
+                    If FindString( sCmdString, "-"+ PortCommandline()\PortModus, 1) = 0
+                        sCmdString + "-"+PortCommandline()\PortModus
+                   EndIf
+               Else
+                   If FindString( sCmdString, PortCommandline()\PortModus, 1) = 0
+                       sCmdString + PortCommandline()\PortModus
+                   EndIf  
+                 EndIf 
+                 
+                 vItemTool::Item_New_FomMenu(PortCommandline()\Description, 
+                                             PortCommandline()\Port_ShortName ,
+                                             PortCommandline()\PortModus,
+                                             PortCommandline()\File_Default ,
+                                             PortCommandline()\Path_Default)
+                 
+                 SetGadgetText( DC::#String_103 , sCmdString)
+                 Caret_SetPosition()
+               Break
+                
+            EndIf   
+        Wend        
+        
+        UnuseModule PortsHelp             
+        
+    EndProcedure       
     ;
     ;
 	; Prüfng ob es schon gestartet ist  
@@ -1329,15 +1461,17 @@ Module vSystem
     ;
     Procedure.i    Terminate_Programm(*Params)    	    	
     	
+    	Startup::*LHGameDB\ExitSignal = #True
+    	
     	If ( Startup::*LHGameDB\Settings_hkeyKill = #True )
     		If ( Startup::*LHGameDB\Settings_aExecute = #True )
     			;
-			;
-			; Alternative Execute
+					;
+					; Alternative Execute
     			phandle = OpenProcess_(#PROCESS_TERMINATE, #False, Startup::*LHGameDB\Thread_ProcessLow)
     			If phandle <> #Null
     				If TerminateProcess_(phandle, 1)
-    					result = #True
+    					result = #True    					 
     				EndIf
     				CloseHandle_(phandle)
     				CloseHandle_( *Params )
@@ -1439,10 +1573,10 @@ EndModule
 ;     		SetWindowPlacement_(handle,@MyWindpl) 
 ;     	EndIf 
 ;     EndProcedure 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 32
-; FirstLine = 20
-; Folding = zxz8hF-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1463
+; FirstLine = 1153
+; Folding = zxz8Ps5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
