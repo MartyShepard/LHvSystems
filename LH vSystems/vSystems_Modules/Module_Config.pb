@@ -426,6 +426,14 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.61.0
+				;
+				; Borderless Code changed (%nb). Calculation Routine sollte nun funktionieren ohne das das Fenster sich verkleiner *doohh
+				; SaveGame Menü ins Tray zeitgleich verankert
+				; SaveGame Multiple Verzeichnisse Einträge für jeden einzelen DB Eintrag fixed
+        ; Rare Speicher Fix für Thumbnnail
+        
+        ;
 				; Version 0.60.0
 				;
 				; Versionscheck fixed
@@ -1069,8 +1077,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 428
-; FirstLine = 401
+; CursorPosition = 433
+; FirstLine = 390
 ; Folding = +D+
 ; EnableAsm
 ; EnableXP

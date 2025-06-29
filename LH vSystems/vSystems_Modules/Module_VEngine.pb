@@ -4254,7 +4254,7 @@ Module VEngine
         
         Args = Trim(Args)
         
-        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: (Siehe nächste Zeile)" + Chr(13) + Args)
+        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: (Siehe nächste Zeile)" + Chr(13) + "'"+Args+"'")
     
 
         
@@ -8022,8 +8022,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4287
-; FirstLine = 4227
+; CursorPosition = 4256
+; FirstLine = 4172
 ; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP

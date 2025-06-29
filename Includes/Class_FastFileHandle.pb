@@ -1108,27 +1108,41 @@ Module FFH
       iPos = FindString(Path$, "%DESKTOP%",1,#PB_String_NoCase)
       If (iPos <> 0)
           Path$ = ReplaceString(Path$,"%DESKTOP%\",GetClSIDPath(?FOLDERID_DESKTOP))
-      ProcedureReturn Path$:EndIf
+       		ProcedureReturn Path$
+       EndIf
       
       iPos = FindString(Path$, "%DOCUMENTS%",1,#PB_String_NoCase)
       If (iPos <> 0)
           Path$ = ReplaceString(Path$,"%DOCUMENTS%",GetClSIDPath(?FOLDERID_DOCUMENTS))
-      ProcedureReturn Path$:EndIf      
+          ProcedureReturn Path$
+      EndIf      
           
       iPos = FindString(Path$, "%APPDATA%",1,#PB_String_NoCase)
-      If (iPos <> 0): Path$ = ReplaceString(Path$,"%APPDATA%\",GetClSIDPath(?FOLDERID_RoamingAppData)): ProcedureReturn Path$:EndIf 
+      If (iPos <> 0)
+      	Path$ = ReplaceString(Path$,"%APPDATA%\",GetClSIDPath(?FOLDERID_RoamingAppData))
+      	ProcedureReturn Path$
+      EndIf 
           
       iPos = FindString(Path$, "%LOCALAPPDATA%",1,#PB_String_NoCase)
-      If (iPos <> 0): Path$ = ReplaceString(Path$,"%LOCALAPPDATA%\",GetClSIDPath(?FOLDERID_LOCALAPPDATA)): ProcedureReturn Path$:EndIf       
+      If (iPos <> 0): Path$ = ReplaceString(Path$,"%LOCALAPPDATA%\",GetClSIDPath(?FOLDERID_LOCALAPPDATA))
+      	ProcedureReturn Path$
+      EndIf       
       
       iPos = FindString(Path$, "%USERPROFILE%",1,#PB_String_NoCase)
-      If (iPos <> 0): Path$ = ReplaceString(Path$,"%USERPROFILE%\",GetClSIDPath(?FOLDERID_UserProfiles)): ProcedureReturn Path$:EndIf
+      If (iPos <> 0)
+      	Path$ = ReplaceString(Path$,"%USERPROFILE%\",GetClSIDPath(?FOLDERID_UserProfiles))
+      	ProcedureReturn Path$
+      EndIf
       
       iPos = FindString(Path$, "%SAVEDGAMES%",1,#PB_String_NoCase)
-      If (iPos <> 0): Path$ = ReplaceString(Path$,"%SAVEDGAMES%\",GetClSIDPath(?FOLDERID_SAVEDGAMES)): ProcedureReturn Path$:EndIf
+      If (iPos <> 0): Path$ = ReplaceString(Path$,"%SAVEDGAMES%\",GetClSIDPath(?FOLDERID_SAVEDGAMES))
+      	ProcedureReturn Path$
+      EndIf
       
       iPos = FindString(Path$, "%HOMEDRIVE%",1,#PB_String_NoCase)
-      If (iPos <> 0): Path$ = ReplaceString(Path$,"%HOMEDRIVE%\",GetHomeDirectory()): ProcedureReturn Path$:EndIf
+      If (iPos <> 0): Path$ = ReplaceString(Path$,"%HOMEDRIVE%\",GetHomeDirectory())
+      	ProcedureReturn Path$
+      EndIf
       
       ProcedureReturn Path$
   EndProcedure
@@ -2076,10 +2090,10 @@ CompilerEndIf
     
 
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 30
-; FirstLine = 11
-; Folding = vPpBx4-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1141
+; FirstLine = 982
+; Folding = vPvBx4-
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = Release\

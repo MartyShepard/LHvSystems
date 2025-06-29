@@ -31,13 +31,52 @@ Module INVMNU
     Procedure.i MNU_SetCheckmark(MenuID.i, Itemm.i, State.i)                
             SetMenuItemState(MenuID, Itemm, State)        
     EndProcedure
-    
-    ;*******************************************************************************************************************************************************************
-    ;
-    ; Individuelle Layouts (Vordefinierte Programme)
-    ;
-    ;
-    ;*******************************************************************************************************************************************************************                                    
+	;
+	;        
+    Procedure Get_MenuItems_SaveSupport(MenuID.i)
+    	
+    	Select MenuID      	
+    		Case 1600:	SaveTool::SaveConfig_Help()            			
+    		Case 1601:	SaveTool::SaveConfig_Create(1)         			            			
+    		Case 1602:	SaveTool::SaveConfig_AddGame()            			
+    		Case 1603:	SaveTool::SaveConfig_Edit()            			
+    		Case 1604
+    			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+    			SaveTool::SaveContent_Backup(0,1)            			
+    		Case 1609
+    			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+    			SaveTool::SaveContent_Backup(2,1)            			            			
+    		Case 1605
+    			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+    			SaveTool::SaveContent_Restore(0,1)            			            			
+    		Case 1606: 	SaveTool::SaveConfig_AddCMD()            			
+    		Case 1607: 	SaveTool::SaveConfig_OpenSaves()            			
+    		Case 1608:	SaveTool::SaveConfig_Edit(1)            			
+    		Case 1610 ;Löschen            			            			
+    		Case 1611	;Komprimieren
+    			SaveTool::SaveContent_Compress()              			
+    		Case 1612; Zeige
+    			SaveTool::SaveContent_Read()
+    			SaveTool::SaveConfig_ShowDirectories()            			
+    		Case 1618:	SaveTool::SaveConfig_GetGameTitle_ClipBaord()             			
+    		Case 1620:
+    			;
+					; SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay,i = 250)
+    			SaveTool::SaveConfig_SetKeyValue("Folder",1)            				
+    		Case 1621:	SaveTool::SaveConfig_SetKeyValue("Folder",2)            				
+    		Case 1622:	SaveTool::SaveConfig_SetKeyValue("Folder",3)            				
+    		Case 1623:	SaveTool::SaveConfig_SetKeyValue("Folder",4)            				
+    		Case 1624:	SaveTool::SaveConfig_SetKeyValue("Folder",5)            				
+    		Case 1614:	SaveTool::SaveConfig_SetKeyValue("RestoreData",-1,#True,-1)            				
+    		Case 1613:	SaveTool::SaveConfig_SetKeyValue("Backup-Data",-1,#True, -1)            				
+    		Case 1617:	SaveTool::SaveConfig_SetKeyValue("BackupCompress",-1,#True,-1)            			            				
+    		Case 1615:	SaveTool::SaveConfig_SetKeyValue("RestoreDelay",-1,-1,250)             				
+    		Case 1616:	SaveTool::SaveConfig_SetKeyValue("Backup-Delay",-1,-1,250)      	
+    	EndSelect
+    	
+    EndProcedure
+  ;
+  ; App Menu. Ort: Programm, Media Device Einstellungs Fenster
     Procedure Get_AppMenu(MenuID.i, GadgetID.i)
         
         Protected Commandline$, Programm$
@@ -76,44 +115,7 @@ Module INVMNU
         		vSystem::System_MenuItemD_Unity(MenuID)
         		
         	Case 1600 To 1699
-        		Select MenuID      	
-        			Case 1600:	SaveTool::SaveConfig_Help()            			
-        			Case 1601:	SaveTool::SaveConfig_Create(1)         			            			
-        			Case 1602:	SaveTool::SaveConfig_AddGame()            			
-        			Case 1603:	SaveTool::SaveConfig_Edit()            			
-        			Case 1604
-        				SaveTool::SaveContent_Read()		; Config Liste Initialiseren
-        				SaveTool::SaveContent_Backup(0,1)            			
-        			Case 1609
-        				SaveTool::SaveContent_Read()		; Config Liste Initialiseren
-        				SaveTool::SaveContent_Backup(2,1)            			            			
-        			Case 1605
-        				SaveTool::SaveContent_Read()		; Config Liste Initialiseren
-        				SaveTool::SaveContent_Restore(0,1)            			            			
-        			Case 1606: 	SaveTool::SaveConfig_AddCMD()            			
-        			Case 1607: 	SaveTool::SaveConfig_OpenSaves()            			
-        			Case 1608:	SaveTool::SaveConfig_Edit(1)            			
-        			Case 1610 ;Löschen            			            			
-        			Case 1611	;Komprimieren
-        				SaveTool::SaveContent_Compress()              			
-        			Case 1612; Zeige
-        				SaveTool::SaveContent_Read()
-        				SaveTool::SaveConfig_ShowDirectories()            			
-        			Case 1618:	SaveTool::SaveConfig_GetGameTitle_ClipBaord()             			
-        			Case 1620:
-        				;
-								; SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay,i = 250)
-        				SaveTool::SaveConfig_SetKeyValue("Folder",1)            				
-        			Case 1621:	SaveTool::SaveConfig_SetKeyValue("Folder",2)            				
-        			Case 1622:	SaveTool::SaveConfig_SetKeyValue("Folder",3)            				
-        			Case 1623:	SaveTool::SaveConfig_SetKeyValue("Folder",4)            				
-        			Case 1624:	SaveTool::SaveConfig_SetKeyValue("Folder",5)            				
-        			Case 1614:	SaveTool::SaveConfig_SetKeyValue("RestoreData",-1,#True,-1)            				
-        			Case 1613:	SaveTool::SaveConfig_SetKeyValue("Backup-Data",-1,#True, -1)            				
-        			Case 1617:	SaveTool::SaveConfig_SetKeyValue("BackupCompress",-1,#True,-1)            			            				
-        			Case 1615:	SaveTool::SaveConfig_SetKeyValue("RestoreDelay",-1,-1,250)             				
-        			Case 1616:	SaveTool::SaveConfig_SetKeyValue("Backup-Delay",-1,-1,250)            			          			            				
-        		EndSelect
+          	Get_MenuItems_SaveSupport(MenuID.i)  			            				
         		
         	Case 1700 To 1799
         		Select MenuID              	
@@ -181,6 +183,50 @@ Module INVMNU
     	Next    	
     EndMacro
     
+    Procedure Set_AppMenu_SaveSupport(MenuID.i)
+    	
+    	OpenSubMenu("vSystem: Save Support")
+    		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle())  
+    		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists())
+    		MenuBar() 
+    		MenuItem(1600, "Hilfe")
+	    	MenuBar() 
+	    	MenuItem(1615, "Info: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)))
+	    	MenuItem(1616, "Info: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)))
+	    	MenuItem(1614, "Info: Save Wiederherstellen")	
+	    	MenuItem(1613, "Info: Save Daten Sichern")	    	
+	    	MenuItem(1617, "Info: Save Daten Komprimieren")
+	    	MenuItem(1612, "Info: Konfigurierte Verzeichnisse")	    	
+    		MenuBar() 
+	    	MenuItem(1601, "Config: Erstellen")
+	    	MenuItem(1602, "Config: Spiel Hinzufügen")
+    		MenuBar() 
+	    	MenuItem(1603, "Config: Editieren")
+	    	MenuItem(1608, "Config: Editieren (Öffne Mit..)")
+	    	MenuItem(1620, "Config: Verzeichnis Nr.1 wählen")
+	    	MenuItem(1621, "Config: Verzeichnis Nr.2 wählen")	    	
+	    	MenuItem(1622, "Config: Verzeichnis Nr.3 wählen")
+	    	MenuItem(1623, "Config: Verzeichnis Nr.4 wählen")
+	    	MenuItem(1624, "Config: Verzeichnis Nr.5 wählen")    	
+	    	MenuBar() 	    	
+	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    	
+	    	MenuBar() 
+	    	MenuItem(1604, "Save Backup (Modus Kopieren)")
+	    	MenuItem(1609, "Save Backup (Modus Verschieben)")        		
+	    	MenuItem(1605, "Save Widerherstellen")
+	    	MenuItem(1610, "Save Backup Löschen")
+	    	MenuItem(1611, "Save Backup Komprimieren")	    	
+	    	If IsWindow( DC::#_Window_003 )
+    			MenuBar() 
+    			MenuItem(1606, "Commandline Hinzufügen")
+    		endif
+    	CloseSubMenu()     		   		      	
+    	
+    	SetMenuItemState(MenuID, 1613, SaveTool::GetSaveOption(1))
+	    SetMenuItemState(MenuID, 1614, SaveTool::GetSaveOption(0))
+	    SetMenuItemState(MenuID, 1617, SaveTool::GetSaveOption(4))	    	
+	    	
+	  EndProcedure  	
     Procedure Set_AppMenu(MenuID.i)    	
     	Protected MxItem
     	;
@@ -235,95 +281,56 @@ Module INVMNU
     	CloseSubMenu() 
     	MenuBar()  
 
- 				MenuItem(1725, "vSystem Schnell Kommando") 
-	    	MenuItem(1701, "Programm: Starte Asyncron")
-	    	MenuItem(1702, "Programm: Starte Api-Nativ")
-	    	OpenSubMenu("Programm: Borderless Modes")
-	    		MenuItem(1724, "Borderless Hilfe")
-	    	  MenuBar()
-	    		MenuItem(1703, "Patch: Standard")
-	    		MenuItem(1705, "Patch: Overlapped-Window")
-	    		MenuItem(1704, "Patch: Zentrieren")	    		
-	    		MenuItem(1706, "Patch: Voll")
-	    		MenuItem(1707, "Patch: System-Metrics")
-	    		MenuItem(1710, "Lock Mouse (NoGo Outside)")   		
-	    	CloseSubMenu()     	
-	    	MenuItem(1711, "Programm: Speicher")
-				OpenSubMenu("Programm: CPU Zugehörgkeit")	 	    	
-	    	MenuItem(1715, "Benutze: 1 Kern")
-	    	MenuItem(1716, "Benutze: 2 Kern")
-	    	MenuItem(1717, "Benutze: 3 Kern")
-	    	MenuItem(1718, "Benutze: 4 Kern")     	
-	    	MenuItem(1719, "Benutze: Alle")
-				CloseSubMenu() 	    	
-	    	MenuItem(1721, "Programm: Firewall Blockieren")
-	    	MenuItem(1729, "Programm: Disable End-Hotkey")	    	 	
-	    	MenuBar()	    	
-	    	MenuItem(1712, "Windows: Disable Taskbar"        ,ImageID( DI::#_MNU_TBD ))
-	    	MenuItem(1713, "Windows: Disable Explorer"       ,ImageID( DI::#_MNU_EXD ))
-	    	MenuItem(1714, "Windows: Disable Aero/Uxsms"     ,ImageID( DI::#_MNU_AED ))	    	   		    		
-    		MenuBar()	 	    	
-	    	MenuItem(1722, "vSystems: Media Kommando")
-	    	MenuItem(1726, "vSystems: Media Kommando ++")
-	    	MenuBar()	 	    	
-	    	OpenSubMenu("vSystem: Screenshot Aufnahme")
-	    	MenuItem(1708, "Taste Shift & Rollen")     	
-	    	MenuItem(1709, "Hotkey Ausschalten")
-	    	CloseSubMenu()
-	    	MenuBar()	 	    	
-	    	MenuItem(1720, "vSystems: Aktivere Monitoring"	,ImageID( DI::#_MNU_MON ))	    	
-	    	MenuItem(1727, "vSystems: Log Erlauben")
-	    	MenuItem(1728, "vSystems: Log in Datei Schreiben")
-	    	MenuItem(1700, "vSystems: Minimiere vSystems")		    	
-	    	MenuItem(1730, "vSystems: Keine Anführungs Zeichen")
-	    	MenuItem(1731, "vSystems: MAME Hilfe (Off)")
-	    	MenuItem(1732, "vSystems: Archiv Unterstützung")
-    		MenuBar()		    	
-   	
-	    	
+    	MenuItem(1725, "vSystem Schnell Kommando") 
+    	MenuItem(1701, "Programm: Starte Asyncron")
+    	MenuItem(1702, "Programm: Starte Api-Nativ")
+    	OpenSubMenu("Programm: Borderless Modes")
+    	MenuItem(1724, "Borderless Hilfe")
+    	MenuBar()
+    	MenuItem(1703, "Patch: Standard")
+    	MenuItem(1705, "Patch: Overlapped-Window")
+    	MenuItem(1704, "Patch: Zentrieren")	    		
+    	MenuItem(1706, "Patch: Voll")
+    	MenuItem(1707, "Patch: System-Metrics")
+    	MenuItem(1710, "Lock Mouse (NoGo Outside)")   		
+    	CloseSubMenu()     	
+    	MenuItem(1711, "Programm: Speicher")
+    	OpenSubMenu("Programm: CPU Zugehörgkeit")	 	    	
+    	MenuItem(1715, "Benutze: 1 Kern")
+    	MenuItem(1716, "Benutze: 2 Kern")
+    	MenuItem(1717, "Benutze: 3 Kern")
+    	MenuItem(1718, "Benutze: 4 Kern")     	
+    	MenuItem(1719, "Benutze: Alle")
+    	CloseSubMenu() 	    	
+    	MenuItem(1721, "Programm: Firewall Blockieren")
+    	MenuItem(1729, "Programm: Disable End-Hotkey")	    	 	
+    	MenuBar()	    	
+    	MenuItem(1712, "Windows: Disable Taskbar"        ,ImageID( DI::#_MNU_TBD ))
+    	MenuItem(1713, "Windows: Disable Explorer"       ,ImageID( DI::#_MNU_EXD ))
+    	MenuItem(1714, "Windows: Disable Aero/Uxsms"     ,ImageID( DI::#_MNU_AED ))	    	   		    		
+    	MenuBar()	 	    	
+    	MenuItem(1722, "vSystems: Media Kommando")
+    	MenuItem(1726, "vSystems: Media Kommando ++")
+    	MenuBar()	 	    	
+    	OpenSubMenu("vSystem: Screenshot Aufnahme")
+    	MenuItem(1708, "Taste Shift & Rollen")     	
+    	MenuItem(1709, "Hotkey Ausschalten")
+    	CloseSubMenu()
+    	MenuBar()	 	    	
+    	MenuItem(1720, "vSystems: Aktivere Monitoring"	,ImageID( DI::#_MNU_MON ))	    	
+    	MenuItem(1727, "vSystems: Log Erlauben")
+    	MenuItem(1728, "vSystems: Log in Datei Schreiben")
+    	MenuItem(1700, "vSystems: Minimiere vSystems")		    	
+    	MenuItem(1730, "vSystems: Keine Anführungs Zeichen")
+    	MenuItem(1731, "vSystems: MAME Hilfe (Off)")
+    	MenuItem(1732, "vSystems: Archiv Unterstützung")
+    	MenuBar()		    	
     	;
-			; ============================================================= vSystem Save Support    	   	    	
-    		OpenSubMenu("vSystem: Save Support")
-    		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle())  
-    		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists())
-    		MenuBar() 
-    		MenuItem(1600, "Hilfe")
-	    	MenuBar() 
-	    	MenuItem(1615, "Info: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)))
-	    	MenuItem(1616, "Info: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)))
-	    	MenuItem(1614, "Info: Save Wiederherstellen")	
-	    	MenuItem(1613, "Info: Save Daten Sichern")	    	
-	    	MenuItem(1617, "Info: Save Daten Komprimieren")
-	    	MenuItem(1612, "Info: Konfigurierte Verzeichnisse")	    	
-    		MenuBar() 
-	    	MenuItem(1601, "Config: Erstellen")
-	    	MenuItem(1602, "Config: Spiel Hinzufügen")
-    		MenuBar() 
-	    	MenuItem(1603, "Config: Editieren")
-	    	MenuItem(1608, "Config: Editieren (Öffne Mit..)")
-	    	MenuItem(1620, "Config: Verzeichnis Nr.1 wählen")
-	    	MenuItem(1621, "Config: Verzeichnis Nr.2 wählen")	    	
-	    	MenuItem(1622, "Config: Verzeichnis Nr.3 wählen")
-	    	MenuItem(1623, "Config: Verzeichnis Nr.4 wählen")
-	    	MenuItem(1624, "Config: Verzeichnis Nr.5 wählen")    	
-	    	MenuBar() 	    	
-	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    	
-	    	MenuBar() 
-	    	MenuItem(1604, "Save Backup (Modus Kopieren)")
-	    	MenuItem(1609, "Save Backup (Modus Verschieben)")        		
-	    	MenuItem(1605, "Save Widerherstellen")
-	    	MenuItem(1610, "Save Backup Löschen")
-	    	MenuItem(1611, "Save Backup Komprimieren")	    	
-    		MenuBar() 
-    		MenuItem(1606, "Commandline Hinzufügen")
-    		CloseSubMenu()     		
-    		MenuBar()  
-    		MenuItem(1723, "vSystem: Argument Hilfe")	    	
-	    CloseSubMenu()  	    	
-	    	SetMenuItemState(MenuID, 1613, SaveTool::GetSaveOption(1))
-	    	SetMenuItemState(MenuID, 1614, SaveTool::GetSaveOption(0))
-	    	SetMenuItemState(MenuID, 1617, SaveTool::GetSaveOption(4))	    	
-    		CloseSubMenu() 
+			; vSystem Save Support    	   	    	
+    	Set_AppMenu_SaveSupport(MenuID)
+    	;
+    	MenuBar() 
+    	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
     EndProcedure    
     
     
@@ -879,6 +886,9 @@ Module INVMNU
     			
     		Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
     			
+        Case 1600 To 1699
+					Get_MenuItems_SaveSupport(MenuID.i) 
+        		
     	EndSelect       
     EndProcedure
     ;*******************************************************************************************************************************************************************    
@@ -976,10 +986,14 @@ Module INVMNU
     		MenuItem(46, "Anzeigen : Release"						       			,ImageID( DI::#_MNU_VSY ))
 				CloseSubMenu()
 			EndProcedure 
-			;*******************************************************************************************************************************************************************    
-   	 Procedure Set_TrayMenu_SaveSupport()   
-     		OpenSubMenu( "Game Save Support .."                     ,0)   
-				CloseSubMenu()
+		;*******************************************************************************************************************************************************************			        		
+			Procedure Set_TrayMenu_SaveSupport() 
+				
+			; CLSMNU::*MNU\HandleID[0]	MenuHandle
+			;
+			; ============================================================= vSystem Save Support    	   	    	
+				Set_AppMenu_SaveSupport(CLSMNU::*MNU\HandleID[0])
+	    	
 			EndProcedure 			
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
@@ -1041,16 +1055,13 @@ Module INVMNU
     	MenuItem(99, "vSystems Beenden"														,ImageID( DI::#_MNU_VSY ))
     	
     	
-    	
-    	
-    	
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 276
-; FirstLine = 205
-; Folding = 8B55
+; CursorPosition = 221
+; FirstLine = 167
+; Folding = 8HQw-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

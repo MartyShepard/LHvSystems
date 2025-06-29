@@ -360,19 +360,24 @@ Module vThumbSys
     Procedure.l  Calc_Thumbnail1(Thumbnail = 1)
     	Protected RowID.i = Startup::*LHGameDB\GameID, Result.i
     	
+    	; Geändert  Slotcontent.l to *SlotContent
+    	Protected *SlotContent
+    	*SlotContent = AllocateMemory(500000)
     	
-    	
-    	SlotContent.l = Startup::SlotShots(Thumbnail)\thumb[RowID]
-    	If Not ( SlotContent = 0 )    		    		    		
-    		Result = CatchImage( Startup::*LHImages\OrScreenPB[Thumbnail], SlotContent, MemorySize( SlotContent ))          	
+    	*SlotContent = Startup::SlotShots(Thumbnail)\thumb[RowID]
+    	If Not ( *SlotContent = 0 )    		    		    		
+    		Result = CatchImage( Startup::*LHImages\OrScreenPB[Thumbnail], *SlotContent, MemorySize( *SlotContent ))
+    		
     	EndIf
     	    		
-    	If ( Result = 0 ) And ( SlotContent = 0 )
+    	If ( Result = 0 ) And ( *SlotContent = 0 )
     		CopyImage(  Startup::*LHImages\NoScreenPB[Thumbnail],  Startup::*LHImages\OrScreenPB[Thumbnail])              
     	EndIf 	
     		
     	Resize_Gadget(Thumbnail, Startup::*LHImages\OrScreenPB[Thumbnail], Startup::*LHImages\ScreenGDID[Thumbnail], #True) 
-    	    	
+    	If Not ( *SlotContent = 0 )
+    		FreeMemory( *SlotContent )
+    	EndIf	
     	Thumbnail_SetGadgetState(Thumbnail)   
     EndProcedure
     ;
@@ -530,13 +535,13 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 252
-; FirstLine = 179
+; CursorPosition = 368
+; FirstLine = 286
 ; Folding = zPA5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\release\
+; CurrentDirectory = D:\NewGame\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

@@ -106,6 +106,8 @@ Module GuruCallBack
         Define rcWind.RECT
         Define ptDiff.POINT
         
+        Debug "Window_Get_ClientSize : "+ Str(hWnd)+" "+Str(nWidth)+" "+ Str(Height)
+        
         GetClientRect_( hwnd , @rcClient)
         GetWindowRect_( hwnd , @rcWind)       
         
@@ -1565,8 +1567,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 934
-; FirstLine = 758
+; CursorPosition = 108
+; FirstLine = 81
 ; Folding = fPvjv-
 ; EnableAsm
 ; EnableXP

@@ -433,7 +433,8 @@ Module vSystem
     ;
     ;
     ; Patch to Remove Border from Window
-    ;
+		;
+    Global _nbMoveWindow = #False
     Procedure   _NoBorder_(hwnd)
         
         Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT , Desktop.RECT
@@ -460,36 +461,38 @@ Module vSystem
             
             W = Window\right - Window\left
             H = Window\bottom - Window\top            
+            	Debug "Spiel Breite : Weite: " +Str( W )            	
+            	Debug "Spiel Höhe   : Höhe : " +Str( H )            
             
             If ( Startup::*LHGameDB\Settings_GetSmtrc = #True )
                 CY_C = GetSystemMetrics_(#SM_CYCAPTION)
-                CX_B = GetSystemMetrics_(#SM_CXBORDER) *2  ;(2)
-                Cx_E = GetSystemMetrics_(#SM_CXEDGE)   *2  ;(4)
+                CX_B = GetSystemMetrics_(#SM_CXBORDER); *2  ;(2)
+                Cx_E = GetSystemMetrics_(#SM_CXEDGE)  ; *2  ;(4)
             EndIf
             If ( ShowDebugNB = #True)
-                Debug "-- Client \Links  :" + Str(Client\left )
-                Debug "-- Client \Rechts :" + Str(Client\right )
-                Debug "-- Client \Oben   :" + Str(Client\Top )           
-                Debug "-- Client \Unten  :" + Str(Client\bottom )
-                
-                Debug "-- Window \Links  :" + Str(Window\left )
-                Debug "-- Window \Rechts :" + Str(Window\right )
-                Debug "-- Window \Oben   :" + Str(Window\Top )           
-                Debug "-- Window \Unten  :" + Str(Window\bottom )
-                
-                Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
-                Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
-                Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
-                
-                Debug "-- Window\left - Client\left     : " + Str(Window\left - Client\left)
-                Debug "-- Window\bottom - Client\bottom : " + Str(Window\bottom - Client\bottom)
+;                 Debug "-- Client \Links  :" + Str(Client\left )
+;                 Debug "-- Client \Rechts :" + Str(Client\right )
+;                 Debug "-- Client \Oben   :" + Str(Client\Top )           
+;                 Debug "-- Client \Unten  :" + Str(Client\bottom )
+;                 
+;                 Debug "-- Window \Links  :" + Str(Window\left )
+;                 Debug "-- Window \Rechts :" + Str(Window\right )
+;                 Debug "-- Window \Oben   :" + Str(Window\Top )           
+;                 Debug "-- Window \Unten  :" + Str(Window\bottom )
+;                 
+;                 Debug "-- System Metrics #SM_C Y CAPTION: "+ Str( CY_C )
+;                 Debug "-- System Metrics #SM_C X BORDER : "+ Str( CX_B )
+;                 Debug "-- System Metrics #SM_C X EDGE   : "+ Str( Cx_E )
+;                 
+;                 Debug "-- Window\left - Client\left     : " + Str(Window\left - Client\left)
+;                 Debug "-- Window\bottom - Client\bottom : " + Str(Window\bottom - Client\bottom)
             EndIf
             
             If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
                 EndIf             	
-                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
                 
                 If ( ShowDebugNB = #True)
                 	If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
@@ -502,7 +505,7 @@ Module vSystem
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
                 EndIf            	
-                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
                 
                 If ( ShowDebugNB = #True)
                 		If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
@@ -516,7 +519,7 @@ Module vSystem
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
                 EndIf            	
-                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
+                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
                 
                 If ( ShowDebugNB = #True)
                 		If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
@@ -543,7 +546,59 @@ Module vSystem
                 
             EndIf                                    
             If ( Startup::*LHGameDB\Settings_GetSmtrc = #True)
-                MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
+            	
+            	Debug "Spiel Breite        : W: " +Str( W )            	
+            	Debug "Spiel Höhe          : H: " +Str( H )
+
+            	Debug "Spiel X-Position       : " +Str( Window\left )
+            	Debug "Spiel Y-Position       : " +Str( Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E) )
+            	
+            	Debug "Spiel Breite: Verändert " +Str( W - ( Cx_E + CX_B) )
+            	Debug "Spiel Höhe  : Verändert " +Str( H - ( CY_C + CX_B + Cx_E)  )
+            	
+            	;If _nbMoveWindow = #False
+            	WindowLessX.i = Window\left
+            	WindowLessY.i = Window\top
+            	
+            	WindowLessY.i = WindowLessY - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E)
+            	
+            	
+            	nWidth.i  = W - ( Cx_E + CX_B)
+            	If GetSystemMetrics_(#SM_CXSCREEN) > nWidth
+            		Debug "Cx_E " + Str(Cx_E)
+            		Debug "CX_B " + Str(CX_B)
+            		nWidth.i  = W - (( Cx_E + CX_B)*2)
+            		;nWidth.i  - 3
+            		Debug "Neue Spiel Breite: Verändert " +Str( nWidth )
+            	Else
+            		nWidth.i = GetSystemMetrics_(#SM_CXSCREEN)
+            	EndIf
+            	
+            	nHeight.i = H - ( CY_C + CX_B + Cx_E)
+            	If GetSystemMetrics_(#SM_CYSCREEN) > nHeight
+            		nHeight.i = H - ( CY_C + ( CX_B + Cx_E) *2)
+            		Debug "Neue Spiel Höhe: Verändert " +Str( nHeight )
+            	Else
+            		nHeight.i = GetSystemMetrics_(#SM_CYSCREEN) 
+            	EndIf
+            	
+            	If WindowLessY >= -1
+            		WindowLessY = 0
+            	EndIf
+            	
+            	If WindowLessX >= -1
+            		WindowLessX = 0
+            	EndIf            	
+            	
+            	MoveWindow_(hwnd, WindowLessX, WindowLessY, nWidth, nHeight , 1)
+            	;SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
+            	Debug CY_C
+            	Debug CX_B
+            	Debug Cx_E
+            	
+            	;	MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
+            		_nbMoveWindow = #True
+            	;EndIf
             EndIf
             
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
@@ -551,7 +606,7 @@ Module vSystem
                
                 ;AdjustWindowRectEx_(0,0,0,0)
                 
-               	  WinGuru::Center(hwnd,Client\right,client\bottom)
+               	 WinGuru::Center(hwnd,Client\right,client\bottom)
                 	;Debug "-- Client\right  :" + Str(Client\right)
                 	;Debug "-- client\bottom:" + Str(client\bottom)
                 	;Debug "Bildschirmauflösung: " +Str (GetSystemMetrics_(#SM_CXSCREEN) )+ "x" +Str(GetSystemMetrics_(#SM_CYSCREEN))
@@ -1598,10 +1653,10 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 372
-; FirstLine = 392
+; CursorPosition = 608
+; FirstLine = 454
 ; Folding = zxz-Ps5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\The Chaos Engine\
+; CurrentDirectory = D:\NewGame\
