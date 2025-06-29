@@ -3,13 +3,13 @@
 ;
 Title       = "vSystems"
 ; Neu Version
-Version     = "0.59.9b"
+Version     = "0.60.0b"
 ; Alte Version
-OldVersion.s= "0.59.8b"
+OldVersion.s= "0.59.9b"
 dbSVN       = "db004"                                             ; Diese muss seperat beim ersten erstellen der Datenbank auch stehen
 Build32Bit.i= #False
 Builddate   = FormatDate( "%dd-%mm-%yyyy", #PB_Compiler_Date )
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 5
 ; EnableAsm
 ; EnableXP

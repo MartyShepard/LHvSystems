@@ -32,7 +32,7 @@ EndDeclareModule
 
 Module vSystem
     
-    Global ShowDebugNB.i = #False       ; Debug Output for NoBorder
+    Global ShowDebugNB.i = #True       ; Debug Output for NoBorder
     ;
     ; Setz und Holt sich die PriorityClass vom Fremden programm
     Global NewList NoBorderList.PROCESSENTRY32() 
@@ -420,14 +420,14 @@ Module vSystem
     ;
 
     Procedure   _NoBorder_Debug( List P32.PROCESSENTRY32(), szTaskname.s, PHandle.l)
-            Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
-                  " | Handle  : " + Str( PHandle)              + #TAB$ +           
-                  " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
-                  " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
-                  " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
-                  " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
-                  " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
-                  " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
+;             Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
+;                   " | Handle  : " + Str( PHandle)              + #TAB$ +           
+;                   " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
+;                   " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
+;                   " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
+;                   " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
+;                   " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
+;                   " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
     
     EndProcedure    
     ;
@@ -486,23 +486,42 @@ Module vSystem
             EndIf
             
             If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER"
-                EndIf  
+                EndIf             	
+                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_BORDER)
+                
+                If ( ShowDebugNB = #True)
+                	If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_BORDER )
+                    Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_BORDER < Entfernt"
+                  EndIf  
+                 EndIf 
             EndIf    
             
             If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME"
-                EndIf
+                EndIf            	
+                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_DLGFRAME)
+                
+                If ( ShowDebugNB = #True)
+                		If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_DLGFRAME )
+                        Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_DLGFRAME < Entfernt"
+                    EndIf                	
+                EndIf	
+                	
             EndIf    
             
             If ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
-                SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
                 If ( ShowDebugNB = #True)
                     Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED"
+                EndIf            	
+                ;SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPED)                
+                
+                If ( ShowDebugNB = #True)
+                		If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPED)
+                			Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPED < Entfernt"
+                		EndIf
                 EndIf
             EndIf  
             
@@ -513,29 +532,34 @@ Module vSystem
                 EndIf
                 
                 If ( Startup::*LHGameDB\Settings_OvLapped = #True )                   
-                    SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPEDWINDOW)   
-                    If ( ShowDebugNB = #True)
-                        Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
-                    EndIf
+                	SetWindowLongPtr_(hwnd, #GWL_STYLE, GetWindowLongPtr_(hwnd , #GWL_STYLE )&~#WS_OVERLAPPEDWINDOW)   
+                	
+                	If ( ShowDebugNB = #True)
+												If Not ( GetWindowLongPtr_(hwnd,#GWL_STYLE)&#WS_OVERLAPPEDWINDOW)                 		
+                        	Debug "- Handle " + Str(hwnd) + " Besitzt: #WS_OVERLAPPEDWINDOW < Entfernt"
+                      EndIf
+                   EndIf   
                 EndIf 
                 
-            EndIf
-            
-            
-            
+            EndIf                                    
             If ( Startup::*LHGameDB\Settings_GetSmtrc = #True)
                 MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
             EndIf
             
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
                 SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
+               
+                ;AdjustWindowRectEx_(0,0,0,0)
                 
-                WinGuru::Center(hwnd,Client\right,client\bottom)
+               	  WinGuru::Center(hwnd,Client\right,client\bottom)
+                	;Debug "-- Client\right  :" + Str(Client\right)
+                	;Debug "-- client\bottom:" + Str(client\bottom)
+                	;Debug "Bildschirmauflösung: " +Str (GetSystemMetrics_(#SM_CXSCREEN) )+ "x" +Str(GetSystemMetrics_(#SM_CYSCREEN))
                 ShowWindow_(hwnd, 5)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
                 
-            Else    
+              Else   
                 SetWindowPos_(hwnd, #HWND_TOPMOST, 0,0,0,0, #SWP_NOMOVE | #SWP_NOSIZE)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
@@ -577,7 +601,7 @@ Module vSystem
         EndIf                  
         
         If ( ShowDebugNB = #True)
-            Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
+           ; Debug "- Handle " + Str(hwnd) + " Besitzt: Keine Merkmale zum Patchen"  
         EndIf                                
     EndProcedure  
     ;
@@ -610,29 +634,29 @@ Module vSystem
                         fHandle = FindWindow_(@sWindowTitle,#Null)
                         
                         GetWindowThreadProcessId_(hwnd, @ExtProcessID)                                                                       
-                        If ( ShowDebugNB = #True)
-                                    DbgLog = ""
-                                    DbgLog + "(SEARCH )" + #TAB$ +                                   
-                                     DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
-                                     DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
-                                     DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
-                                     DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
-                                     DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
-                        EndIf
+;                         If ( ShowDebugNB = #True)
+;                                     DbgLog = ""
+;                                     DbgLog + "(SEARCH )" + #TAB$ +                                   
+;                                      DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
+;                                      DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
+;                                      DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
+;                                      DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
+;                                      DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
+;                         EndIf
                         
                         If ( ExtProcessID = ProcessID )
                             
-                            If ( ShowDebugNB = #True)
-                                        DbgLog = ""  + #CR$       
-                                        DbgLog + "(FOUNDED)" + #TAB$ +   
-                                         DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
-                                         DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
-                                         DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
-                                         DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
-                                         DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
-                                         DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
-                                Debug DbgLog + #CR$
-                            EndIf                                    
+;                             If ( ShowDebugNB = #True)
+;                                         DbgLog = ""  + #CR$       
+;                                         DbgLog + "(FOUNDED)" + #TAB$ +   
+;                                          DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
+;                                          DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
+;                                          DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
+;                                          DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
+;                                          DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
+;                                          DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
+;                                 Debug DbgLog + #CR$
+;                             EndIf                                    
                             _NoBorder_(hwnd)                              
                             Startup::*LHGameDB\Thread_ProcessId = ExtProcessID
                             ProcedureReturn #False 
@@ -1574,10 +1598,10 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1463
-; FirstLine = 1153
-; Folding = zxz8Ps5-
+; CursorPosition = 372
+; FirstLine = 392
+; Folding = zxz-Ps5-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\Test\
+; CurrentDirectory = B:\The Chaos Engine\

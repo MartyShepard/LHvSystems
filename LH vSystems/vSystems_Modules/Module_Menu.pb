@@ -272,10 +272,9 @@ Module INVMNU
 	    	CloseSubMenu()
 	    	MenuBar()	 	    	
 	    	MenuItem(1720, "vSystems: Aktivere Monitoring"	,ImageID( DI::#_MNU_MON ))	    	
-	    	MenuItem(1727, "vSystems: Log Output Ausschalten")
-	    	MenuItem(1728, "vSystems: Log Weiterleiten in Datei")
+	    	MenuItem(1727, "vSystems: Log Erlauben")
+	    	MenuItem(1728, "vSystems: Log in Datei Schreiben")
 	    	MenuItem(1700, "vSystems: Minimiere vSystems")		    	
-
 	    	MenuItem(1730, "vSystems: Keine Anführungs Zeichen")
 	    	MenuItem(1731, "vSystems: MAME Hilfe (Off)")
 	    	MenuItem(1732, "vSystems: Archiv Unterstützung")
@@ -1049,8 +1048,8 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 260
-; FirstLine = 214
+; CursorPosition = 276
+; FirstLine = 205
 ; Folding = 8B55
 ; EnableAsm
 ; EnableXP

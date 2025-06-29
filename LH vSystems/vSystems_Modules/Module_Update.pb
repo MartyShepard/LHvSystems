@@ -143,7 +143,7 @@ Module vUpdate
                 If ( lsPos >= 1 )
                     lData = ReplaceString( lData, "Version     =", "")
                     lData = Trim(lData)
-                    lData = Mid( lData, 2, Len(lData) - lsPos)
+                    lData = Mid( lData, 2, ( Len(lData) -1 ) - lsPos)
                     bResult = #True
                     Break
                 EndIf                        
@@ -276,9 +276,9 @@ Module vUpdate
         
     EndProcedure    
 EndModule
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 142
-; FirstLine = 112
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 145
+; FirstLine = 117
 ; Folding = --
 ; EnableAsm
 ; EnableXP

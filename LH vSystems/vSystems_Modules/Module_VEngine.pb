@@ -4268,24 +4268,24 @@ Module VEngine
             Protected  SvLogMessage$ = "", SvLogErrorMs$ = "error" , SvLogStdout$  = "stdout", SvFileSaved$  = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
             Protected  SvLogginFile$ = "", SvLogResult   = 0       , SvLogErrorSz.q= 0       , SvLogStdOutSz.q= 0 
                                     
-            SvLogErrorSz = FileSize( SvFileSaved$ + SvLogErrorMs$ )
+            SvLogErrorSz = FileSize( SvFileSaved$ + SvLogErrorMs$ + ".txt" )
             Select SvLogErrorSz
                 Case 0 To 60
-                    DeleteFile(SvFileSaved$ + SvLogErrorMs$ )
+                    DeleteFile(SvFileSaved$ + SvLogErrorMs$ + ".txt")
                   Default
-                  	CloseFile( SvLogErrorSz)
                     SvLogResult   + 1
                     SvLogMessage$ = SvLogErrorMs$ + " Datei vorhanden"
+                    SvLogginFile$ = SvFileSaved$ + SvLogErrorMs$ + ".txt"
             EndSelect       
                                     
-            SvLogStdOutSz= FileSize( SvFileSaved$ + SvLogStdout$ )
+            SvLogStdOutSz= FileSize( SvFileSaved$ + SvLogStdout$ + ".txt" )
             Select SvLogErrorSz
                 Case 0 To 60
-                    DeleteFile(SvFileSaved$ + SvLogStdout$ )
+                    DeleteFile(SvFileSaved$ + SvLogStdout$ + ".txt")
                   Default
-                  	CloseFile( SvLogStdOutSz)
                     SvLogResult   + 2
                     SvLogMessage$ = SvLogStdout$ + " Datei vorhanden"
+                    SvLogginFile$ = SvFileSaved$ + SvLogStdout$ + ".txt"
             EndSelect             
                        
             If ( SvLogResult = 3 )
@@ -8022,8 +8022,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4399
-; FirstLine = 4356
+; CursorPosition = 4287
+; FirstLine = 4227
 ; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP

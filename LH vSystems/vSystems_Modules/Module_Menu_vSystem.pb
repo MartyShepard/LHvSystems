@@ -516,10 +516,11 @@ Module vSystemHelp
 		                           "Aktivere Monitoring"																																+ #CR$ +		                           
 		                           "Zeichnet in einer Logdatei (.\LOGS\) änderungen auf welche sich auf C:\ während des"+ #CR$ +
 		                           "Programms abspielen. Damit wird auch erkenntlich wo die Spielstände abgelegt werden"+ #CR$ + #CR$ +
-		                           "Log Output Ausschalten"																															+ #CR$ +
-		                           "Damit wird die Ausgabe unterdrückt welche das Prgramm zur Laufzeit entwickelt"			+ #CR$ + #CR$ +
-		                           "Log Weiterleiten in Datei"																													+ #CR$ +
-		                           "Leitet die Ausgabe in eine Datei weiter (Siehe .\LOGS\ Verzeichnis)"								+ #CR$ + #CR$ +
+		                           "Log Erlauben"																																				+ #CR$ +
+		                           "Damit wird die Ausgabe welche das Prgramm zur Laufzeit entwickelt am Ende wenn das" + #CR$ +
+		                           "Programm beendet wird in einem Requester angezeigt"																	+ #CR$ + #CR$ +
+		                           "Log in Datei Schreiben"   																													+ #CR$ +
+		                           "Leitet die Ausgabe in eine Datei ansatt in einem Requester (Siehe .\LOGS\)"					+ #CR$ + #CR$ +
 		                           "Keine Anführungs Zeichen"																														+ #CR$ +
 		                           "Verändert die Argument übergabe das Interne Anführungszeichen übrgeben werden."     + #CR$ +
 		                           "Standardmäßig übergibt vSystems den Medien in den Slots intern Anführungszeichen."  + #CR$ +
@@ -596,7 +597,7 @@ Module vSystemHelp
 		                    "%blockfw= Block Program Executable through the Firewall"            + #CR$ + #CR$ +                                
 		                    "%s[c]   = Placeholder For Media Device File(s) Slots"               + #CR$ + 
 		                    "          c: use as unviersal commandline in the Slots"             + #CR$ +  
-		                    "%shout  = Disable and don't show output Program loggin'"            + #CR$ + 
+		                    "%shout  = Enable and show output Program loggin'"                   + #CR$ + 
 		                    "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
 		                    "%nhkeyt = Disable Taskill Program Hotkey [Alt+Scroll]"              + #CR$ + #CR$ +                                
 		                    "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
@@ -606,9 +607,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 602
-; FirstLine = 183
-; Folding = vTBxfEM-
+; CursorPosition = 524
+; FirstLine = 236
+; Folding = vTBxfEc-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

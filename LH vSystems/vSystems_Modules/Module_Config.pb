@@ -426,13 +426,20 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.0
+				;
+				; Versionscheck fixed
+        
+        ;
 				; Version 0.59.9
 				;	Temporär CursorPos abgeschaltet
 				; CTRL+S im Editor (Speichern des Texts) und dann dem anwählen eines anderen Eintrags das "Fenster zum Speichern" gefixed
 				; Unity Commanlined hinzugefügt
 				; Output std und Error wurde nicht freigeben und routine überarbeitet
 				; Menu im Programm Editor überarbeitet        
-        ; Mehr Hilfe und wie was funktioniert hinzugefügt
+				; Mehr Hilfe und wie was funktioniert hinzugefügt
+				; Savegame System Hinzugefügt
+
         
         ;
 				; Version 0.52b
@@ -1062,7 +1069,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 434
+; CursorPosition = 428
 ; FirstLine = 401
 ; Folding = +D+
 ; EnableAsm
