@@ -158,17 +158,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 77
 ; FirstLine = 27
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems32Bit.exe
+; Executable = Release\vSystems64Bit.exe
 ; CPU = 5
 ; CurrentDirectory = D:\Painkiller-Serie\
-; Compiler = PureBasic 5.73 LTS (Windows - x86)
+; Compiler = PureBasic 5.73 LTS (Windows - x64)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
