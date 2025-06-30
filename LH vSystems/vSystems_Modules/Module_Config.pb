@@ -424,9 +424,14 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+				; Version 0.60.2
+				; Variable Geändert für das ablegen der Thumbnnails in die Datenbank
+				; Hinzufügen einer Info Textdatei beim erstellen einer Geapckten Spielstand Sicherung
+        ; Routinen ausgekklammert.
         
         ;
-				; Version 0.61.0
+				; Version 0.60.1
 				;
 				; Borderless Code changed (%nb). Calculation Routine sollte nun funktionieren ohne das das Fenster sich verkleiner *doohh
 				; SaveGame Menü ins Tray zeitgleich verankert
@@ -1077,8 +1082,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 433
-; FirstLine = 390
+; CursorPosition = 430
+; FirstLine = 380
 ; Folding = +D+
 ; EnableAsm
 ; EnableXP

@@ -4755,6 +4755,16 @@ Module VEngine
             Debug "Splitter_SetHeight : *LHGameDB\WindowHeight " + Str(Startup::*LHGameDB\WindowHeight)
             Debug "Splitter_SetHeight : SetWindowHeight        " + Str(SetWindowHeight)
             
+						; Window Höhe bei 720 = SetWindowHeight +0
+						; Window Höhe bei 1080 = SetWindowHeight +360
+						; Window Höhe bei 1280 = SetWindowHeight +560
+						; Window Höhe bei 768 = SetWindowHeight +48  
+						; Window Höhe bei 2560 = SetWindowHeight +1840
+						; Window Höhe bei 3840 = SetWindowHeight +3120
+						; Window Höhe bei 960 = SetWindowHeight +240
+            ; Window Höhe bei 1600 = SetWindowHeight +880
+            
+            
             If (Startup::*LHGameDB\WindowHeight = SetWindowHeight)
                 ProcedureReturn 
                 
@@ -8022,8 +8032,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4256
-; FirstLine = 4172
+; CursorPosition = 4757
+; FirstLine = 4693
 ; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP

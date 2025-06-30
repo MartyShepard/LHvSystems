@@ -25,7 +25,7 @@
         
         XIncludeFile "..\INCLUDES\Class_Windows.pb"
         
-        XIncludeFile "..\INCLUDES\Class_FastFilePeInfo.pb"
+        ;XIncludeFile "..\INCLUDES\Class_FastFilePeInfo.pb"
         XIncludeFile "..\INCLUDES\Class_FastFileHandle.pb"       
         XIncludeFile "..\INCLUDES\CLASSES_FFS\FastFileSearch.pb"
         
@@ -159,8 +159,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 78
-; FirstLine = 36
+; CursorPosition = 99
+; FirstLine = 90
 ; EnableAsm
 ; EnableThread
 ; EnableXP

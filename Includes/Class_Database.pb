@@ -1040,7 +1040,7 @@ Module ExecSQL
     ;                                 der Celle
     ;   Return Code                 = Der Fehlermessage, sollte 0 sein
     ;
-    Procedure.s ImageSet(Database,Table$,Column$,ImageFile$,RowID=0,MemoryMode=0,MemoryFile=0,DefaultID$="id")
+    Procedure.s ImageSet(Database,Table$,Column$,ImageFile$,RowID=0,MemoryMode=0,*MemoryFile=0,DefaultID$="id")
         Protected ImageFileSize, *memory, CellIsBlob=0, SqlUpate$ = "", iResult$, *MemoryHandle
         
         Select MemoryMode
@@ -1048,7 +1048,7 @@ Module ExecSQL
                     ImageFileSize = FileSize(ImageFile$)
                      If ImageFileSize = -1 Or ImageFileSize = 0: ProcedureReturn "file found": EndIf
                  Case 1
-                     *MemoryHandle = MemoryFile
+                     *MemoryHandle = *MemoryFile
                      If *MemoryHandle = 0:  ProcedureReturn "Kein Bild im Speicher": EndIf
         EndSelect                     
                     
@@ -1761,9 +1761,9 @@ CompilerIf #PB_Compiler_IsMainFile
 ;  ExecSQL::CloseDB(#DATABASE,Datei$)  
 
 CompilerEndIf
-; IDE Options = PureBasic 5.62 (Windows - x64)
-; CursorPosition = 850
-; FirstLine = 534
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1050
+; FirstLine = 640
 ; Folding = +2Aivg-
 ; EnableAsm
 ; EnableThread

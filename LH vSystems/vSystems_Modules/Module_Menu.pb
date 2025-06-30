@@ -219,7 +219,7 @@ Module INVMNU
 	    	If IsWindow( DC::#_Window_003 )
     			MenuBar() 
     			MenuItem(1606, "Commandline Hinzufügen")
-    		endif
+    		EndIf
     	CloseSubMenu()     		   		      	
     	
     	SetMenuItemState(MenuID, 1613, SaveTool::GetSaveOption(1))
@@ -725,7 +725,7 @@ Module INVMNU
     			
     		Case 4  			    				    			
     			VEngine::Thread_LoadGameList_Sort()     				
-    					
+    			
     		Case 45
     			bReloadSort.i = #False
     			
@@ -754,46 +754,43 @@ Module INVMNU
     				VEngine::Thread_LoadGameList_Action() 			
     			EndIf	
     			
-    		Case 7                               
-    			r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
-    			If ( r = 1 )                   
-    				SetActiveGadget(DC::#ListIcon_001)                
-    				ProcedureReturn
-    			EndIf
+    		Case 7, 71 To 85     			    			    	    			
     			Startup::*LHGameDB\bvSystem_Restart = #True
     			
-    			vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
+    			Select MenuID
+    				Case 71: ;1280x720
+    					vEngine::Splitter_SetHeight(0, #False, #True, 0)			: Startup::*LHGameDB\WindowHeight = 0
+    				Case 72: ;1920x1080
+    					vEngine::Splitter_SetHeight(0, #False, #True, 360)    : Startup::*LHGameDB\WindowHeight = 360				
+    				Case 73: ;1024x1280
+    					vEngine::Splitter_SetHeight(0, #False, #True, 560)    : Startup::*LHGameDB\WindowHeight = 560
+    				Case 74: ;1024x768
+    					vEngine::Splitter_SetHeight(0, #False, #True, 48)			: Startup::*LHGameDB\WindowHeight = 48
+    				Case 75: ;1280x1024
+    					vEngine::Splitter_SetHeight(0, #False, #True, 304)		: Startup::*LHGameDB\WindowHeight = 304
+    				Case 76:	;1280x960
+    					vEngine::Splitter_SetHeight(0, #False, #True, 240)   	: Startup::*LHGameDB\WindowHeight = 240 				
+    				Case 77:	;3840x2160
+    					vEngine::Splitter_SetHeight(0, #False, #True, 1440)   : Startup::*LHGameDB\WindowHeight = 1440
+    				Case 78: ;1440x2560
+    					vEngine::Splitter_SetHeight(0, #False, #True, 1840)   : Startup::*LHGameDB\WindowHeight = 1840
+    				Case 79: ;1024x1600
+    					vEngine::Splitter_SetHeight(0, #False, #True, 880) 		: Startup::*LHGameDB\WindowHeight = 880
+    				Case 80: ;2160x3840
+    					vEngine::Splitter_SetHeight(0, #False, #True, 3120)		: Startup::*LHGameDB\WindowHeight = 3120
+    				Default
+    					
+    					r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
+    					If ( r = 1 )                   
+    						SetActiveGadget(DC::#ListIcon_001)                
+    						Startup::*LHGameDB\bvSystem_Restart = #False
+    						ProcedureReturn
+    					EndIf    				
+    					vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
+    					Startup::*LHGameDB\WindowHeight = Val(Request::*MsgEx\Return_String)
+    			EndSelect
     			VEngine::Splitter_SetAll()
-    			; vEngine::Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
-					; wHeight.i = Startup::*LHGameDB\WindowHeight     ; Fenster Höhe
-					; sHeight.i = GetGadgetState(DC::#Splitter1)      ; Splitter Höhe   
-    			
-    			; If ( nHeight = 0)                          
-					;     sHeight = 289
-					; ElseIf ( nHeight > WHeight)  
-					;     sHeight = Abs((wHeight+nHeight) +  sHeight)
-					; ElseIf  ( nHeight < WHeight)
-					;     sHeight = Abs((wHeight-nHeight) -  sHeight)
-					; EndIf   
-    			
-    			;Debug "Fenster Höhe ändern: "
-					;Debug "Manuelle Eingabe: " + Str(Val(Request::*MsgEx\Return_String) )
-					;Debug "Fensterhöhe     : " + Str(wHeight)
-					;Debug "Splitterhöhe    : " + Str(GetGadgetState(DC::#Splitter1) )
-					;Debug "................: "
-					;Debug "Neue Fensterhöhe: " + Str(wHeight)
-					;Debug "Neue Splitterhöhe: " + Str(sHeight)
-					;Debug "................: "               
-    			
-    			Startup::*LHGameDB\WindowHeight     = Val(Request::*MsgEx\Return_String)
-    			
-    			
-    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)
-    			; Splitter Höhe
-					;ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(sHeight),Startup::*LHGameDB\GameID)
-					;ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(sHeight),1)                                
-    			
-    			
+    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)	
     			
     			a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
     			Delay( 5 )
@@ -886,9 +883,9 @@ Module INVMNU
     			
     		Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
     			
-        Case 1600 To 1699
-					Get_MenuItems_SaveSupport(MenuID.i) 
-        		
+    		Case 1600 To 1699
+    			Get_MenuItems_SaveSupport(MenuID.i) 
+    			
     	EndSelect       
     EndProcedure
     ;*******************************************************************************************************************************************************************    
@@ -1012,8 +1009,6 @@ Module INVMNU
     		MenuItem(48, "Eintrag/ Alle Löschen"                    ,ImageID( DI::#_MNU_SPL ))     		
     		MenuItem(17, "Einträge Löschen bis auf 1"               ,ImageID( DI::#_MNU_SPL ))
     		MenuBar()  
-    		Set_TrayMenu_SaveSupport()     		
-    		MenuBar()  
     		Set_TrayMenu_LoggUtil()   
     		MenuBar()              
     		Set_TrayMenu_ShotUtil()
@@ -1038,14 +1033,26 @@ Module INVMNU
     		MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
     		MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
     		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))
-    		CloseSubMenu()  
+    		CloseSubMenu()      		
     		MenuBar()
+    		Set_TrayMenu_SaveSupport()     		
+    		MenuBar()      		
     		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
     		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
     		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
     		MenuBar()                   
     		MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
-    		MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))    			
+    		MenuItem(71, "Fenster Höhe (Desktop 1280x720)"          ,ImageID( DI::#_MNU_WMH )) 
+    		MenuItem(72, "Fenster Höhe (Desktop 1920x1080)"         ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(73, "Fenster Höhe (Desktop 1024x1280)"         ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(74, "Fenster Höhe (Desktop 1024x768)"          ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(75, "Fenster Höhe (Desktop 1280x1024)"         ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(76, "Fenster Höhe (Desktop 1280x960)"         ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(77, "Fenster Höhe (Desktop 3840x2160)"         ,ImageID( DI::#_MNU_WMH ))   
+    		MenuItem(78, "Fenster Höhe (Desktop 1440x2560)"         ,ImageID( DI::#_MNU_WMH ))    			
+    		MenuItem(79, "Fenster Höhe (Desktop 1024x1600)"         ,ImageID( DI::#_MNU_WMH ))  
+    		MenuItem(80, "Fenster Höhe (Desktop 2160x3840)"         ,ImageID( DI::#_MNU_WMH ))   
     		MenuBar()            
     		MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
     		CloseSubMenu()
@@ -1054,13 +1061,14 @@ Module INVMNU
     	MenuItem(98, "vSystems Update"														,ImageID( DI::#_MNU_VSU ))        
     	MenuItem(99, "vSystems Beenden"														,ImageID( DI::#_MNU_VSY ))
     	
+   	
     	
     EndProcedure
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 221
-; FirstLine = 167
+; CursorPosition = 1034
+; FirstLine = 602
 ; Folding = 8HQw-
 ; EnableAsm
 ; EnableXP

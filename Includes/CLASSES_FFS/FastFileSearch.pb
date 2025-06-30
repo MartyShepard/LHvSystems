@@ -1,17 +1,17 @@
 ﻿CompilerIf #PB_Compiler_IsMainFile
     
-    UsePNGImageDecoder()
-    
-    XIncludeFile "_TEMPLATE\Constants.pb" 
-    XIncludeFile "_TEMPLATE\ConstantsFonts.pb"     
-    XIncludeFile "Class_Process.pb"
-    XIncludeFile "Class_Win_Form.pb"
-    XIncludeFile "Class_Win_Style.pb"
-    XIncludeFile "Class_Win_Desk.pb"    
-    XIncludeFile "Class_Tooltip.pb"
-    XIncludeFile "ClassEX_Button.pb"    
-    XIncludeFile "ClassEX_Dialog.pb" 
-    XIncludeFile "Class_FastFileHandle.pb" 
+;     UsePNGImageDecoder()
+;     
+;     XIncludeFile "_TEMPLATE\Constants.pb" 
+;     XIncludeFile "_TEMPLATE\ConstantsFonts.pb"     
+;     XIncludeFile "Class_Process.pb"
+;     XIncludeFile "Class_Win_Form.pb"
+;     XIncludeFile "Class_Win_Style.pb"
+;     XIncludeFile "Class_Win_Desk.pb"    
+;     XIncludeFile "Class_Tooltip.pb"
+;     XIncludeFile "ClassEX_Button.pb"    
+;     XIncludeFile "ClassEX_Dialog.pb" 
+;     XIncludeFile "Class_FastFileHandle.pb" 
     
 CompilerEndIf    
 DeclareModule FFS
@@ -43,17 +43,17 @@ DeclareModule FFS
         DateModified.s
     EndStructure 
     
-    
-    Global NewList FullFileSource.FILE_NAME()                          ; Alle gefundenen Dateien mit kompletten Pfad
-    Global NewList FullDirectorySource.DIRECTORY_NAME()                ; und hier alle Ordner
-    Global FileCount.FILE_ITEM_COUNT
-    Global FFS_Thread.i = 0
-    Global FFS_ThreadOnPause.i = #False   
-    
-    Declare SortContent() 
-    Declare DelContent()
-    Declare GetContent(iDirectory$, IncludeDirectorys = #True, IncludeFiles = #True, IncludeSubDirectorys = #True,SetFormatDate$ = "", FilePattern$ = "*.*",DirectoryDepth.i = 0,DisplayGui.i = #False, DisplayTime.i = 100 ,iSearching$ = "", Hashstring$ = "")
-    Declare.i SizeContent(FileList=#True,FolderList=#False)
+;     
+     Global NewList FullFileSource.FILE_NAME()                          ; Alle gefundenen Dateien mit kompletten Pfad
+     Global NewList FullDirectorySource.DIRECTORY_NAME()                ; und hier alle Ordner
+;     Global FileCount.FILE_ITEM_COUNT
+     Global FFS_Thread.i = 0
+     Global FFS_ThreadOnPause.i = #False   
+;     
+     Declare SortContent() 
+     Declare DelContent()
+     Declare GetContent(iDirectory$, IncludeDirectorys = #True, IncludeFiles = #True, IncludeSubDirectorys = #True,SetFormatDate$ = "", FilePattern$ = "*.*",DirectoryDepth.i = 0,DisplayGui.i = #False, DisplayTime.i = 100 ,iSearching$ = "", Hashstring$ = "")
+;     Declare.i SizeContent(FileList=#True,FolderList=#False)
 EndDeclareModule
 
 Module FFS    
@@ -825,10 +825,10 @@ CompilerIf #PB_Compiler_IsMainFile
     
     
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 431
-; FirstLine = 315
-; Folding = -A+
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 53
+; FirstLine = 6
+; Folding = -C-
 ; EnableAsm
 ; EnableThread
 ; EnableXP

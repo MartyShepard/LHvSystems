@@ -119,22 +119,21 @@ Module SaveTool
   	Directory.s
   	Count.i
   	PackFile.s
-    	;Age.l
-    	;List Friends.s()
   EndStructure
   
+   ;
+   ; Prototyp = Procedure
   Prototype SHGetKnownFolderPath__(rfid, dwFlags.l, hToken, *ppszPath)
-  
-     ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ;    
-    ; Hole den Windows programm CLSID Ordner
-    ;     
-    Procedure.s SHGetFolderPath_Function(*FOLDERID_CLSID)
-        Protected DLL, i, Result.s, *UnicodeBuffer, kfFlag.l, SHGetKnownFolderPath.SHGetKnownFolderPath__
+   ;    
+   ; Hole den Windows programm CLSID Ordner
+   ;     
+  Procedure.s SHGetFolderPath_Function(*FOLDERID_CLSID)
+
+  	 		Protected Result.s, *UnicodeBuffer, kfFlag.l, SHGetKnownFolderPath.SHGetKnownFolderPath__
         
         If *FOLDERID_CLSID = 0
-            Debug "Schwerwiegender Fehler im Modul RequestPathEx"
-            End
+        		Debug "Schwerwiegender Fehler im Modul RequestPathEx"
+        		CallDebugger
         EndIf
         
         If OpenLibrary(0, "Shell32.dll")
@@ -148,17 +147,37 @@ Module SaveTool
             CloseLibrary(0)
         EndIf
         
-        If Result = "": Result = GetHomeDirectory():EndIf        
+        If Result = ""
+        	Result = GetHomeDirectory()
+        EndIf        
         ProcedureReturn Result
-    EndProcedure
-  
-    ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ;    
+	EndProcedure
+  	;
+		;  
+  Procedure.s RemoveSlash(file.s)
+  	
+  	If ( Right(file, 1) = "\")
+					ProcedureReturn Left( file, Len(file)-1)
+		EndIf
+				
+		ProcedureReturn file
+  EndProcedure	  
+  	;
+		;  
+  Procedure.s Slash_Add(file.s)
+  	
+  	If Not ( Right(file, 1) = "\")
+					ProcedureReturn file + "\"
+		EndIf
+				
+		ProcedureReturn file
+	EndProcedure		
+		;    
     ; Hole den Windows Programm CLSID Ordner (Angabe Variabel, Returncode ist der echte Path)
-    ;     
-    Procedure.s SHGetFolderPath(ShPath.s) 
+		; 
+	Procedure.s SHGetFolderPath(ShPath.s) 
     	    	
-      Protected nPos.i, UserName.s
+      Protected nPos.i
       
   		Structure STRUCT_DATASH
          shData1.l
@@ -169,20 +188,20 @@ Module SaveTool
   
 			Structure STRUCT_SHFOLDERS
 				SHDirectory.s
+				Username.s
 				*STRUCT_DATASH.STRUCT_DATASH
  			EndStructure   
  			 			
  			NewList ShFolders.STRUCT_SHFOLDERS()
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DESKTOP%\"					:ShFolders()\STRUCT_DATASH = ?FOLDERID_DESKTOP
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DOCUMENTS%\" 				:ShFolders()\STRUCT_DATASH = ?FOLDERID_DOCUMENTS
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%APPDATA%\" 					:ShFolders()\STRUCT_DATASH = ?FOLDERID_RoamingAppData
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATA%\" 		:ShFolders()\STRUCT_DATASH = ?FOLDERID_LOCALAPPDATA
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERPROFILE%\"			:ShFolders()\STRUCT_DATASH = ?FOLDERID_UserProfiles
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%SAVEDGAMES%\"				:ShFolders()\STRUCT_DATASH = ?FOLDERID_SAVEDGAMES
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DESKTOP%\"				:ShFolders()\STRUCT_DATASH = ?FOLDERID_DESKTOP						:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DOCUMENTS%\" 		:ShFolders()\STRUCT_DATASH = ?FOLDERID_DOCUMENTS					:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%APPDATA%\" 			:ShFolders()\STRUCT_DATASH = ?FOLDERID_RoamingAppData			:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATA%\" 	:ShFolders()\STRUCT_DATASH = ?FOLDERID_LOCALAPPDATA				:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERPROFILE%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_UserProfiles				:ShFolders()\Username = UserName() + "\"
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%SAVEDGAMES%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_SavedGames					:ShFolders()\Username = ""
  			;AddElement( ShFolders() ): ShFolders()\SHDirectory = "%HOMEDRIVE%\"
  			
-			UserName = UserName() + "\"
-			
+		
 			Debug "SaveSupport CLSID: Eingangs Verzeichnis: " + ShPath
 			
  			ResetList( ShFolders() )
@@ -191,7 +210,10 @@ Module SaveTool
  				nPos = FindString(ShPath, ShFolders()\SHDirectory ,1,#PB_String_NoCase)
  				If (nPos > 0)
  					
- 					ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\SHDirectory + UserName  )
+ 					If (Len( ShFolders()\Username )) > 0
+ 						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\SHDirectory + ShFolders()\Username )
+ 					EndIf
+ 					
  					ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, SHGetFolderPath_Function( ShFolders()\STRUCT_DATASH) )
  				EndIf
  			Wend 		
@@ -200,7 +222,6 @@ Module SaveTool
  			FreeList ( ShFolders() )
 		ProcedureReturn ShPath
     EndProcedure
-    
  		;
 		;
  	Procedure SaveConfig_GetGameTitle_ClipBaord()
@@ -341,26 +362,6 @@ Module SaveTool
   	
   	ProcedureReturn ""
   EndProcedure	
-  	;
-		;  
-  Procedure.s RemoveSlash(file.s)
-  	
-  	If ( Right(file, 1) = "\")
-					ProcedureReturn Left( file, Len(file)-1)
-		EndIf
-				
-		ProcedureReturn file
-  EndProcedure	  
-  	;
-		;  
-  Procedure.s Slash_Add(file.s)
-  	
-  	If Not ( Right(file, 1) = "\")
-					ProcedureReturn file + "\"
-		EndIf
-				
-		ProcedureReturn file
-	EndProcedure	
   	;
 		;  
 	Procedure.i CleanListing()
@@ -551,15 +552,6 @@ Module SaveTool
   EndProcedure	  
   	;
 		;
-  Procedure.l FileSystem_CompressOpen(PackDirectory.s)
-  	
-  	Protected hPackFile.l
-
-		ProcedureReturn hPackFile
-		
-	EndProcedure	
-  	;
-		;
 	Procedure.i FileSystem_CompressAddTo(PackDirectory.s, hPackFile.l, bMemory = #False, *Memory = 0, FileLength.q = 0)
 		
 		Protected PackFilePath.s, PackError.i
@@ -591,11 +583,11 @@ Module SaveTool
   	;
 		; Erstellung des Archiv mit Datum und Zeit angabe
 		; 
-		Date.s = FormatDate("%yyyy-%mm-%dd#", Date())
+		Date.s = FormatDate("%yyyy-%mm-%dd", Date())
 		Time.s = FormatDate("%hh-%ii-%ss", Date())
 		
 		
-		*PARAMS\PackFile = *PARAMS\Directory + "["+Date + Time + "]" +".7z"
+		*PARAMS\PackFile = *PARAMS\Directory + "-["+Date +" # "+ Time + "]" +".7z"
 		
 		hPackFile = CreatePack(#PB_Any, *PARAMS\PackFile , #PB_PackerPlugin_Lzma, 9)  	
 		If PackError = 0
@@ -604,7 +596,9 @@ Module SaveTool
 			
   	HideGadget(DC::#Text_004,0)
   	SetGadgetText(DC::#Text_004,"")    
-  						
+  	
+  	
+  	
 		While NextElement( FileSystemList() )
 			
 			If Len( FileSystemList()\FullPath ) > 0
@@ -648,6 +642,44 @@ Module SaveTool
 					SetGadgetText(DC::#Text_004,"")
 				EndIf	
 			Wend
+  	
+  	;
+		; Info hinzufügen wpo die Verzeichnisse waren.
+  	InegrateTextFile.s = "Directory-Path-Save-Info.txt"
+  	
+  	InegrateInfoFile.s = Startup::*LHGameDB\TitleVersion +
+  	                     ": Save Support"  + 
+  	                     Chr(10) + 
+  	                     Chr(13) +
+  	                     "Directoy(s):" +
+  	                     Chr(10) +
+  	                     Chr(13)
+  	
+			ForEach SaveDirectorys() 
+				InegrateInfoFile.s + ReplaceString( SaveDirectorys()\Directory$, UserName() , "%username%" ) + 
+				                     Chr(10) +
+				                     Chr(13)
+			Next
+			
+			InegrateInfoFile + Chr(10) +
+			                   Chr(13) +
+			                   "* You can Copy and Paste the line with the variable in the Explorer Path Stringfield."  +
+			                   Chr(10) +
+			                   Chr(13)
+			
+			*IntegrateMemory = AllocateMemory( Len(InegrateInfoFile) )
+			
+			Protected Result.i = PokeS(*IntegrateMemory, InegrateInfoFile, MemorySize(*IntegrateMemory ) ,#PB_Ascii )
+			If ( *IntegrateMemory )
+				PackError = AddPackMemory(hPackFile, *IntegrateMemory, MemorySize(*IntegrateMemory ) , InegrateTextFile)
+				If PackError = 0
+					Debug "ERROR: FileSystem_CompressFiles: Puffer Fehler"
+					CallDebugger
+				EndIf					
+			EndIf	
+			
+			FreeMemory( *IntegrateMemory )
+			
 			ClosePack(hPackFile)
 			
   		HideGadget(DC::#Text_004,1)
@@ -1151,7 +1183,6 @@ Module SaveTool
 	EndProcedure
     ;
     ;
-
 	Procedure.i SaveConfig_Create(Request.i = 0)
 		
 		Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
@@ -1208,7 +1239,8 @@ Module SaveTool
 		EndIf
 		
 		If	( KeyValue.s = "Folder" )
-				Path = PathRequester("vSystem Save Support: Wähle SaveGame Ordner", "C:\Users\Traxx Amiga EP\")
+				PathInit.s 	= SHGetFolderPath("%DOCUMENTS%\")
+				Path 				= PathRequester("vSystem Save Support: Wähle SaveGame Ordner", PathInit)
 				If ( Path = "" )
 					ProcedureReturn -1
 				EndIf	
@@ -1936,9 +1968,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1047
-; FirstLine = 447
-; Folding = vQAAEJQw
+; CursorPosition = 1241
+; FirstLine = 319
+; Folding = -ABAAAI5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

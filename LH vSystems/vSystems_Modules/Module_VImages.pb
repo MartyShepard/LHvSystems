@@ -562,24 +562,40 @@ Module vImages
     ;  Speichere als Thumbnail in die Datenbank
     ;__________________________________________________________________________________________________________________________________________     
      Procedure Screens_Import_Save_Thumbnail(ImgNum.i)
-         Protected ImageData.l
-         
-         ; Bild in den Speicher Kopieren
-         ImageData = EncodeImage(Startup::*LHImages\CpScreenPB[ImgNum], #PB_ImagePlugin_PNG)
-         
-         If ( ImageData > 0 )
-             *m = AllocateMemory( ImageData, #PB_Memory_NoClear )
-             
-             If ( *m )
-                 ExecSQL::ImageSet(DC::#Database_002,"GameShot","Shot"+ Str(ImgNum) +"_Thb","",Startup::*LHGameDB\GameID,1,ImageData,"BaseGameID")
-                 Delay(1)
-                 
-                 FreeMemory( *m )
-             EndIf    
-             ImageData  = 0
-             ProcedureReturn 
-         EndIf           
-         MessageRequester("ERROR", "Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + " # Screens_Import_Save_Thumbnail" )
+     	Protected ImageData.l, *mImageData, *m, ThumbnailSize.i
+     	
+
+     	
+     	; Bild in den Speicher Kopieren
+			;ImageData = EncodeImage(Startup::*LHImages\CpScreenPB[ImgNum], #PB_ImagePlugin_PNG)
+     	If IsImage( Startup::*LHImages\CpScreenPB[ImgNum] )
+     		     		
+     		ThumbnailSize = ImageHeight(Startup::*LHImages\CpScreenPB[ImgNum]) * ImageWidth(Startup::*LHImages\CpScreenPB[ImgNum])
+     		Debug "Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + " Size: " + Str(ThumbnailSize)
+     		
+     	;
+			; Dieser Speicher wird in ExecSQL::ImageSet() gelöscht
+     		*mImageData = AllocateMemory( ThumbnailSize )
+     		
+     		*mImageData = EncodeImage(Startup::*LHImages\CpScreenPB[ImgNum], #PB_ImagePlugin_PNG)
+     		
+     		If ( *mImageData > 0 )
+     			*m = AllocateMemory( *mImageData, #PB_Memory_NoClear )
+     			
+     			If ( *m )
+     				ExecSQL::ImageSet(DC::#Database_002,"GameShot","Shot"+ Str(ImgNum) +"_Thb","",Startup::*LHGameDB\GameID,1,*mImageData,"BaseGameID")
+     				Delay(1)
+     				FreeMemory( *m )
+     			EndIf    
+     			ImageData  = 0             
+     			ProcedureReturn 
+     		EndIf
+     		
+     		FreeMemory( *mImageData ) 
+     		
+     	EndIf
+     	MessageRequester("ERROR", "Modul: " + #PB_Compiler_Module + " #LINE: " + Str(#PB_Compiler_Line) + " # Screens_Import_Save_Thumbnail" )
+     	CallDebugger 
          
      EndProcedure
     ;******************************************************************************************************************************************
@@ -1801,11 +1817,11 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 240
-; FirstLine = 223
+; CursorPosition = 573
+; FirstLine = 393
 ; Folding = -PA1zygB5f-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

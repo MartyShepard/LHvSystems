@@ -166,21 +166,53 @@ Module vUpdate
     EndProcedure
     ;
     ;****************************************************************************************************************************************************  
+    Procedure.s Request_Update_GetVersion(VersionValue.s)
+    	
+    	Protected vLen.i, Index.i, vAscii.s, vChar.c, Value.s
+    	
+    	vLen.i = Len( VersionValue )
+    	For Index = 1 To vLen-1
+    		vAscii.s = Mid( VersionValue ,Index, 1)
+    		vChar.c  = Asc(vAscii)
+    		Select vChar
+    			Case 48 To 57
+    				Value + vAscii
+    			Default
+    		EndSelect		
+    	Next
+    	ProcedureReturn Value
+    EndProcedure
+    ;
+    ;
     Procedure.s Request_Update_Message()
         
-        Protected NextVersion.s, tFile_Versions.s, UpdateMsg.s
+    	Protected NextVersion.s, tFile_Versions.s, UpdateMsg.s, ValueOld.s, ValueNew.s
+    	
             tFile_Versions = "https://github.com/MartyShepard/LHvSystems/raw/main/LH%20vSystems/vSystems_Modules/Module_Version.pb"
             
             NextVersion = GetVersion(tFile_Versions)   
             UpdateMsg.s = Startup::*LHGameDB\TitleVersion
             
-            If Len(NextVersion) > 1
-                
-                If ( Startup::*LHGameDB\VersionNumber  = NextVersion )
+						ValueOld.s = Request_Update_GetVersion(Startup::*LHGameDB\VersionNumber)
+            ValueNew.s = Request_Update_GetVersion(NextVersion)
+            
+            ValueVersion1.i = ValD(ValueOld)
+            ValueVersion2.i = ValD(ValueNew)
+            
+            If ValueVersion2 > 0
+            	           	
+            	If ( ValueVersion1  = ValueVersion2 )
+            		
                     UpdateMsg + " aktualisieren?" + #CR$ +"Version ist Identisch. Trotztdem aktualisieren?"    
-                Else    
+              EndIf
+              
+              If  (ValueVersion2 > ValueVersion1 )
                     UpdateMsg + " auf Version " +  NextVersion + " aktualisieren?"
-                EndIf                
+              EndIf                
+              
+              If  (ValueVersion1 > ValueVersion2 )
+                   UpdateMsg = "Version "+Startup::*LHGameDB\VersionNumber+" noch nicht Hochgeladen"
+              EndIf              
             Else
                 UpdateMsg + " aktualisieren? " +#CR$+ "( Problem beim holen der Version's Nummer )"
             EndIf
@@ -277,9 +309,9 @@ Module vUpdate
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 145
-; FirstLine = 117
-; Folding = --
+; CursorPosition = 185
+; FirstLine = 155
+; Folding = ---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

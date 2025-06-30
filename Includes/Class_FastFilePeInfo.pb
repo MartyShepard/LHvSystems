@@ -198,9 +198,9 @@ DeclareModule FFP
     #IMAGE_NT_OPTIONAL_HDR64_MAGIC      = $20
     
 
-    Declare.s GetSection(FilePath$,TimeStamp=0,TimeStampWithComma=0)
-    Declare.s GetFileInfo_Flag(ElementFlag)
-    Declare.s GetFileInfo(lptstrFilename$, FVI_Flag)
+;     Declare.s GetSection(FilePath$,TimeStamp=0,TimeStampWithComma=0)
+;     Declare.s GetFileInfo_Flag(ElementFlag)
+;     Declare.s GetFileInfo(lptstrFilename$, FVI_Flag)
 EndDeclareModule
 
 Module FFP
@@ -586,10 +586,10 @@ CompilerIf #PB_Compiler_IsMainFile
 CompilerEndIf
 
  
-; IDE Options = PureBasic 5.42 LTS (Windows - x64)
-; CursorPosition = 406
-; FirstLine = 336
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 194
+; FirstLine = 177
 ; Folding = --
 ; EnableAsm
-; EnableUnicode
 ; EnableXP
+; EnableUnicode
