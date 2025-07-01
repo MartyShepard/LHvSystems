@@ -17,7 +17,8 @@
 	Declare.s SaveConfig_MenuFileExists()
 	Declare.s SaveConfig_GetGameTitle()
 	Declare   SaveConfig_GetGameTitle_ClipBaord()
-	Declare.i SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay.i = 250)
+	Declare.i SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay.i = 250, NewGameTitle.s = "", OldGameTitle.s = "")	
+	Declare.i SaveFile_ChangeTitle(NewGameTitle.s, OldGameTitle.s)
 	
 	;
 	; Für den Automatischen Modus
@@ -148,7 +149,8 @@ Module SaveTool
         EndIf
         
         If Result = ""
-        	Result = GetHomeDirectory()
+        	;Result = GetHomeDirectory()
+        	
         EndIf        
         ProcedureReturn Result
 	EndProcedure
@@ -177,7 +179,7 @@ Module SaveTool
 		; 
 	Procedure.s SHGetFolderPath(ShPath.s) 
     	    	
-      Protected nPos.i
+      Protected nPos.i, rPath.s = ShPath
       
   		Structure STRUCT_DATASH
          shData1.l
@@ -199,6 +201,13 @@ Module SaveTool
  			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATA%\" 	:ShFolders()\STRUCT_DATASH = ?FOLDERID_LOCALAPPDATA				:ShFolders()\Username = ""
  			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERPROFILE%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_UserProfiles				:ShFolders()\Username = UserName() + "\"
  			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%SAVEDGAMES%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_SavedGames					:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%GAMETASKS%\"			:ShFolders()\STRUCT_DATASH = ?FOLDERID_GameTasks					:ShFolders()\Username = "" 
+ 			;
+ 			; Diese FOLDERID ist IN Windows 10 Version 1803 und höher veraltet. IN diesen Versionen wird 0x80070057 zurückgegeben: E_INVALIDARG
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%GAMES%\"					:ShFolders()\STRUCT_DATASH = ?FOLDERID_Games							:ShFolders()\Username = "" 
+ 			
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERNAME%\"			:ShFolders()\STRUCT_DATASH = 0														:ShFolders()\Username = UserName() + "\" 
+ 			
  			;AddElement( ShFolders() ): ShFolders()\SHDirectory = "%HOMEDRIVE%\"
  			
 		
@@ -210,16 +219,26 @@ Module SaveTool
  				nPos = FindString(ShPath, ShFolders()\SHDirectory ,1,#PB_String_NoCase)
  				If (nPos > 0)
  					
- 					If (Len( ShFolders()\Username )) > 0
+ 					If (Len( ShFolders()\Username )) > 0 And Not ( ShFolders()\SHDirectory = "%USERNAME%\" )
  						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\SHDirectory + ShFolders()\Username )
  					EndIf
- 					
+ 					 					
+ 					If ( UCase( ShFolders()\SHDirectory ) = "%USERNAME%\" )
+ 						; C:\users\%username%\.....
+ 						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\Username,#PB_String_NoCase   )
+ 						Break;
+ 					EndIf
  					ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, SHGetFolderPath_Function( ShFolders()\STRUCT_DATASH) )
  				EndIf
  			Wend 		
+ 			 			
+ 			FreeList ( ShFolders() )
+ 			
+ 			If ShPath = ""
+ 				ShPath = rPath
+ 			EndIf
  			
  			Debug "SaveSupport CLSID: Ausgangs Verzeichnis: " + ShPath
- 			FreeList ( ShFolders() )
 		ProcedureReturn ShPath
     EndProcedure
  		;
@@ -315,7 +334,7 @@ Module SaveTool
 		
 	EndProcedure		
 		;
-    ;
+    ;	
   Procedure.i GetMaxItems()
         ResetList(SaveDirectorys())
         ProcedureReturn ListSize(SaveDirectorys())-1 
@@ -448,8 +467,9 @@ Module SaveTool
   EndProcedure
   	;
 		;
-  Procedure.i FileSystem_Search(DirectoryPath.s = "")
+  Procedure.i FileSystem_Search(DirectoryPath.s = "", CheckAttrib.i = #False)
   	
+  	Debug 	"Save Support: FileSearch (BEG)" 
   	Protected FileHandle.WIN32_FIND_DATA
   	
   	Protected FileSystemType.s = ""
@@ -469,25 +489,40 @@ Module SaveTool
   			
   			Select FileHandle\dwFileAttributes:
   					
-  				Case 1, 2, 4, 32, 128, 2048:
+  				Case 1, 2, 3, 4, 5, 32, 33, 128, 129, 2048, 2049, 8224
   					Select FileHandle\dwFileAttributes:
-	  					Case 1:			;Debug "   1=FILE_ATTRIBUTE_READONLY"
-	  					Case 2:			;Debug "   2=FILE_ATTRIBUTE_HIDDEN"
-	  					Case 4:			;Debug "	 4=FILE_ATTRIBUTE_SYSTEM"
-	  					Case 32:		;Debug "  32=FILE_ATTRIBUTE_ARCHIVE"
-	  					Case 128:		;Debug " 128=FILE_ATTRIBUTE_NORMAL"
-	  					Case 2048: 	;Debug "2048=FILE_ATTRIBUTE_COMPRESSED"  		
-	  				EndSelect
-	  					  				
-	  				AddElement(FileSystemList())
-	  				FileSystemList()\FCount = 1
-	  				FileSystemList()\FullPath = DirectoryPath + FileSystemType
+  						Case 1:			;Debug "   1=FILE_ATTRIBUTE_READONLY"
+  							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Datei ist Schreibgeschütz" + Chr(32) + DirectoryPath + FileSystemType,2,2,"",0,0,DC::#_Window_001)
+  						Case 2:			;Debug "   2=FILE_ATTRIBUTE_HIDDEN"
+  						Case 3:			;Debug "   2=FILE_ATTRIBUTE_HIDDEN  [& FILE_ATTRIBUTE_READONLY]"
+  							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Datei ist Schreibgeschütz" + Chr(32) + DirectoryPath + FileSystemType,2,2,"",0,0,DC::#_Window_001)
+  						Case 4:			;Debug "	 4=FILE_ATTRIBUTE_SYSTEM"
+  						Case 5:			;Debug "	 4=FILE_ATTRIBUTE_SYSTEM [& FILE_ATTRIBUTE_READONLY]"  							
+  						Case 32:		;Debug "  32=FILE_ATTRIBUTE_ARCHIVE"
+  						Case 33:		;Debug "  32=FILE_ATTRIBUTE_ARCHIVE [& FILE_ATTRIBUTE_READONLY]"
+  							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Datei ist Schreibgeschütz" + Chr(32) + DirectoryPath + FileSystemType,2,2,"",0,0,DC::#_Window_001)
+  						Case 128:		;Debug " 128=FILE_ATTRIBUTE_NORMAL"
+  						Case 129:		;Debug " 128=FILE_ATTRIBUTE_NORMAL [& FILE_ATTRIBUTE_READONLY]"
+  							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Datei ist Schreibgeschütz" + Chr(32) + DirectoryPath + FileSystemType,2,2,"",0,0,DC::#_Window_001)
+  						Case 8224:	;Debug "		 FILE_ATTRIBUTE_NORMAL [& FILE_ATTRIBUTE_NOT_CONTENT_INDEXED]  		  						
+  						Case 2048:	;Debug "2048=FILE_ATTRIBUTE_COMPRESSED"
+  						Case 2049:	;Debug "2048=FILE_ATTRIBUTE_COMPRESSED [& FILE_ATTRIBUTE_READONLY]" 											
+  					EndSelect
+  					
+  					
+  					AddElement(FileSystemList())
+  					FileSystemList()\FCount = 1
+  					FileSystemList()\FullPath = DirectoryPath + FileSystemType
   					;Debug 	"Datei: " FileSystemList()\FullPath + " (Anzahl der Dateien: " + Str(FileCnt)
-  						
-  				Case 16:				;Debug "#FILE_ATTRIBUTE_DIRECTORY"			  		
   					
-  					
-  					AddElement(FileSystemList()) 	
+  				Case 16, 17, 8208
+  					Select FileHandle\dwFileAttributes:
+  						Case 16:		;	Debug #FILE_ATTRIBUTE_DIRECTORY"
+  						Case 17:		; Debug #FILE_ATTRIBUTE_DIRECTORY [& Debug #FILE_ATTRIBUTE_READONLY]
+  							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Verzeichnis ist Schreibgeschütz" + Chr(32) + DirectoryPath + FileSystemType,2,2,"",0,0,DC::#_Window_001)
+  						Case 8208: ;	Debug #FILE_ATTRIBUTE_DIRECTORY [& Debug #FILE_ATTRIBUTE_NOT_CONTENT_INDEXED] 					
+  					EndSelect			
+  					AddElement(FileSystemList())
   					FileSystemType = Slash_Add(FileSystemType)
   					
   					FileSystemList()\DCount = 1
@@ -509,7 +544,7 @@ Module SaveTool
   				Case 65536:		Debug "FILE_ATTRIBUTE_VIRTUAL"
   				Case 131072:	Debug "FILE_ATTRIBUTE_NO_SCRUB_DATA"
   				Case 262144:	Debug "FILE_ATTRIBUTE_EA"			  		
-  				Default		:	Debug "Unknown Attribute :" +Str( FileHandle\dwFileAttributes)
+  				Default		:	Debug "Unknown Attribute :" +Str( FileHandle\dwFileAttributes) + " - '" + FileSystemType + "'"
   			EndSelect
   		Wend
   	Else
@@ -518,7 +553,7 @@ Module SaveTool
   	
   	FindClose_(FileHandle)
   	FindClose_(Result)
-  	
+  	Debug 	"Save Support: FileSearch (END)" 
   EndProcedure
   	;
 		;
@@ -656,9 +691,7 @@ Module SaveTool
   	                     Chr(13)
   	
 			ForEach SaveDirectorys() 
-				InegrateInfoFile.s + ReplaceString( SaveDirectorys()\Directory$, UserName() , "%username%" ) + 
-				                     Chr(10) +
-				                     Chr(13)
+				InegrateInfoFile.s + ReplaceString( SaveDirectorys()\Directory$, UserName() , "%username%" ) + Chr(13)
 			Next
 			
 			InegrateInfoFile + Chr(10) +
@@ -858,6 +891,7 @@ Module SaveTool
   	; Options = 2 = Verschiebe Modus und keine Aufforderung  (Dateien befinde sich dann im Mülleimer)
   Procedure.i SaveContent_Backup(Options.i = 0, Request.i = 0)
   	
+  	Debug "vSystem Save Support: Backup (BEG)"
  		Protected lFileOp.f
  		Protected lresult.l
  		Protected lFlags.w
@@ -970,8 +1004,16 @@ Module SaveTool
   			HideGadget(DC::#Text_004,1)
       	SetGadgetText(DC::#Text_004,"")    
       EndIf
-      			
-			CleanListing()
+      
+      ;
+      ; Check Attributes
+      ;FileSystem_Search(Slash_Add(DestTo), #True)
+			;If ListSize( FileSystemList() ) > -1			
+			;	ClearList( FileSystemList() )	
+			;EndIf
+      
+      CleanListing()
+  		Debug "vSystem Save Support: Backup (END)"      
   		ProcedureReturn 0
   	EndIf		  		  		  	
   EndProcedure
@@ -1133,7 +1175,7 @@ Module SaveTool
     	EndIf    
     	SaveFile_Close()
     	ProcedureReturn #False
-   EndProcedure	   
+   EndProcedure	    
    ;
 	 ;	
 	Procedure.b SaveConfig_CreateDirectory()
@@ -1174,8 +1216,28 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# vSystems Save Support: Backup and Restore Save Profiles from HomeDrive/UserPath")			
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Hints: GameTitle     : Database 1st Title & 2nd Title. Folder[count] = Directory")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Hints: Folder[count] : Folder[count] = Point to Directory(s) Backup/Restore")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "")	
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Most Importants Key Variables on Windows: ")			
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DESKTOP%      : C:\Users\%username%\Desktop\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DOCUMENTS%    : C:\Users\%username%\Documents\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %APPDATA%      : C:\Users\%username%\AppData\Roaming\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATA% : C:\Users\%username%\AppData\Local\")				
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %USERPROFILE%  : C:\Users\%username%\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %SAVEDGAMES%   : C:\Users\%username%\Documents\Saved Games")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Examples: You can use variables.")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# 001=C:\Users\%username%\AppData\Roaming\SuperBoombasticPlasticGame\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# 001=%APPDATA%\SuperBoombasticPlasticGame")			
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# 002=%DOCUMENTS%\My Games\SuperBoombasticPlasticGame\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# 004=%USERPROFILE%\SuperBoombasticPlasticGame")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")			
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# GameSaves will be saved in the SAVE Directory named [GAMETITLE]")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# GAMETITLE is the exzact the same Game and Sub Title in vSystem]")		
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Example Saved: .\SAVE\GAMETITLE\SuperBoombasticPlasticGame")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Backslashs are Optional")					
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "")			
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "[GameTitle]")
+			
 			SaveConfig_Generate_Options()
 
 		EndIf
@@ -1223,9 +1285,9 @@ Module SaveTool
 	EndProcedure
 		;
 		;
-	Procedure.i SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay.i = 250)	
+	Procedure.i SaveConfig_SetKeyValue(KeyValue.s = "Folder", FolderValue.i = 1, KeyBool.i = #False, KeyDelay.i = 250, NewGameTitle.s = "", OldGameTitle.s = "")	
 		
-  	Protected nPos.i, BrakeCount.i, TitleFound.i = #False
+  	Protected nPos.i, BrakeCount.i, TitleFound.i = #False, ChangeGameTitle.i = #False
   	Protected ItemData.s = "", Path.s = "", DelayVal.s
   	
 		Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
@@ -1250,7 +1312,6 @@ Module SaveTool
 			SaveLine.s
  		EndStructure        
  		NewList SaveChange.STRUCT_SAVECHANGE()
- 		
 		;
 		; 1st Read File an save content in the List
   	SaveFile_Read()
@@ -1276,8 +1337,27 @@ Module SaveTool
   		If ( Left(SaveChange()\SaveLine, 1) = "[" And Right(SaveChange()\SaveLine, 1)= "]" And TitleFound = #False )
   			
   			ItemData = Mid(SaveChange()\SaveLine, 2, Len( SaveChange()\SaveLine)-2 )
-  			
+
   			If LCase(SaveConfig_GetGameTitle()) = LCase(ItemData)
+  				
+  				If Len( NewGameTitle.s ) > 0 And Len( OldGameTitle.s ) > 0
+  					;
+						; Spiele Titel Umbennenung
+  					SaveChange()\SaveLine = "[" + NewGameTitle + "]"
+  					If FileSize( Startup::*LHGameDB\SaveTool\SavePath + OldGameTitle ) = -2
+  						OldGameTitle = Startup::*LHGameDB\SaveTool\SavePath + OldGameTitle
+  						NewGameTitle = Startup::*LHGameDB\SaveTool\SavePath + NewGameTitle
+  						Result.i = RenameFile(OldGameTitle , NewGameTitle )
+  						If Result = 0
+  							Debug "vSystem Save Game Support: Fehler beim Umbennen "
+  							Debug "vSystem Save Game Support: von: " + OldGameTitle
+  							Debug "vSystem Save Game Support: -->: " + NewGameTitle
+  						EndIf
+  						;
+  						; Nach der Umbenneung Steige aus
+  						Break
+  					EndIf	
+  				EndIf  				
   				TitleFound = #True
   				Continue
   			EndIf
@@ -1367,12 +1447,13 @@ Module SaveTool
   		EndIf    					  		
   	EndIf  	
   Wend
-  	
+  
+
   	;
   	; 3rd Save List content to the File
   	ResetList( SaveChange() )
   	SaveFile_Create()
-  	While NextElement(SaveChange())			
+  	While NextElement(SaveChange())	  			
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, SaveChange()\SaveLine)
   	Wend	
   	
@@ -1381,6 +1462,11 @@ Module SaveTool
   	FreeList( SaveChange() )
   	
 	EndProcedure
+		;
+		;
+	Procedure.i SaveFile_ChangeTitle(NewGameTitle.s, OldGameTitle.s)
+				SaveConfig_SetKeyValue("", -1, #False, 250, NewGameTitle.s, OldGameTitle.s)	
+	EndProcedure  	
 		;
     ;	
 	Procedure.i FileCheck()
@@ -1968,9 +2054,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1241
-; FirstLine = 319
-; Folding = -ABAAAI5
+; CursorPosition = 698
+; FirstLine = 357
+; Folding = DABgIAR1
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

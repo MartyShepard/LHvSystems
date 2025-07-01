@@ -32,7 +32,7 @@ EndDeclareModule
 
 Module vSystem
     
-    Global ShowDebugNB.i = #True       ; Debug Output for NoBorder
+    Global ShowDebugNB.i = #False       ; Debug Output for NoBorder
     ;
     ; Setz und Holt sich die PriorityClass vom Fremden programm
     Global NewList NoBorderList.PROCESSENTRY32() 
@@ -84,8 +84,11 @@ Module vSystem
                     
                     While CallFunction (#PROCESS32LIB, "Process32Next", SnapShot, @Proc32)
                         
-                        AddElement (P32())                        
-                        CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))                                             
+                    	AddElement (P32())
+                    	
+                    	CopyMemory (@Proc32, @P32(), SizeOf(PROCESSENTRY32))  
+                    	
+											Delay(1)                    	
                     Wend
                     
                 EndIf
@@ -100,14 +103,8 @@ Module vSystem
     ;
     ;
     Procedure.i System_GetTasklist();
-        
-        ;System_TaskList( PrioRity() )
-        ;System_TaskList( RunProg() ) 
         ClearList( Process32() )
-        System_TaskList( Process32() ) 
-        ;System_TaskList( Process32() )
-        ;System_TaskList( NoBorderList() ) 
-        
+        System_TaskList( Process32() )         
     EndProcedure
     ;
     ;
@@ -181,12 +178,8 @@ Module vSystem
     Procedure.i  System_ProgrammIsAlive(szTaskName.s)
         
         Protected bIsAlive.i = #False
-        ;
-        ; Setz und Holt sich die PriorityClass vom Fremden programm
-        ;NewList RunProg.PROCESSENTRY32()        
-        
-        ;System_TaskList( RunProg() ) 
-        
+
+        System_GetTasklist() 					; <-- sonst gibts Probleme beim beenden. TODO
         ResetList( Process32() )
             
         If ( szTaskName )              
@@ -276,14 +269,14 @@ Module vSystem
     ;
     Procedure   System_MemoryFree_Debug( List P32.PROCESSENTRY32(), szTaskname.s, PHandle.l, Result.i, Pid.l)
         
-       ; Debug "Free Ram : " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
-       ;       " | Handle  : " + Str( PHandle)              + #TAB$ + 
-       ;       " | Result  : " + Str( Result )              +
-       ;       " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
-       ;       " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
-       ;       " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
-       ;       " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
-       ;       " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))             
+       Debug "Free Ram : " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
+             " | Handle  : " + Str( PHandle)              + #TAB$ + 
+             " | Result  : " + Str( Result )              +
+             " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
+             " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
+             " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
+             " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
+             " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))             
     EndProcedure     
     ;
     ;
@@ -420,22 +413,21 @@ Module vSystem
     ;
 
     Procedure   _NoBorder_Debug( List P32.PROCESSENTRY32(), szTaskname.s, PHandle.l)
-;             Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
-;                   " | Handle  : " + Str( PHandle)              + #TAB$ +           
-;                   " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
-;                   " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
-;                   " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
-;                   " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
-;                   " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
-;                   " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
+            Debug "NoBorderDBG: " + LSet(szTaskname,27,Chr( 32) )+ #TAB$ +
+                  " | Handle  : " + Str( PHandle)              + #TAB$ +           
+                  " | PID     : " + Str( PeekL (@P32()\th32ProcessID )) + #TAB$ + 
+                  " | Threads : " + Str( P32()\cntThreads)     + #TAB$ +
+                  " | Usage   : " + Str( P32()\cntUsage)       + #TAB$ +
+                  " | dwSize  : " + Str( P32()\dwSize)         + #TAB$ +
+                  " | Parent  : " + Str( PeekL (@P32()\th32ParentProcessID ))  + #TAB$ +
+                  " | E.MEM   : " + Str( System_GetCurrentMemoryUsage() ) + " >= 10485760 "
     
     EndProcedure    
     ;
     ;
     ; Patch to Remove Border from Window
 		;
-    Global _nbMoveWindow = #False
-    Procedure   _NoBorder_(hwnd)
+    Procedure.i   _NoBorder_(hwnd)
         
         Protected Taskbar.RECT, Window.RECT, Client.RECT, W.i, H.i, TitleBarH.i, Border.i, CxEdge.i, ClientRect.RECT , Desktop.RECT
         
@@ -556,28 +548,22 @@ Module vSystem
             	Debug "Spiel Breite: Verändert " +Str( W - ( Cx_E + CX_B) )
             	Debug "Spiel Höhe  : Verändert " +Str( H - ( CY_C + CX_B + Cx_E)  )
             	
-            	;If _nbMoveWindow = #False
-            	WindowLessX.i = Window\left
-            	WindowLessY.i = Window\top
+            	Protected WindowLessX.i = Window\left
+            	Protected WindowLessY.i = Window\top
             	
             	WindowLessY.i = WindowLessY - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E)
             	
             	
-            	nWidth.i  = W - ( Cx_E + CX_B)
+            	Protected nWidth.i  = W - ( Cx_E + CX_B)
             	If GetSystemMetrics_(#SM_CXSCREEN) > nWidth
-            		Debug "Cx_E " + Str(Cx_E)
-            		Debug "CX_B " + Str(CX_B)
-            		nWidth.i  = W - (( Cx_E + CX_B)*2)
-            		;nWidth.i  - 3
-            		Debug "Neue Spiel Breite: Verändert " +Str( nWidth )
+            		nWidth.i  = W - (( Cx_E + CX_B)*2)            		
             	Else
             		nWidth.i = GetSystemMetrics_(#SM_CXSCREEN)
             	EndIf
             	
-            	nHeight.i = H - ( CY_C + CX_B + Cx_E)
+            	Protected nHeight.i = H - ( CY_C + CX_B + Cx_E)
             	If GetSystemMetrics_(#SM_CYSCREEN) > nHeight
-            		nHeight.i = H - ( CY_C + ( CX_B + Cx_E) *2)
-            		Debug "Neue Spiel Höhe: Verändert " +Str( nHeight )
+            		nHeight.i = H - ( CY_C + ( CX_B + Cx_E) *2)            	
             	Else
             		nHeight.i = GetSystemMetrics_(#SM_CYSCREEN) 
             	EndIf
@@ -591,14 +577,8 @@ Module vSystem
             	EndIf            	
             	
             	MoveWindow_(hwnd, WindowLessX, WindowLessY, nWidth, nHeight , 1)
-            	;SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
-            	Debug CY_C
-            	Debug CX_B
-            	Debug Cx_E
             	
-            	;	MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)
-            		_nbMoveWindow = #True
-            	;EndIf
+            	;	MoveWindow_(hwnd, Window\left, Window\top - CY_C +  ( CY_C + CX_B + Cx_E) - ( CX_B + Cx_E), W - ( Cx_E + CX_B),H - ( CY_C + CX_B + Cx_E) , 1)                       
             EndIf
             
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
@@ -619,8 +599,9 @@ Module vSystem
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
                 
-            EndIf                        
-            ProcedureReturn 
+              EndIf    
+
+            ProcedureReturn 0
         EndIf
         
         
@@ -689,31 +670,33 @@ Module vSystem
                         fHandle = FindWindow_(@sWindowTitle,#Null)
                         
                         GetWindowThreadProcessId_(hwnd, @ExtProcessID)                                                                       
-;                         If ( ShowDebugNB = #True)
-;                                     DbgLog = ""
-;                                     DbgLog + "(SEARCH )" + #TAB$ +                                   
-;                                      DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
-;                                      DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
-;                                      DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
-;                                      DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
-;                                      DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
-;                         EndIf
+                        If ( ShowDebugNB = #True)
+                                    DbgLog = ""
+                                    DbgLog + "(SEARCH )" + #TAB$ +                                   
+                                     DbgLog.s + "   PID Search: " + RSet( Str( ProcessID   ), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle     ), 7,Chr(32) )  + #TAB$ +
+                                     DbgLog.s + " | FindHandle: " + RSet( Str( hwnd        ), 7,Chr(32) )  + #TAB$ +                                   
+                                     DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                                          
+                        EndIf
                         
                         If ( ExtProcessID = ProcessID )
                             
-;                             If ( ShowDebugNB = #True)
-;                                         DbgLog = ""  + #CR$       
-;                                         DbgLog + "(FOUNDED)" + #TAB$ +   
-;                                          DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
-;                                          DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
-;                                          DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
-;                                          DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
-;                                          DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
-;                                          DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
-;                                 Debug DbgLog + #CR$
-;                             EndIf                                    
-                            _NoBorder_(hwnd)                              
+                            If ( ShowDebugNB = #True)
+                                        DbgLog = ""  + #CR$       
+                                        DbgLog + "(FOUNDED)" + #TAB$ +   
+                                         DbgLog.s + "   PID Search: " + RSet( Str( ProcessID    ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | PID Found : " + RSet( Str( ExtProcessID ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | CurrHandle: " + RSet( Str( fHandle      ), 7,Chr(32) )  + #TAB$ +
+                                         DbgLog.s + " | FindHandle: " + RSet( Str( hwnd         ), 7,Chr(32) )  + #TAB$ + 
+                                         DbgLog.s + " | Own Handle: " + RSet( Str( GetForegroundWindow_() ), 7,Chr(32) )  + #TAB$ +                                              
+                                         DbgLog.s + " | WindowText: " + Chr(34) + sWindowTitle + Chr(34) + #CR$                           
+                                Debug DbgLog + #CR$
+                            EndIf                                    
+                            _NoBorder_(hwnd)  
+
                             Startup::*LHGameDB\Thread_ProcessId = ExtProcessID
+
                             ProcedureReturn #False 
                         EndIf    
                         
@@ -724,7 +707,8 @@ Module vSystem
                     EndIf
                 EndIf                                                                                        
             EndIf    
-        EndIf
+          EndIf
+
         ProcedureReturn #True       
     EndProcedure
     ;
@@ -1416,6 +1400,9 @@ Module vSystem
                 Case -1: CreateDirectory( Directory.s + "SHOT" )                    
             EndSelect        
             
+           	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 5000)
+            Beep_(450,100) 
+            	
             Date$ = FormatDate("%yyyy_%mm_%dd", Date())
             Time$ = FormatDate("%hh_%ii_%ss"  , Date())
                         
@@ -1427,11 +1414,12 @@ Module vSystem
             	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread_ERROR(), 5000)
             	Beep_(250,200) 
             	Delay(1250)
-            Else
+            	;Delay(5)
+            ;Else
             	;Debug "CAPTURED: " + ImageFileName
-            	CaptureThread.i = CreateThread(@Capture_Screenshot_Thread(), 5000)
-            	Beep_(450,100)  
-            	Delay(1250)            	
+ 
+            	;Delay(1250)           	
+            	;Delay(5)
             EndIf	
             	
             ;OLD                       
@@ -1653,9 +1641,9 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 608
-; FirstLine = 454
-; Folding = zxz-Ps5-
+; CursorPosition = 1402
+; FirstLine = 715
+; Folding = PBA+Ps8-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

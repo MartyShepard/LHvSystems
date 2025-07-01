@@ -425,6 +425,11 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+				; Version 0.60.3
+				; Savegame Support: Bennung des Titles ändert auch den Title in der Konfig sowie das Backup Verzeichnis
+				; Fixed Start-End Routine     
+        
+        ;
 				; Version 0.60.2
 				; Variable Geändert für das ablegen der Thumbnnails in die Datenbank
 				; Hinzufügen einer Info Textdatei beim erstellen einer Geapckten Spielstand Sicherung
@@ -1082,7 +1087,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 430
+; CursorPosition = 429
 ; FirstLine = 380
 ; Folding = +D+
 ; EnableAsm

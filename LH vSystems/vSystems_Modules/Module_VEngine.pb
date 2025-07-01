@@ -2445,9 +2445,16 @@ Module VEngine
                 
         ;
         ; Update Title        
-        If ( Len(Sbtitle$) >= 1 ): FsTitle$ + " - " +  Sbtitle$: EndIf
+        If ( Len(Sbtitle$) >= 1 )
+        	FsTitle$ + " - " +  Sbtitle$
+        EndIf
         Database_Set_Title(FsTitle$)
+        ;
+        ; Save GameTitle to the SaveSupport Config
+        SaveTool::SaveFile_ChangeTitle(FsTitle$, ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID,"",1))
+        
         ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "GameTitle", FsTitle$ ,Startup::*LHGameDB\GameID)
+
         
         ;
         ; Update Date
@@ -2798,7 +2805,7 @@ Module VEngine
     ;________________________________________________________________________________________________________________________________________________________________                                
     Procedure DOS_Thread_GameMode(*Params.PROGRAM_BOOT)
 
-                
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) BEG"
         Protected l_ProcID.l, h_ProcID.l, DOS_ExeC$, DOS_PatH$, DOS_WorK$, DOS_CliC$, exitCodeH, exitCodeL, REG_KNAME$, REG_SZ$, REG_VALUE$
         
         DOS_ExeC$ = *Params\Program
@@ -2845,7 +2852,8 @@ Module VEngine
             
             UnuseModule Registry
         EndIf
-
+        
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) PART1"
         ;
         ;
         ; 
@@ -2871,7 +2879,7 @@ Module VEngine
             UnuseModule ClassFirewall    
         EndIf    
         
-        
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) PART2"      
         
         ;vSystem::System_Set_Priority(GetFilePart( ProgramFilename() ), #IDLE_PRIORITY_CLASS)
         ; Minimiert vSystems, auch wenn mit Settings_Asyncron gestartet wurde
@@ -2903,6 +2911,8 @@ Module VEngine
         EndIf    
              
         
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) PART3"
+        
         If ( Startup::*LHGameDB\Settings_Asyncron = #True )
         	ProcedureReturn
         EndIf
@@ -2919,6 +2929,7 @@ Module VEngine
         ;    ProcedureReturn
         ;EndIf
         
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) PART4"
          
         If ( Startup::*LHGameDB\Settings_aExecute = #False )     
         	h_ProcID = OpenProcess_(#PROCESS_QUERY_INFORMATION, 0, ProgramID(Startup::*LHGameDB\Thread_ProcessLow))          
@@ -2933,6 +2944,8 @@ Module VEngine
         ; 	WaitForSingleObject_( h_ProcID, #INFINITE );
         ; EndIf	
         
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) PART5"
+        
         GetExitCodeProcess_(h_ProcID, @exitCodeH)
         GetExitCodeProcess_(Startup::*LHGameDB\Thread_ProcessLow, @exitCodeL)
         
@@ -2944,8 +2957,10 @@ Module VEngine
          If ( Startup::*LHGameDB\Settings_aExecute = #True )
          	CloseHandle_( h_ProcID)
          	CloseHandle_( *Params\hThread )
+         	Startup::*LHGameDB\ExitSignal = #True
          Else                  
-         	CloseProgram(l_ProcID)                
+         	CloseProgram(l_ProcID)
+         	Startup::*LHGameDB\ExitSignal = #True
          EndIf	
         
         ;vSystem::System_Set_Priority(GetFilePart( ProgramFilename() ), #NORMAL_PRIORITY_CLASS)
@@ -3000,18 +3015,19 @@ Module VEngine
             Case 255: Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: User stopped the process " + Str(exitCodeL))                                   
             Default : Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #@Exit: Unknow " + Str(exitCodeL))                    
         EndSelect               
-                     
+        
+        Debug "DOS_Thread_GameMode(*Params.PROGRAM_BOOT) END"
     EndProcedure        
     ;****************************************************************************************************************************************************************
     ; Startet Programm (Threaded)
     ;________________________________________________________________________________________________________________________________________________________________               
     Procedure DOS_Thread(*Params.PROGRAM_BOOT)
-    	
-    		
             LockMutex(ProgrammMutex)    
             Delay(25)
             DOS_Thread_GameMode(*Params.PROGRAM_BOOT)        
             UnlockMutex(ProgrammMutex)
+            Debug "DOS_Thread(*Params.PROGRAM_BOOT) END"
+            
             ProcedureReturn
     EndProcedure
     
@@ -4487,26 +4503,28 @@ Module VEngine
 	            				Debug "SaveSupport: Restore Clean List Only"
 	            				SaveTool::CleanListing()
 	            			EndIf	
-	            EndIf			            
+	            		EndIf
+	            		Delay(25)
 	          EndIf
 	            
 	            
             ProgrammMutex  = CreateMutex()
             _Action1 = 0 
-            _Action1 = CreateThread(@DOS_Thread(),*Params)                                             
+            _Action1 = CreateThread(@DOS_Thread(),*Params)  
+            Debug "STARTE"
             
             
             ;
             ; ======================================================================================== Loop
             While IsThread(_Action1) 
                
-                Delay(1)                                                       
+                ;Delay(1)                                                       
                 vKeys::Init_Capture()
                 
                 ;Delay(1)
                 ;vKeys::Init_MM3DFocus()                  
                 
-                Delay(1)
+                ;Delay(1)
                 vKeys::Init_Terminate()                        
                                
 
@@ -4518,20 +4536,22 @@ Module VEngine
                 			If  ( Startup::*LHGameDB\NBWindowhwnd > 0 ) And ( Startup::*LHGameDB\Settings_NBNoShot = #False )                               
                 				Beep_(257,150)
                 				vSystem::Capture_Screenshot( GetFilePart(*Params\Program,#PB_FileSystem_NoExtension))
+                				Debug "10"
                 			EndIf
                 			
                 		Case 20                  			
                 			If ( ( vSystem::Terminate_Programm(*Params\hThread) = 0 ) )
                 				Break
                 			EndIf
-                			
+                			Debug "20"
                 		Case 30 
                 			If ( Startup::*LHGameDB\Settings_hkeyMMBT = #True )
-                			EndIf                            
+                			EndIf    
+                			Debug 30
                 	EndSelect
                 EndIf
-              
-              vSystem::LCD_Info(#True, #True)
+                
+              	vSystem::LCD_Info(#True, #True)
                 ;While WindowEvent()
                 ;Wend  
             Wend  
@@ -8032,13 +8052,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4757
-; FirstLine = 4693
+; CursorPosition = 4555
+; FirstLine = 4485
 ; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\Adult The Klub\
+; CurrentDirectory = D:\NewGame\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

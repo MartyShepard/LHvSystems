@@ -151,13 +151,13 @@ Module vSystemHelp
 					EndIf
 						
 
-					CurrentCmd = ReplaceString(CurrentCmd, Chr(32),Chr(37) + Kommando + Chr(32), #PB_String_CaseSensitive,CharIndex, 1)
+					CurrentCmd = ReplaceString(CurrentCmd, Chr(32), Chr(32) + Chr(37) + Kommando + Chr(32), #PB_String_CaseSensitive,CharIndex, 1)
 					StrGetSet_Text(CurrentCmd.s, CharIndex)
 					Debug "StrGetSet: ProcedureReturn 3"
 					ProcedureReturn 3
 				EndIf	
 			Else
-				CurrentCmd +  Chr(37) + Kommando
+				CurrentCmd + Chr(32) + Chr(37) + Kommando
 				StrGetSet_Text(CurrentCmd.s, 1)
 				Debug "StrGetSet: ProcedureReturn 4"
 				ProcedureReturn 4
@@ -607,9 +607,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 524
-; FirstLine = 236
-; Folding = vTBxfEc-
+; CursorPosition = 143
+; FirstLine = 124
+; Folding = -TBxfEc-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
