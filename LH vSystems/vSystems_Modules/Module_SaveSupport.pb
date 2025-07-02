@@ -175,12 +175,64 @@ Module SaveTool
 				
 		ProcedureReturn file
 	EndProcedure		
+		;
+		;
+	Procedure.b SHGetFolderPath_Forbidden(ShPath.s)
+		
+			ShPath = Slash_Add(ShPath)
+			Protected ShFound.i = #False
+ 			; Nicht Erlaubte Verzeichnisse
+			; C:\User\%username%\
+			; C:\User\%username%\documents\
+			; C:\Users\%username%\AppData\
+			; C:\Users\%username%\AppData\Local\
+			; C:\Users\%username%\AppData\LocalLow\
+			; C:\Users\%username%\AppData\Roaming\
+			; C:\Users\%username%\Desktop\
+			; C:\Users\%username%\Saved Games\
+ 			; C:\Users\%username%\Documents\My Games 		
+			Structure STRUCT_SHFOLDERSNO
+				SHDirectory.s
+			EndStructure  		
+			
+			NewList ShFolders.STRUCT_SHFOLDERSNO()
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory()
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "Documents\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "Desktop\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "Saved Games\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "Documents\My Games\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "AppData\"			
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "AppData\Local\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "AppData\LocalLow\"
+			AddElement( ShFolders() ): ShFolders()\SHDirectory = GetHomeDirectory() + "AppData\Roaming\"
+			
+			ResetList( ShFolders() )
+			While NextElement(  ShFolders() )
+				
+				If LCase( ShFolders()\SHDirectory) = LCase(ShPath) 							
+					ShFound = #True
+					Break
+				EndIf	 							
+			Wend
+						
+			FreeList( ShFolders() )
+			
+			ProcedureReturn  ShFound
+				
+	EndProcedure
 		;    
     ; Hole den Windows Programm CLSID Ordner (Angabe Variabel, Returncode ist der echte Path)
 		; 
 	Procedure.s SHGetFolderPath(ShPath.s) 
     	    	
-      Protected nPos.i, rPath.s = ShPath
+		Protected nPos.i, rPath.s = ShPath
+		
+		If Len( ShPath ) = 0
+			ProcedureReturn ""
+		EndIf
+		
+		ShPath = Slash_Add(ShPath)
+		rPath  = Slash_Add(rPath)		
       
   		Structure STRUCT_DATASH
          shData1.l
@@ -196,13 +248,15 @@ Module SaveTool
  			EndStructure   
  			 			
  			NewList ShFolders.STRUCT_SHFOLDERS()
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DESKTOP%\"				:ShFolders()\STRUCT_DATASH = ?FOLDERID_DESKTOP						:ShFolders()\Username = ""
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DOCUMENTS%\" 		:ShFolders()\STRUCT_DATASH = ?FOLDERID_DOCUMENTS					:ShFolders()\Username = ""
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%APPDATA%\" 			:ShFolders()\STRUCT_DATASH = ?FOLDERID_RoamingAppData			:ShFolders()\Username = ""
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATA%\" 	:ShFolders()\STRUCT_DATASH = ?FOLDERID_LOCALAPPDATA				:ShFolders()\Username = ""
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERPROFILE%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_UserProfiles				:ShFolders()\Username = UserName() + "\"
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%SAVEDGAMES%\"		:ShFolders()\STRUCT_DATASH = ?FOLDERID_SavedGames					:ShFolders()\Username = ""
- 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%GAMETASKS%\"			:ShFolders()\STRUCT_DATASH = ?FOLDERID_GameTasks					:ShFolders()\Username = "" 
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DESKTOP%\"							:ShFolders()\STRUCT_DATASH = ?FOLDERID_DESKTOP						:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%DOCUMENTS%\" 					:ShFolders()\STRUCT_DATASH = ?FOLDERID_DOCUMENTS					:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%APPDATA%\" 						:ShFolders()\STRUCT_DATASH = ?FOLDERID_RoamingAppData			:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATA%\" 				:ShFolders()\STRUCT_DATASH = ?FOLDERID_LOCALAPPDATA				:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%USERPROFILE%\"					:ShFolders()\STRUCT_DATASH = ?FOLDERID_UserProfiles				:ShFolders()\Username = UserName() + "\"
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%SAVEDGAMES%\"					:ShFolders()\STRUCT_DATASH = ?FOLDERID_SavedGames					:ShFolders()\Username = ""
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%GAMETASKS%\"						:ShFolders()\STRUCT_DATASH = ?FOLDERID_GameTasks					:ShFolders()\Username = "" 
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%LOCALAPPDATALOW%\"			:ShFolders()\STRUCT_DATASH = ?FOLDERID_LocalAppDataLow		:ShFolders()\Username = ""  			
+ 			
  			;
  			; Diese FOLDERID ist IN Windows 10 Version 1803 und höher veraltet. IN diesen Versionen wird 0x80070057 zurückgegeben: E_INVALIDARG
  			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%GAMES%\"					:ShFolders()\STRUCT_DATASH = ?FOLDERID_Games							:ShFolders()\Username = "" 
@@ -211,7 +265,7 @@ Module SaveTool
  			
  			;AddElement( ShFolders() ): ShFolders()\SHDirectory = "%HOMEDRIVE%\"
  			
-		
+			
 			Debug "SaveSupport CLSID: Eingangs Verzeichnis: " + ShPath
 			
  			ResetList( ShFolders() )
@@ -232,14 +286,15 @@ Module SaveTool
  					ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, SHGetFolderPath_Function( ShFolders()\STRUCT_DATASH) )
  				EndIf
  			Wend 		
- 			 			
+
+ 			
  			FreeList ( ShFolders() )
  			
  			If ShPath = ""
  				ShPath = rPath
  			EndIf
  			
- 			Debug "SaveSupport CLSID: Ausgangs Verzeichnis: " + ShPath
+ 			Debug "SaveSupport CLSID: Ausgangs Verzeichnis: " + ShPath 			 			
 		ProcedureReturn ShPath
     EndProcedure
  		;
@@ -867,7 +922,16 @@ Module SaveTool
 						; Der Letzte Backslash muss für die SHFileOp etnfernt werden	  			
 						Protected Source.s =	Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
 						Protected DestTo.s = 	RemoveSlash(SaveDirectorys()\Directory$)
-												
+						
+						ShNativ.b = SHGetFolderPath_Forbidden(DestTo)
+						If ( ShNativ = #True )
+							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support Abort","ACHTUNG: "+#CR$+"Eingetragendes Natives Home-User Verzeichnis ist nicht Erlaubt." + #CR$ + DestTo ,2,2,"",0,0,DC::#_Window_001)
+							CleanListing()
+  						HideGadget(DC::#Text_004,1)
+      				SetGadgetText(DC::#Text_004,"") 
+							ProcedureReturn -1
+						EndIf	
+						
 						DestDirName.s = ""
 						DestSavePath.s= ""
 						
@@ -996,6 +1060,15 @@ Module SaveTool
 	  			
 						Source.s = SaveDirectorys()\Directory$
 						DestTo.s = Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
+						
+						ShNativ.b = SHGetFolderPath_Forbidden(Source)
+						If ( ShNativ = #True )
+							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support Abort","ACHTUNG: "+#CR$+"Eingetragendes Natives Home-User Verzeichnis ist nicht Erlaubt." + #CR$ + Source ,2,2,"",0,0,DC::#_Window_001)
+							CleanListing()
+  						HideGadget(DC::#Text_004,1)
+      				SetGadgetText(DC::#Text_004,"")          	  									
+							ProcedureReturn -1
+						EndIf	
 						
 						If ( Request = 1 ) And (Options = 2)
            		Select FileSize( RemoveSlash(Source) )
@@ -1350,10 +1423,11 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Hints: Folder[count] : Folder[count] = Point to Directory(s) Backup/Restore")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Most Importants Key Variables on Windows: ")			
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DESKTOP%      : C:\Users\%username%\Desktop\")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DOCUMENTS%    : C:\Users\%username%\Documents\")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %APPDATA%      : C:\Users\%username%\AppData\Roaming\")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATA% : C:\Users\%username%\AppData\Local\")				
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DESKTOP%         : C:\Users\%username%\Desktop\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %DOCUMENTS%       : C:\Users\%username%\Documents\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %APPDATA%         : C:\Users\%username%\AppData\Roaming\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATA%    : C:\Users\%username%\AppData\Local\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATALOW% : C:\Users\%username%\AppData\Locallow\")						
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %USERPROFILE%  : C:\Users\%username%\")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %SAVEDGAMES%   : C:\Users\%username%\Documents\Saved Games")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")
@@ -1383,7 +1457,7 @@ Module SaveTool
 			Case -1					
 				SaveConfig_Generate()
 				If (Request = 1)
-					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Eine Blanko Konfigurations Datei  wurde Hinzugefügt",2,0,"",0,0,DC::#_Window_001)	
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Eine Blanko Konfigurations Datei wurde Hinzugefügt",2,0,"",0,0,DC::#_Window_001)	
 				EndIf				
 				ProcedureReturn 
 			Default
@@ -2197,10 +2271,10 @@ Module SaveTool
      EndDataSection	
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 478
-; FirstLine = 194
-; Folding = DGBQAAAg-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 928
+; FirstLine = 395
+; Folding = zNCAgLYA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

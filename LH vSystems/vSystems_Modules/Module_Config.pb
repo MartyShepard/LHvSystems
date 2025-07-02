@@ -426,6 +426,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.5
+				; Save-Game Support: Native Home-User sind nicht erlaubt
+        ; Save-Game Support: Added FOLDERID_LocalAppDataLow
+        
+        ;
 				; Version 0.60.4
 				; Fixed Save Support Nicht intialisierte Liste (doof)
         ; Mehrere Absicherungen und KOrrekturen für das Save Game Support
