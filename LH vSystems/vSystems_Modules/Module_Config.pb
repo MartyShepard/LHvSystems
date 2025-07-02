@@ -424,6 +424,12 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
+        ;
+				; Version 0.60.4
+				; Fixed Save Support Nicht intialisierte Liste (doof)
+        ; Mehrere Absicherungen und KOrrekturen für das Save Game Support
+        
         ;
 				; Version 0.60.3
 				; Savegame Support: Bennung des Titles ändert auch den Title in der Konfig sowie das Backup Verzeichnis
@@ -1087,8 +1093,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 429
-; FirstLine = 380
+; CursorPosition = 430
+; FirstLine = 392
 ; Folding = +D+
 ; EnableAsm
 ; EnableXP

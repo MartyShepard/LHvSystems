@@ -159,14 +159,15 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 29
+; CursorPosition = 63
+; FirstLine = 48
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = C:\Games\7 Days To Die\
+; CurrentDirectory = D:\NewGame\
 ; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display

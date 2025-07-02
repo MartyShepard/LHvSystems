@@ -2,6 +2,7 @@
     
 	Declare.i FileCheck()
 	Declare.i SaveFile_Close()
+	Declare	 SaveContent_Delete()
 	Declare   SaveConfig_AddCMD()
 	Declare.i SaveConfig_AddGame()
 	Declare   SaveConfig_Help()
@@ -288,8 +289,12 @@ Module SaveTool
 	Procedure.i SaveFile_GetRestore()
 		
 		Protected bValue.b
-		FirstElement( SaveOptions() )	
-		bValue.b = SaveOptions()\RestoreData
+		bValue = #False
+		If ListIndex( SaveOptions() )  > -1
+			FirstElement( SaveOptions() )	
+			bValue.b = SaveOptions()\RestoreData
+		EndIf
+		
 		ProcedureReturn bValue
 		
 	EndProcedure
@@ -308,8 +313,11 @@ Module SaveTool
 	Procedure.i SaveFile_GetBackup()
 		
 		Protected bValue.b
-		FirstElement( SaveOptions() )	
-		bValue.b = SaveOptions()\BackupData
+		bValue = #False
+		If ListIndex( SaveOptions() )  > -1		
+				FirstElement( SaveOptions() )	
+				bValue.b = SaveOptions()\BackupData
+		EndIf		
 		ProcedureReturn bValue
 		
 	EndProcedure
@@ -415,16 +423,56 @@ Module SaveTool
   	;
 		;
   Procedure.s SaveConfig_MenuFileExists()
+  	
+  	Protected ConfigGameTitle.s = "", DataBaseGameTitle.s, Count.i, StatusMsg.s, CountFolder.i
   	If FileSize( Startup::*LHGameDB\SaveTool\SaveFile ) = -1
-  		ProcedureReturn "Status: Nicht Konfiguriert"
+  		ProcedureReturn "Status: Keine Konfiguration"
   	EndIf
-  	ProcedureReturn "Status: Konfiguration OK"
+  	
+  	SaveContent_Read()
+  	
+  	ResetList( SaveDirectorys() )
+  	
+  	Count = ListSize( SaveDirectorys() )
+  	
+  	Select Count
+  		Case -1, 0
+  			StatusMsg = "Status: Nicht Konfiguriert"
+  		Default
+  			FirstElement( SaveDirectorys() )
+  			ConfigGameTitle		= SaveDirectorys()\GameTitle$
+  			DataBaseGameTitle = SaveConfig_GetGameTitle()
+  			
+  			If LCase( DataBaseGameTitle ) = LCase( ConfigGameTitle )
+  				StatusMsg = "Status: Konfiguration OK"
+  				
+	  			ResetList( SaveDirectorys() )
+	  			ForEach SaveDirectorys()
+	  				If Len( SaveDirectorys()\Directory$ ) > 0
+	  					CountFolder + 1
+	  				EndIf
+	  			Next
+	  			If ( CountFolder = 0 )
+	  				StatusMsg = "Status: Keine Verzeichnisse"
+	  			EndIf
+	  			
+  			Else
+  				StatusMsg = "Status: Falscher Spieletitel"
+  			EndIf
+  			
+
+  			
+  	EndSelect
+
+  	ClearList( SaveDirectorys() )
+  	
+  	ProcedureReturn StatusMsg
   EndProcedure
   	;
 		;  
   Procedure.i SaveConfig_ShowDirectories()
   	
-  	Protected HomeUserFolder.s = ""
+  	Protected HomeUserFolder.s = "", Count.i = 0
   	
   	If FileSize( Startup::*LHGameDB\SaveTool\SavePath ) = -2
   		
@@ -433,8 +481,13 @@ Module SaveTool
   			
   			ForEach SaveDirectorys() 	
   				HomeUserFolder.s +	Slash_Add( SaveDirectorys()\Directory$ ) + #CR$  				
+  				Count + 1
   			Next	
   			
+  			If ( Count = 0 )
+  				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Keine Verzeichnisse Konfiguriert",2,2,"",0,0,DC::#_Window_001)
+  				ProcedureReturn  0
+  			EndIf	
   			
   			Protected Message.s = "Verzeichnisse die Kopiert werden:" + Chr(13) + Chr(13) + HomeUserFolder
   			HomeUserFolder = ""
@@ -1150,6 +1203,85 @@ Module SaveTool
 			
 	EndProcedure
     ;
+		;
+	Procedure.i	SaveContent_Delete_Modus(FileType.s)
+			
+		Protected lFileOp.f, MemorySource.i, lFlags.w, lresult.i
+		
+		SHFileOp.SHFILEOPSTRUCT
+		
+		MemorySource = AllocateMemory(( Len(FileType)+2 ) * SizeOf(Character) )
+		If MemorySource
+			PokeS(MemorySource,FileType)
+		EndIf
+		
+		
+		lFileOp = #FO_DELETE
+		lFlags 	= #FOF_ALLOWUNDO|#FOF_SILENT|#FOF_NOCONFIRMATION
+		;
+		; Delete Ohne Mülleimer
+		;lFlags 	=  #FOF_SILENT|#FOF_NOCONFIRMATION
+		
+			SHFileOp\pFrom  = MemorySource
+			SHFileOp\wFunc  = lFileOp
+			SHFileOp\fFlags = lFlags
+			lresult = SHFileOperation_(SHFileOp)
+			
+			FreeMemory(MemorySource)
+			ProcedureReturn lresult
+			
+	EndProcedure		
+		;
+		;	
+	Procedure.i SaveContent_Delete()
+		Protected HasConfig.b = #False, HasGameSaveDir.b = #False, Result.i
+		
+		Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
+			Case -1								
+			Default
+				HasConfig  = #True 
+		EndSelect		
+		Select FileSize( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle() )
+			Case -2		
+				HasGameSaveDir = #True				
+			Default
+
+		EndSelect
+		
+		If 	( HasConfig  = #False And HasGameSaveDir = #False )
+			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Keine Konfiguration sowie Spielstand Verzeichnis zu  zu "+SaveConfig_GetGameTitle()+" Gefunden",2,0,"",0,0,DC::#_Window_001)
+			ProcedureReturn 
+			
+		ElseIf ( HasConfig  = #True And HasGameSaveDir = #False )
+				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration entdeckt",2,0,"",0,0,DC::#_Window_001)		
+				
+		ElseIf ( HasConfig  = #False And HasGameSaveDir = #True )			
+				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Spielstand Verzeichnis zu "+SaveConfig_GetGameTitle()+" Gefunden",2,0,"",0,0,DC::#_Window_001)					
+		EndIf
+		
+		If ( HasConfig  = #True )
+			Result = SaveContent_Delete_Modus(Startup::*LHGameDB\SaveTool\SaveFile)
+			
+			Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
+				Case -1:
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration Gelöscht (Liegt im Mülleimer)",2,0,"",0,0,DC::#_Window_001)		
+				Default
+					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
+			EndSelect
+		EndIf
+		
+		If (HasGameSaveDir = #True)	
+			Result = SaveContent_Delete_Modus( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle() )
+			Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
+				Case -1:
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup Gelöscht  (Liegt im Mülleimer)",2,0,"",0,0,DC::#_Window_001)		
+				Default
+					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
+			EndSelect
+		EndIf		
+		
+	EndProcedure
+		;
     ;
 	Procedure.b Exists_GameTitle()
 		
@@ -1423,8 +1555,9 @@ Module SaveTool
   				EndIf
   				
   				Request::*MsgEx\Return_String = DelayVal
-  				Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Restore","Wieviel Zeit soll vergehen zwischen der Widerherstellung und dem Starten des Spiels",12,0,"",0,1,DC::#_Window_001)					
-  				If ( Result = 0 )
+  				Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Restore","Wieviel Zeit soll vergehen zwischen der Widerherstellung und dem Starten des Spiels" + 
+  				                                                                                       #CR$ + "In Millisekunden (1000 = 1 Sekunde, 600000 = 1 Minute)",12,0,"",0,1,DC::#_Window_001)					
+  				If ( Result = 0 )  					  					  					
   					SaveChange()\SaveLine = "RestoreDelay=" + Request::*MsgEx\Return_String 
   				EndIf	
   				
@@ -1438,7 +1571,8 @@ Module SaveTool
   			EndIf
   			
   			Request::*MsgEx\Return_String = DelayVal
-  			Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Wieviel Zeit soll vergehen zwischen dem Sichern und dem beenden des Spiels",12,0,"",0,1,DC::#_Window_001)
+  			Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Wieviel Zeit soll vergehen zwischen dem Sichern und dem beenden des Spiels" +
+  			                                                                                      #CR$ + "In Millisekunden (1000 = 1 Sekunde, 600000 = 1 Minute)",12,0,"",0,1,DC::#_Window_001)		
   			If ( Result = 0 )  			
   				SaveChange()\SaveLine = "Backup-Delay=" + Request::*MsgEx\Return_String
   			EndIf
@@ -1465,7 +1599,11 @@ Module SaveTool
 		;
 		;
 	Procedure.i SaveFile_ChangeTitle(NewGameTitle.s, OldGameTitle.s)
-				SaveConfig_SetKeyValue("", -1, #False, 250, NewGameTitle.s, OldGameTitle.s)	
+				Protected  CurrentCmd.s = GetGadgetText( DC::#String_007 )				
+				If FindString(CurrentCmd, "%savetool", 1 , #PB_String_NoCase  )					
+					SaveConfig_SetKeyValue("", -1, #False, 250, NewGameTitle.s, OldGameTitle.s)	
+				EndIf
+				ProcedureReturn -1
 	EndProcedure  	
 		;
     ;	
@@ -1541,8 +1679,14 @@ Module SaveTool
 		           	"   befindet kann man das Monitoring einschalten oder %wmon in "			+ #CR$ +
 		           	"   der Kommandozeile angeben und in der Log ansehen."								+ #CR$ + #CR$ +
 		           	"Hints:"																															+ #CR$ +
-		           	"Wenn der Spiele Titel geändert wird muss auch der Titel in der"						+ #CR$ +
-								"Konfigurations Datei sowie das Verzeichnis geändert werden."
+		           	"Wenn der Spiele Titel geändert wird muss auch der Titel in der"			+ #CR$ +
+		           	"Konfigurations Datei sowie das Verzeichnis geändert werden."					+ #CR$ + #CR$ +
+		           	"Status Meldungen:"																										+ #CR$ +
+		           	"Nicht Konfiguriert"																									+ #CR$ +
+		           	"- Keine Verzeichnisse Gefunden"																			+ #CR$ +
+		           	"  Lösung: Verzeichnis hinzufügen"																		+ #CR$ +
+		           	"- Der Spieletitel wurde in der Konfiguration nicht gefunden"		      + #CR$ +
+		           	"  Lösung; Prüfen ob der Titel mit dem in der Datenbank übereinstimmt" 
 		                   																										  
 		           
 		
@@ -2054,9 +2198,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 698
-; FirstLine = 357
-; Folding = DABgIAR1
+; CursorPosition = 478
+; FirstLine = 194
+; Folding = DGBQAAAg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

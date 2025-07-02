@@ -35,6 +35,7 @@ Module INVMNU
 	;        
     Procedure Get_MenuItems_SaveSupport(MenuID.i)
     	
+    	
     	Select MenuID      	
     		Case 1600:	SaveTool::SaveConfig_Help()            			
     		Case 1601:	SaveTool::SaveConfig_Create(1)         			            			
@@ -49,10 +50,12 @@ Module INVMNU
     		Case 1605
     			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
     			SaveTool::SaveContent_Restore(0,1)            			            			
-    		Case 1606: 	SaveTool::SaveConfig_AddCMD()            			
+    		Case 1606: 	;SaveTool::SaveConfig_AddCMD()            			
+    			vSystemHelp::vSysCMD_SavegameSupport()
     		Case 1607: 	SaveTool::SaveConfig_OpenSaves()            			
     		Case 1608:	SaveTool::SaveConfig_Edit(1)            			
-    		Case 1610 ;Löschen            			            			
+    		Case 1610: ;Löschen 
+    			SaveTool::SaveContent_Delete()
     		Case 1611	;Komprimieren
     			SaveTool::SaveContent_Compress()              			
     		Case 1612; Zeige
@@ -185,14 +188,15 @@ Module INVMNU
     
     Procedure Set_AppMenu_SaveSupport(MenuID.i)
     	
+    	Protected Index.i
     	OpenSubMenu("vSystem: Save Support")
     		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle())  
     		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists())
     		MenuBar() 
     		MenuItem(1600, "Hilfe")
 	    	MenuBar() 
-	    	MenuItem(1615, "Info: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)))
-	    	MenuItem(1616, "Info: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)))
+	    	MenuItem(1615, "Info: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)) + " Millisekunden")
+	    	MenuItem(1616, "Info: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)) + " Millisekunden")
 	    	MenuItem(1614, "Info: Save Wiederherstellen")	
 	    	MenuItem(1613, "Info: Save Daten Sichern")	    	
 	    	MenuItem(1617, "Info: Save Daten Komprimieren")
@@ -222,10 +226,21 @@ Module INVMNU
     		EndIf
     	CloseSubMenu()     		   		      	
     	
-    	SetMenuItemState(MenuID, 1613, SaveTool::GetSaveOption(1))
-	    SetMenuItemState(MenuID, 1614, SaveTool::GetSaveOption(0))
-	    SetMenuItemState(MenuID, 1617, SaveTool::GetSaveOption(4))	    	
-	    	
+    	If CountGadgetItems(DC::#ListIcon_001) = 0
+    		SetMenuItemText(MenuID, 1618, "Keine Spiel Einträge")
+    		SetMenuItemText(MenuID, 1619, "Status: --")
+    		
+    		For Index = 1600 To 1624
+    			DisableMenuItem( MenuID, Index, 1)
+    		Next	
+    		
+    	
+    	Else	
+    		SetMenuItemState(MenuID, 1613, SaveTool::GetSaveOption(1))
+	    	SetMenuItemState(MenuID, 1614, SaveTool::GetSaveOption(0))
+	    	SetMenuItemState(MenuID, 1617, SaveTool::GetSaveOption(4))	    	
+	    EndIf 	
+	    
 	  EndProcedure  	
     Procedure Set_AppMenu(MenuID.i)    	
     	Protected MxItem
@@ -1067,9 +1082,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1034
-; FirstLine = 602
-; Folding = 8HQw-
+; CursorPosition = 228
+; FirstLine = 174
+; Folding = 8Hwy-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
