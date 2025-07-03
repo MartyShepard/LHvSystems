@@ -16,9 +16,8 @@ Features
 - No Standard Window
 - Start a Program with Multiple Commands Line Args
 - Screenshot/Box Gallerie (Support Excotic Format)
-  BMP, GIF (not Anim), ICO, JPG, PCX, PNG, TGA, TIFF, IFF Ilbm, DDS
+  BMP, GIF (not Anim), ICO, JPG, PCX, PNG, TGA, TIFF, IFF Ilbm, DDS  
 - builtin Editor with a Flexible Dock Window and Menü
-
 
 Optional Patches for Programs
 - Remove Border from Windowed Programs  
@@ -48,5 +47,5 @@ Optional Patches for Programs
 -   continue...
 
 Compiled with PB 5.73lts, Tested on Windows 7 and Windows 10
-  
+Do you Restricted on your computer?. Then you'll have to start this Application as an administrator.
 
