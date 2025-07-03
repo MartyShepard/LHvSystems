@@ -4528,7 +4528,7 @@ Module VEngine
                 vKeys::Init_Terminate()                        
                                
 
-                ProgramEventID = WaitWindowEvent()             
+                ProgramEventID = WindowEvent()             
                 If ( ProgramEventID = #WM_HOTKEY )
                 	Select EventwParam()
                 			
@@ -4554,7 +4554,9 @@ Module VEngine
               	vSystem::LCD_Info(#True, #True)
                 ;While WindowEvent()
                 ;Wend  
-            Wend  
+              Wend  
+              
+              ProcessEX::LHFreeMem()
             ; ======================================================================================== Loop
             
             ;
@@ -8052,8 +8054,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4555
-; FirstLine = 4485
+; CursorPosition = 4530
+; FirstLine = 4476
 ; Folding = 8--------8--fzT++
 ; EnableAsm
 ; EnableXP

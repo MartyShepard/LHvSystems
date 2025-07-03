@@ -426,6 +426,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.6
+				; Beim beenden des Programs 1x Speicher säubern
+        ; WatWindowEvent -> WaitWindow. Handelt doch besser das Beenden der Programme... bisher
+        
+        ;
 				; Version 0.60.5
 				; Save-Game Support: Native Home-User sind nicht erlaubt
         ; Save-Game Support: Added FOLDERID_LocalAppDataLow
@@ -1099,7 +1104,7 @@ Module Startup
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 430
-; FirstLine = 392
+; FirstLine = 395
 ; Folding = +D+
 ; EnableAsm
 ; EnableXP
