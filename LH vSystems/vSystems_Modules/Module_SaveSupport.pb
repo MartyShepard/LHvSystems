@@ -1243,7 +1243,7 @@ Module SaveTool
   		
   		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0
   			
-  			If ( SafeCount = 1 )
+  			If ( SafeCount > 1 )
   				;
 					; Wenn der Letze Schlüssel im Abschnitt nicht gefunden wird, steige sicherheitshalber aus
   				SaveOptions()\CompressLevel = 9
@@ -2332,10 +2332,10 @@ Module SaveTool
      EndDataSection	
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 1323
-; FirstLine = 580
-; Folding = D7EAw66A+
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1245
+; FirstLine = 656
+; Folding = D7EAw06A+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
