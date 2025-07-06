@@ -299,6 +299,19 @@ Module SaveTool
     EndProcedure
  		;
 		;
+  Procedure.i SaveConfig_SetButtonState(State.b = #True)
+  	ButtonEX::Disable(DC::#Button_001, State)            
+    ButtonEX::Disable(DC::#Button_002, State) 
+    ButtonEX::Disable(DC::#Button_287, State)
+    ButtonEX::Disable(DC::#Button_010, State)
+    ButtonEX::Disable(DC::#Button_011, State)
+    ButtonEX::Disable(DC::#Button_012, State)
+    ButtonEX::Disable(DC::#Button_013, State)                            
+    ButtonEX::Disable(DC::#Button_014, State)            
+    ButtonEX::Disable(DC::#Button_016, State)
+  EndProcedure
+		;
+    ;
  	Procedure SaveConfig_GetGameTitle_ClipBaord()
  		SetClipboardText(SaveConfig_GetGameTitle())
 		Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Restore","Der Spiele Titel wurde in die Zwischenablage gepeichert.",2,1,"",0,0,DC::#_Window_001)
@@ -716,7 +729,7 @@ Module SaveTool
 		;	
   Procedure.i FileSystem_CompressFiles(*PARAMS.COMPRESSPARAMS)
   	
-  	Protected hPackFile.l, hFile.l, hFLen.q,  PackError.i, PackDirectory.s, Count.i, Current.i
+  	Protected hPackFile.l, hFile.l, hFLen.q,  PackError.i, PackDirectory.s, Count.i, Current.i, *IntegrateMemory_Small, *IntegrateMemory
   	
 		ResetList( FileSystemList() )
 		
@@ -733,8 +746,8 @@ Module SaveTool
 		*PARAMS\PackFile = *PARAMS\Directory + "-["+Date +" # "+ Time + "]" +".7z"
 		
 		hPackFile = CreatePack(#PB_Any, *PARAMS\PackFile , #PB_PackerPlugin_Lzma, 9)  	
-		If PackError = 0
-				Debug "ERROR: FileSystem_CompressFiles: Pack Datei kann nicht erstellt werden"
+		If hPackFile = 0
+				Debug "vSystem Save Support ERROR: FileSystem_CompressFiles: Pack Datei kann nicht erstellt werden"
 		EndIf				
 			
   	HideGadget(DC::#Text_004,0)
@@ -755,7 +768,7 @@ Module SaveTool
 					If ( hFLen = 0 )
 						PackError = FileSystem_CompressAddTo(*PARAMS\Directory, hPackFile)
 						If PackError = 0
-							Debug "ERROR: FileSystem_CompressFiles: 0 Byte Dateien"
+							Debug "vSystem Save Support ERROR: FileSystem_CompressFiles: 0 Byte Dateien"
 						EndIf							
 						CloseFile(hFile)							
 					Else		
@@ -770,7 +783,7 @@ Module SaveTool
 																			
 							PackError = FileSystem_CompressAddTo(*PARAMS\Directory, hPackFile, #True *hFileBuffer, hFLen)
 							If PackError = 0
-								Debug "ERROR: FileSystem_CompressFiles: Puffer Fehler"
+								Debug "vSystem Save Support ERROR: FileSystem_CompressFiles: Puffer Fehler"
 							EndIf	
 						
 							Time2	=	ElapsedMilliseconds()
@@ -785,10 +798,13 @@ Module SaveTool
 					SetGadgetText(DC::#Text_004,"")
 				EndIf	
 			Wend
-  	
+			
+		Debug "vSystem Save Support: Alle Dateien Geapackt"
   	;
 		; Info hinzufügen wpo die Verzeichnisse waren.
   	InegrateTextFile.s = "Directory-Path-Save-Info.txt"
+  	
+  	Debug "vSystem Save Support: Füge info Hinzu"
   	
   	InegrateInfoFile.s = Startup::*LHGameDB\TitleVersion +
   	                     ": Save Support"  + 
@@ -802,26 +818,46 @@ Module SaveTool
 				InegrateInfoFile.s + ReplaceString( SaveDirectorys()\Directory$, UserName() , "%username%" ) + Chr(13)
 			Next
 			
+			Debug "vSystem Save Support: Füge Info Hinzu - Verzeichnis Liste hinzugefügt"
+			
+			
 			InegrateInfoFile + Chr(10) +
 			                   Chr(13) +
 			                   "* You can Copy and Paste the line with the variable in the Explorer Path Stringfield."  +
 			                   Chr(10) +
 			                   Chr(13)
 			
-			*IntegrateMemory = AllocateMemory( Len(InegrateInfoFile) )
+			Debug "vSystem Save Support: Info Hinzugefügt"
 			
-			Protected Result.i = PokeS(*IntegrateMemory, InegrateInfoFile, MemorySize(*IntegrateMemory ) ,#PB_Ascii )
+			*IntegrateMemory_Small = AllocateMemory( 1000 )
+			
+			*IntegrateMemory 			 = ReAllocateMemory(*IntegrateMemory_Small,  Len(InegrateInfoFile) ,#PB_Memory_NoClear)
+			
+			Debug "vSystem Save Support: Allokiere Speicher"
+			
+			Protected Result.l = PokeS(*IntegrateMemory, InegrateInfoFile, MemorySize(*IntegrateMemory ) ,#PB_Ascii )
 			If ( *IntegrateMemory )
 				PackError = AddPackMemory(hPackFile, *IntegrateMemory, MemorySize(*IntegrateMemory ) , InegrateTextFile)
 				If PackError = 0
 					Debug "ERROR: FileSystem_CompressFiles: Puffer Fehler"
 					CallDebugger
-				EndIf					
+				EndIf
+				If MemorySize(*IntegrateMemory )  > 0
+					FreeMemory( *IntegrateMemory )
+				EndIf
+				Debug "vSystem Save Support: Speicher Befreit"
 			EndIf	
 			
-			FreeMemory( *IntegrateMemory )
+			If ( *IntegrateMemory_Small > 0 )
+				*IntegrateMemory_Small = 0
+				ProcessEX::LHFreeMem()
+			EndIf
 			
+			Debug "vSystem Save Support: Info zum Archiv Hinzugefügt"
+
 			ClosePack(hPackFile)
+			
+			Debug "vSystem Save Support: Archiv Erstellt"
 			
   		HideGadget(DC::#Text_004,1)
   		SetGadgetText(DC::#Text_004,"")  			
@@ -837,15 +873,17 @@ Module SaveTool
   	
   	SaveContent_Read()
   	
+  	SaveConfig_SetButtonState()
+  	
 		ForEach SaveDirectorys() 	  			
 			Directory =	Slash_Add( Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$ )
 			Break
 		Next
 		
 		If Not ( FileSize( Directory ) = -2 )
-			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Compress","Das Save Game Verzeichnis nicht gefunden"	+ #CR$ +			                                                                              
-			                                                                          		Chr(34) + Directory + Chr(34) + #CR$ + #CR$ +
-									                                                                  "Pack vorgang abgebrochen. Hint: Titel Geändert?",2,1,"",0,0,DC::#_Window_001)
+			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Compress","Kein Save Game Verzeichnist gefunden"	+ #CR$ +
+			                                                                               "Pack vorgang abgebrochen. Hint: Titel Geändert?",2,1,"",0,0,DC::#_Window_001)
+			SaveConfig_SetButtonState(#False)
 			ProcedureReturn  -1
 		EndIf
 		
@@ -856,6 +894,7 @@ Module SaveTool
 		
 		If ( FileSystem_GetMaxFiles() = 0 ) And ( FileSystem_GetMaxDirs() = 0)
 			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Compress","Weder Verzeichnisse noch Dateien wurden im Save Game Ordner gefunden"	+ #CR$ + "Pack vorgang abgebrochen.",2,1,"",0,0,DC::#_Window_001)
+			SaveConfig_SetButtonState(#False)
 			ProcedureReturn  -1
 		EndIf		
 		;
@@ -872,8 +911,8 @@ Module SaveTool
     ThreadCompress = 0 
     ThreadCompress = CreateThread(@FileSystem_CompressFiles(),*Params.COMPRESSPARAMS)  		
     While IsThread(ThreadCompress) 
-    	Delay(25)
-    	 ProgramEventID = WindowEvent()
+    	Delay(5)
+    	ProgramEventID = WindowEvent()
     Wend
 			
 		Debug "Dateien: " + Str(FileSystem_GetMaxFiles())
@@ -882,6 +921,8 @@ Module SaveTool
 			ClearList( FileSystemList() )			
 			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support Compress","Save Game Backup wurde Komprimiert " +#CR$+ "("+ GetFilePart(*Params\PackFile) + ").",2,0,"",0,0,DC::#_Window_001)  
 		EndIf	
+		
+		 SaveConfig_SetButtonState(#False)
   EndProcedure  
   	;
 		;
@@ -1331,23 +1372,23 @@ Module SaveTool
 		ElseIf ( HasConfig  = #False And HasGameSaveDir = #True )			
 				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Spielstand Verzeichnis zu "+SaveConfig_GetGameTitle()+" Gefunden",2,0,"",0,0,DC::#_Window_001)					
 		EndIf
+				
+		If (HasGameSaveDir = #True)	
+			Result = SaveContent_Delete_Modus( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle() )
+			Select FileSize( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle()  )
+				Case -1:
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup Verzeichnis Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SavePath +  SaveConfig_GetGameTitle(),2,0,"",0,0,DC::#_Window_001)							
+				Default
+					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
+			EndSelect
+		EndIf		
 		
 		If ( HasConfig  = #True )
 			Result = SaveContent_Delete_Modus(Startup::*LHGameDB\SaveTool\SaveFile)
 			
 			Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
 				Case -1:
-					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration Gelöscht (Liegt im Mülleimer)",2,0,"",0,0,DC::#_Window_001)		
-				Default
-					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
-			EndSelect
-		EndIf
-		
-		If (HasGameSaveDir = #True)	
-			Result = SaveContent_Delete_Modus( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle() )
-			Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
-				Case -1:
-					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup Gelöscht  (Liegt im Mülleimer)",2,0,"",0,0,DC::#_Window_001)		
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SaveFile ,2,0,"",0,0,DC::#_Window_001)		
 				Default
 					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
 			EndSelect
@@ -2271,10 +2312,10 @@ Module SaveTool
      EndDataSection	
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 928
-; FirstLine = 395
-; Folding = zNCAgLYA-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 883
+; FirstLine = 246
+; Folding = D7EAAhxA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

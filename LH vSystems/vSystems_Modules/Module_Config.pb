@@ -426,6 +426,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.7
+				; Save Game Support. Large Compression Memory Fix
+				; ButtonExState Updated (Compression, Prgramm Running)
+        
+        ;
 				; Version 0.60.6
 				; Beim beenden des Programs 1x Speicher säubern
         ; WatWindowEvent -> WaitWindow. Handelt doch besser das Beenden der Programme... bisher
@@ -1103,7 +1108,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 430
+; CursorPosition = 432
 ; FirstLine = 395
 ; Folding = +D+
 ; EnableAsm

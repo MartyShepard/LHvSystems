@@ -4384,6 +4384,21 @@ Module VEngine
     	
     	
     EndProcedure     
+    
+ 		;
+		;
+	  Procedure.i DOS_SetButtonState(State.b = #True)
+	  	ButtonEX::Disable(DC::#Button_001, State)            
+	    ButtonEX::Disable(DC::#Button_002, State) 
+	    ButtonEX::Disable(DC::#Button_287, State)
+	    ButtonEX::Disable(DC::#Button_010, State)
+	    ButtonEX::Disable(DC::#Button_011, State)
+	    ButtonEX::Disable(DC::#Button_012, State)
+	    ButtonEX::Disable(DC::#Button_013, State)                            
+	    ButtonEX::Disable(DC::#Button_014, State)            
+	    ButtonEX::Disable(DC::#Button_016, State)
+	  EndProcedure
+	  
     ;****************************************************************************************************************************************************************
     ; Section Programm Starten
 		;****************************************************************************************************************************************************************
@@ -4478,6 +4493,8 @@ Module VEngine
             vItemTool::Item_Process_Loaded()
             
             If ( Startup::*LHGameDB\Settings_Asyncron = #False )
+            	
+            	DOS_SetButtonState()
             	
 	            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
 	                 ;
@@ -4660,7 +4677,7 @@ Module VEngine
                 UnregisterHotKey_( WindowID(DC::#_Window_001) , 20)
             EndIf    
             
-           
+           DOS_SetButtonState(#False)
     EndProcedure
     ;****************************************************************************************************************************************************************
     ; Versteckt/ Öffnet die Screenshots
@@ -8054,9 +8071,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4530
-; FirstLine = 4476
-; Folding = 8--------8--fzT++
+; CursorPosition = 4679
+; FirstLine = 4602
+; Folding = 8--------8---mn90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
