@@ -426,6 +426,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.8
+				; Save Game Support: Compression Level hinzugefügt        
+        ; Prüft ob die Konfigurations Datenbnak anhand eines anderen Datei Namens von vSystems im selben verzeichnis schon geöffnet ist
+        
+        ;
 				; Version 0.60.7
 				; Save Game Support. Large Compression Memory Fix
 				; ButtonExState Updated (Compression, Prgramm Running)
@@ -789,8 +794,22 @@ Module Startup
             ProcedureReturn dbSVN
         EndIf    
         
-        If ( Option = 1 )
-            ProcedureReturn  Title + ": " + GetFilePart( ProgramFilename() ,1)
+        If ( Option = 1 )       
+        	
+        	;
+        	; Prüft ob die Datenbank Geöffnet werden kann
+        	Protected fSize.q = FileSize( *LHGameDB\Base_Game )
+        	If fSize > -1
+        		Protected isOpenTest.l = ReadFile(#PB_Any,*LHGameDB\Base_Game)
+         		If ( isOpenTest > 0 )
+         			CloseFile( isOpenTest )
+         		Else
+         			Request::MSG("vSystems", "ERROR","Kann nicht auf die Datenbank Konfiguration zugreifen:" + #CR$ + *LHGameDB\Base_Game ,2,2,"",0,0)
+         			End
+         		EndIf	
+         	EndIf	
+         
+          ProcedureReturn  Title + ": " + GetFilePart( ProgramFilename() ,1)
         EndIf         
         
         
@@ -1108,9 +1127,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 432
-; FirstLine = 395
-; Folding = +D+
+; CursorPosition = 992
+; FirstLine = 900
+; Folding = -L+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

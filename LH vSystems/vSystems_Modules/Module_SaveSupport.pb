@@ -106,6 +106,7 @@ Module SaveTool
 		RestoreDelay.i
 		BackupDelay.i
 		BackupCompress.i
+		CompressLevel.i
  	EndStructure        
  	Global NewList SaveOptions.STRUCT_SAVETOOLOPTIONS()
  	
@@ -121,6 +122,7 @@ Module SaveTool
   	Directory.s
   	Count.i
   	PackFile.s
+  	Level.i
   EndStructure
   
    ;
@@ -745,7 +747,7 @@ Module SaveTool
 		
 		*PARAMS\PackFile = *PARAMS\Directory + "-["+Date +" # "+ Time + "]" +".7z"
 		
-		hPackFile = CreatePack(#PB_Any, *PARAMS\PackFile , #PB_PackerPlugin_Lzma, 9)  	
+		hPackFile = CreatePack(#PB_Any, *PARAMS\PackFile , #PB_PackerPlugin_Lzma, *PARAMS\Level)  	
 		If hPackFile = 0
 				Debug "vSystem Save Support ERROR: FileSystem_CompressFiles: Pack Datei kann nicht erstellt werden"
 		EndIf				
@@ -907,6 +909,7 @@ Module SaveTool
     
     *Params\Directory = Directory
     *Params\Count			= FileSystem_GetMaxFiles()
+    *Params\Level			= 9
 
     ThreadCompress = 0 
     ThreadCompress = CreateThread(@FileSystem_CompressFiles(),*Params.COMPRESSPARAMS)  		
@@ -1220,7 +1223,7 @@ Module SaveTool
   	
   	SaveFile_Read()
   	
-  	Protected nPos.i, BrakeCount.i
+  	Protected nPos.i, BrakeCount.i, SafeCount.i
   	Protected ItemData.s = "", ItemDirectory.s = "", TitleFound.i
   	;
 		; Optionen die abgefragt und in die Liste geischert werden
@@ -1229,6 +1232,7 @@ Module SaveTool
   	Protected Value_RestoreDelay.s 		= "RestoreDelay"
   	Protected Value_BackupDelay.s 			= "Backup-Delay"  
   	Protected Value_BackupCompress.s 	= "BackupCompress"
+  	Protected Value_CompressLevel.s 		= "Compress-Level"  	
   	;
 		;
   	TitleFound = #False
@@ -1239,6 +1243,13 @@ Module SaveTool
   		
   		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0
   			
+  			If ( SafeCount = 1 )
+  				;
+					; Wenn der Letze Schlüssel im Abschnitt nicht gefunden wird, steige sicherheitshalber aus
+  				SaveOptions()\CompressLevel = 9
+  				Break
+  			EndIf
+  				
   			ItemData = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)
   			
   			If Left(ItemData, 1) = "[" And Right(ItemData, 1)= "]" And TitleFound = #False
@@ -1283,6 +1294,7 @@ Module SaveTool
   				EndIf 
   				
   			ElseIf ( Left(ItemData,11) = Value_RestoreData ) And TitleFound = #True
+  				SafeCount + 1
   				Value.s = Value_RestoreData  				
   				SaveOptions()\RestoreData = SaveContent_Read_Options(Value, 11, ItemData, #True, #False)
   				If SaveOptions()\RestoreData = -1  					
@@ -1307,6 +1319,13 @@ Module SaveTool
   				SaveOptions()\BackupCompress = SaveContent_Read_Options(Value, 14, ItemData, #True, #False)
   				If SaveOptions()\BackupData = -1
   				EndIf
+  				
+  			ElseIf ( Left(ItemData,14) = Value_CompressLevel ) And TitleFound = #True				
+  				Value.s = Value_CompressLevel
+  				SaveOptions()\CompressLevel = SaveContent_Read_Options(Value, 14, ItemData, #False, #True)
+  				If SaveOptions()\CompressLevel = 0
+  					  SaveOptions()\CompressLevel = 9
+  				EndIf  				  				
   				;
 					; Letzte Keyvalue für den Spiele Titel, aussteighen
   				Break
@@ -1449,7 +1468,8 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Backup-Data=true")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "RestoreDelay=250")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Backup-Delay=250")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "BackupCompress=false")		
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "BackupCompress=false")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Compress-Level=9")				
 	EndProcedure
 	Procedure.i SaveConfig_Generate()
 		
@@ -2312,10 +2332,10 @@ Module SaveTool
      EndDataSection	
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 883
-; FirstLine = 246
-; Folding = D7EAAhxA+
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 1323
+; FirstLine = 580
+; Folding = D7EAw66A+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
