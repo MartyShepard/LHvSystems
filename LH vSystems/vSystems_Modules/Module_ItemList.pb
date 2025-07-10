@@ -198,14 +198,15 @@ Module vItemTool
                 ChildWindow = DC::#_Window_001                
         EndSelect  
         
-        Request::*MsgEx\Fnt1 = FontID(Fonts::#_FIXPLAIN7_12)
-        Request::*MsgEx\Fnt2 = FontID(Fonts::#_FIXPLAIN7_12)
+        ;Request::*MsgEx\Fnt1 = FontID(Fonts::#_FIXPLAIN7_12)
+        ;Request::*MsgEx\Fnt2 = FontID(Fonts::#_FIXPLAIN7_12)
         Request::*MsgEx\Fnt3 = FontID(Fonts::#_FIXPLAIN7_12)
         Request::*MsgEx\User_BtnTextL = "Ok"
         Request::*MsgEx\User_BtnTextR = "Cancel"
         Request::*MsgEx\Checkbox_On   = 1
         Request::*MsgEx\CheckBox_Txt  = ReturnString
         Request::*MsgEx\Return_String = ReturnString
+
         r = Request::MSG(Startup::*LHGameDB\TitleVersion,Title, Message,10,1,ProgramFilename(),0,1,ChildWindow)
         ProcedureReturn r
     EndProcedure    
@@ -684,9 +685,9 @@ Module vItemTool
             Default
                 TestString$ = ExecSQL::nRow(DC::#Database_001,*vList\ExtnTable,*vList\ExtnColumn,"",RowID,"",1)  
                 
-                SetActiveGadget(-1)
+                SetActiveGadget(-1)                               
                 
-                r = DialogRequest_Add("","",TestString$)
+                r = DialogRequest_Add("Eintrag Umbennen","Eintrag neuen Namen geben.",TestString$)
                 If (r = 1): SetActiveGadget(DC::#ListIcon_002): ProcedureReturn
                 Else
                     ;
@@ -823,9 +824,9 @@ Module vItemTool
     EndProcedure
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 227
-; FirstLine = 120
-; Folding = XcAA5
+; CursorPosition = 201
+; FirstLine = 117
+; Folding = XeEO5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

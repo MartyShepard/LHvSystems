@@ -976,14 +976,15 @@ DeclareModule Request
           If ( bDlgResize = #False )
           	; Message text
           		If (*MsgEx\Checkbox_On = 1) 
-          		 		rFntPixH-21
+          		 		;rFntPixH-2
           		 EndIf	          	
               FORM::TextObject(#REXT1,MessPosX ,MessPosY ,rFntPixW, rFntPixH,
                                *MsgEx\Fnt2,
                                *MsgEx\Col_TextFrn,
                                *MsgEx\Col_TextBck,
                                *MsgEx\Message_Text,*MsgEx\Text_Justify)
-          Else    
+                            
+            Else    
           		  If (*MsgEx\Checkbox_On = 1) 
           		  		*MsgEx\WH-21
           		  EndIf	
@@ -1016,7 +1017,7 @@ DeclareModule Request
                                *MsgEx\Col_TextBck,
                                *MsgEx\CheckBox_Txt,#SS_RIGHT) 
               
-              WinGuru::ThemeBox(#REXW0,PosW , 1, 0, PosY -2, $1F1F1F)
+              WinGuru::ThemeBox(#REXW0,PosW , 1, 2, PosY -2, $1F1F1F)
               
               SetWindowCallback(@MSG_Internal_CallBack(), #REXW0): SetGadgetState(#REXCBBTN,*MsgEx\CheckBox_En)
           EndIf
@@ -1290,15 +1291,15 @@ CompilerIf #PB_Compiler_IsMainFile
 ;                   r = Request::MSG("Test", "Single Button Quit"   ,MessageText$,6)
 ;                   
                    Request::*MsgEx\CheckBox_Txt = BoxText$
-                   r = Request::MSG("Test", "Single Mit Checkbox"  ,MessageText$,1,0,"",1)
+                   r = Request::MSG("Test", "Single Mit Checkbox"  ,"Hallo",11,0,"",1)
 ;                   
 ;                   
 ;                   Request::*MsgEx\User_BtnTextL = "Button Links"
 ;                   Request::*MsgEx\User_BtnTextR = "Button Rechts"
-;                   Request::*MsgEx\CheckBox_Txt  = BoxText$
+                   Request::*MsgEx\CheckBox_Txt  = BoxText$
 ;                   Request::*MsgEx\Return_String = BoxText$                  
 ;                   r = Request::MSG("Test", "2 Buttons mit Eigenen Text",MessageText$,10)
-;                   r = Request::MSG("Test", "2 Buttons Ja / Nein"       ,MessageText$,11)
+                   r = Request::MSG("Test", "2 Buttons Ja / Nein"       ,MessageText$,11)
 ;                   r = Request::MSG("Test", "2 Buttons Ok / Cancel"     ,MessageText$,12)
 ;                   r = Request::MSG("Test", "2 Buttons Ok / Beenden"    ,MessageText$,13)
 ;                   
@@ -1357,8 +1358,8 @@ CompilerIf #PB_Compiler_IsMainFile
 
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 801
-; FirstLine = 652
+; CursorPosition = 1019
+; FirstLine = 857
 ; Folding = PC5--
 ; EnableAsm
 ; EnableThread

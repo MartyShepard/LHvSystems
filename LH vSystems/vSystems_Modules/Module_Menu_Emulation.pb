@@ -8,6 +8,11 @@ DeclareModule PortsHelp
          Port_ShortName.s			; 
          Path_Default.s				; Path_Default$
          File_Default.s				; File_Default$
+         WorkFolder.s
+         MediaDeviceA.s
+         MediaDeviceB.s
+         MediaDeviceC.s
+         MediaDeviceD.s         
          MenuItemText.s
          MenuIndex.i         
          bCharSwitch.i
@@ -29,6 +34,64 @@ EndDeclareModule
 Module PortsHelp
 	Procedure DataModes(List PortCommandline.CmpPortModus())
 		
+			; 
+			; Dosbox Optionals
+		; ============================================================================================================================================================================			
+			AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "DOSBox Optionals" 							:PortCommandline()\bMenuSubBeg = #True
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: MS-DOS"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load MS-DOS" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigDOS.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[ MS-DOS ]\CONFIGS\DOS-GAME.CONF"			
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: Windows 3.x"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load Windows 3.x" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW31.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-31 ]\CONFIGS\WIN3X-GAME.CONF"
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: Windows 95"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load Windows 95" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW95.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-95 ]\CONFIGS\WIN95-GAME.CONF"
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: Windows 98"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load Windows 98" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW98.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-98 ]\CONFIGS\WIN98-GAME.CONF"
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: Windows ME"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load Windows Millenium" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigWME.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-98 ]\CONFIGS\WIN98-GAME.CONF"
+			
+			
+			AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  	:PortCommandline()\Description = ""  :PortCommandline()\bMenuSubEnd = #True	
+		; ============================================================================================================================================================================				
 		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "System: Pc DOS" :PortCommandline()\bMenuSubBeg = #True  		
 		AddElement(PortCommandline()):
 			PortCommandline()\Description	= "PC MsDOS: DOSBox"
@@ -1108,11 +1171,26 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM 
 						
 			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "MSX 1: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-08Bit-Handheld_GBA --noMenuBar --system MSX %cpuf"
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Cart Load"
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True		
+			
+			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "MSX 2"
 			PortCommandline()\PortModus  			 	= "msx2 -cart %s -skip_gameinfo"
 			PortCommandline()\Port_ShortName 		= "Mame"
 			PortCommandline()\MenuItemText    	= "Variant: Cart Load"
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM			
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "MSX 2: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-08Bit-Handheld_GBA --noMenuBar --system MSX2 %cpuf"
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Cart Load"
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True		
+						
 			
 		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
 		;AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "-----------------------------" :PortCommandline()\bMenuBar = #True  				
@@ -1222,12 +1300,21 @@ Module PortsHelp
 			PortCommandline()\MenuItemText    	= "Variant: Rom Load"	
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			
+			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Nintendo 64: Mupen64Plus"
 			PortCommandline()\PortModus  			 	= "%s"
 			PortCommandline()\Port_ShortName 		= "Mupen64Plus"
 			PortCommandline()\MenuItemText    	= "Variant: Rom Load"			
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True	
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Nintendo 64: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-32Bit-Console_N64 --noMenuBar %cpuf"
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Rom Load"			
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True	
+			
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Nintendo 64"
@@ -1273,6 +1360,14 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM 
 			
 			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Nintendo Game Boy Advance: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-08Bit-Handheld_GBA --noMenuBar"			
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Rom Load (GBA)"
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			
+			
+			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Nintendo Super Game Boy"
 			PortCommandline()\PortModus  			 	= "supergb -cart %s -skip_gameinfo"			
 			PortCommandline()\Port_ShortName 		= "Mame"
@@ -1285,6 +1380,14 @@ Module PortsHelp
 			PortCommandline()\Port_ShortName 		= "Mame"
 			PortCommandline()\MenuItemText    	= "Variant: Rom Load (SGB2)"
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM 
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Nintendo GameBoy/GBC/GBA: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-08Bit-Handheld_GBM --noMenuBar %cpuf"
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Rom Load"
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Nintendo GameBoy/GBC/GBA: VisualAdvance-M"
@@ -1419,13 +1522,21 @@ Module PortsHelp
 			PortCommandline()\MenuItemText    	= "Variant: Cart & CD"
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True :	PortCommandline()\MenuImageID = DI::#_MNU_MAM 
 			
-  			AddElement(PortCommandline()):
+  		AddElement(PortCommandline()):
 			PortCommandline()\Description	= "NEC TurboGrafx 16 (CD-Rom)"
 			PortCommandline()\PortModus  			 	= "tg16 -cart %s -cdrom %s -skip_gameinfo"
 			PortCommandline()\Port_ShortName 		= "Mame"
 			PortCommandline()\MenuItemText    	= "Variant: Cart & CD"
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM
-
+			
+  		AddElement(PortCommandline()):
+			PortCommandline()\Description	= "NEC TurboGrafx 16: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-16Bit-ConsolesA --noMenuBar --system "+Chr(34)+"PC Engine CD"+Chr(34)
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Cart & CD"
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			
+			
 		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
 		;AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "-----------------------------" :PortCommandline()\bMenuBar = #True  				
 		; ============================================================================================================================================================================	
@@ -1582,6 +1693,14 @@ Module PortsHelp
 			PortCommandline()\Port_ShortName 		= "GensHD"
 			PortCommandline()\MenuItemText    	= "Variant: Rom Load"			
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Sega Genesis (SMD): Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-16Bit-ConsolesA --noMenuBar --system "+Chr(34)+"Mega Drive"+Chr(34)
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: Rom Load"			
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Sega Mega-Drive / Genesis (US)"
@@ -1873,7 +1992,22 @@ Module PortsHelp
 		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
 		;AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "-----------------------------" :PortCommandline()\bMenuBar = #True  				
 		; ============================================================================================================================================================================				
-		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "System: Sony" :PortCommandline()\bMenuSubBeg = #True										
+		
+			AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "System: Sony" :PortCommandline()\bMenuSubBeg = #True										
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Sony Playstation 1: Ares (Fork)"
+			PortCommandline()\PortModus  			 	= "%s --shader CRT-16Bit-ConsolesA --noMenuBar --system "+Chr(34)+"PlaySation"+Chr(34)
+			PortCommandline()\Port_ShortName 		= "Ares"
+			PortCommandline()\MenuItemText    	= "Variant: CD Load"			
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+											
+			AddElement(PortCommandline()):
+			PortCommandline()\Description	= "Sony Playstation 1: Duckstation"
+			PortCommandline()\PortModus  			 	= "%s -fastboot"
+			PortCommandline()\Port_ShortName 		= "Duckstation"
+			PortCommandline()\MenuItemText    	= "Variant: CD Load"			
+			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+																	
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "Sony Playstation 1: ePSXe"
 			PortCommandline()\PortModus  			 	= "-loadbin %s -nogui"
@@ -2014,7 +2148,7 @@ Module PortsHelp
 		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
 		;AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "-----------------------------" :PortCommandline()\bMenuBar = #True  				
 		; ============================================================================================================================================================================				
-		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "VTech CreatVision" :PortCommandline()\bMenuSubBeg = #True
+		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "System: VTech" :PortCommandline()\bMenuSubBeg = #True
 			AddElement(PortCommandline()):
 			PortCommandline()\Description	= "VTech CreatVision"
 			PortCommandline()\PortModus  			 	= "crvisio -cart %s -skip_gameinfo"			
@@ -2022,9 +2156,9 @@ Module PortsHelp
 			PortCommandline()\MenuItemText    	= "Variant: Cart Load"
 			PortCommandline()\File_Default 			= PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True:	PortCommandline()\MenuImageID = DI::#_MNU_MAM 
 			
-		AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
-		;AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = "-----------------------------" :PortCommandline()\bMenuBar = #True  				
-		; ============================================================================================================================================================================	
+			AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  :PortCommandline()\Description = ""                              :PortCommandline()\bMenuSubEnd = #True
+	
+	
       
         ResetList(PortCommandline())
         Protected Max_Saves_List = ListSize(PortCommandline()) 
@@ -2074,8 +2208,8 @@ Module PortsHelp
    	EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2021
-; FirstLine = 1994
+; CursorPosition = 50
+; FirstLine = 30
 ; Folding = --
 ; EnableAsm
 ; EnableXP

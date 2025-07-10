@@ -85,7 +85,7 @@ Module FORM
     ;________________________________________________________________________________________________________________________________    
     Procedure TextObject(TextGadgetID.i,X.i,Y.i,W.i,H.i,TextFontID.i,TextColorFront=$000000,TextColorBack=$000000,TextString$="",Flags.i=0)
         
-        TextGadget(TextGadgetID.i, X, Y, Abs(W), H,TextString$,Flags) 
+        TextGadget(TextGadgetID.i, X, Y, Abs(W), Abs(H),TextString$,Flags) 
                        
         SetGadgetFont(TextGadgetID.i, TextFontID)
         SetGadgetColor(TextGadgetID.i,#PB_Gadget_FrontColor,TextColorFront) 
@@ -1122,8 +1122,8 @@ Module FORM
     EndProcedure   
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1002
-; FirstLine = 466
+; CursorPosition = 87
+; FirstLine = 55
 ; Folding = 8XjAAv8
 ; EnableAsm
 ; EnableXP

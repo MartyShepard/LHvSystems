@@ -31,10 +31,11 @@ Module INVMNU
     Procedure.i MNU_SetCheckmark(MenuID.i, Itemm.i, State.i)                
             SetMenuItemState(MenuID, Itemm, State)        
     EndProcedure
-	;
-	;        
+
+    ;
+		;         
     Procedure Get_MenuItems_SaveSupport(MenuID.i)
-    	
+    	Protected Result.i
     	
     	Select MenuID      	
     		Case 1600:	SaveTool::SaveConfig_Help()            			
@@ -46,7 +47,7 @@ Module INVMNU
     			SaveTool::SaveContent_Backup(0,1)            			
     		Case 1609
     			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
-    			SaveTool::SaveContent_Backup(2,1)            			            			
+    			SaveTool::SaveContent_Backup(3,1)            			            			
     		Case 1605
     			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
     			SaveTool::SaveContent_Restore(0,1)            			            			
@@ -189,7 +190,14 @@ Module INVMNU
     Procedure Set_AppMenu_SaveSupport(MenuID.i)
     	
     	Protected Index.i
-    	OpenSubMenu("vSystem: Save Support")
+	    	If IsWindow( DC::#_Window_003 )		    	
+	    		OpenSubMenu("vSystem: Save Support", ImageID( DI::#_MNU_SAVESUPPORT))
+	    	Else
+	    		;
+	    		; Try Icon
+	    		OpenSubMenu("Save Support", ImageID( DI::#_MNU_SAVESUPPORT))	    		
+	    	EndIf
+	    	
     		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle())  
     		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists())
     		MenuBar() 
@@ -202,30 +210,48 @@ Module INVMNU
 	    	MenuItem(1617, "Info: Save Daten Komprimieren")
 	    	MenuItem(1612, "Info: Konfigurierte Verzeichnisse")	    	
     		MenuBar() 
-	    	MenuItem(1601, "Config: Erstellen")
-	    	MenuItem(1602, "Config: Spiel Hinzufügen")
-    		MenuBar() 
-	    	MenuItem(1603, "Config: Editieren")
+    		MenuItem(1601, "Config: Erstellen",					ImageID( DI::#_MNU_SAVECREATE))
+	    	If IsWindow( DC::#_Window_003 )	    		
+	    		MenuItem(1602, "Config: Spiel Hinzufügen")
+	    	EndIf
+	    	MenuBar()
+	    	If IsWindow( DC::#_Window_003 )		    	
+	    		MenuItem(1603, "Config: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
+	    	EndIf
 	    	MenuItem(1608, "Config: Editieren (Öffne Mit..)")
 	    	MenuItem(1620, "Config: Verzeichnis Nr.1 wählen")
 	    	MenuItem(1621, "Config: Verzeichnis Nr.2 wählen")	    	
 	    	MenuItem(1622, "Config: Verzeichnis Nr.3 wählen")
 	    	MenuItem(1623, "Config: Verzeichnis Nr.4 wählen")
 	    	MenuItem(1624, "Config: Verzeichnis Nr.5 wählen")    	
-	    	MenuBar() 	    	
+	    	MenuBar() 	    	   	
 	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    	
-	    	MenuBar() 
-	    	MenuItem(1604, "Save Backup (Modus Kopieren)")
-	    	MenuItem(1609, "Save Backup (Modus Verschieben)")        		
-	    	MenuItem(1605, "Save Widerherstellen")
-	    	MenuItem(1610, "Save Backup Löschen")
-	    	MenuItem(1611, "Save Backup Komprimieren")	    	
-	    	If IsWindow( DC::#_Window_003 )
-    			MenuBar() 
-    			MenuItem(1606, "Commandline Hinzufügen")
-    		EndIf
-    	CloseSubMenu()     		   		      	
-    	
+	    	If IsWindow( DC::#_Window_003 )		 	    	
+	    			MenuBar() 
+	    			MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
+	    			MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))        		
+	    			MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
+	    			MenuItem(1610, "Save Backup: Löschen",					ImageID( DI::#_MNU_SAVEBCKDEL))
+	    	Else
+	    			MenuBar() 
+	    	EndIf
+	    	MenuItem(1611, "Save Backup Komprimieren",					ImageID( DI::#_MNU_SAVECOMPRESS))    		
+	    	If IsWindow( DC::#_Window_003 )		    	
+	    		MenuBar() 	    		
+	    		MenuItem(1606, "Commandline Hinzufügen")    		
+	    	EndIf
+    		CloseSubMenu()     		   		      	
+    		If Not IsWindow( DC::#_Window_003 )    			
+    			;
+					; Tray Icon
+    			MenuItem(1602, "Save Config: Erstellen",				ImageID( DI::#_MNU_SAVECREATE))
+    			MenuItem(1603, "Save Config: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
+    			MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
+    			MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))
+    			MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
+    			MenuItem(1610, "Save Backup: Löschen"					,	ImageID( DI::#_MNU_SAVEBCKDEL))
+    		EndIf	
+    			
     	If CountGadgetItems(DC::#ListIcon_001) = 0
     		SetMenuItemText(MenuID, 1618, "Keine Spiel Einträge")
     		SetMenuItemText(MenuID, 1619, "Status: --")
@@ -1082,9 +1108,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 228
-; FirstLine = 174
-; Folding = 8Hwy-
+; CursorPosition = 237
+; FirstLine = 111
+; Folding = bHwy-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

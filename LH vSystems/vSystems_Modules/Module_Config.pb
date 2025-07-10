@@ -426,6 +426,14 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.10
+				; Save Game Support: Ersten Icons hinzugefügt
+				; Save Game Support: Requester ausgearbeitet        
+				; Dialog Resquester Rename für untergruppen aktualisiert
+				; Emulations/Ports Liste erweitert
+				; Dialog Requester: Höhe Fixed
+        
+        ;
 				; Version 0.60.8
 				; Save Game Support: Compression Level hinzugefügt        
         ; Prüft ob die Konfigurations Datenbnak anhand eines anderen Datei Namens von vSystems im selben verzeichnis schon geöffnet ist
@@ -1127,8 +1135,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 992
-; FirstLine = 900
+; CursorPosition = 430
+; FirstLine = 408
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

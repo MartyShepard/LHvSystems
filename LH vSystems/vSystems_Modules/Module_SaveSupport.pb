@@ -30,6 +30,7 @@
 	Declare.i SaveFile_GetBackupCompress()
 	Declare	 CleanListing()
 	
+	Declare.i DialogRequest_SaveSupport(Modus.i = 0)
 EndDeclareModule
 
 Module SaveTool
@@ -926,7 +927,68 @@ Module SaveTool
 		EndIf	
 		
 		 SaveConfig_SetButtonState(#False)
-  EndProcedure  
+		EndProcedure
+		;
+		;  Modus 0 = Backup Kopieren, 1 = Backup Verschieben
+		Procedure.i DialogRequest_SaveSupport(Modus.i = 0)
+			Protected Result, ChildWindow, Title.s, Message.s
+			
+			; Selektiere die Richtige Window ID. Diese ist wichtig für den Request Dialog
+			Select Startup::*LHGameDB\UpdateSection              
+				Case 4
+					ChildWindow = DC::#_Window_003
+				Default
+					ChildWindow = DC::#_Window_001
+			EndSelect  
+			
+			Title.s	= "vSystem Save Support"
+			
+			If Modus = 0
+				Message.s = "Backup:" +#CR$+ "Die Sicherungsdateien des Spiels nach vSystems Verschieben?."  		
+			EndIf
+			If Modus = 2
+				Message.s = "Wiederherstellung:" +#CR$+ "Die Sicherungsdateien des Spiels in das Ursprüngliche Verzeichnis wiederherstellen."  		
+			EndIf			
+			If Modus = 3
+				Message.s = "Backup:" +#CR$+ "Die Sicherungsdateien des Spiels nach vSystems Verschieben?."+#CR$+"Löschung verschiebt den Quell Inhalt in den Müllemier"  		
+			EndIf
+			
+			
+			Request::*MsgEx\User_BtnTextL = "Ja"
+			Request::*MsgEx\User_BtnTextR = "Nein"
+			If Modus = 0			
+				Request::*MsgEx\CheckBox_Txt  = "Kopieren und Ersetzen ohne Nachfragen?"
+			EndIf
+			If Modus = 2			
+				Request::*MsgEx\CheckBox_Txt  = "Ersetzen ohne Nachzufragen?"
+			EndIf			
+			If Modus = 3			
+				Request::*MsgEx\CheckBox_Txt  = "Verschieben und Ersetzen ohne Nachfragen?"
+			EndIf
+			
+			Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,11,2,ProgramFilename(),1,0,ChildWindow )
+			Debug Result
+			;
+			; Aktivere das Richtige in dem Jeweiligen Fenster
+			Select Startup::*LHGameDB\UpdateSection    			
+				Case 2,3,4      
+					SetActiveGadget(ChildWindow)
+				Default
+					SetActiveGadget(DC::#ListIcon_001)
+			EndSelect         
+			
+			If Result = 0
+				;
+				; Backup Mit Abfrage der Dateien
+				ProcedureReturn #True
+			ElseIf  Result = 4
+				;
+				; Backup Ohne Abfrage der Dateien	
+				ProcedureReturn 4
+			EndIf
+			
+			ProcedureReturn #False
+		EndProcedure   		
   	;
 		;
 		; Options = 0 = Normaler Kopiermodus
@@ -938,21 +1000,35 @@ Module SaveTool
  		Protected lFlags.w 
  		Protected Notify.s
  		
-  	SHFileOp.SHFILEOPSTRUCT    ;Windows API Structure
-  	
-  	;  #FO_MOVE, #FO_RENAME
-  	Select Options
-  		Case 0: lFileOp = #FO_COPY 
-  		Case 1: lFileOp = #FO_COPY: lFlags = #FOF_NOCONFIRMATION
-  	EndSelect		
-  	
   	If (GetMaxItems() = -1)
   		If ( Request.i = 1 )
   				 Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Restore: Es befinden sich keine Verzeichnisse in der Konfigurations datei.",2,3,"",0,0,DC::#_Window_001)  				 
   		EndIf		 
 			ProcedureReturn   				
-  	EndIf	
-
+		EndIf
+		
+		If ( Request = 1 ) And ( (Options = 0) Or (Options = 3))			
+			Result = DialogRequest_SaveSupport(2)
+			If Result = #False
+				CleanListing()
+				ProcedureReturn #False
+			ElseIf ( Result = 4 ) And (Options = 0)
+				Options = 1
+			ElseIf ( Result = 4 ) And (Options = 3)
+				Options = 2
+			EndIf			
+		EndIf
+ 		
+  	SHFileOp.SHFILEOPSTRUCT    ;Windows API Structure
+  	
+  	;  #FO_MOVE, #FO_RENAME
+  	Select Options
+  		Case 0: lFileOp = #FO_COPY 
+  		Case 1:
+  			lFileOp = #FO_COPY
+  			lFlags = #FOF_NOCONFIRMATION
+  	EndSelect		
+  	
   	If (GetMaxItems() > -1)
   		
   		If (Options = 1) And (Request = 0)
@@ -1058,12 +1134,28 @@ Module SaveTool
  		Protected lFlags.w
  		Protected Notify.s, CopyFlag.s
  		
- 		If ( Request = 1 ) And (Options = 2)
- 			   Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support", "Backup: Die Sicherungsdateien des Spiels nach vSystems Verschieben?."+#CR$+" (Löschung verschiebt den Quell Inhalt in den Müllemier) ",11,1,ProgramFilename(),0,0,DC::#_Window_001 )         
-         If Result > 0
-             ProcedureReturn #False
-           EndIf          
-    EndIf
+  	If (GetMaxItems() = -1)
+  		If ( Request.i = 1 )
+  				 Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup: Es befinden sich keine Verzeichnisse in der Konfigurations datei.",2,3,"",0,0,DC::#_Window_001)  				 
+  		EndIf
+			ProcedureReturn  				
+		EndIf
+		
+		If ( Request = 1 ) And ( (Options = 0) Or (Options = 3))
+			
+			Result = DialogRequest_SaveSupport(Options)
+			
+ 			;Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support", "Backup: Die Sicherungsdateien des Spiels nach vSystems Verschieben?."+#CR$+" (Löschung verschiebt den Quell Inhalt in den Müllemier) ",11,1,ProgramFilename(),0,0,DC::#_Window_001 )         
+ 			If Result = #False
+ 				CleanListing()
+ 				ProcedureReturn #False
+ 			ElseIf ( Result = 4 ) And (Options = 0)
+ 				Options = 1
+ 			ElseIf ( Result = 4 ) And (Options = 3)
+ 				Options = 2
+ 			EndIf
+ 			
+ 		EndIf
   	SHFileOp.SHFILEOPSTRUCT    ;Windows API Structure
   	
   	lFileOp = #FO_COPY ;  #FO_MOVE, #FO_RENAME
@@ -1083,14 +1175,13 @@ Module SaveTool
   			lFlags  = #FOF_NOCONFIRMATION|#FOF_ALLOWUNDO  			
   			CopyFlag= "Move Modus"  			
   			Debug "vSystem Save Support: Backup - Wird gesichert: Verschieben/ Keine bestätigung"
+  		Case 3
+  			lFileOp = #FO_MOVE
+  			lFlags  = #FOF_ALLOWUNDO  			
+  			CopyFlag= "Move Modus"  			
+  			Debug "vSystem Save Support: Backup - Wird gesichert: Verschieben"  			
   	EndSelect	
-  	
-  	If (GetMaxItems() = -1)
-  		If ( Request.i = 1 )
-  				 Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup: Es befinden sich keine Verzeichnisse in der Konfigurations datei.",2,3,"",0,0,DC::#_Window_001)  				 
-  		EndIf
-			ProcedureReturn  				
-  	EndIf	
+  		
   		
   	If (GetMaxItems() > -1)
   		
@@ -1151,7 +1242,7 @@ Module SaveTool
 								EndIf
 						Else					
 							If ( Request.i = 1 )
-								Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Verzeichnis wurde sichergestellt" + #CR$ + Chr(34) + Source + "\" + Chr(34),2,1,"",0,0,DC::#_Window_001)
+								Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Backup","Verzeichnis wurde sichergestellt" + #CR$ + Chr(34) + Source + Chr(34),2,1,"",0,0,DC::#_Window_001)
 							EndIf
 							
 							If (Options = 2)
@@ -1365,9 +1456,53 @@ Module SaveTool
 			
 	EndProcedure		
 		;
+		;  Modus 0 = Backup Kopieren, 1 = Backup Verschieben
+		Procedure.i DialogRequest_SaveDelete()
+			Protected Result, ChildWindow, Title.s, Message.s
+			
+			; Selektiere die Richtige Window ID. Diese ist wichtig für den Request Dialog
+			Select Startup::*LHGameDB\UpdateSection              
+				Case 4
+					ChildWindow = DC::#_Window_003
+				Default
+					ChildWindow = DC::#_Window_001
+			EndSelect  
+			
+			Title		= "vSystem Save Support"
+			Message = "Das Backup Verzeichnis Löschen?"
+		
+			
+			Request::*MsgEx\User_BtnTextL = "Ja"
+			Request::*MsgEx\User_BtnTextR = "Nein"
+			Request::*MsgEx\CheckBox_Txt  = "Auch die Konfigurations Löschen?"
+			
+			Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,11,2,ProgramFilename(),1,0,ChildWindow )
+			Debug Result
+			;
+			; Aktivere das Richtige in dem Jeweiligen Fenster
+			Select Startup::*LHGameDB\UpdateSection    			
+				Case 2,3,4      
+					SetActiveGadget(ChildWindow)
+				Default
+					SetActiveGadget(DC::#ListIcon_001)
+			EndSelect         
+			
+			If Result = 0
+				;
+				; Backup Mit Abfrage der Dateien
+				ProcedureReturn #True
+			ElseIf  Result = 4
+				;
+				; Backup Ohne Abfrage der Dateien	
+				ProcedureReturn 4
+			EndIf
+			
+			ProcedureReturn #False
+		EndProcedure	
+	;
 		;	
 	Procedure.i SaveContent_Delete()
-		Protected HasConfig.b = #False, HasGameSaveDir.b = #False, Result.i
+		Protected HasConfig.b = #False, HasGameSaveDir.b = #False, Result.i, Message.s, RemovedConfig.i, RemovedFolder.i
 		
 		Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
 			Case -1								
@@ -1380,38 +1515,68 @@ Module SaveTool
 			Default
 
 		EndSelect
+	
 		
-		If 	( HasConfig  = #False And HasGameSaveDir = #False )
-			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Keine Konfiguration sowie Spielstand Verzeichnis zu  zu "+SaveConfig_GetGameTitle()+" Gefunden",2,0,"",0,0,DC::#_Window_001)
-			ProcedureReturn 
+		If ( HasConfig = #False ) And ( HasGameSaveDir = #False )
+				Message = "Keine Konfiguration oder ein Backup zu "+Chr(34)+ SaveConfig_GetGameTitle() +Chr(34) +" Gefunden" + #CR$ + "... Nichts zu tun."
+				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support",Message ,2,1,"",0,0,DC::#_Window_001)	
+				ProcedureReturn 
+				
+		ElseIf ( HasConfig = #True ) And ( HasGameSaveDir = #False )
+				Message.s = "Soll die Konfiguration gelöscht werden?"
 			
-		ElseIf ( HasConfig  = #True And HasGameSaveDir = #False )
-				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration entdeckt",2,0,"",0,0,DC::#_Window_001)		
-				
-		ElseIf ( HasConfig  = #False And HasGameSaveDir = #True )			
-				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Spielstand Verzeichnis zu "+SaveConfig_GetGameTitle()+" Gefunden",2,0,"",0,0,DC::#_Window_001)					
+				Result = Request::MSG(Startup::*LHGameDB\TitleVersion,"vSystem Save Support", Message ,11,2,"",0,0,DC::#_Window_001)	
+				If ( Result = 0 )
+					RemovedConfig = #True					
+				Else
+					ProcedureReturn 		
+				EndIf
+		
+		;ElseIf ( HasConfig = #False ) And ( HasGameSaveDir = #True )
+				;	
+				;	Verzeichnis ohne Konfiguration gibt es nicht		
+		
+		ElseIf ( HasConfig = #True ) And ( HasGameSaveDir = #True )
+			
+			Result = DialogRequest_SaveDelete()
+			Select Result
+				Case 1:
+					RemovedFolder = #True										
+				Case 4
+					RemovedConfig = #True						
+					RemovedFolder = #True					
+				Default
+					ProcedureReturn 
+			EndSelect
+		EndIf	
+		
+		
+		If ( RemovedConfig = #True )
+					Result = SaveContent_Delete_Modus(Startup::*LHGameDB\SaveTool\SaveFile)
+					Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
+						Case -1:
+							;Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SaveFile ,2,0,"",0,0,DC::#_Window_001)		
+						Default
+							Debug "Save Game Support: Result - Fehler beim löschen der Konfiguration: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
+					EndSelect		
 		EndIf
-				
-		If (HasGameSaveDir = #True)	
+		
+		
+		If ( RemovedFolder = #True )
 			Result = SaveContent_Delete_Modus( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle() )
 			Select FileSize( Startup::*LHGameDB\SaveTool\SavePath + SaveConfig_GetGameTitle()  )
 				Case -1:
-					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Backup Verzeichnis Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SavePath +  SaveConfig_GetGameTitle(),2,0,"",0,0,DC::#_Window_001)							
+					Message = "Backup Verzeichnis Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SavePath +  SaveConfig_GetGameTitle()
+					If ( RemovedConfig = #True )
+						Message + #CR$
+						Message + "Sowie Konfiguration"
+					EndIf
+					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support",Message,2,0,"",0,0,DC::#_Window_001)							
 				Default
-					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
+					Debug "Save Game Support: Result - Fehler beim löschen des Verzeichnis: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
 			EndSelect
 		EndIf		
-		
-		If ( HasConfig  = #True )
-			Result = SaveContent_Delete_Modus(Startup::*LHGameDB\SaveTool\SaveFile)
-			
-			Select FileSize( Startup::*LHGameDB\SaveTool\SaveFile )
-				Case -1:
-					Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Konfiguration Gelöscht "+ #CR$ + Startup::*LHGameDB\SaveTool\SaveFile ,2,0,"",0,0,DC::#_Window_001)		
-				Default
-					Debug "Save Game Support: Result - Fehler beim löschen: " + ErrorCodes(Result) + "("+ Str(Result) + ")"
-			EndSelect
-		EndIf		
+	
 		
 	EndProcedure
 		;
@@ -1828,8 +1993,10 @@ Module SaveTool
 		Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Help",Helptext,2,0,"",0,0,DC::#_Window_001)	
 		
 	EndProcedure	
-	
- DataSection
+
+	;
+	;
+	DataSection
          FOLDERID_NetworkFolder: ; {D20BEEC4-5CA8-4905-AE3B-BF251EA09B53}
          Data.l $D20BEEC4
          Data.w $5CA8,$4905
@@ -2333,9 +2500,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1245
-; FirstLine = 656
-; Folding = D7EAw06A+
+; CursorPosition = 1478
+; FirstLine = 948
+; Folding = H7UAw+nDw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

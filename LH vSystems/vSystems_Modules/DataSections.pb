@@ -16,6 +16,9 @@ DeclareModule DI
         #_MNU_AED: #_MNU_TBD: #_MNU_TBE: #_MNU_SWN: #_MNU_SFN: #_MNU_TB1: #_MNU_TB2: #_MNU_TB3: #_MNU_TB4: #_MNU_TB5
         #_MNU_DIR: #_MNU_RAL: #_MNU_RNE: #_MNU_FEX: #_MNU_FPS: #_MNU_URL: #_MNU_RUN: #_MNU_MAM: #_MNU_VSY: #_MNU_VSU
         #_MNU_MON: #_MNU_VSP: #_MNU_MIP: #_MNU_MIR:	#_MNU_MIV: #_MNU_MIF: #_MNU_MWW: #_MNU_VSI: #_MNU_PIN
+        
+        #_MNU_SAVESUPPORT: #_MNU_SAVEBCKCOPY: #_MNU_SAVEBCKMOVE:	#_MNU_SAVERSTCOPY: #_MNU_SAVEBCKDEL: #_MNU_SAVECREATE
+        #_MNU_SAVEEDIT	 : #_MNU_SAVECOMPRESS
     EndEnumeration
     Debug "- Menu ImageIcon #2601 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
     
@@ -49,7 +52,8 @@ DeclareModule DI
         
         #_BTN_TAB_N     : #_BTN_TAB_H       : #_BTN_TAB_P       : #_BTN_TAB_D     
         #_BTN_SWT_P     :
-        #_BTN_INFO_0N  : #_BTN_INFO_0H    : #_BTN_INFO_0P    : #_BTN_INFO_0D        
+        #_BTN_INFO_0N  : #_BTN_INFO_0H    : #_BTN_INFO_0P    		: #_BTN_INFO_0D        
+
         
     EndEnumeration
     Debug "- Button ImageID #2801 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
@@ -77,6 +81,13 @@ Module DI
     CatchImage(#_MNU_URL, ?_MNU_URL):   CatchImage(#_MNU_RUN, ?_MNU_RUN):		CatchImage(#_MNU_MAM, ?_MNU_MAM):		CatchImage(#_MNU_VSY, ?_MNU_VSY):		CatchImage(#_MNU_VSU, ?_MNU_VSU)
     CatchImage(#_MNU_MON, ?_MNU_MON):		CatchImage(#_MNU_VSP, ?_MNU_VSP):		CatchImage(#_MNU_MIP, ?_MNU_MIP):		CatchImage(#_MNU_MIR, ?_MNU_MIR):		CatchImage(#_MNU_MIV, ?_MNU_MIV)
     CatchImage(#_MNU_MIF, ?_MNU_MIF):		CatchImage(#_MNU_MWW, ?_MNU_MWW):	  CatchImage(#_MNU_VSI, ?_MNU_VSI):		CatchImage(#_MNU_PIN, ?_MNU_PIN):
+    ;
+    ; Save Support
+    CatchImage(#_MNU_SAVESUPPORT, ?_MNU_SAVESUPPORT):     CatchImage(#_MNU_SAVEBCKCOPY, ?_MNU_SAVEBCKCOPY):			CatchImage(#_MNU_SAVEBCKMOVE, ?_MNU_SAVEBCKMOVE):
+    CatchImage(#_MNU_SAVERSTCOPY, ?_MNU_SAVERSTCOPY): 		CatchImage(#_MNU_SAVEBCKDEL , ?_MNU_SAVEBCKDEL ):			CatchImage(#_MNU_SAVECREATE, ?_MNU_SAVECREATE):
+    CatchImage(#_MNU_SAVEEDIT	  , ?_MNU_SAVEEDIT)		:			CatchImage(#_MNU_SAVECOMPRESS,?_MNU_SAVECOMPRESS):      
+    
+    
     ;
     ; Button Images
     CatchImage(#_BTN_GREY4_0N, ?_BTN_GREY4_0N): CatchImage(#_BTN_GREY4_0H, ?_BTN_GREY4_0H): CatchImage(#_BTN_GREY4_0P, ?_BTN_GREY4_0P): CatchImage(#_BTN_GREY4_0D, ?_BTN_GREY4_0D)
@@ -385,15 +396,30 @@ Module DI
         _MNU_VSI:
         IncludeBinary "Data_Images\MENU\vSysPfeil.png"         
         _MNU_PIN:
-        IncludeBinary "Data_Images\MENU\MnuPicureInfo.png"          
+        IncludeBinary "Data_Images\MENU\MnuPicureInfo.png"      
         
+        _MNU_SAVESUPPORT:
+        IncludeBinary "Data_Images\MENU\SaveSupport.png"           
+        _MNU_SAVEBCKCOPY:
+        IncludeBinary "Data_Images\MENU\SaveBackCopy.png"        
+        _MNU_SAVEBCKMOVE:
+        IncludeBinary "Data_Images\MENU\SaveBackMove.png" 
+        _MNU_SAVERSTCOPY:
+        IncludeBinary "Data_Images\MENU\SaveRestCopy.png"
+        _MNU_SAVEBCKDEL:
+        IncludeBinary "Data_Images\MENU\SaveBackDelete.png"        
+        _MNU_SAVECREATE:
+        IncludeBinary "Data_Images\MENU\SaveCreate.png" 
+        _MNU_SAVEEDIT:
+        IncludeBinary "Data_Images\MENU\SaveEdit.png"
+        _MNU_SAVECOMPRESS:
+        IncludeBinary "Data_Images\MENU\SaveCompress.png"         
     EndDataSection
     
 
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 78
-; FirstLine = 27
+; CursorPosition = 20
 ; Folding = -
 ; EnableAsm
 ; EnableXP

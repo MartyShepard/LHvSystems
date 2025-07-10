@@ -1023,8 +1023,22 @@ Module vSystem
                                              PortCommandline()\File_Default ,
                                              PortCommandline()\Path_Default)
                  
-                 SetGadgetText( DC::#String_103 , sCmdString)
+                 SetGadgetText( DC::#String_103 , sCmdString)             
+                 
                  Caret_SetPosition()
+                 
+                 If ( Len( PortCommandline()\WorkFolder ) > 0 )
+                 	SetGadgetText( DC::#String_102 , PortCommandline()\WorkFolder) 
+                 EndIf
+                 
+                 If ( Len( PortCommandline()\MediaDeviceA ) > 0 )
+                 	SetGadgetText( DC::#String_008 , PortCommandline()\MediaDeviceA) 
+                 EndIf
+                 
+                 If ( Len( PortCommandline()\MediaDeviceB ) > 0 )
+                 	SetGadgetText( DC::#String_009 , PortCommandline()\MediaDeviceB) 
+                 EndIf
+                 
                Break
                 
             EndIf   
@@ -1641,8 +1655,8 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1402
-; FirstLine = 715
+; CursorPosition = 1027
+; FirstLine = 467
 ; Folding = PBA+Ps8-
 ; EnableAsm
 ; EnableXP
