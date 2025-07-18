@@ -2080,7 +2080,7 @@ CompilerEndIf
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 735
-; FirstLine = 12
+; FirstLine = 707
 ; Folding = ---4
 ; EnableAsm
 ; EnableXP

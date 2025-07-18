@@ -31,7 +31,16 @@ Module INVMNU
     Procedure.i MNU_SetCheckmark(MenuID.i, Itemm.i, State.i)                
             SetMenuItemState(MenuID, Itemm, State)        
     EndProcedure
-
+    
+    ;
+		;         
+    Procedure Get_MenuItems_RegsSupport(MenuID.i)
+    	Protected Result.i
+    	Select MenuID    
+    		Case 2600:
+    		;	RegsTool::Keys_RegistryFile_Check()  
+    	EndSelect		
+    EndProcedure	
     ;
 		;         
     Procedure Get_MenuItems_SaveSupport(MenuID.i)
@@ -119,7 +128,10 @@ Module INVMNU
         		vSystem::System_MenuItemD_Unity(MenuID)
         		
         	Case 1600 To 1699
-          	Get_MenuItems_SaveSupport(MenuID.i)  			            				
+        		Get_MenuItems_SaveSupport(MenuID.i)
+        		
+        	Case 2600 To 2699
+          	Get_MenuItems_RegsSupport(MenuID.i)          		
         		
         	Case 1700 To 1799
         		Select MenuID              	
@@ -187,6 +199,22 @@ Module INVMNU
     	Next    	
     EndMacro
     
+    Procedure Set_AppMenu_RegsSupport(MenuID.i)
+    	
+	    	If IsWindow( DC::#_Window_003 )		    	
+	    		OpenSubMenu("vSystem: Registry Support", ImageID( DI::#_MNU_SAVESUPPORT))
+	    		CloseSubMenu()   
+	    	Else
+	    		;
+	    		; Try Icon
+	    		OpenSubMenu("Registry Support", ImageID( DI::#_MNU_SAVESUPPORT))	    		
+	    		CloseSubMenu()   
+	    	EndIf
+	    	
+    		MenuItem(2600, "Test")	    	
+    	
+    EndProcedure
+    	
     Procedure Set_AppMenu_SaveSupport(MenuID.i)
     	
     	Protected Index.i
@@ -267,7 +295,9 @@ Module INVMNU
 	    	SetMenuItemState(MenuID, 1617, SaveTool::GetSaveOption(4))	    	
 	    EndIf 	
 	    
-	  EndProcedure  	
+	  EndProcedure
+	  
+	  
     Procedure Set_AppMenu(MenuID.i)    	
     	Protected MxItem
     	;
@@ -1032,7 +1062,17 @@ Module INVMNU
 			; ============================================================= vSystem Save Support    	   	    	
 				Set_AppMenu_SaveSupport(CLSMNU::*MNU\HandleID[0])
 	    	
-			EndProcedure 			
+			EndProcedure 
+			
+		;*******************************************************************************************************************************************************************			        		
+			Procedure Set_TrayMenu_RegsSupport() 
+				
+			; CLSMNU::*MNU\HandleID[0]	MenuHandle
+			;
+			; ============================================================= vSystem Save Support    	   	    	
+				Set_AppMenu_RegsSupport(CLSMNU::*MNU\HandleID[0])
+	    	
+			EndProcedure 				
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
     	
@@ -1077,7 +1117,9 @@ Module INVMNU
     		CloseSubMenu()      		
     		MenuBar()
     		Set_TrayMenu_SaveSupport()     		
-    		MenuBar()      		
+    		MenuBar()
+    		;Set_TrayMenu_RegsSupport()     		
+    		;MenuBar()      		
     		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
     		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
     		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
@@ -1108,9 +1150,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 237
-; FirstLine = 111
-; Folding = bHwy-
+; CursorPosition = 1121
+; FirstLine = 332
+; Folding = 8fAL-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

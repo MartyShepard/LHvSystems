@@ -5529,8 +5529,23 @@ EndProcedure
         
         ;
         ;
-        ; Auf Packer Prüfen
+        ; Auf Dateiformat Prüfen
         Select UCase ( szFormat )
+        		;
+        		; Dosbox Configs
+        	Case "CONF", "INI", "BAT"
+        		
+              Request::*MsgEx\User_BtnTextL = "Öffnen"
+              Request::*MsgEx\User_BtnTextM = "Öffne mit.."
+              Request::*MsgEx\User_BtnTextR = "Abbruch"        		
+        		  Result.i = Request::MSG(Startup::*LHGameDB\TitleVersion, "Datei Öffnen","Datei Normal mit dem Assozierten Programm Öffnen oder als Auswahl?",16,-1,ProgramFilename(),0,0,DC::#_Window_001)
+        		  Select Result
+        		  	Case 0: FFH::ShellExec(szMedium, "open") 
+        		  	Case 2: FFH::SHOpenWithDialog_(szMedium, 4)	        		  
+        		  EndSelect        		  
+        			
+							ProcedureReturn 
+        		
             Case "LZ"
                 RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_BriefLZ )
                 
@@ -8071,8 +8086,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4679
-; FirstLine = 4602
+; CursorPosition = 5543
+; FirstLine = 5311
 ; Folding = 8--------8---mn90
 ; EnableAsm
 ; EnableXP

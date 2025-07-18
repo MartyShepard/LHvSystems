@@ -1477,7 +1477,7 @@ Module SaveTool
 			Request::*MsgEx\CheckBox_Txt  = "Auch die Konfigurations Löschen?"
 			
 			Result = Request::MSG(Startup::*LHGameDB\TitleVersion,Title,Message,11,2,ProgramFilename(),1,0,ChildWindow )
-			Debug Result
+			;Debug Result
 			;
 			; Aktivere das Richtige in dem Jeweiligen Fenster
 			Select Startup::*LHGameDB\UpdateSection    			
@@ -2500,9 +2500,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1478
-; FirstLine = 948
-; Folding = H7UAw+nDw
+; CursorPosition = 1244
+; FirstLine = 353
+; Folding = H7UAw+nD2
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -228,7 +228,13 @@ DeclareModule Startup
         SavePath.s
         SaveFile.s
         SaveHandle.i        
-    EndStructure      
+      EndStructure
+      
+      Structure FILE_REGSSUPPORT
+      	ConfigPath.s								; Config Path
+        ConfigFile.s								; vSystems-RegistrySupport.ini
+        Configandle.i        				; Datei Handle für die Registry Dateien
+    EndStructure        
     
     Structure STRUCT_LH_DATABASE        
         TitleVersion.s{255}         ;Version und Title
@@ -294,6 +300,7 @@ DeclareModule Startup
         Monitoring.FILE_MONITORING  ;
         
         SaveTool.FILE_SAVESUPPORT
+        RegsTool.FILE_REGSSUPPORT
         
         hSplitterDef.i              ;Die Splitter Standard Höhe
         hSplitterSav.i              ;Die Alten Höhe
@@ -424,6 +431,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
+        ;
+				; Version 0.60.11
+				; Slot Unterstützung hinzugefügt für Conf,ini.bat um diese dateien direct oder mit Auswahl an den Editoren weiterzuleiten
+        
         
         ;
 				; Version 0.60.10
@@ -1036,6 +1048,9 @@ Module Startup
          
          *LHGameDB\SaveTool\SavePath     = Startup::*LHGameDB\Base_Path + "Systeme\SAVE\"
          *LHGameDB\SaveTool\SaveFile     = *LHGameDB\SaveTool\SavePath + "vSystem-SaveSupport.ini"
+         
+         *LHGameDB\RegsTool\ConfigPath   = Startup::*LHGameDB\Base_Path + "Systeme\REGS\"
+         *LHGameDB\RegsTool\ConfigPath   = *LHGameDB\SaveTool\SavePath + "vSystem-RegistrySupport.ini"         
 
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
@@ -1135,8 +1150,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 430
-; FirstLine = 408
+; CursorPosition = 437
+; FirstLine = 402
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP
