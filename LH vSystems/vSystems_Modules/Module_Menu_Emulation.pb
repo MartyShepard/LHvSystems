@@ -47,7 +47,7 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			PortCommandline()\WorkFolder				= ".\Systeme\"
 			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigDOS.conf"
-			PortCommandline()\MediaDeviceB			= ".\InSerie\[ MS-DOS ]\CONFIGS\DOS-GAME.CONF"			
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-MS-DOS-]\CONFIGS\DOS-GAME.CONF"			
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description				= "System: Windows 3.x"
@@ -57,7 +57,7 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			PortCommandline()\WorkFolder				= ".\Systeme\"
 			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW31.conf"
-			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-31 ]\CONFIGS\WIN3X-GAME.CONF"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-WIN-31-]\CONFIGS\WIN3X-GAME.CONF"
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description				= "System: Windows 95"
@@ -67,7 +67,7 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			PortCommandline()\WorkFolder				= ".\Systeme\"
 			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW95.conf"
-			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-95 ]\CONFIGS\WIN95-GAME.CONF"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-WIN-95-]\CONFIGS\WIN95-GAME.CONF"
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description				= "System: Windows 98"
@@ -77,7 +77,17 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			PortCommandline()\WorkFolder				= ".\Systeme\"
 			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW98.conf"
-			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-98 ]\CONFIGS\WIN98-GAME.CONF"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-WIN-98-]\CONFIGS\WIN98-GAME.CONF"
+			
+			AddElement(PortCommandline()):
+			PortCommandline()\Description				= "System: Windows 98 (JP)"
+			PortCommandline()\PortModus  			 	= "conf %s -conf %s %a"			
+			PortCommandline()\Port_ShortName 		= "DOSBox"
+			PortCommandline()\MenuItemText    	= "Load Windows 98" 
+			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
+			PortCommandline()\WorkFolder				= ".\Systeme\"
+			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigW98-JP.conf"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-WIN-98-]\CONFIGS\WIN98-GAME-JP.CONF"			
 			
 			AddElement(PortCommandline()):
 			PortCommandline()\Description				= "System: Windows ME"
@@ -87,7 +97,7 @@ Module PortsHelp
 			PortCommandline()\File_Default 			= ".\Systeme\" + PortCommandline()\Port_ShortName  + ".exe"	:PortCommandline()\Path_Default = "" :PortCommandline()\bCharSwitch = #True
 			PortCommandline()\WorkFolder				= ".\Systeme\"
 			PortCommandline()\MediaDeviceA			= ".\Systeme\DATA\ConfigWME.conf"
-			PortCommandline()\MediaDeviceB			= ".\InSerie\[ WIN-98 ]\CONFIGS\WIN98-GAME.CONF"
+			PortCommandline()\MediaDeviceB			= ".\InSerie\[-WIN-ME-]\CONFIGS\WIN98-GAME.CONF"
 			
 			
 			AddElement(PortCommandline()): PortCommandline()\PortModus = ""                  	:PortCommandline()\Description = ""  :PortCommandline()\bMenuSubEnd = #True	
@@ -2208,8 +2218,8 @@ Module PortsHelp
    	EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 50
-; FirstLine = 30
+; CursorPosition = 89
+; FirstLine = 46
 ; Folding = --
 ; EnableAsm
 ; EnableXP

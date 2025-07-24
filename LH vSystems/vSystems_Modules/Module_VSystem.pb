@@ -584,12 +584,13 @@ Module vSystem
             If ( Startup::*LHGameDB\Settings_NBCenter = #True )
                 SetWindowPos_(hwnd, #HWND_TOPMOST, 0, 0, 0, 0, #SWP_NOMOVE | #SWP_NOSIZE| #SW_HIDE|#SWP_FRAMECHANGED)
                
-                ;AdjustWindowRectEx_(0,0,0,0)
-                
-               	 WinGuru::Center(hwnd,Client\right,client\bottom)
-                	;Debug "-- Client\right  :" + Str(Client\right)
-                	;Debug "-- client\bottom:" + Str(client\bottom)
-                	;Debug "Bildschirmauflösung: " +Str (GetSystemMetrics_(#SM_CXSCREEN) )+ "x" +Str(GetSystemMetrics_(#SM_CYSCREEN))
+                ;AdjustWindowRectEx_(hwnd,0,0,0)                
+                ;WinGuru::Center(hwnd,240,0,0,#True)
+                WinGuru::Center(hwnd,Client\right,client\bottom)                
+                Debug "CENTER: "
+                Debug "-- Client\right  :" + Str(Client\right)
+                Debug "-- client\bottom:" + Str(client\bottom)
+                Debug "Bildschirmauflösung: " +Str (GetSystemMetrics_(#SM_CXSCREEN) )+ "x" +Str(GetSystemMetrics_(#SM_CYSCREEN))
                 ShowWindow_(hwnd, 5)
                 EnableWindow_(hwnd, #True)
                 SendMessage_(hwnd, #WM_UPDATEUISTATE, $30002,0)
@@ -1655,9 +1656,9 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1027
-; FirstLine = 467
-; Folding = PBA+Ps8-
+; CursorPosition = 588
+; FirstLine = 265
+; Folding = PBk+Ps8-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

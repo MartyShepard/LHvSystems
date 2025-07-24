@@ -1,7 +1,34 @@
 ﻿; DAS Deklaieren findet IN der Config Source Statt
+;
+;
+; TODO
+; Code aufräumen und Optimieren
 
 Module INVMNU
-    
+	
+    Macro  Set_AppMenu_AddMenu(MenuListing)    	
+    	For unItem = 0 To MxItem    		
+    		NextElement(MenuListing)
+    		
+    		If MenuListing\bMenuSubBeg = #True                 
+    			OpenSubMenu(MenuListing\Description)                
+    			Continue
+    		ElseIf MenuListing\bMenuSubEnd = #True
+    			CloseSubMenu()
+    			Continue
+    		ElseIf MenuListing\bMenuBar = #True                 
+    			MenuBar()
+    			Continue                
+    		EndIf 
+    		If ( MenuListing\MenuImageID > 0 )    			
+    			MenuItem(MenuListing\MenuIndex, MenuListing\Description, ImageID(MenuListing\MenuImageID))		
+    		Else
+    			MenuItem(MenuListing\MenuIndex, MenuListing\Description)	    			
+    		EndIf
+    	Next    	
+    EndMacro
+    ;
+    ;
     Procedure.i Request_MSG_Quit()
         
         ;
@@ -18,7 +45,8 @@ Module INVMNU
         
         ProcedureReturn #True
     EndProcedure 
-    
+    ;
+    ;
     Procedure.i MNU_SetGet(state.i)
         If ( state.i = #True )
             ProcedureReturn #False
@@ -27,11 +55,24 @@ Module INVMNU
             ProcedureReturn #True
         EndIf    
     EndProcedure
-    
+    ;
+    ;
     Procedure.i MNU_SetCheckmark(MenuID.i, Itemm.i, State.i)                
             SetMenuItemState(MenuID, Itemm, State)        
+    EndProcedure        
+    ;
+		;
+    Procedure Get_MenuItems_VirtualDriveSupport(MenuID.i)
+    	Protected Result.i
+    	Select MenuID    
+    		Case 2700:	VirtualDriveSupport::MenuActivate()
+    		Case 2701:	VirtualDriveSupport::MenuDeActivate(#False)
+    		Case 2702:	VirtualDriveSupport::MenuDeActivate(#True)
+    			
+    		Case 2710 To 2750
+    			VirtualDriveSupport::MenuGetVirtualDrive(GetMenuItemText(CLSMNU::*MNU\HandleID[0],MenuID ))
+    	EndSelect	    	
     EndProcedure
-    
     ;
 		;         
     Procedure Get_MenuItems_RegsSupport(MenuID.i)
@@ -88,8 +129,8 @@ Module INVMNU
     	EndSelect
     	
     EndProcedure
-  ;
-  ; App Menu. Ort: Programm, Media Device Einstellungs Fenster
+		;
+  	; App Menu. Ort: Programm, Media Device Einstellungs Fenster
     Procedure Get_AppMenu(MenuID.i, GadgetID.i)
         
         Protected Commandline$, Programm$
@@ -131,8 +172,8 @@ Module INVMNU
         		Get_MenuItems_SaveSupport(MenuID.i)
         		
         	Case 2600 To 2699
-          	Get_MenuItems_RegsSupport(MenuID.i)          		
-        		
+        		Get_MenuItems_RegsSupport(MenuID.i) 
+        		      		        		
         	Case 1700 To 1799
         		Select MenuID              	
         				
@@ -170,35 +211,43 @@ Module INVMNU
         			Case 1731:	vSystemHelp::vSysCMD_MameCMDHelp() 
         			Case 1732:	vSystemHelp::vSysCMD_PackSupport()
         			Case 1733:	vSystemHelp::vSysCMD_SavegameSupport()
+        			Case 1734:	vSystemHelp::vSysCMD_VirtualDriveSupport()
+        			Case 1735:	vSystemHelp::vSysCMD_QuickCommandAdmin()
         		EndSelect
         	Default          
         		Debug "Kein Menüeintrag beim Index " + Str(MenuID)
         EndSelect
         ProcedureReturn 
     EndProcedure
-      
-    Macro  Set_AppMenu_AddMenu(MenuListing)    	
-    	For unItem = 0 To MxItem    		
-    		NextElement(MenuListing)
-    		
-    		If MenuListing\bMenuSubBeg = #True                 
-    			OpenSubMenu(MenuListing\Description)                
-    			Continue
-    		ElseIf MenuListing\bMenuSubEnd = #True
-    			CloseSubMenu()
-    			Continue
-    		ElseIf MenuListing\bMenuBar = #True                 
-    			MenuBar()
-    			Continue                
-    		EndIf 
-    		If ( MenuListing\MenuImageID > 0 )    			
-    			MenuItem(MenuListing\MenuIndex, MenuListing\Description, ImageID(MenuListing\MenuImageID))		
-    		Else
-    			MenuItem(MenuListing\MenuIndex, MenuListing\Description)	    			
-    		EndIf
-    	Next    	
-    EndMacro
-    
+    ;
+    ;    
+    Procedure Set_AppMenu_VirtualDriveSupport(MenuID.i)
+    	
+    		Protected Index.i, MenuIndex.i, MountDrive.s, MountDirectory.s
+	    	If IsWindow( DC::#_Window_001 )		    	
+	    		OpenSubMenu("VirtualDrive Support")
+	    		MenuItem(2700, "Laufwerk: Aktiveren") 
+	    		MenuItem(2701, "Laufwerk: Entfernen")
+	    		MenuItem(2702, "Laufwerk: Entfernen (Force)")
+	    		
+	    		;
+	    		; Hole angemldete Laufwerke
+	    		Index = VirtualDriveSupport::ListGetVirtualDrives()
+	    		If ( Index >= 0 )
+	    			MenuBar()
+	    			MenuIndex.i = 2710
+	    			For DriveIndex.i = 0 To Index
+	    				MountDrive 			= VirtualDriveSupport::ListGetVirtualDrive(DriveIndex)
+	    				MountDirectory 	= VirtualDriveSupport::ListGetVirtualDirectory(DriveIndex)		    					    				
+	    				MenuItem(MenuIndex, "Mount " +Chr(34)+ MountDrive +Chr(34)+ " = " + MountDirectory) 	    				
+	    			Next
+	    		EndIf	
+	    		
+	    		CloseSubMenu()     
+	    	EndIf   	
+    	
+    	EndProcedure
+    	
     Procedure Set_AppMenu_RegsSupport(MenuID.i)
     	
 	    	If IsWindow( DC::#_Window_003 )		    	
@@ -353,6 +402,7 @@ Module INVMNU
     	MenuBar()  
 
     	MenuItem(1725, "vSystem Schnell Kommando") 
+    	MenuItem(1735, "vSystem Schnell Kommando (Admin)")     	
     	MenuItem(1701, "Programm: Starte Asyncron")
     	MenuItem(1702, "Programm: Starte Api-Nativ")
     	OpenSubMenu("Programm: Borderless Modes")
@@ -387,7 +437,9 @@ Module INVMNU
     	MenuItem(1708, "Taste Shift & Rollen")     	
     	MenuItem(1709, "Hotkey Ausschalten")
     	CloseSubMenu()
-    	MenuBar()	 	    	
+    	MenuBar()
+    	MenuItem(1734, "Virtuelles Laufwerk aktiveren")    	
+    	MenuBar()	     	
     	MenuItem(1720, "vSystems: Aktivere Monitoring"	,ImageID( DI::#_MNU_MON ))	    	
     	MenuItem(1727, "vSystems: Log Erlauben")
     	MenuItem(1728, "vSystems: Log in Datei Schreiben")
@@ -403,9 +455,6 @@ Module INVMNU
     	MenuBar() 
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
     EndProcedure    
-    
-    
-
     ;*******************************************************************************************************************************************************************
     ;
     ; Individuelle Layouts (C64 Datei Manager)
@@ -487,8 +536,7 @@ Module INVMNU
             SetMenuItemState(MenuID, CurrentID, 0)
         Next                  
         
-    EndProcedure    
-    
+    EndProcedure       
     Procedure Set_C64Menu(MenuID)        
         MenuItem(1, "Transfer: Auto")
         MenuItem(2, "Transfer: Original")        
@@ -733,8 +781,7 @@ Module INVMNU
             DisableMenuItem(CLSMNU::*MNU\HandleID[0], 19, 1)
         EndIf
                      
-    EndProcedure   
-    
+    EndProcedure      
     Procedure Get_PopMenu1(MenuID.i, GadgetID.i)
     EndProcedure
     ;*******************************************************************************************************************************************************************          
@@ -955,7 +1002,10 @@ Module INVMNU
     		Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
     			
     		Case 1600 To 1699
-    			Get_MenuItems_SaveSupport(MenuID.i) 
+    			Get_MenuItems_SaveSupport(MenuID.i)
+    			
+    		Case 2700 To 2750
+    			Get_MenuItems_VirtualDriveSupport(MenuID.i)     			
     			
     	EndSelect       
     EndProcedure
@@ -1064,6 +1114,16 @@ Module INVMNU
 	    	
 			EndProcedure 
 			
+		;*******************************************************************************************************************************************************************				
+			Procedure Set_TrayMenu_VirtualDriveSupport() 
+				
+			; CLSMNU::*MNU\HandleID[0]	MenuHandle
+			;
+			; ============================================================= VirtualDriveSupport   	   	    	
+				Set_AppMenu_VirtualDriveSupport(CLSMNU::*MNU\HandleID[0])
+	    	
+			EndProcedure 
+			
 		;*******************************************************************************************************************************************************************			        		
 			Procedure Set_TrayMenu_RegsSupport() 
 				
@@ -1116,6 +1176,8 @@ Module INVMNU
     		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))
     		CloseSubMenu()      		
     		MenuBar()
+    		Set_TrayMenu_VirtualDriveSupport()     		
+    		MenuBar()    		
     		Set_TrayMenu_SaveSupport()     		
     		MenuBar()
     		;Set_TrayMenu_RegsSupport()     		
@@ -1150,9 +1212,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1121
-; FirstLine = 332
-; Folding = 8fAL-
+; CursorPosition = 440
+; FirstLine = 178
+; Folding = BEBAc-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

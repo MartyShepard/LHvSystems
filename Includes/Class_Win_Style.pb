@@ -1,7 +1,7 @@
 ﻿DeclareModule WinGuru
     
     
-    Declare Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0)         
+    Declare Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0, Manual.i=#False)         
     Declare.l ThemeImg(WindowID.l, ImageID.l)
     Declare.l ThemeBox(WindowID.l, W.i, H.i, SetPosX.i, SetPosY.i, BC.l = $1F1F1F, DrawModeFlag.l = #PB_2DDrawing_Default, Gadget_ID = 0)
     Declare   SetTransparenz(WindowID.i,AlphaValue.l = 255)  
@@ -35,7 +35,7 @@ Module WinGuru
     ;************************************************************************************************************************
     ; Zentriert das Fenster auf Mult Monitor Systemen
     ;       
-    Procedure Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0)
+    Procedure Center(WindowID.l, W.i=0, H.i=0,ParentWindowID = 0, Manual.i=#False)
         
         Protected Left.i = 0, Top.i = 0, HMONITOROLD, TitleHeight.i
         
@@ -131,8 +131,12 @@ Module WinGuru
             If IsWindow(WindowID.l)
                 SetWindowPos_(WindowID(WindowID.l), #HWND_TOPMOST, Left, Top, 0, 0,#SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE)
                 SetActiveWindow(WindowID.l)
-            Else    
-                SetWindowPos_(WindowID.l, #HWND_TOPMOST, Left, Top, 0, 0,#SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE)
+              Else    
+              If ( Manual = #false)
+              	SetWindowPos_(WindowID.l, #HWND_TOPMOST, Left, Top, 0, 0,#SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE)           	
+              Else
+              	SetWindowPos_(WindowID.l, #HWND_TOPMOST, W, H, 0, 0, #SWP_NOSIZE | #SWP_NOZORDER | #SWP_NOACTIVATE| #SW_HIDE|#SWP_FRAMECHANGED)            	
+              EndIf
             EndIf    
         Else
             ProcedureReturn #False
@@ -392,8 +396,8 @@ EndProcedure
 EndModule    
     
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 116
-; FirstLine = 78
+; CursorPosition = 134
+; FirstLine = 99
 ; Folding = n0
 ; EnableAsm
 ; EnableXP

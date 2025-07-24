@@ -32,7 +32,9 @@
 	Declare 		vSysCMD_PackSupport()
 	Declare 		vSysCMD_HelpSupport_Main()
 	Declare 		vSysCMD_HelpSupport_Borderless()
+	Declare 		vSysCMD_VirtualDriveSupport()
 	Declare 		vSysCMD_QuickCommand()
+	Declare		vSysCMD_QuickCommandAdmin()
 	Declare 		vSysCMD_SavegameSupport()
 	Declare.s 	vSysCMD_ToolTipHelp()
 	
@@ -464,11 +466,24 @@ Module vSystemHelp
 		StrGetSet("blockfw")
 		vSysCMD_BorderlessCB()	
 	EndProcedure
+		;
+		;
+	Procedure vSysCMD_QuickCommandAdmin()
+		vSysCMD_CpuAffinityCheck("cpuf")
+		StrGetSet("blockfw")
+		vSysCMD_BorderlessCB()
+		StrGetSet("cRunAsAdmin")
+	EndProcedure	
 	  ;
-		; Block Program Executable through the Firewall
+		; Save Support
   Procedure vSysCMD_SavegameSupport()
 		StrGetSet("savetool")
-	EndProcedure	
+	EndProcedure
+	  ;
+		; Virtual Drive Support
+  Procedure vSysCMD_VirtualDriveSupport()
+		StrGetSet("vdm[x]")
+	EndProcedure		
 	Procedure vSysCMD_HelpSupport_Main()	
 		
 		Protected TipInfo_Text.s = #CR$ +
@@ -530,7 +545,11 @@ Module vSystemHelp
 		                           "Archiv Unterstützung"																																+ #CR$ +
 		                           "Einige Programme haben kein 7z Support oder allgmein kein Archiv support.Mit dem %pk"+#CR$ +
 		                           "Argument entpackt vSystem das Archiv vor Aufruf in den Temp Ordner und ändert dahin"+ #CR$ +
-		                           "auch Intern den Pfad für das Programm"
+		                           "auch Intern den Pfad für das Programm"                                              + #CR$ + #CR$ +
+		                           "Virtual Drive Unterstützung"                                                        + #CR$ +
+		                           "Mit dem Argument %vdm[Drive] läßt sich ein Virtuelles Laufwerk auf das Verzeichnis" +#CR$ +
+		                           "zuweisen von dort aus das wo vSystems das Programm startet was man eingerichtete hat"
+		
 		
 		
 		Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Argument Hilfe ",TipInfo_Text,2,0,ProgramFilename(),0,0,DC::#_Window_003)
@@ -600,6 +619,7 @@ Module vSystemHelp
 		                    "%shout  = Enable and show output Program loggin'"                   + #CR$ + 
 		                    "%svlog  = Redirect and catch Program output log to file"            + #CR$ + #CR$ +
 		                    "%nhkeyt = Disable Taskill Program Hotkey [Alt+Scroll]"              + #CR$ + #CR$ +                                
+		                    "%vdm[d] = Virtual Drive Support d = Drive e.q Z"                    + #CR$ + #CR$ +   
 		                    "%nq     = Don't use automatic doublequotes for %s Files"            + #CR$ +
 		                    "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ 
 		ProcedureReturn ToolTipInfo_Text$
@@ -607,9 +627,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 143
-; FirstLine = 124
-; Folding = -TBxfEc-
+; CursorPosition = 484
+; FirstLine = 186
+; Folding = vTBxfE90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

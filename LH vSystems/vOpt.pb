@@ -64,7 +64,9 @@
         XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"						; Monitor:: 
         XIncludeFile ".\vSystems_Modules\Module_Menu_vSystem.pb"        	;	vSystemHelp::
         XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"					;
-        ;XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool:: Registry Support
+				;XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool:: Registry Support
+        XIncludeFile ".\vSystems_Modules\Module_VdmSupport.pb"						; VirtualDriveSupport::
+
         XIncludeFile ".\vSystems_Modules\Module_SaveSupport.pb"						; SaveTool:: 
         XIncludeFile ".\vSystems_Modules\Module_Menu_Unreal.pb"						; UnrealHelp::
         XIncludeFile ".\vSystems_Modules\Module_Menu_Unity.pb"						;	UnityHelp::
@@ -160,7 +162,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 22
+; CursorPosition = 62
+; FirstLine = 33
 ; EnableAsm
 ; EnableThread
 ; EnableXP

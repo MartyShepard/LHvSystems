@@ -284,6 +284,7 @@ DeclareModule Startup
         Settings_MameHelp.i					;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen
         Settings_aExecute.i					;Alternativer Process für das Ausführen von programmen
         Settings_SaveTool.i					;Save Support: Backup/Restore
+        Settings_VrtlDrve.i					;Virtual Drive Support     
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
@@ -301,6 +302,8 @@ DeclareModule Startup
         
         SaveTool.FILE_SAVESUPPORT
         RegsTool.FILE_REGSSUPPORT
+        
+        DriveLetter.s            		; Virtual Drive Support: Laufwerksbuchstaben
         
         hSplitterDef.i              ;Die Splitter Standard Höhe
         hSplitterSav.i              ;Die Alten Höhe
@@ -431,6 +434,12 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
+        
+        ;
+				; Version 0.60.12
+				; Virtual Drive Support hinzugefügt. Commandline "%vdm[drive]"
+        ; Schnell Kommando mit Admin Mode mode Hinzugefügt
         
         ;
 				; Version 0.60.11
@@ -1150,8 +1159,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 437
-; FirstLine = 402
+; CursorPosition = 435
+; FirstLine = 412
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

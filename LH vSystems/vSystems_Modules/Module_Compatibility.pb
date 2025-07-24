@@ -67,11 +67,18 @@ Module Compatibility
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "8And16BitGDIRedraw"								:CompatibilityEmulation()\Description = "8 And 16Bit GDI Redraw" 					:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "8And16BitAggregateBlts"						:CompatibilityEmulation()\Description = "8 And 16Bit Aggregate Blts" 			:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "8And16BitDXMaxWinMode"       			:CompatibilityEmulation()\Description = "8 And 16Bit DX Max WinMode" 			:CompatibilityEmulation()\bCharSwitch = #True
-		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "Disable8And16BitD3D" 							:CompatibilityEmulation()\Description = "Disable 8 And 16Bit D3D" 				:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "AccelGdipFlush"  									:CompatibilityEmulation()\Description = "Accel Gdi pFlush" 								:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DWM8And16BitMitigation"						:CompatibilityEmulation()\Description = "DWM 8 And 16Bit Mitigation" 			:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DirectXTrimTextureFormats"   			:CompatibilityEmulation()\Description = "DirectX Trim Texture Formats" 		:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DirectXVersionLie"								:CompatibilityEmulation()\Description = "DirectX Version Lie" 						:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "Disable8And16BitD3D" 							:CompatibilityEmulation()\Description = "Disable 8 And 16Bit D3D" 				:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DisableMaxWindowedMode" 					:CompatibilityEmulation()\Description = "Disable Max Windowed Mode " 			:CompatibilityEmulation()\bCharSwitch = #True			
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DXMaximizedWindowedMode"					:CompatibilityEmulation()\Description = "DirectX Maximized WindowedMode"	:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "DXPrimaryEmulation"								:CompatibilityEmulation()\Description = "DirectX Primary Emulation"				:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "ForceSimpleWindow"								:CompatibilityEmulation()\Description = "Force Simple Window"							:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "NoGDIHWAcceleration"							:CompatibilityEmulation()\Description = "No GDI Hardware Acceleration"		:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "NoGDIHWAcceleration"							:CompatibilityEmulation()\Description = "No GDI Hardware Acceleration"		:CompatibilityEmulation()\bCharSwitch = #True			
+; 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = ""		
                                 ;Sie können diese Korrektur weiter steuern, indem Sie den folgenden Befehl an der Eingabeaufforderung eingeben:
                                 ;MAJORVERSION. MINORVERSION. LETTER
 																;Beispiel: 9.0.c.
@@ -112,7 +119,8 @@ Module Compatibility
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "PopCapGamesForceResPerf"         	:CompatibilityEmulation()\Description = "PopCap Games Force Res Perf" 		:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "ProcessPerfData"									:CompatibilityEmulation()\Description = "Process Perf Data" 							:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "SystemMetricsLie"									:CompatibilityEmulation()\Description = "System Metrics Lie" 							:CompatibilityEmulation()\bCharSwitch = #True
-		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "VerifyVersionInfoLiteLayer"				:CompatibilityEmulation()\Description = "Verify Version Info Lite Layer" 	:CompatibilityEmulation()\bCharSwitch = #True
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "VerifyVersionInfoLiteLayer"				:CompatibilityEmulation()\Description = "Verify Version Info Lite Layer" 	:CompatibilityEmulation()\bCharSwitch = #True		
+		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "SingleProcAffinity"								:CompatibilityEmulation()\Description = "Single Proccess Affinity"	 			:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "VirtualRegistry"									:CompatibilityEmulation()\Description = "Virtual Registry" 								:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "Wing32SystoSys32"        					:CompatibilityEmulation()\Description = "WinG32 Sys to Sys32" 						:CompatibilityEmulation()\bCharSwitch = #True
 		AddElement(CompatibilityEmulation()): CompatibilityEmulation()\Modus = "WRPMitigationLayer"								:CompatibilityEmulation()\Description = "WRP Mitigation Layer" 						:CompatibilityEmulation()\bCharSwitch = #True
@@ -1746,8 +1754,9 @@ EndModule
 ; 	WOWCFEX_ZEROINITMEMORY	
 ; 	WRPMitigation	
 ; 	WRPRegDeleteKey
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 24
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 122
+; FirstLine = 84
 ; Folding = --
 ; EnableAsm
 ; EnableXP

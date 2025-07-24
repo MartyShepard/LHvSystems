@@ -3383,6 +3383,7 @@ Module VEngine
         Startup::*LHGameDB\Settings_MameHelp = #False;  
         Startup::*LHGameDB\Settings_aExecute = #False
         Startup::*LHGameDB\Settings_SaveTool = #False        
+        Startup::*LHGameDB\Settings_VrtlDrve = #False         
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
@@ -3579,10 +3580,7 @@ Module VEngine
                     EndIf
                 EndIf            
             Next ArgIndex 
-            
-            
-            
-            
+                                                           
         ;
         ;
         ; Command: Free memory
@@ -3644,8 +3642,31 @@ Module VEngine
                 EndIf           
             Next ArgIndex 
             
-                      
-        
+         ;
+        ;
+        ; Command: Virtual Drive Support
+        For ArgIndex = 1 To Len(Args)          	
+        	s.s = Mid(Args,ArgIndex,1)
+        	If ( s = "%" )
+        		s.s + Mid(Args,ArgIndex+1,1)
+        		If ( s =  "%v" )
+        			s.s + Mid(Args,ArgIndex+2,1)
+        			If ( s =  "%vd" )
+        				s.s + Mid(Args,ArgIndex+3,1)
+        				If ( s =  "%vdm" )
+        					s.s + Mid(Args,ArgIndex+4,1)        					
+        					Select Asc(Right(s,1))
+        						Case 65 To 90, 97 To 122
+        							Startup::*LHGameDB\DriveLetter 				= Right(s,1)
+        							Startup::*LHGameDB\Settings_VrtlDrve 	= #True
+        							Args = DOS_TrimArg(Args.s, s)         							
+        							Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Virtuial Drive Support - Mount: " + Startup::*LHGameDB\DriveLetter + ":\" )  
+        					EndSelect
+        				EndIf        				
+        			EndIf        			
+        		EndIf
+        	EndIf                     
+        Next ArgIndex         
                   
         ;
         ;
@@ -3811,6 +3832,8 @@ Module VEngine
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")   
         EndIf          
          
+           
+        
         ; Zwei Buchstaben ============================================================================================================================================         
         ;
         ;
@@ -4406,7 +4429,7 @@ Module VEngine
         	
     Procedure DOS_Prepare()
         
-        Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i
+        Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i, isMountetd.b = #False
         
         Startup::*LHGameDB\ExitSignal = #False
         Startup::*LHGameDB\Thread_ProcessName = ""
@@ -4496,33 +4519,48 @@ Module VEngine
             	
             	DOS_SetButtonState()
             	
-	            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
-	                 ;
-	                 ; Aktviere MONITOR Disk Activity
-	                 Monitoring::DeActivate()
-	                 Delay( 5 )
-	                 Monitoring::Activate("C:\")
-	            EndIf             
-	            
-	            If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
-	            			Debug "SaveSupport: Init Restore"
-	            	
-	            			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
-	            	
-	            			If ( SaveTool::SaveFile_GetRestore() = #True )
-	            		
-	            				DoDelay.i = SaveTool::SaveFile_GetRestoreDelay()
-	            				Debug "SaveSupport: Restore Delay = " +Str(DoDelay) 
-	            				Debug "SaveSupport: Restore Copy"
-	            										SaveTool::SaveContent_Restore(1,0)           				            				
-	            				Delay(DoDelay)
-	            			Else
-	            				Debug "SaveSupport: Restore Clean List Only"
-	            				SaveTool::CleanListing()
-	            			EndIf	
-	            		EndIf
-	            		Delay(25)
-	          EndIf
+            	If ( Startup::*LHGameDB\Settings_fMonitor = #True )
+            		;
+								; Aktviere MONITOR Disk Activity
+            		Monitoring::DeActivate()
+            		Delay( 5 )
+            		Monitoring::Activate("C:\")
+            	EndIf             
+            	
+            	If ( Startup::*LHGameDB\Settings_VrtlDrve = #True )
+            		isMountetd = VirtualDriveSupport::Activate(Startup::*LHGameDB\DriveLetter, *Params\PrgPath)
+            		If ( isMountetd = #False )            			
+            			SetActiveWindow(DC::#_Window_001)
+            			SetActiveGadget(DC::#ListIcon_001)              			
+            			DOS_SetButtonState(#False) 
+            			;
+            			; Markiere Item welches gestartet ist
+            			vItemTool::Item_Process_UnLoaded()            			
+            			ProcedureReturn 
+            		EndIf
+            	EndIf
+            		
+            	If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
+            		Debug "SaveSupport: Init Restore"
+            		
+            		SaveTool::SaveContent_Read()		; Config Liste Initialiseren
+            		
+            		If ( SaveTool::SaveFile_GetRestore() = #True )
+            			
+            			DoDelay.i = SaveTool::SaveFile_GetRestoreDelay()
+            			Debug "SaveSupport: Restore Delay = " +Str(DoDelay) 
+            			Debug "SaveSupport: Restore Copy"
+            			SaveTool::SaveContent_Restore(1,0)           				            				
+            			Delay(DoDelay)
+            		Else
+            			Debug "SaveSupport: Restore Clean List Only"
+            			SaveTool::CleanListing()
+            		EndIf	
+            	EndIf
+            	
+
+            	Delay(25)
+            EndIf
 	            
 	            
             ProgrammMutex  = CreateMutex()
@@ -4591,7 +4629,10 @@ Module VEngine
 		                Startup::*LHGameDB\Settings_fMonitor = #False
 		            EndIf
 		            
-		            
+            		If ( Startup::*LHGameDB\Settings_VrtlDrve = #True ) And (isMountetd = #True)
+            			VirtualDriveSupport::Deactivate(Startup::*LHGameDB\DriveLetter, *Params\PrgPath)
+            		EndIf
+            		         		            
 		            If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
 		            			Debug "SaveSupport: Init Backup"
 		            			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
@@ -8086,8 +8127,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5543
-; FirstLine = 5311
+; CursorPosition = 4537
+; FirstLine = 4483
 ; Folding = 8--------8---mn90
 ; EnableAsm
 ; EnableXP
