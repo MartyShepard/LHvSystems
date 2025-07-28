@@ -2453,6 +2453,12 @@ Module VEngine
         ; Save GameTitle to the SaveSupport Config
         SaveTool::SaveFile_ChangeTitle(FsTitle$, ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID,"",1))
         
+        ;
+        ; Registry Support to Chnage Gametitle Config
+        RegsTool::GameTitle_Change(FsTitle$, ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID,"",1))
+        
+        
+        
         ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "GameTitle", FsTitle$ ,Startup::*LHGameDB\GameID)
 
         
@@ -3383,7 +3389,8 @@ Module VEngine
         Startup::*LHGameDB\Settings_MameHelp = #False;  
         Startup::*LHGameDB\Settings_aExecute = #False
         Startup::*LHGameDB\Settings_SaveTool = #False        
-        Startup::*LHGameDB\Settings_VrtlDrve = #False         
+        Startup::*LHGameDB\Settings_VrtlDrve = #False 
+        Startup::*LHGameDB\Settings_Registry = #False
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
@@ -3776,7 +3783,19 @@ Module VEngine
              Startup::*LHGameDB\Settings_hkeyKill = #False
              Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Terminate Programm (Ausgeschaltet)")  
         EndIf          
-         
+        
+        ;
+        ;
+        ; Disable Hotkey
+        szCommand.s = "%regssp"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_Registry = #True
+             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Registry Support (Eingeschaltet)")  
+        EndIf  
+           
+        
         ;
         ;
         ; Enable Output
@@ -4429,7 +4448,7 @@ Module VEngine
         	
     Procedure DOS_Prepare()
         
-        Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i, isMountetd.b = #False
+        Protected PrgID.i, Base.i = DC::#Database_001, Table$ = "Programs", LSRowID.i, LSBoxID.i, isMountetd.b = #False, RegsResult.i
         
         Startup::*LHGameDB\ExitSignal = #False
         Startup::*LHGameDB\Thread_ProcessName = ""
@@ -4527,6 +4546,21 @@ Module VEngine
             		Monitoring::Activate("C:\")
             	EndIf             
             	
+            	If (Startup::*LHGameDB\Settings_Registry = #True )
+            		
+            		RegsResult = RegsTool::Init_vEngineImport(*Params\PrgPath)
+            		If RegsResult = #False
+            			SetActiveWindow(DC::#_Window_001)
+            			SetActiveGadget(DC::#ListIcon_001)              			
+            			DOS_SetButtonState(#False) 
+            			;
+            			; Markiere Item welches gestartet ist
+            			vItemTool::Item_Process_UnLoaded()            			
+            			ProcedureReturn             			
+            		EndIf	
+            		
+            	EndIf
+            	
             	If ( Startup::*LHGameDB\Settings_VrtlDrve = #True )
             		isMountetd = VirtualDriveSupport::Activate(Startup::*LHGameDB\DriveLetter, *Params\PrgPath)
             		If ( isMountetd = #False )            			
@@ -4539,7 +4573,8 @@ Module VEngine
             			ProcedureReturn 
             		EndIf
             	EndIf
-            		
+            	
+            	
             	If ( 	Startup::*LHGameDB\Settings_SaveTool = #True )
             		Debug "SaveSupport: Init Restore"
             		
@@ -4627,6 +4662,10 @@ Module VEngine
 		                ; Aktviere Monitor Disk Activity
 		                Monitoring::DeActivate()
 		                Startup::*LHGameDB\Settings_fMonitor = #False
+		            EndIf
+		            
+		            If (Startup::*LHGameDB\Settings_Registry = #True )
+		            	RegsTool::Registry_Cleaner()
 		            EndIf
 		            
             		If ( Startup::*LHGameDB\Settings_VrtlDrve = #True ) And (isMountetd = #True)
@@ -8127,8 +8166,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4537
-; FirstLine = 4483
+; CursorPosition = 4558
+; FirstLine = 4491
 ; Folding = 8--------8---mn90
 ; EnableAsm
 ; EnableXP

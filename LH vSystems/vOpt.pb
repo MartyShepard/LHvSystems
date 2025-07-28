@@ -64,7 +64,7 @@
         XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"						; Monitor:: 
         XIncludeFile ".\vSystems_Modules\Module_Menu_vSystem.pb"        	;	vSystemHelp::
         XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"					;
-				;XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool:: Registry Support
+				XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool:: Registry Support
         XIncludeFile ".\vSystems_Modules\Module_VdmSupport.pb"						; VirtualDriveSupport::
 
         XIncludeFile ".\vSystems_Modules\Module_SaveSupport.pb"						; SaveTool:: 
@@ -162,8 +162,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 62
-; FirstLine = 33
+; CursorPosition = 67
+; FirstLine = 2
 ; EnableAsm
 ; EnableThread
 ; EnableXP

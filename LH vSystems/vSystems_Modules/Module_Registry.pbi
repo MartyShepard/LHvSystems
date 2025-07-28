@@ -711,36 +711,36 @@ Module Registry
 EndModule
 
 CompilerIf #PB_Compiler_IsMainFile
-	EnableExplicit
+;	EnableExplicit
 	
-	Define count, i
+; 	Define count, i
+; 	
+; 	count = Registry::CountSubValues(#HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")
+; 	For i = 0 To count - 1
+; 		Debug Registry::ListSubValue(#HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", i)
+; 	Next
+; 	
+; 	Debug "-----------------------"
 	
-	count = Registry::CountSubValues(#HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")
-	For i = 0 To count - 1
-		Debug Registry::ListSubValue(#HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", i)
-	Next
+;	UseModule Registry
 	
-	Debug "-----------------------"
+;	Define.s Multi_SZ_Str = "ts-soft" + #LF$ + "Software-Development" + #LF$ + #LF$ + "Copyright 2013" + #LF$ + "Programmed in PureBasic"
 	
-	UseModule Registry
-	
-	Define.s Multi_SZ_Str = "ts-soft" + #LF$ + "Software-Development" + #LF$ + #LF$ + "Copyright 2013" + #LF$ + "Programmed in PureBasic"
-	
-	If  WriteValue(#HKEY_CURRENT_USER, "Software\ts-soft", "demo", Multi_SZ_Str, #REG_MULTI_SZ)
-		Debug ReadValue(#HKEY_CURRENT_USER, "Software\ts-soft", "demo")
-		Select MessageRequester("Registry-Example", "Delete the demo Registry-Value?", #PB_MessageRequester_YesNo)
-			Case #PB_MessageRequester_Yes
-				If DeleteValue(#HKEY_CURRENT_USER, "Software\ts-soft", "demo")
-					Debug "Value deleted"
-				Else
-					Debug "Value not deleted"
-				EndIf
-		EndSelect
-	EndIf
+	;If  WriteValue(#HKEY_CURRENT_USER, "Software\ts-soft", "demo", Multi_SZ_Str, #REG_MULTI_SZ)
+;		Debug ReadValue(#HKEY_LOCAL_MACHINE, "SOFTWARE\Wow6432Node\elf\DragonKnight41", "REG_BINARY")
+		;Select MessageRequester("Registry-Example", "Delete the demo Registry-Value?", #PB_MessageRequester_YesNo)
+		;	Case #PB_MessageRequester_Yes
+		;		If DeleteValue(#HKEY_CURRENT_USER, "Software\ts-soft", "demo")
+		;			Debug "Value deleted"
+		;		Else
+		;			Debug "Value not deleted"
+		;		EndIf
+		;EndSelect
+	;EndIf
 CompilerEndIf
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 159
-; FirstLine = 132
-; Folding = ----
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 271
+; FirstLine = 169
+; Folding = HLA+
 ; EnableAsm
 ; EnableXP

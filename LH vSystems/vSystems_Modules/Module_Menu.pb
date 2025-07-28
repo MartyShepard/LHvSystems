@@ -78,8 +78,35 @@ Module INVMNU
     Procedure Get_MenuItems_RegsSupport(MenuID.i)
     	Protected Result.i
     	Select MenuID    
-    		Case 2600:
-    		;	RegsTool::Keys_RegistryFile_Check()  
+    		Case 2600: Debug "Nichts zu tun"
+    		Case 2601: Debug "Nichts zu tun"
+    		Case 2602: Debug "Hilfe"
+    		Case 2603: RegsTool::Menu_CreatConfig()
+    		Case 2604: RegsTool::Menu_AddGame() 
+    		Case 2605: RegsTool::RegsConfig_Edit()
+    			
+    		Case 2606: RegsTool::Menu_OpenAndEdit(1);RegsTool::Menu_Convert(#True)
+    		Case 2607: RegsTool::Menu_OpenAndEdit(2) 
+    		Case 2608: RegsTool::Menu_OpenAndEdit(3) 
+    		Case 2609: RegsTool::Menu_OpenAndEdit(4) 
+    		Case 2610: RegsTool::Menu_OpenAndEdit(5)     			
+    		Case 2611: RegsTool::Menu_OpenAndEdit(99)
+    			
+    		Case 2612: RegsTool::Menu_OpenAndConvert(1)
+    		Case 2613: RegsTool::Menu_OpenAndConvert(2)
+    		Case 2614: RegsTool::Menu_OpenAndConvert(3)
+    		Case 2615: RegsTool::Menu_OpenAndConvert(4)
+    		Case 2616: RegsTool::Menu_OpenAndConvert(5)
+    		Case 2617: RegsTool::Menu_OpenAndConvert(99)
+    			
+    		;Case 2618: RegsTool::Init()
+    		Case 2618: RegsTool::Menu_Import(1)
+    		Case 2619: RegsTool::Menu_Import(2) 
+    		Case 2620: RegsTool::Menu_Import(3) 
+    		Case 2621: RegsTool::Menu_Import(4) 
+    		Case 2622: RegsTool::Menu_Import(5)     			
+    		Default
+    			Debug "Nichts zu tun: " + Str(MenuID)
     	EndSelect		
     EndProcedure	
     ;
@@ -250,18 +277,120 @@ Module INVMNU
     	
     Procedure Set_AppMenu_RegsSupport(MenuID.i)
     	
+    	Protected szRegDataFile1.s, szRegDataFile2.s, szRegDataFile3.s, szRegDataFile4.s, szRegDataFile5.s, CutLen.i = 18, ShowMenuBar.b = #False
+    	
+    		szRegDataFile1 = RegsTool::RegsConfigFile_Read_EncondingOnly(1)
+    		szRegDataFile2 = RegsTool::RegsConfigFile_Read_EncondingOnly(2)
+    		szRegDataFile3 = RegsTool::RegsConfigFile_Read_EncondingOnly(3)
+    		szRegDataFile4 = RegsTool::RegsConfigFile_Read_EncondingOnly(4)
+    		szRegDataFile5 = RegsTool::RegsConfigFile_Read_EncondingOnly(5)
+    		
+    		If Len( szRegDataFile1 ) > 0 Or
+    		   Len( szRegDataFile2 ) > 0 Or
+    		   Len( szRegDataFile3 ) > 0 Or
+    		   Len( szRegDataFile4 ) > 0 Or
+    		   Len( szRegDataFile5 ) > 0
+    		   ShowMenuBar = #True	
+    		EndIf
+    		   
 	    	If IsWindow( DC::#_Window_003 )		    	
-	    		OpenSubMenu("vSystem: Registry Support", ImageID( DI::#_MNU_SAVESUPPORT))
-	    		CloseSubMenu()   
+	    		OpenSubMenu("vSystem: Registry Support")	    		
 	    	Else
 	    		;
 	    		; Try Icon
-	    		OpenSubMenu("Registry Support", ImageID( DI::#_MNU_SAVESUPPORT))	    		
-	    		CloseSubMenu()   
+	    		OpenSubMenu("Registry Support")  
 	    	EndIf
 	    	
-    		MenuItem(2600, "Test")	    	
-    	
+	    	MenuItem(2600, "Titel: " + RegsTool::RegsConfig_GetGameTitle())
+    		MenuItem(2601, RegsTool::RegsConfig_MenuFileExists())
+    		MenuBar() 	    	
+    		MenuItem(2602, "Hilfe") 
+    		MenuBar() 	    		
+    		MenuItem(2603, "Config: Erstellen")
+    		MenuItem(2604, "Config: Spiel Hinzufügen")
+    		MenuItem(2605, "Config: Editieren")
+    		MenuBar()    		
+    		
+    		
+    		If Len( szRegDataFile1 ) > 0
+    			MenuItem(2606, "Editieren: " + Left(szRegDataFile1, Len(szRegDataFile1)-CutLen ) )    			
+    		EndIf
+    		
+    		
+    		If Len( szRegDataFile2 ) > 0
+    			MenuItem(2607, "Editieren: " +  Left(szRegDataFile2, Len(szRegDataFile2)-CutLen )  ) 
+    		EndIf	
+    		
+    		If Len( szRegDataFile3 ) > 0    		
+    			MenuItem(2608, "Editieren: " +  Left(szRegDataFile3, Len(szRegDataFile3)-CutLen )  ) 
+    		EndIf
+    		
+    		If Len( szRegDataFile4 ) > 0       		
+    			MenuItem(2609, "Editieren: " +  Left(szRegDataFile4, Len(szRegDataFile4)-CutLen )  )
+    		EndIf
+    		
+    		If Len( szRegDataFile5 ) > 0    		
+    			MenuItem(2610, "Editieren: " +  Left(szRegDataFile5, Len(szRegDataFile5)-CutLen ) )
+    		EndIf
+    		
+    		MenuItem(2611, "Editieren: - Eigene Datei Öffnen")
+    		MenuBar()
+    		    		  
+    		
+    		If Len( szRegDataFile1 ) > 0    		
+    			MenuItem(2618, "Import: " +  Left(szRegDataFile1, Len(szRegDataFile1)-CutLen ) )
+    		EndIf
+    		
+    		If Len( szRegDataFile2 ) > 0    			
+    			MenuItem(2619, "Import: " +  Left(szRegDataFile2, Len(szRegDataFile2)-CutLen ) )    	
+    		EndIf
+    		
+    		If Len( szRegDataFile3 ) > 0    			
+    			MenuItem(2620, "Import: " +  Left(szRegDataFile3, Len(szRegDataFile3)-CutLen ) )    	
+    		EndIf
+    		
+    		If Len( szRegDataFile4 ) > 0    			
+    			MenuItem(2621, "Import: " +  Left(szRegDataFile4, Len(szRegDataFile4)-CutLen ) )    	
+    		EndIf
+    		
+    		If Len( szRegDataFile5 ) > 0    			
+    			MenuItem(2622, "Import: " +  Left(szRegDataFile5, Len(szRegDataFile5)-CutLen ) )    	    		
+    		EndIf
+    		
+    		If ShowMenuBar = #True
+    			MenuBar() 
+    		EndIf
+    		
+    		If Len( szRegDataFile1 ) > 0    		
+    			MenuItem(2612, "Konvertieren: " + szRegDataFile1)
+    		EndIf
+    		
+    		If Len( szRegDataFile2 ) > 0    			
+    			MenuItem(2613, "Konvertieren: " + szRegDataFile2)    	
+    		EndIf
+    		
+    		If Len( szRegDataFile3 ) > 0    			
+    			MenuItem(2614, "Konvertieren: " + szRegDataFile3)    	
+    		EndIf
+    		
+    		If Len( szRegDataFile4 ) > 0    			
+    			MenuItem(2615, "Konvertieren: " + szRegDataFile4)    	
+    		EndIf
+    		
+    		If Len( szRegDataFile5 ) > 0    			
+    			MenuItem(2616, "Konvertieren: " + szRegDataFile5)    	    		
+    		EndIf
+    		MenuItem(2617, "Konvertieren: - Eigene Datei Öffnen")
+	    	CloseSubMenu() 	    	
+	    		
+    		If CountGadgetItems(DC::#ListIcon_001) = 0
+    			SetMenuItemText(MenuID, 2600, "Keine Spiel Einträge")
+    			SetMenuItemText(MenuID, 2601, "Status: --")
+    		
+    			For Index = 2600 To 2617
+    				DisableMenuItem( MenuID, Index, 1)
+    			Next	    		    	
+    		EndIf	    		 
     EndProcedure
     	
     Procedure Set_AppMenu_SaveSupport(MenuID.i)
@@ -451,6 +580,9 @@ Module INVMNU
     	;
 			; vSystem Save Support    	   	    	
     	Set_AppMenu_SaveSupport(MenuID)
+    	;
+			; vSystem Registry Support    	   	    	
+    	Set_AppMenu_RegsSupport(MenuID)    	
     	;
     	MenuBar() 
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
@@ -1004,8 +1136,13 @@ Module INVMNU
     		Case 1600 To 1699
     			Get_MenuItems_SaveSupport(MenuID.i)
     			
+    		Case 2600 To 2699
+    			Get_MenuItems_RegsSupport(MenuID.i)
+    			
     		Case 2700 To 2750
     			Get_MenuItems_VirtualDriveSupport(MenuID.i)     			
+    			
+    			
     			
     	EndSelect       
     EndProcedure
@@ -1180,8 +1317,8 @@ Module INVMNU
     		MenuBar()    		
     		Set_TrayMenu_SaveSupport()     		
     		MenuBar()
-    		;Set_TrayMenu_RegsSupport()     		
-    		;MenuBar()      		
+    		Set_TrayMenu_RegsSupport()     		
+    		MenuBar()      		
     		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
     		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
     		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
@@ -1212,9 +1349,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 440
-; FirstLine = 178
-; Folding = BEBAc-
+; CursorPosition = 382
+; FirstLine = 137
+; Folding = BxBEM-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

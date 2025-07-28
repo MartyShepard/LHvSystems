@@ -284,7 +284,8 @@ DeclareModule Startup
         Settings_MameHelp.i					;Mame / Mess Commandline Hilfe für Medien in Kombination mit Image und HD anweisungen
         Settings_aExecute.i					;Alternativer Process für das Ausführen von programmen
         Settings_SaveTool.i					;Save Support: Backup/Restore
-        Settings_VrtlDrve.i					;Virtual Drive Support     
+        Settings_VrtlDrve.i					;Virtual Drive Support
+        Settings_Registry.i					;Registry Support           
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
@@ -435,6 +436,12 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         
+        ;
+				; Version 0.60.13
+				; Registry Support for Import (Needed for most Old Windows Games)
+				; - Command to Activate: %regssp
+        ; - Menu added. Look at Tray menu or Program Settings Menu
+        ; Fixed FFH::Shellexec clean Listing
         
         ;
 				; Version 0.60.12
@@ -1059,7 +1066,7 @@ Module Startup
          *LHGameDB\SaveTool\SaveFile     = *LHGameDB\SaveTool\SavePath + "vSystem-SaveSupport.ini"
          
          *LHGameDB\RegsTool\ConfigPath   = Startup::*LHGameDB\Base_Path + "Systeme\REGS\"
-         *LHGameDB\RegsTool\ConfigPath   = *LHGameDB\SaveTool\SavePath + "vSystem-RegistrySupport.ini"         
+         *LHGameDB\RegsTool\ConfigFile   = *LHGameDB\RegsTool\ConfigPath + "vSystem-RegsSupport.ini"         
 
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
@@ -1159,8 +1166,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 435
-; FirstLine = 412
+; CursorPosition = 442
+; FirstLine = 415
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

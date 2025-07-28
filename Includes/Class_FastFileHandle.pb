@@ -461,6 +461,7 @@ Module FFH
 			EndIf
 		Next
 		
+		ClearList( RfsHandle() )
 		If iResult = 1
 			iResult = ShExec\hwnd
 			Debug #TAB$ + "ShellExec Return Process ShExec\hwnd="+Str(ShExec\hwnd) 
@@ -2079,8 +2080,8 @@ CompilerEndIf
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 735
-; FirstLine = 707
+; CursorPosition = 463
+; FirstLine = 419
 ; Folding = ---4
 ; EnableAsm
 ; EnableXP
