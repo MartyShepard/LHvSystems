@@ -104,7 +104,8 @@ Module INVMNU
     		Case 2619: RegsTool::Menu_Import(2) 
     		Case 2620: RegsTool::Menu_Import(3) 
     		Case 2621: RegsTool::Menu_Import(4) 
-    		Case 2622: RegsTool::Menu_Import(5)     			
+    		Case 2622: RegsTool::Menu_Import(5)
+    		Case 2623:	vSystemHelp::vSysCMD_RegistrySupport()
     		Default
     			Debug "Nichts zu tun: " + Str(MenuID)
     	EndSelect		
@@ -381,8 +382,14 @@ Module INVMNU
     			MenuItem(2616, "Konvertieren: " + szRegDataFile5)    	    		
     		EndIf
     		MenuItem(2617, "Konvertieren: - Eigene Datei Öffnen")
+    		
+	    	If IsWindow( DC::#_Window_003 )		    	
+	    		MenuBar() 	    		
+	    		MenuItem(2623, "Commandline Hinzufügen")    		
+	    	EndIf    		
+	    	
 	    	CloseSubMenu() 	    	
-	    		
+	    	
     		If CountGadgetItems(DC::#ListIcon_001) = 0
     			SetMenuItemText(MenuID, 2600, "Keine Spiel Einträge")
     			SetMenuItemText(MenuID, 2601, "Status: --")
@@ -582,7 +589,7 @@ Module INVMNU
     	Set_AppMenu_SaveSupport(MenuID)
     	;
 			; vSystem Registry Support    	   	    	
-    	Set_AppMenu_RegsSupport(MenuID)    	
+    	Set_AppMenu_RegsSupport(MenuID)      				    	    					    
     	;
     	MenuBar() 
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
@@ -1349,9 +1356,9 @@ Module INVMNU
     
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 382
-; FirstLine = 137
-; Folding = BxBEM-
+; CursorPosition = 387
+; FirstLine = 231
+; Folding = B2BEM-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

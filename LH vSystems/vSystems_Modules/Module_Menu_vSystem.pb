@@ -36,6 +36,7 @@
 	Declare 		vSysCMD_QuickCommand()
 	Declare		vSysCMD_QuickCommandAdmin()
 	Declare 		vSysCMD_SavegameSupport()
+	Declare		vSysCMD_RegistrySupport()
 	Declare.s 	vSysCMD_ToolTipHelp()
 	
 EndDeclareModule
@@ -483,72 +484,83 @@ Module vSystemHelp
 		; Virtual Drive Support
   Procedure vSysCMD_VirtualDriveSupport()
 		StrGetSet("vdm[x]")
-	EndProcedure		
+	EndProcedure
+	  ;
+		; Registry Support
+  Procedure vSysCMD_RegistrySupport()
+		StrGetSet("regssp")
+	EndProcedure	
+	
+	
 	Procedure vSysCMD_HelpSupport_Main()	
 		
 		Protected TipInfo_Text.s = #CR$ +
-		                           "Einige Kommandos sind nur dann aktiviert solange das Programm läuft" 								+ #CR$ + #CR$ +		                           				
-		                           "Asyncron:"																																					+ #CR$ +
-		                           "Läßt das Prgramm Asyncron starten ohne das vSystems ein Auge drauf hat. Desweiteren"+ #CR$ +
-		                           "sind aber dann auch Funktion nicht mehr nutzbar wie Borderless, Screenshot Capture" + #CR$ +
-		                           "Savegame Backup, CPU Zugehörgkeit, Firewall Blockieren (Hinzufügen, kein entfernen)"+ #CR$ + #CR$ +		                           
-		                           "Api-Nativ:"																																					+ #CR$ +
-		                           "Benutzt den Windows Api Prozess zum starten des Programms anstatt des von Purebasic."+ #CR$ +
-		                           "Für Spiele die ein ungewöhnliches verhalten zeigen die dennoch normal unter Windows"+ #CR$ +
-		                           "Starten aber unter vSystems nicht starten (Blackscreens etc...)"										+ #CR$ + #CR$ +	
-		                           "Speicher: "																																					 + #CR$ +
-		                           "Damit Läßt sich die eine Speicher Grenze für das progrmm setzen. Das gilt für Spiele"+ #CR$ +
-		                           "die Probleme mit dem entleeren des Speichers haben und 3.5GB Grenze nicht beachten"	+ #CR$ +
-		                           "und abstürzen (für x86)"																														+ #CR$ + #CR$ +	
-		                           "CPU Zugehörgkeit:"																																	+ #CR$ +
-		                           "Dem Programm wird zugwiesen wieviele Kerne es für die Laufzeit nutzen soll"					+ #CR$ + #CR$ +
-		                           "Firewall Blockieren:"																																+ #CR$ +
-		                           "Das Programm (eher die Ausführbare Datei) wird in der Windows Firewall Blockiert. Mit"+#CR$ +
-		                           "Asyncron wird der eintrag nicht aus der Windows Firewall entfernt"									+ #CR$ + #CR$ +
-		                           "Disable End-Hotkey"																																	+ #CR$ +
-		                           "Die Hotkey Kombination 'ALT + ROLLEN' wird ausgesschaltet"													+ #CR$ + #CR$ +
-		                           "Disable Taskbar"																																		+ #CR$ +
-		                           "Die Windows Taskbar wird während das Programm läuft ausgeschaltet"									+ #CR$ + #CR$ +
-		                           "Disable Explorer" 																																	+ #CR$ +
-		                           "Der Explorer (Oberfläche) wird während das Programm läuft ausgeschaltet"						+ #CR$ + #CR$ +
-		                           "Disable Aero Support"		                           																	+ #CR$ +
-		                           "Der Aero Support unter Windows 7 wird während das Programm läuft ausgeschaltet"			+ #CR$ + #CR$ +
-		                           "Media Kommando"			                           																			+ #CR$ +		                           
-		                           "Aktiviert die unterstützung für Programme die CD-Images, Cartdriges, HDD's (Emus)"  + #CR$ +
-		                           "Levels (Ports) laden."																															+ #CR$ +
-		                           "Media Kommando ++"	                          																			+ #CR$ +			                           
-		                           "Ändert die Unterstützung des 1. Slots dahingehend das auch dort Programm Argumente" + #CR$ +
-		                           "übergeben werden können."																														+ #CR$ + #CR$ +
-		                           "Screenshot Aufnahme"																																+ #CR$ + #CR$ +	
-		                           "Dieses Feature funktioniert zurzeit nur mit dem Borderless Mode (%nb) und im Fenster-"+#CR$ +		
-		                           "modus zusammen (Nicht im Fullscreen Modus). Dasfür gibt es aber auch jeden menge"		+ #CR$ +
-		                           "andere Programme (Afterburner, Hypersnap, Steam Selbst, nVidia im Treiber etc....)."+	#CR$ +
-		                           "Taste Shift & Rollen"																																+	#CR$ + #CR$ +
-		                           "Standardmäßig wird die Taste 'ROLLEN' zur Aufnhame benutzt. Mit diesem Argument wird"+#CR$ +
-		                           "zusätzlich die SHIFT Taste registriert. Also SHIFT+ROLLEN"													+	#CR$ +
-		                           "Hotkey Ausschalten"																																	+	#CR$ +#CR$ +
-		                           "Registriert nicht den Hotkey zur Schreenshot Aufnahme"			                        +	#CR$ +  
-		                           "Aktivere Monitoring"																																+ #CR$ +		                           
-		                           "Zeichnet in einer Logdatei (.\LOGS\) änderungen auf welche sich auf C:\ während des"+ #CR$ +
-		                           "Programms abspielen. Damit wird auch erkenntlich wo die Spielstände abgelegt werden"+ #CR$ + #CR$ +
-		                           "Log Erlauben"																																				+ #CR$ +
-		                           "Damit wird die Ausgabe welche das Prgramm zur Laufzeit entwickelt am Ende wenn das" + #CR$ +
-		                           "Programm beendet wird in einem Requester angezeigt"																	+ #CR$ + #CR$ +
-		                           "Log in Datei Schreiben"   																													+ #CR$ +
-		                           "Leitet die Ausgabe in eine Datei ansatt in einem Requester (Siehe .\LOGS\)"					+ #CR$ + #CR$ +
-		                           "Keine Anführungs Zeichen"																														+ #CR$ +
-		                           "Verändert die Argument übergabe das Interne Anführungszeichen übrgeben werden."     + #CR$ +
-		                           "Standardmäßig übergibt vSystems den Medien in den Slots intern Anführungszeichen."  + #CR$ +
-		                           "Es gibt Programme die vergeben aber selbst automatisch Anführungszeichen und die"   + #CR$ +
-		                           "übergabe erfolgt dann mit Doppelten Anfürhungszeichen was dann zu einem Lade Fehler"+ #CR$ +
-		                           "Mit dem Argument %nq wird dies verhindert"																					+ #CR$ + #CR$ +
-		                           "Archiv Unterstützung"																																+ #CR$ +
-		                           "Einige Programme haben kein 7z Support oder allgmein kein Archiv support.Mit dem %pk"+#CR$ +
-		                           "Argument entpackt vSystem das Archiv vor Aufruf in den Temp Ordner und ändert dahin"+ #CR$ +
-		                           "auch Intern den Pfad für das Programm"                                              + #CR$ + #CR$ +
-		                           "Virtual Drive Unterstützung"                                                        + #CR$ +
-		                           "Mit dem Argument %vdm[Drive] läßt sich ein Virtuelles Laufwerk auf das Verzeichnis" +#CR$ +
-		                           "zuweisen von dort aus das wo vSystems das Programm startet was man eingerichtete hat"
+		                           "Einige Kommandos sind nur dann aktiviert solange das Programm läuft" 									+ #CR$ + #CR$ +		                           				
+		                           "Asyncron:"																																						+ #CR$ +
+		                           "Läßt das Prgramm Asyncron starten ohne das vSystems ein Auge drauf hat. Desweiteren"	+ #CR$ +
+		                           "sind aber dann auch Funktion nicht mehr nutzbar wie Borderless, Screenshot Capture" 	+ #CR$ +
+		                           "Savegame Backup, CPU Zugehörgkeit, Firewall Blockieren (Hinzufügen, kein entfernen)"	+ #CR$ + #CR$ +		                           
+		                           "Api-Nativ:"																																						+ #CR$ +
+		                           "Benutzt den Windows Api Prozess zum starten des Programms anstatt des von Purebasic."	+ #CR$ +
+		                           "Für Spiele die ein ungewöhnliches verhalten zeigen die dennoch normal unter Windows"	+ #CR$ +
+		                           "Starten aber unter vSystems nicht starten (Blackscreens etc...)"											+ #CR$ + #CR$ +	
+		                           "Speicher: "																																					 	+ #CR$ +
+		                           "Damit Läßt sich die eine Speicher Grenze für das progrmm setzen. Das gilt für Spiele"	+ #CR$ +
+		                           "die Probleme mit dem entleeren des Speichers haben und 3.5GB Grenze nicht beachten"		+ #CR$ +
+		                           "und abstürzen (für x86)"																															+ #CR$ + #CR$ +	
+		                           "CPU Zugehörgkeit:"																																		+ #CR$ +
+		                           "Dem Programm wird zugwiesen wieviele Kerne es für die Laufzeit nutzen soll"						+ #CR$ + #CR$ +
+		                           "Firewall Blockieren:"																																	+ #CR$ +
+		                           "Das Programm (eher die Ausführbare Datei) wird in der Windows Firewall Blockiert. Mit"+	#CR$ +
+		                           "Asyncron wird der eintrag nicht aus der Windows Firewall entfernt"										+ #CR$ + #CR$ +
+		                           "Disable End-Hotkey"																																		+ #CR$ +
+		                           "Die Hotkey Kombination 'ALT + ROLLEN' wird ausgesschaltet"														+ #CR$ + #CR$ +
+		                           "Disable Taskbar"																																			+ #CR$ +
+		                           "Die Windows Taskbar wird während das Programm läuft ausgeschaltet"										+ #CR$ + #CR$ +
+		                           "Disable Explorer" 																																		+ #CR$ +
+		                           "Der Explorer (Oberfläche) wird während das Programm läuft ausgeschaltet"							+ #CR$ + #CR$ +
+		                           "Disable Aero Support"		                           																		+ #CR$ +
+		                           "Der Aero Support unter Windows 7 wird während das Programm läuft ausgeschaltet"				+ #CR$ + #CR$ +
+		                           "Media Kommando"			                           																				+ #CR$ +		                           
+		                           "Aktiviert die unterstützung für Programme die CD-Images, Cartdriges, HDD's (Emus)"  	+ #CR$ +
+		                           "Levels (Ports) laden."																																+ #CR$ +
+		                           "Media Kommando ++"	                          																				+ #CR$ +			                           
+		                           "Ändert die Unterstützung des 1. Slots dahingehend das auch dort Programm Argumente" 	+ #CR$ +
+		                           "übergeben werden können."																															+ #CR$ + #CR$ +
+		                           "Screenshot Aufnahme"																																	+ #CR$ + #CR$ +	
+		                           "Dieses Feature funktioniert zurzeit nur mit dem Borderless Mode (%nb) und im Fenster-"+ #CR$ +		
+		                           "modus zusammen (Nicht im Fullscreen Modus). Dasfür gibt es aber auch jeden menge"			+ #CR$ +
+		                           "andere Programme (Afterburner, Hypersnap, Steam Selbst, nVidia im Treiber etc....)."	+	#CR$ +
+		                           "Taste Shift & Rollen"																																	+	#CR$ + #CR$ +
+		                           "Standardmäßig wird die Taste 'ROLLEN' zur Aufnhame benutzt. Mit diesem Argument wird"	+ #CR$ +
+		                           "zusätzlich die SHIFT Taste registriert. Also SHIFT+ROLLEN"														+	#CR$ +
+		                           "Hotkey Ausschalten"																																		+	#CR$ +#CR$ +
+		                           "Registriert nicht den Hotkey zur Schreenshot Aufnahme"			                        	+	#CR$ +  
+		                           "Aktivere Monitoring"																																	+ #CR$ +		                           
+		                           "Zeichnet in einer Logdatei (.\LOGS\) änderungen auf welche sich auf C:\ während des"	+ #CR$ +
+		                           "Programms abspielen. Damit wird auch erkenntlich wo die Spielstände abgelegt werden"	+ #CR$ + #CR$ +
+		                           "Log Erlauben"																																					+ #CR$ +
+		                           "Damit wird die Ausgabe welche das Prgramm zur Laufzeit entwickelt am Ende wenn das" 	+ #CR$ +
+		                           "Programm beendet wird in einem Requester angezeigt"																		+ #CR$ + #CR$ +
+		                           "Log in Datei Schreiben"   																														+ #CR$ +
+		                           "Leitet die Ausgabe in eine Datei ansatt in einem Requester (Siehe .\LOGS\)"						+ #CR$ + #CR$ +
+		                           "Keine Anführungs Zeichen"																															+ #CR$ +
+		                           "Verändert die Argument übergabe das Interne Anführungszeichen übrgeben werden."     	+ #CR$ +
+		                           "Standardmäßig übergibt vSystems den Medien in den Slots intern Anführungszeichen."  	+ #CR$ +
+		                           "Es gibt Programme die vergeben aber selbst automatisch Anführungszeichen und die"   	+ #CR$ +
+		                           "übergabe erfolgt dann mit Doppelten Anfürhungszeichen was dann zu einem Lade Fehler"	+ #CR$ +
+		                           "Mit dem Argument %nq wird dies verhindert"																						+ #CR$ + #CR$ +
+		                           "Archiv Unterstützung"																																	+ #CR$ +
+		                           "Einige Programme haben kein 7z Support oder allgmein kein Archiv support.Mit dem %pk"	+ #CR$ +
+		                           "Argument entpackt vSystem das Archiv vor Aufruf in den Temp Ordner und ändert dahin"	+ #CR$ +
+		                           "auch Intern den Pfad für das Programm"                                              	+ #CR$ + #CR$ +
+		                           "Virtual Drive Unterstützung"                                                        	+ #CR$ +
+		                           "Mit dem Argument %vdm[Drive] läßt sich ein Virtuelles Laufwerk auf das Verzeichnis" 	+	#CR$ +
+		                           "zuweisen von dort aus das wo vSystems das Programm startet was man eingerichtete hat"	+ #CR$ + #CR$ +
+		                           "Registry Unterstützung"                                                        				+ #CR$ +
+		                           "Mit dem Argument %regssp lassen sich bis zu fünf Registrs Dateien importieren" 				+ #CR$ +
+		                           "Optional kann der Pfad beim importieren berichtigt werden. Beim Konfigurieren sollte" + #CR$ +
+															 "man ein bischen genauer hingucken. Ist es einmal eingerichtet läuft es wie Biene."
 		
 		
 		
@@ -627,9 +639,8 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 484
-; FirstLine = 186
-; Folding = vTBxfE90
+; CursorPosition = 38
+; Folding = vTBxfE98
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

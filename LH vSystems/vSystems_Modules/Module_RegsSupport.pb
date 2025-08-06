@@ -385,6 +385,8 @@ Module RegsTool
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   (0) = vSystem Ändert den Pfad komplett sowie wie er drinsteht")			
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   (1) = vSystem Achtet auf den letzten Unterodner")
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   (2) = vSystem Achtet auf die  letzten 2 Unterodner und so weiter")
+			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#  (-x) = vSystem entfernt die Anzahl der ordner vom Arbeitspfad")
+			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#         In einigen Fällen kommt es vor das das Programm den Übergeordneten Pfad abfragt")			
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   Beispiele: Das [AV] Aktuelles Verzeichnis ist das in vSystem Konfigurierte Program")
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   Beispiel: KeysToChange=Install(0) ist das selbe wie KeysToChange=Install")			
 			WriteStringN(Startup::*LHGameDB\RegsTool\Configandle, "#   - Ändert: Install=C:\Program Files\GameXYZ > Install=[X]:\[AV] ")	
@@ -952,7 +954,7 @@ Module RegsTool
 	;
 	Procedure.s Name_AddChangeFolder(szKeyPath.s, szvSysPath.s, SubFolderCount.i, LastBackSlash.i)
 				
-		Protected SlashCount.i, SlashIndex.i, AddLastDiectorys.i
+		Protected SlashCount.i, SlashIndex.i, AddLastDiectorys.i, ReKonstrukt.s
 		
 		szvSysPath 	= ReplaceString( szvSysPath, "\" , "\\")
 		
@@ -973,8 +975,30 @@ Module RegsTool
 			Next									
 		EndIf
 		
+		;
+		; Ziehe die letzen Verzeichnisse '\\' (Backslashs) vom Haupt Path ab		
+		If ( SubFolderCount < 0 )
+			SubFolderCount 	= Abs(SubFolderCount)
+			SlashCount	 		= CountString(  szvSysPath, "\") /2 ; /2= \\ Doppelte Slash
+			SlashCount 			- SubFolderCount
+			
+			For SlashIndex = 1 To (SlashCount + 1)
+				ReKonstrukt + StringField( szvSysPath, SlashIndex, "\\") + "\\"
+			Next
+			szvSysPath = ReKonstrukt
+			
+			If ( Right(szvSysPath,1) = "\" )
+				szvSysPath = Left(szvSysPath,Len(szvSysPath)-1 )
+			EndIf
+			If ( Right(szvSysPath,1) = "\" )			
+				szvSysPath = Left(szvSysPath,Len(szvSysPath)-1 )
+			EndIf
+			
+		EndIf				
+			
+		
 		If ( LastBackSlash = #True )
-			szvSysPath + "\"
+			szvSysPath + "\\"
 		EndIf
 		
 		ProcedureReturn szvSysPath
@@ -982,11 +1006,18 @@ Module RegsTool
 	;
 	;
 	Procedure.s Name_ReplaceUserKeyNums(UserKey.s, Index.i)
-	
-	If ( Index > 0 )		
+					
+	If ( Index > 0 )	Or ( Index < 0 )		
 		ProcedureReturn ReplaceString( UserKey, "("+Str(Index)+")", "")
 	EndIf
+	
+	
+	If FindString( UserKey , "(0)")		
+		ProcedureReturn ReplaceString( UserKey, "(0)", "")
+	EndIf
+	
 	ProcedureReturn UserKey
+	
 	
 	EndProcedure
 	;
@@ -1002,6 +1033,15 @@ Module RegsTool
 				Break
 			EndIf
 		Next	
+		
+		;
+		; Anzahl der ordner vom Hauptpfad abziehen
+		For SubFolderIndex = 10 To 0 Step -1
+			If FindString( UserKey , "(-"+Str(SubFolderIndex)+")")				
+				ProcedureReturn -SubFolderIndex
+				Break
+			EndIf
+		Next
 		
 		ProcedureReturn 0			
 	EndProcedure
@@ -1097,6 +1137,9 @@ Module RegsTool
 				For DelimeterIndex = 1 To DelimterCount+1
 					
 					UserKey = StringField( ChangeKeys, DelimeterIndex, ";")
+					If ( UserKey = "" )
+						Continue
+					EndIf
 					
 					;
 					; Unterordner Anzahl beachten
@@ -1942,9 +1985,9 @@ Module RegsTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 865
-; FirstLine = 321
-; Folding = HZACAwAAAgIp-
+; CursorPosition = 388
+; FirstLine = 149
+; Folding = HZAiAwyzAgYp-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

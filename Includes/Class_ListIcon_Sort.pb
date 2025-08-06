@@ -136,7 +136,9 @@ Module LVSORTEX
             \column(j)\typ = *typ\column(col)\typ
             \column(j)\charanz = *typ\column(col)\charanz
             \column(j)\decimals = *typ\column(col)\decimals
-            \column(j)\datemask = *typ\column(col)\datemask
+            If ( Len(*typ\column(col)\datemask) > 0)
+            	\column(j)\datemask = *typ\column(col)\datemask
+            EndIf
          EndWith
       EndIf
       
@@ -415,10 +417,10 @@ Until Event = #PB_Event_CloseWindow
    
  
 CompilerEndIf
-; IDE Options = PureBasic 5.42 LTS (Windows - x64)
-; CursorPosition = 310
-; FirstLine = 255
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 138
+; FirstLine = 101
 ; Folding = 80-
 ; EnableAsm
-; EnableUnicode
 ; EnableXP
+; EnableUnicode

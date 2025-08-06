@@ -437,6 +437,12 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.14
+				; Registry Support Fix for Parent Path's Query
+				; Update Query Routine Changed
+        ; Sortet Datemask fixed
+        
+        ;
 				; Version 0.60.13
 				; Registry Support for Import (Needed for most Old Windows Games)
 				; - Command to Activate: %regssp

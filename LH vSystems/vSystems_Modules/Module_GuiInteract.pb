@@ -294,7 +294,8 @@ Module Interact
         Startup::*LHGameDB\bFirstBootUp = #False
         
         
-        VersionsCheck.i = #True 
+        VersionsCheck.i = #True         
+        Thread_vSystemsCheck(31)
         
         Repeat
             
@@ -312,16 +313,15 @@ Module Interact
         ;
 				; Version Check
 				;  
-        If ( VersionsCheck.i = #True )
-    				Protected HTTPCHECK_Thread.i = CreateThread(@Thread_vSystemsCheck(),0)  
-    				ThreadPriority(HTTPCHECK_Thread, 31)     						
-    				While IsThread(HTTPCHECK_Thread)		                           
-    					While WindowEvent()                                        				
-    					Wend
-    				Wend
-    				VersionsCheck.i = #False
-    				HTTPCHECK_Thread = 0 
-    		EndIf		
+            If ( VersionsCheck.i = #True )
+            	Protected nTimeCheck.i = ElapsedMilliseconds()
+            	;Debug nTimeCheck
+            	If ( nTimeCheck > 5000 )
+            		SetGadgetText( DC::#Text_004,"")
+            		HideGadget(  DC::#Text_004, 1)
+            		VersionsCheck.i = #False
+            	EndIf
+            EndIf		
     		
     		 vWindows::GadgetWindowCheck()
         
@@ -926,8 +926,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 270
-; FirstLine = 197
+; CursorPosition = 317
+; FirstLine = 231
 ; Folding = f+
 ; EnableAsm
 ; EnableXP
