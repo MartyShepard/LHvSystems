@@ -570,24 +570,48 @@ Module RegsTool
 	;
 	;
 	;"REG_BINARY"=hex:12,34,56,78,90
-	Procedure.b GetREG_BINANRY(szRegString.s)
+	Procedure.b GetREG_BINANRY(szRegString.s,szHandle.l, EncondingHandle.i)
 		
 		If ( FindString( szRegString, "hex:", #PB_String_CaseSensitive) )
+		
+			If ( Right(szRegString,1 ) = "\" )
+				
+				While Eof( szHandle ) = 0
+					szRegString + Chr(13)	+ Chr(10) + ReadString(szHandle, EncondingHandle)
+					Debug szRegString
+					If Not ( Right(szRegString,1 ) = "\" )
+						Break
+					EndIf
+				Wend				
+			EndIf	
+			
 			SetProfilingKey(szRegString.s)
 			ProcedureReturn #True		
-		EndIf
+		EndIf		
+		
 		ProcedureReturn #False
 		
 	EndProcedure	
 	;
 	;
 	;"REG_QWORD"=hex(b):00,00,00,00,00,00,00,00
-	Procedure.b GetREG_QWORD(szRegString.s)
+	Procedure.b GetREG_QWORD(szRegString.s,szHandle.l, EncondingHandle.i)
 		
 		If ( FindString( szRegString, "hex(b):", #PB_String_CaseSensitive) )
+			If ( Right(szRegString,1 ) = "\" )
+				
+				While Eof( szHandle ) = 0
+					szRegString + Chr(13)	+ Chr(10) + ReadString(szHandle, EncondingHandle)
+					
+					If Not ( Right(szRegString,1 ) = "\" )
+						Break
+					EndIf
+				Wend				
+			EndIf	
+			
 			SetProfilingKey(szRegString.s)
 			ProcedureReturn #True		
-		EndIf
+		EndIf		
 		
 		ProcedureReturn #False
 		
@@ -673,11 +697,11 @@ Module RegsTool
 					StructRegistryFile()\Type = #REG_MULTI_SZ											
 					Continue
 				EndIf
-				If ( GetREG_QWORD(szRegKeys) 			= #True )
+				If ( GetREG_QWORD(szRegKeys,szHandle, EncondingHandle) 	= #True )	
 					StructRegistryFile()\Type = #REG_QWORD					
 					Continue
 				EndIf
-				If ( GetREG_BINANRY(szRegKeys) 		= #True )
+				If ( GetREG_BINANRY(szRegKeys,szHandle, EncondingHandle) 	= #True )	
 					StructRegistryFile()\Type = #REG_BINARY			
 					Continue
 				EndIf
@@ -1414,7 +1438,8 @@ Module RegsTool
 			If StructRegistryFile() \Separator = 1
 				Continue
 			EndIf
-			If ( Len( ( StructRegistryFile() \Path )) > 0) And (StructRegistryFile() \TopKey > 0)
+			
+			If ( Len( ( StructRegistryFile() \Path )) > 0) And Not (StructRegistryFile() \TopKey = 0)
 				
 				If ( StructRegistryFile() \TopKey = #HKEY_PERFORMANCE_DATA )
 					;
@@ -1984,10 +2009,10 @@ Module RegsTool
 
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 388
-; FirstLine = 149
-; Folding = HZAiAwyzAgYp-
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 1441
+; FirstLine = 884
+; Folding = HZAi68yz+iYp-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

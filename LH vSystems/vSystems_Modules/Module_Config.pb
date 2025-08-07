@@ -437,6 +437,10 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.15
+				; Registry Support bugfix .... minus ... minus .. fck minus
+        
+        ;
 				; Version 0.60.14
 				; Registry Support Fix for Parent Path's Query
 				; Update Query Routine Changed
@@ -1171,8 +1175,8 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 442
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 440
 ; FirstLine = 415
 ; Folding = -L+
 ; EnableAsm
