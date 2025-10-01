@@ -162,8 +162,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 82
-; FirstLine = 33
+; CursorPosition = 162
+; FirstLine = 71
 ; EnableAsm
 ; EnableThread
 ; EnableXP

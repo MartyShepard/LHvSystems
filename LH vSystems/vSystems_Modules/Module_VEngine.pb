@@ -90,6 +90,7 @@ Module VEngine
         StdOutL.i
         hThread.i
         hProcess.i
+        LockMutex.b
     EndStructure
     
     Structure DELETE_ENTRIES
@@ -1868,7 +1869,8 @@ Module VEngine
         If ( ReplaceShortChars = #True )
             NewList SourceParts.s()
             ;
-            ; Splitte den Source Path und Vergleiche diesen
+						; Splitte den Source Path und Vergleiche diesen
+            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
             FFH::PathPartsExt(Startup::*LHGameDB\PortablePath, SourceParts())                        
             
             ResetList( SourceParts() ):
@@ -1953,9 +1955,12 @@ Module VEngine
                 ProcedureReturn OrigDestinPath$ + OrigDestinFile$
             EndIf
             
+            
             ;
-            ; Splitte den Source Path und Vergleiche diesen
+						; Splitte den Source Path und Vergleiche diesen
+            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigSourcePath$+ "Linkes Ist SourceParts()")
             FFH::PathPartsExt(OrigSourcePath$, SourceParts())
+            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigDestinPath$+ "Linked Ist Destn_Parts()")            
             FFH::PathPartsExt(OrigDestinPath$, Destn_Parts())        
             
             ResetList( SourceParts() ): ResetList( Destn_Parts() )
@@ -2018,8 +2023,10 @@ Module VEngine
             ; Liste Löschen
             ClearList( Destn_Parts() )  
             ;
-            ; Pfad splitten anhand des ORIGINALEN Pfad
-            FFH::PathPartsExt(OrigDestinPath$ , Destn_Parts()): ResetList( Destn_Parts() )
+						; Pfad splitten anhand des ORIGINALEN Pfad
+            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigDestinPath$+ "Linked Ist Destn_Parts() ()")
+            FFH::PathPartsExt(OrigDestinPath$ , Destn_Parts())
+            ResetList( Destn_Parts() )
             
             If ( CompareResult >= 1 )
                 
@@ -3028,10 +3035,14 @@ Module VEngine
     ; Startet Programm (Threaded)
     ;________________________________________________________________________________________________________________________________________________________________               
     Procedure DOS_Thread(*Params.PROGRAM_BOOT)
-            LockMutex(ProgrammMutex)    
+    				If ( *Params\LockMutex = #True )
+    					LockMutex(ProgrammMutex)
+    				EndIf
             Delay(25)
-            DOS_Thread_GameMode(*Params.PROGRAM_BOOT)        
-            UnlockMutex(ProgrammMutex)
+            DOS_Thread_GameMode(*Params.PROGRAM_BOOT)  
+            If ( *Params\LockMutex = #True )
+            	UnlockMutex(ProgrammMutex)
+            EndIf
             Debug "DOS_Thread(*Params.PROGRAM_BOOT) END"
             
             ProcedureReturn
@@ -4597,10 +4608,16 @@ Module VEngine
             	Delay(25)
             EndIf
 	            
-	            
-            ProgrammMutex  = CreateMutex()
-            _Action1 = 0 
-            _Action1 = CreateThread(@DOS_Thread(),*Params)  
+            If ( Startup::*LHGameDB\Settings_Asyncron = #False )
+            	*Params\LockMutex = #True
+		            ProgrammMutex  = CreateMutex()
+		            _Action1 = 0 
+		            _Action1 = CreateThread(@DOS_Thread(),*Params)  
+		          Else
+		          *Params\LockMutex = #False
+          		DOS_Thread(*Params)
+          		ProcedureReturn 
+          	EndIf
             Debug "STARTE"
             
             
@@ -4643,7 +4660,8 @@ Module VEngine
                 
               	vSystem::LCD_Info(#True, #True)
                 ;While WindowEvent()
-                ;Wend  
+								;Wend
+              	Delay(25)
               Wend  
               
               ProcessEX::LHFreeMem()
@@ -8166,13 +8184,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4558
-; FirstLine = 4491
-; Folding = 8--------8---mn90
+; CursorPosition = 4663
+; FirstLine = 3664
+; Folding = 8--------88--mn90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame\
+; CurrentDirectory = K:\-=Test Operation Center
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

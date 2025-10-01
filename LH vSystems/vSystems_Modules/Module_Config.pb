@@ -436,6 +436,13 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         
+        
+        ;
+				; Version 0.60.16
+				; Registry Support Import & Convert Path Fixed
+				; Registry Support String Case/NoCase on WOW3264Node Compare Fixed
+        ; Reduced CPU Task usage
+        
         ;
 				; Version 0.60.15
 				; Registry Support bugfix .... minus ... minus .. fck minus
@@ -1175,8 +1182,8 @@ Module Startup
         EndIf        
     EndProcedure
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 440
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 443
 ; FirstLine = 415
 ; Folding = -L+
 ; EnableAsm

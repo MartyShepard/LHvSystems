@@ -1104,13 +1104,13 @@ Module RegsTool
 				;
 				; HKEY_LOCAL_MACHINE\SOFTWARE\Programm\ to HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Programm\
 				ChangedHKLM =  StructRegistryFile() \Path
-				If FindString(ChangedHKLM, "[HKEY_LOCAL_MACHINE\SOFTWARE\" )
+				If FindString(UCase(ChangedHKLM), "[HKEY_LOCAL_MACHINE\SOFTWARE\" )
 					
-					If FindString( ChangedHKLM, "[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" )
+					If FindString( UCase(ChangedHKLM), "[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" )
 						Continue
 					EndIf
 					
-					ChangedHKLM = ReplaceString( ChangedHKLM, "HKEY_LOCAL_MACHINE\SOFTWARE\", "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" )
+					ChangedHKLM = ReplaceString( ChangedHKLM, "HKEY_LOCAL_MACHINE\SOFTWARE\", "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" ,  #PB_String_NoCase  )
  					StructRegistryFile() \Path = ChangedHKLM
 				EndIf					
 			EndIf	
@@ -1537,14 +1537,27 @@ Module RegsTool
 	EndProcedure
 	;
 	; Schreibe die Registry Datei
-	Procedure.i	RegistryFile_Create(szFile.s)
-		
-		If ( FileSize( Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + "_Original.reg" ) = -1 )
-			RenameFile( Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + ".reg", 
-			            Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + "_Original.reg")
+	Procedure.i	RegistryFile_Create(szFile.s, szImportPath.s = "")
+		Protected szKonvertFilePath.s, szBackupFilePath.s
+
+		If ( Len(szImportPath) > 0 )
+			szImportPath = Name_RemoveBackSlash(szImportPath)
+			; Kommt vom Import. Die Reg Datei befindet sich nicht im vSystems Ordner
+			szKonvertFilePath = szImportPath + "\" + szFile + ".reg"					
+			szBackupFilePath  = szImportPath + "\" + szFile + "_Original.reg"
+		Else
+			szKonvertFilePath = Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + ".reg"					
+			szBackupFilePath  = Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + "_Original.reg"			
 		EndIf
 		
-		ProcedureReturn CreateFile( #PB_Any,  Startup::*LHGameDB\RegsTool\ConfigPath + "\" + szFile + ".reg" )
+		If ( FileSize( szKonvertFilePath) = 0 )
+			Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Registry Support","Datei nicht gefunden" + #CR$ + szKonvertFilePath,2,1,"",0,0,DC::#_Window_001)
+			ProcedureReturn 0
+		EndIf
+		
+		RenameFile( szKonvertFilePath, szBackupFilePath)		
+	
+		ProcedureReturn CreateFile( #PB_Any,  szKonvertFilePath )
 	EndProcedure
 	;
 	;
@@ -1603,11 +1616,12 @@ Module RegsTool
 	EndProcedure
 	;
 	; Schreibe die Registry
-	Procedure.i	RegistryFile_Write(Convert.b = #False)
+	Procedure.i	RegistryFile_Write(Convert.b = #False, szPath.s = "")
 		Protected hFile.i, hEncode.i = #PB_UTF8
 		
 		Shared StructRegistryFile()
 		
+			
 		If ( ListSize( StructRegistryFile() ) -1 > -1 )
 			ResetList( StructRegistryFile() )
 			
@@ -1621,7 +1635,7 @@ Module RegsTool
 				EndIf  
 					
 				If ( Len( StructRegistryFile() \File ) > 0 )
-					hFile = RegistryFile_Create( StructRegistryFile() \File )
+					hFile = RegistryFile_Create( StructRegistryFile() \File, szPath )
 					If ( hFile > 0 )
 						hEncode = RegistryFile_Write_Header(StructRegistryFile() \Header, hEncode.i, hFile)						
 					Else
@@ -1992,7 +2006,7 @@ Module RegsTool
   		Case 0
   			RegsConfigFile_Read(FileNum, szPath)
   			
-  			Result = RegistryFile_Write(#True)
+  			Result = RegistryFile_Write(#True,GetPathPart(szPath))
   			If ( Result = #False )
   				szError = GetLastError()
   				Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Registry Support","Fehler beim Konvertieren:" + szError,2,2,"",0,0,DC::#_Window_001)
@@ -2009,10 +2023,10 @@ Module RegsTool
 
 EndModule
 
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 1441
-; FirstLine = 884
-; Folding = HZAi68yz+iYp-
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 1112
+; FirstLine = 725
+; Folding = HZAi8874+7Zh-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
