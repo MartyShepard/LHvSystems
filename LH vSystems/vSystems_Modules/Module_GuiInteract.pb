@@ -293,9 +293,12 @@ Module Interact
         
         Startup::*LHGameDB\bFirstBootUp = #False
         
-        
-        VersionsCheck.i = #True         
-        Thread_vSystemsCheck(31)
+        If (Startup::*LHGameDB\BasePathOption = 0)	; Siehe Module_Config.pb, BasePathOptions                
+        	VersionsCheck.i = #True                 	
+        	Thread_vSystemsCheck(31)
+        Else
+        	VersionsCheck.i = #False
+        EndIf
         
         Repeat
             
@@ -313,7 +316,7 @@ Module Interact
         ;
 				; Version Check
 				;  
-            If ( VersionsCheck.i = #True )
+            If ( VersionsCheck.i = #True ) 
             	Protected nTimeCheck.i = ElapsedMilliseconds()
             	;Debug nTimeCheck
             	If ( nTimeCheck > 5000 )
@@ -926,8 +929,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 317
-; FirstLine = 231
+; CursorPosition = 295
+; FirstLine = 228
 ; Folding = f+
 ; EnableAsm
 ; EnableXP

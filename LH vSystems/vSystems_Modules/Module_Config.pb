@@ -370,6 +370,7 @@ DeclareModule Startup
         LastSplitHeight.i
         Max_Saves_List.i					; Maximal Entrys ab Unreal Menüleist
         ExitSignal.i
+        BasePathOption.i
         
     EndStructure           
     Global *LHGameDB.STRUCT_LH_DATABASE       = AllocateMemory(SizeOf(STRUCT_LH_DATABASE))
@@ -436,6 +437,12 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         
+        ;
+				; Version 0.60.17
+				; Ber der Eingabe des Titels wird auf die die Zeichen "~" und ";" geachtet
+        ; anstatt "-" und ":" und diesen Titel gesplittet.
+				; Das Fenster erscheint später mit dem "%m" Kommando. Reduziert den Erscheinugs
+				; Aufbau
         
         ;
 				; Version 0.60.16
@@ -1036,13 +1043,64 @@ Module Startup
     ; Vorbereitungen, Pfade Lesen
     ;       
      Procedure Prepare()                
+     	
+         Protected BasePathFileDB.s = "BASE.DB"
+         Protected BasePathPictDB.s = "PICT.DB"
+         Protected BasePathStrtDB.s = "STRT.DB"
          
          *LHGameDB\Base_Path            = GetCurrentDirectory()
          *LHGameDB\SubF_Data            = *LHGameDB\Base_Path + "Systeme\DATA\"
-         *LHGameDB\SubF_vSys            = *LHGameDB\SubF_Data + "VSYSDB\"         
-         *LHGameDB\Base_Game            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\BASE.DB"
-         *LHGameDB\Base_Pict            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\PICT.DB"
-         *LHGameDB\Base_Strt            = *LHGameDB\Base_Path + "Systeme\Data\VSYSDB\STRT.DB"
+         *LHGameDB\SubF_vSys            = *LHGameDB\SubF_Data + "VSYSDB\"
+         
+         ;
+				 ; Datenbank Dateien. Special Version für Maps, Mods oder sonstige
+         ; Achtung: Update Function wird mit 1 und weiter abgeschaltet
+         *LHGameDB\BasePathOption				= 0    
+         
+         Select *LHGameDB\BasePathOption	
+         	Case 1
+          	BasePathFileDB.s = "BASE_MAPS.DB"
+         		BasePathPictDB.s = "PICT_MAPS.DB"
+         		BasePathStrtDB.s = "STRT_MAPS.DB"
+         	Case 2
+          	BasePathFileDB.s = "BASE_MODS.DB"
+         		BasePathPictDB.s = "PICT_MODS.DB"
+         		BasePathStrtDB.s = "STRT_MODS.DB"         		
+         	Case 3
+          	BasePathFileDB.s = "BASE_DOOM_BUILDS_ALPHA.DB"
+         		BasePathPictDB.s = "PICT_DOOM_BUILDS_ALPHA.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_BUILDS_ALPHA.DB"           		
+         	Case 4
+          	BasePathFileDB.s = "BASE_DOOM_BUILDS_SHAREWARE.DB"
+         		BasePathPictDB.s = "PICT_DOOM_BUILDS_SHAREWARE.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_BUILDS_SHAREWARE.DB"         		
+         	Case 5
+          	BasePathFileDB.s = "BASE_DOOM_PORTS_WIN.DB"
+         		BasePathPictDB.s = "PICT_DOOM_PORTS_WIN.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_PORTS_WIN.DB"         		
+         	Case 6
+          	BasePathFileDB.s = "BASE_DOOM_TOTAL_CONVERSION.DB"
+         		BasePathPictDB.s = "PICT_DOOM_TOTAL_CONVERSION.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_TOTAL_CONVERSION.DB"           		
+         	Case 7
+          	BasePathFileDB.s = "BASE_DOOM_OFFICIAL_ADOONS.DB"
+         		BasePathPictDB.s = "PICT_DOOM_OFFICIAL_ADOONS.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_OFFICIAL_ADOONS.DB"         		
+         	Case 8
+          	BasePathFileDB.s = "BASE_DOOM_PORTS_WIN_MODS.DB"
+         		BasePathPictDB.s = "PICT_DOOM_PORTS_WIN_MODS.DB"
+         		BasePathStrtDB.s = "STRT_DOOM_PORTS_WIN_MODS.DB"           		
+         	Case 9
+         	Default
+         		BasePathFileDB.s = "BASE.DB"
+         		BasePathPictDB.s = "PICT.DB"
+         		BasePathStrtDB.s = "STRT.DB" 
+         	EndSelect	
+         		
+                   
+         *LHGameDB\Base_Game            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\"+ BasePathFileDB
+         *LHGameDB\Base_Pict            = *LHGameDB\Base_Path + "Systeme\DATA\VSYSDB\"+ BasePathPictDB
+         *LHGameDB\Base_Strt            = *LHGameDB\Base_Path + "Systeme\Data\VSYSDB\"+ BasePathStrtDB
          *LHGameDB\Base_Shot            = *LHGameDB\Base_Path + "Systeme\SHOT\"
          *LHGameDB\UpdateSection        = -1
          *LHGameDB\DateFormat           = "%yyyy/%mm/%dd"
@@ -1183,8 +1241,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 443
-; FirstLine = 415
+; CursorPosition = 440
+; FirstLine = 417
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

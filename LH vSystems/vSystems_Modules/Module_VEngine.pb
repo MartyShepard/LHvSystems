@@ -546,9 +546,10 @@ Module VEngine
         Text_001$ = Title
         Text_002$ = ""
         
-        cnt = CountString( Text_001$, "-")
+        
+        cnt = CountString( Text_001$, "~")
         If (cnt > 0)
-            Position = FindString(Title,"-",1)
+            Position = FindString(Title,"~",1)
             If ( Position > 0 )
              
               Text_001$ = Mid(Title, 1, Position-1)
@@ -556,9 +557,9 @@ Module VEngine
 
             EndIf            
         Else
-            cnt = CountString( Text_001$, ":")
+            cnt = CountString( Text_001$, ";")
             If (cnt > 0)
-                Position = FindString(Title,":",1)
+                Position = FindString(Title,";",1)
                 If ( Position > 0 )
              
                 Text_001$ = Mid(Title, 1, Position-1)
@@ -4671,9 +4672,7 @@ Module VEngine
             ; Minimiert vSystems/ Setzt den Zustand des programms Wieder her. Minimiren befindet sich Modul 
             ; DOS_Thread_GameMode(*Params.PROGRAM_BOOT)
             ; Sollte das Programm Asyncron gestartet werden lass das Window in Ruhe
-            If ( Startup::*LHGameDB\Settings_Asyncron = #False )
-                 Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)  
-            
+            If ( Startup::*LHGameDB\Settings_Asyncron = #False )           
                
 		            If ( Startup::*LHGameDB\Settings_fMonitor = #True )
 		                ;
@@ -4715,7 +4714,9 @@ Module VEngine
 		            				Debug "SaveSupport: Backup Clean List Only"
 		            				SaveTool::CleanListing()
 		            			EndIf	           			            	    
-		           	EndIf
+		            		EndIf
+		            		
+                 Startup::*LHGameDB\Settings_Minimize = DOS_Thread_Minimze(Startup::*LHGameDB\Settings_Minimize)  		            		
             EndIf 		
    
             
@@ -8184,8 +8185,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4663
-; FirstLine = 3664
+; CursorPosition = 4718
+; FirstLine = 3725
 ; Folding = 8--------88--mn90
 ; EnableAsm
 ; EnableXP

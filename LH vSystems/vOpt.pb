@@ -161,17 +161,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 162
-; FirstLine = 71
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 84
+; FirstLine = 50
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = D:\NewGame\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; CurrentDirectory = V:\Tosec - Sony PlayStation 2\Emulation\
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode
