@@ -162,15 +162,15 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 84
-; FirstLine = 50
+; CursorPosition = 69
+; FirstLine = 27
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
 ; Executable = Release\vSystems32Bit.exe
 ; CPU = 5
-; CurrentDirectory = V:\Tosec - Sony PlayStation 2\Emulation\
+; CurrentDirectory = D:\NewGame\
 ; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display

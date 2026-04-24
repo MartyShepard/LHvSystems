@@ -438,6 +438,10 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.18        
+				; Savesupport: %MYGAMES% (C:\users\<Username>\Documents\My Games\) hinzugefügt        
+        
+        ;
 				; Version 0.60.17
 				; Ber der Eingabe des Titels wird auf die die Zeichen "~" und ";" geachtet
         ; anstatt "-" und ":" und diesen Titel gesplittet.
@@ -1241,8 +1245,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 440
-; FirstLine = 417
+; CursorPosition = 441
+; FirstLine = 412
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

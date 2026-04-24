@@ -268,6 +268,8 @@ Module SaveTool
  			
  			;AddElement( ShFolders() ): ShFolders()\SHDirectory = "%HOMEDRIVE%\"
  			
+ 			AddElement( ShFolders() ): ShFolders()\SHDirectory = "%MYGAMES%\"	  		:ShFolders()\STRUCT_DATASH = ?FOLDERID_DOCUMENTS					:ShFolders()\Username = ""  			
+ 			
 			
 			Debug "SaveSupport CLSID: Eingangs Verzeichnis: " + ShPath
 			
@@ -276,7 +278,7 @@ Module SaveTool
  				
  				nPos = FindString(ShPath, ShFolders()\SHDirectory ,1,#PB_String_NoCase)
  				If (nPos > 0)
- 					
+ 					 					
  					If (Len( ShFolders()\Username )) > 0 And Not ( ShFolders()\SHDirectory = "%USERNAME%\" )
  						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\SHDirectory + ShFolders()\Username )
  					EndIf
@@ -286,10 +288,17 @@ Module SaveTool
  						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, ShFolders()\Username,#PB_String_NoCase   )
  						Break;
  					EndIf
+ 					
+ 					; Erweitert FOLDERID_DOCUMENTS
+ 					If ShFolders()\SHDirectory = "%MYGAMES%\"
+ 						ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, SHGetFolderPath_Function( ShFolders()\STRUCT_DATASH) + "My Games\" )
+ 						Break
+ 					EndIf
+ 					
  					ShPath = ReplaceString(ShPath, ShFolders()\SHDirectory, SHGetFolderPath_Function( ShFolders()\STRUCT_DATASH) )
+ 					 					
  				EndIf
- 			Wend 		
-
+ 			Wend 			
  			
  			FreeList ( ShFolders() )
  			
@@ -1654,8 +1663,9 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %APPDATA%         : C:\Users\%username%\AppData\Roaming\")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATA%    : C:\Users\%username%\AppData\Local\")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %LOCALAPPDATALOW% : C:\Users\%username%\AppData\Locallow\")						
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %USERPROFILE%  : C:\Users\%username%\")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %SAVEDGAMES%   : C:\Users\%username%\Documents\Saved Games")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %USERPROFILE%     : C:\Users\%username%\")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %SAVEDGAMES%      : C:\Users\%username%\Documents\Saved Games")
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# %MYGAMES%         : C:\Users\%username%\Documents\My Games\")			
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "#")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# Examples: You can use variables.")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "# 001=C:\Users\%username%\AppData\Roaming\SuperBoombasticPlasticGame\")
@@ -2500,9 +2510,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1244
-; FirstLine = 353
-; Folding = H7UAw+nD2
+; CursorPosition = 230
+; FirstLine = 220
+; Folding = 48UAw+nD2
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
