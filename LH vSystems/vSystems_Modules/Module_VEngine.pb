@@ -547,9 +547,9 @@ Module VEngine
         Text_002$ = ""
         
         
-        cnt = CountString( Text_001$, "~")
+        cnt = CountString( Text_001$, "-")
         If (cnt > 0)
-            Position = FindString(Title,"~",1)
+            Position = FindString(Title,"-",1)
             If ( Position > 0 )
              
               Text_001$ = Mid(Title, 1, Position-1)
@@ -557,9 +557,9 @@ Module VEngine
 
             EndIf            
         Else
-            cnt = CountString( Text_001$, ";")
+            cnt = CountString( Text_001$, ":")
             If (cnt > 0)
-                Position = FindString(Title,";",1)
+                Position = FindString(Title,":",1)
                 If ( Position > 0 )
              
                 Text_001$ = Mid(Title, 1, Position-1)
@@ -576,10 +576,8 @@ Module VEngine
         SetGadgetText(DC::#Text_001,Text_001$)
         SetGadgetText(DC::#Text_002,Text_002$)
         SetGadgetText(DC::#String_001,Text_001$)
-        SetGadgetText(DC::#String_002,Text_002$)
-         
-          
-    EndProcedure        
+        SetGadgetText(DC::#String_002,Text_002$)                  
+      EndProcedure      
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************    
@@ -2452,11 +2450,12 @@ Module VEngine
         IntFle4$ = GetGadgetText(DC::#String_110):         
                 
         ;
-        ; Update Title        
-        If ( Len(Sbtitle$) >= 1 )
+				; Update Title              
+        If ( Len(Sbtitle$) >= 1 )         	
         	FsTitle$ + " - " +  Sbtitle$
-        EndIf
+				EndIf
         Database_Set_Title(FsTitle$)
+        
         ;
         ; Save GameTitle to the SaveSupport Config
         SaveTool::SaveFile_ChangeTitle(FsTitle$, ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID,"",1))
@@ -8185,9 +8184,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 4718
-; FirstLine = 3725
-; Folding = 8--------88--mn90
+; CursorPosition = 579
+; FirstLine = 204
+; Folding = LEACSAA5-88--+n90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
