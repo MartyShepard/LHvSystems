@@ -905,9 +905,7 @@ Module VEngine
                 ; GameTitle, setzte ein Bruch zwischen ":"
                 ; 
               If (Startup::*LHGameDB\UpdateSection = -1) Or (Startup::*LHGameDB\UpdateSection = 1)
-                  
-                    ProcessEX::LHFreeMem()
-                  
+                                                       
                     VEngine::Splitter_SetGet(#True)
                     
                     Str$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",RowID,"",1)                      
@@ -999,6 +997,7 @@ Module VEngine
               Startup::*LHGameDB\UpdateSection = -1
               Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished - Aktuelle ID " + Str(Startup::*LHGameDB\GameID))        
               
+              ProcessEX::LHFreeMem()              
           EndIf    
       EndProcedure
     ;****************************************************************************************************************************************************************
@@ -8184,9 +8183,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 579
-; FirstLine = 204
-; Folding = LEACSAA5-88--+n90
+; CursorPosition = 511
+; FirstLine = 365
+; Folding = rEACSAA5-88--+n90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

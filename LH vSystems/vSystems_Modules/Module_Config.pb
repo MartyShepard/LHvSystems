@@ -438,6 +438,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.20
+        ; Thumnails: Schwarze "vorschau" Nicht Importierte Bilder Bug
+       	; Sollte jetzt endgültig behoben sein			
+        
+        ;
 				; Version 0.60.19   
         ; Funktion zurück gerollt!
        	; Ber der Eingabe des Titels wird auf die die Zeichen "~" und ";" geachtet
@@ -1251,7 +1256,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 437
+; CursorPosition = 442
 ; FirstLine = 412
 ; Folding = -L+
 ; EnableAsm

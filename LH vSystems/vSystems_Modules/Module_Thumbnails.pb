@@ -356,10 +356,50 @@ Module vThumbSys
     EndProcedure
     ;
 		;
-    ;    
+		;
+		; 		Procedure CopyImageWinAPI(SourceImage.i, DestImage.i)
+		; 		    Protected srcDC.i, dstDC.i
+		; 		    Protected oldSrc.i, oldDst.i
+		; 		    Protected bmp.BITMAP
+		; 		    
+		; 		    If SourceImage = 0 Or DestImage = 0
+		; 		        ProcedureReturn #False
+		; 		    EndIf
+		; 		    				  
+		; 		    ; Größe der Quelle holen
+		; 		    GetObject_(ImageID(SourceImage), SizeOf(BITMAP), @bmp)
+		; 		    		    		    
+		; 		    CreateImage(DestImage, bmp\bmWidth, bmp\bmHeight, 32)
+		; 		    
+		; 		    ; Prüfen, ob Ziel die gleiche Größe hat (empfohlen)
+		; 		    ; Optional: Hier könntest du das Ziel-Bild neu erstellen, falls nötig
+		; 		    
+		; 		    ; Memory-DC für Quelle erstellen
+		; 		    srcDC = CreateCompatibleDC_(#Null)
+		; 		    oldSrc = SelectObject_(srcDC, ImageID(SourceImage))
+		; 		    				  
+		; 		    ; Memory-DC für Ziel erstellen
+		; 		    dstDC = CreateCompatibleDC_(#Null)
+		; 		    oldDst = SelectObject_(dstDC, ImageID(DestImage))
+		; 		    		    
+		; 		    ; Kopieren mit BitBlt (schnellste Variante)
+		; 		    BitBlt_(dstDC, 0, 0, bmp\bmWidth, bmp\bmHeight, 
+		; 		            srcDC, 0, 0, #SRCCOPY)
+		; 		    		    		    
+		; 		    ; Aufräumen
+		; 		    SelectObject_(srcDC, oldSrc)
+		; 		    SelectObject_(dstDC, oldDst)
+		; 		    DeleteDC_(srcDC)
+		; 		    DeleteDC_(dstDC)
+		; 		    
+		; 		    ProcedureReturn #True
+		; 		EndProcedure    
+		;
+		;
+    ;
     Procedure.l  Calc_Thumbnail1(Thumbnail = 1)
     	Protected RowID.i = Startup::*LHGameDB\GameID, Result.i
-    	
+    	SetPriorityClass_(GetCurrentProcess_(),#HIGH_PRIORITY_CLASS)     
     	; Geändert  Slotcontent.l to *SlotContent
     	Protected *SlotContent
     	*SlotContent = AllocateMemory(500000)
@@ -370,15 +410,29 @@ Module vThumbSys
     		
     	EndIf
     	    		
-    	If ( Result = 0 ) And ( *SlotContent = 0 )
-    		CopyImage(  Startup::*LHImages\NoScreenPB[Thumbnail],  Startup::*LHImages\OrScreenPB[Thumbnail])              
+    	If ( Result = 0 ) And ( *SlotContent = 0 ) 
+    		; Test und Debug
+    		
+				; CreateImage(Startup::*LHImages\OrScreenPB[Thumbnail],
+				;  ImageWidth(Startup::*LHImages\NoScreenPB[Thumbnail]),
+				;  ImageHeight(Startup::*LHImages\NoScreenPB[Thumbnail]), 32)
+    		;
+				; CopyImageWinAPI(Startup::*LHImages\NoScreenPB[Thumbnail],  Startup::*LHImages\OrScreenPB[Thumbnail])
+    		;
+    		CopyImage(  Startup::*LHImages\NoScreenPB[Thumbnail],  Startup::*LHImages\OrScreenPB[Thumbnail])
+    		;
+    		;
+    		; Debug "Startup::*LHImages\NoScreenPB[Thumbnail] = " + Str(Startup::*LHImages\NoScreenPB[Thumbnail])
+    		; Debug "Startup::*LHImages\OrScreenPB[Thumbnail] = " + Str(Startup::*LHImages\OrScreenPB[Thumbnail])    		
+    		; SaveImage( Startup::*LHImages\OrScreenPB[Thumbnail], "B:\PB-Test\Image_"+Str(Thumbnail)+".png")    		
     	EndIf 	
     		
     	Resize_Gadget(Thumbnail, Startup::*LHImages\OrScreenPB[Thumbnail], Startup::*LHImages\ScreenGDID[Thumbnail], #True) 
     	If Not ( *SlotContent = 0 )
     		FreeMemory( *SlotContent )
     	EndIf	
-    	Thumbnail_SetGadgetState(Thumbnail)   
+    	Thumbnail_SetGadgetState(Thumbnail)
+    	SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
     EndProcedure
     ;
 		;
@@ -535,13 +589,13 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 368
-; FirstLine = 286
-; Folding = zPA5
+; CursorPosition = 367
+; FirstLine = 349
+; Folding = 8---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame\
+; CurrentDirectory = ..\Release\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

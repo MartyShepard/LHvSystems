@@ -241,45 +241,54 @@ Module vImages
 
     		Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")        		        		        		
     		ProcessEX::DelayMicroSeconds(*Interval)
+    		Timeout.i = 1
     		Select nSlot
     			Case 4,12,20,28,36,44,52     				
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()                	
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread(),nSlot) 
     				 
 	
     			Case 1,9,17,25,33,41,49 
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_2(),nSlot)
   				
     			Case 2,10,18,26,34,42,50                 	
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_3(),nSlot)                                         
     				
     			Case 3,11,19,27,35,43,51
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_4(),nSlot) 
     				
     			Case 8,16,24,32,40,48
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_5(),nSlot)
     				
     			Case 5,13,21,29,37,45
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_6(),nSlot)                      
     				
     			Case 6,14,22,30,38,46
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_7(),nSlot)     				
     				
     			Case 7,15,23,31,39,47
     				vThumbSys::ClearImage(nSlot)
+    				Delay(Timeout)
     				Startup::*LHGameDB\Images_Mutex[nSlot] = CreateMutex()
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                      				
     		EndSelect
@@ -297,7 +306,7 @@ Module vImages
     	Protected IntervalThread.i  = CreateThread(@Screens_Show_A_Thread(), 1)
     	
     	While IsThread(IntervalThread)        	
-    		WaitThread( IntervalThread, ProcessEX::DelayMicroSeconds(100))
+    		WaitThread( IntervalThread,ProcessEX::DelayMicroSeconds(1))
     	Wend
     	
     	DisableGadget( DC::#Contain_10, #False)     
@@ -316,11 +325,11 @@ Module vImages
         ; Random Modus
         ; Würfel die 4 NoScreenshots Durcheinander
         For n = 1 To Startup::*LHGameDB\MaxScreenshots
-        	Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)        	        	
+        	Startup::*LHImages\NoScreenPB[n] = Random(DC::#_PNG_NOSD, DC::#_PNG_NOSA)        	
           Startup::*LHImages\NoScreenID[n] = ImageID(Startup::*LHImages\NoScreenPB[n])             
                       
           ;Debug "NoScreen Nr. " + RSet( Str(n),2,"0" ) + " / NoScreenPB: " + RSet( Str(Startup::*LHImages\NoScreenPB[n]),4,"0") + " / NoScreenID: " + Str(Startup::*LHImages\NoScreenID[n])
-          
+          ;SaveImage( Startup::*LHImages\NoScreenPB[n] ,"B:\Image_" +Str(n))
           ProcessEX::DelayMicroSeconds(1)      
          Next
     EndProcedure    
@@ -1817,11 +1826,11 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 573
-; FirstLine = 393
+; CursorPosition = 243
+; FirstLine = 230
 ; Folding = -PA1zygB5f-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame\
+; CurrentDirectory = ..\Release\
 ; EnableUnicode

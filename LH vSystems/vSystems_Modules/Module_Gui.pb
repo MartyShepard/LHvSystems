@@ -581,7 +581,7 @@ Module MagicGUI
     
     Procedure Gui_MiddleMiddle_Screens()
         Protected ObjPosSpace.i, w.i,h.i 
-        
+        ResetStructure(Startup::*LHImages, Startup::STRUCT_LH_DATABASE)
         
         *ObjPos\w = WindowWidth(DC::#_Window_001) - 10
         *ObjPos\h = 198 + Startup::*LHGameDB\WindowHeight       
@@ -638,8 +638,9 @@ Module MagicGUI
             ; Lege die Screenshots in die "Elemente"
             vImages::NoScreens_Prepare() 
             
+            
             For  n = 1 To Max
-                ImageGadget(Startup::*LHImages\ScreenGDID[n],*ObjPos\x,*ObjPos\y ,*ObjPos\w,*ObjPos\h,0)
+            		ImageGadget(Startup::*LHImages\ScreenGDID[n],*ObjPos\x,*ObjPos\y ,*ObjPos\w,*ObjPos\h,0)            	
             Next    
             
             vImages::Screens_SetThumbnails(4,4) 
@@ -2619,9 +2620,9 @@ Module MagicGUI
     EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2330
-; FirstLine = 995
-; Folding = D3L+4
+; CursorPosition = 642
+; FirstLine = 300
+; Folding = D+P+4
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
