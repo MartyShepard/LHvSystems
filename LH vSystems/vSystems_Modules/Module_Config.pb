@@ -438,8 +438,12 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.21
+        ; Medien Datei Eingabefeld(er): "Disk Icon" zeigt datei wenn es unbekannt ist die Dateieigenschaft				
+        
+        ;
 				; Version 0.60.20
-        ; Thumnails: Schwarze "vorschau" Nicht Importierte Bilder Bug
+        ; Thumbnails: Schwarze "vorschau" Nicht Importierte Bilder Bug
        	; Sollte jetzt endgültig behoben sein			
         
         ;
@@ -1256,7 +1260,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 442
+; CursorPosition = 437
 ; FirstLine = 412
 ; Folding = -L+
 ; EnableAsm

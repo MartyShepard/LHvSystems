@@ -5595,7 +5595,7 @@ EndProcedure
     ;
     Procedure.i     FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
         
-        Protected szMedium.s, szFormat.s, RtCode.i = 1
+        Protected szMedium.s, szFormat.s, RtCode.i = -1
         
         If ( Len(GetGadgetText(GadgetID)) = 0 )                                   ;
              Request::MSG(Startup::*LHGameDB\TitleVersion, "Keine Datei Im Slot!","Im dem Datei Slot befindet sich keine Datei" ,2,2,"",0,0,DC::#_Window_001)
@@ -5627,7 +5627,7 @@ EndProcedure
         ;
         ;
         ; Auf Dateiformat Prüfen
-        Select UCase ( szFormat )
+        Select UCase ( szFormat )	
         		;
         		; Dosbox Configs
         	Case "CONF", "INI", "BAT"
@@ -5639,25 +5639,20 @@ EndProcedure
         		  Select Result
         		  	Case 0: FFH::ShellExec(szMedium, "open") 
         		  	Case 2: FFH::SHOpenWithDialog_(szMedium, 4)	        		  
-        		  EndSelect        		  
-        			
+        		  EndSelect        		          			
 							ProcedureReturn 
         		
             Case "LZ"
-                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_BriefLZ )
-                
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_BriefLZ )                
             Case "ZIP"               
-                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Zip     )               
-                
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Zip     )                               
             Case "7Z","LHA"                
-                RtCode = FileManageR_MediumDecmp( szMedium.s,  #PB_PackerPlugin_Lzma   )               
-                
+                RtCode = FileManageR_MediumDecmp( szMedium.s,  #PB_PackerPlugin_Lzma   )                               
             Case "TAR"
-                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Tar     )                
-                
+                RtCode = FileManageR_MediumDecmp( szMedium.s, #PB_PackerPlugin_Tar     )                                
             Case "RAR"
                 ;
-                ; Ja super ... da muss man wieder war machen ...
+                ; Ja super ... da muss man wieder rar machen ...
                 Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","RAR wird Nativ (noch) nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
                 ProcedureReturn 
             Case "LZX"
@@ -5665,20 +5660,24 @@ EndProcedure
             	ProcedureReturn 
         EndSelect
         
-        Select RtCode
-                ;
-                ; Return Code 64 öffent das C64er Image Fenster, da sich im gepackten image C64er Image Befindet
-            Case 64
-                vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
-                ProcedureReturn 
-                
-          Default
-          	    ;
-          	    ; Öffnet den Standard Archiv Manager
-          	    vWindows::OpenWindow_Archiv(GadgetID.i, DestGadgetID.i)
-                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Der Inhalt der [ "+ szFormat +" ] Datei wird noch nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
-                ProcedureReturn 
-                
+        Select RtCode ; ReturnCode        		        		
+        	Case -1
+        		;
+						; -1 Öffne alles via Dateieigenschaft
+        		FFH::ShellExec(szMedium, "properties","",#SEE_MASK_NOCLOSEPROCESS | #SEE_MASK_INVOKEIDLIST | #SEE_MASK_FLAG_NO_UI,#SW_SHOWNORMAL,#False,0)
+        		ProcedureReturn  
+        	Case 64
+        		;
+						; Return Code 64 öffent das C64er Image Fenster, da sich im gepackten image C64er Image Befindet        				
+        		vWindows::OpenWindow_Sys64(GadgetID.i, DestGadgetID.i)
+        		ProcedureReturn                
+        	Default
+        		;
+						; Öffnet den Standard Archiv Manager
+        		vWindows::OpenWindow_Archiv(GadgetID.i, DestGadgetID.i)
+        		Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Der Inhalt der [ "+ szFormat +" ] Datei wird noch nicht unterstützt",2,2,"",0,0,DC::#_Window_001)
+        		ProcedureReturn 
+        		
         EndSelect        
         ;
         ;
@@ -5696,6 +5695,7 @@ EndProcedure
                 
         EndSelect
         
+              
     EndProcedure    
     
   ;**********************************************************************************************************************************************************************
@@ -8183,9 +8183,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 511
-; FirstLine = 365
-; Folding = rEACSAA5-88--+n90
+; CursorPosition = 5629
+; FirstLine = 3175
+; Folding = rEASSAA5--8--+n90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
