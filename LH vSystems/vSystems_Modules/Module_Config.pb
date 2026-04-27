@@ -438,6 +438,10 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.22
+				; Datei Eigenschaft Aufruf in das Programmeinstellungs Fenster Integriert und in das Tray Menü
+        
+        ;
 				; Version 0.60.21
         ; Medien Datei Eingabefeld(er): "Disk Icon" zeigt datei wenn es unbekannt ist die Dateieigenschaft				
         
@@ -1260,8 +1264,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 437
-; FirstLine = 412
+; CursorPosition = 440
+; FirstLine = 411
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

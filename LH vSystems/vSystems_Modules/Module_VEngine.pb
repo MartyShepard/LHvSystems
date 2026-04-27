@@ -1837,95 +1837,7 @@ Module VEngine
     ;
     ;****************************************************************************************************************************************************************  
     Procedure.s Getfile_Portbale_ModeOut(TestFile$)
-        
-        
-        Protected OptOUT$ = "..\", OptIN$ = ".\", CharsCountOut.i, CharsCountIn.i, ReplaceShortChars = #False, ShortChar$ = "", sMaxChars.i, sMaxList
-                  
-            ;
-        ; Datei normal Testeb ob sie vorhanden
-        ;If ( FileSize( TestFile$ ) >= 1 )
-        ;    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File Out SIZE: " + Chr(13) + TestFile$ + "::SIZE: " + Str(FileSize( TestFile$ ) ))
-        ;Else           
-                                     
-        ;
-        ; Prüfen auf den Verkürzten Pfad namen (Ausserhalb des Verzeichniss)
-        CharsCountOut = CountString(TestFile$,OptOUT$)
-        
-        If ( CharsCountOut >= 1 )
-            ReplaceShortChars = #True: ShortChar$ = OptOUT$: sMaxChars = CharsCountOut
-        Else
-            CharsCountIn  = CountString(TestFile$,OptIN$)                         
-            If ( CharsCountIn  >= 1 )
-                ReplaceShortChars = #True: ShortChar$ = OptIN$ : sMaxChars = CharsCountIn
-                If ( CharsCountIn = 1 )
-                    TestFile$ = ReplaceString(TestFile$,ShortChar$,"",0,1,sMaxChars)
-                    ReplaceShortChars = #False
-                EndIf    
-            EndIf                    
-        EndIf    
-        
-        If ( ReplaceShortChars = #True )
-            NewList SourceParts.s()
-            ;
-						; Splitte den Source Path und Vergleiche diesen
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
-            FFH::PathPartsExt(Startup::*LHGameDB\PortablePath, SourceParts())                        
-            
-            ResetList( SourceParts() ):
-            sMaxList = ListSize(SourceParts())
-                     
-            
-            SString$ = ""
-            For  Index = 0 To sMaxChars -1
-                  
-                If ( SelectElement( SourceParts(),Index) <> 0)
-                    SString$ = SString$ + SourceParts()
-                EndIf    
-            Next Index    
-            
-            TestFile$ = ReplaceString(TestFile$,ShortChar$,"",0,1,sMaxChars)
-            TestFile$ = SString$ + TestFile$
-            
-            Select FileSize(TestFile$)
-                Case 0,-1
-                Case -2                                
-                    ;If ( Right(TestFile$, 1) <> "\" ) 
-                        ;TestFile$ + "\"
-                        ;TestFile$ = Left(TestFile$, Len(TestFile$) - 1) 
-                    ;EndIf
-                Default
-            EndSelect                               
-        EndIf                   
-        
-        If ( ReplaceShortChars = #False )
-            ;
-            ; Prüfen wir den pfad obe dieser auf das programm Verzeichnis zeigt
-            Select FileSize( Startup::*LHGameDB\PortablePath + TestFile$ )
-                Case 0
-                Case -1
-                Case -2
-                    TestFile$ = Startup::*LHGameDB\PortablePath + TestFile$
-                    ProcedureReturn TestFile$
-                Default
-                    TestFile$ = Startup::*LHGameDB\PortablePath + TestFile$
-                    ProcedureReturn TestFile$
-            EndSelect 
-            
-            ;
-            ; Prüfen wir den pfad ob gan wonders liegt            
-            Select FileSize( TestFile$ )
-                Case 0                    
-                Case -1
-                Case -2
-                    ProcedureReturn TestFile$
-                Default
-                    ProcedureReturn TestFile$
-            EndSelect             
-        EndIf
-        ;EndIf        
-        
-        ;Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File Out: " + Chr(13) + TestFile$)
-        ProcedureReturn TestFile$        
+        ProcedureReturn vFilePortable::GetFullPath(TestFile$)            
     EndProcedure
     ;****************************************************************************************************************************************************************
     ;
@@ -8183,9 +8095,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5629
-; FirstLine = 3175
-; Folding = rEASSAA5--8--+n90
+; CursorPosition = 1839
+; FirstLine = 926
+; Folding = rGGSSAW+--8--+n90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -241,6 +241,7 @@ Module INVMNU
         			Case 1733:	vSystemHelp::vSysCMD_SavegameSupport()
         			Case 1734:	vSystemHelp::vSysCMD_VirtualDriveSupport()
         			Case 1735:	vSystemHelp::vSysCMD_QuickCommandAdmin()
+        			Case 1736:	vSystemHelp::vSysCMD_FileProperties()        				
         		EndSelect
         	Default          
         		Debug "Kein Menüeintrag beim Index " + Str(MenuID)
@@ -592,6 +593,8 @@ Module INVMNU
     	Set_AppMenu_RegsSupport(MenuID)      				    	    					    
     	;
     	MenuBar() 
+    	MenuItem(1736, "vSystem: Datei Eingeschaft")    
+    	MenuBar()
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
     EndProcedure    
     ;*******************************************************************************************************************************************************************
@@ -1147,9 +1150,10 @@ Module INVMNU
     			Get_MenuItems_RegsSupport(MenuID.i)
     			
     		Case 2700 To 2750
-    			Get_MenuItems_VirtualDriveSupport(MenuID.i)     			
+    			Get_MenuItems_VirtualDriveSupport(MenuID.i)
+    		Case 97
     			
-    			
+    			vSystemHelp::vSysCMD_FileProperties()
     			
     	EndSelect       
     EndProcedure
@@ -1277,6 +1281,17 @@ Module INVMNU
 				Set_AppMenu_RegsSupport(CLSMNU::*MNU\HandleID[0])
 	    	
 			EndProcedure 				
+			
+    ;*******************************************************************************************************************************************************************    
+    Procedure Set_FileProps_Menu()            	
+            MenuItem(97 , "Datei Eingeschaft Anzeigen",ImageID( DI::#_MNU_FPS ))
+            If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 0)            	
+            Else
+            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 1)              	
+            EndIf            
+     EndProcedure 
+          
     ;*******************************************************************************************************************************************************************     
     Procedure Set_TrayMenu()
     	
@@ -1345,20 +1360,18 @@ Module INVMNU
     		MenuBar()            
     		MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
     		CloseSubMenu()
-    		MenuBar()             
+    		MenuBar()    		
+				Set_FileProps_Menu()
+    		MenuBar()      		
     	EndIf
     	MenuItem(98, "vSystems Update"														,ImageID( DI::#_MNU_VSU ))        
     	MenuItem(99, "vSystems Beenden"														,ImageID( DI::#_MNU_VSY ))
-    	
-   	
-    	
-    EndProcedure
-    
+    EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 387
-; FirstLine = 231
-; Folding = B2BEM-
+; CursorPosition = 1286
+; FirstLine = 732
+; Folding = BVBe--
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

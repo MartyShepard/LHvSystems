@@ -59,34 +59,34 @@
         XIncludeFile ".\vSystems_Modules\Module_Registry.pbi"
         XIncludeFile ".\vSystems_Modules\Module_Firewall.pb"        
     
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"				; DB_Create::           
-        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              	; Startup::
-        XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"						; Monitor:: 
-        XIncludeFile ".\vSystems_Modules\Module_Menu_vSystem.pb"        	;	vSystemHelp::
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Create.pb"				; DB_Create		::           
+        XIncludeFile ".\vSystems_Modules\Module_Config.pb"              	; Startup			::
+        XIncludeFile ".\vSystems_Modules\Module_Monitoring.pb"						; Monitor			:: 
+        XIncludeFile ".\vSystems_Modules\Module_Menu_vSystem.pb"        	;	vSystemHelp	::
         XIncludeFile ".\vSystems_Modules\Module_Compatibility.pb"					;
-				XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool:: Registry Support
-        XIncludeFile ".\vSystems_Modules\Module_VdmSupport.pb"						; VirtualDriveSupport::
+				XIncludeFile ".\vSystems_Modules\Module_RegsSupport.pb"						; RegsTool						:: Registry Support
+        XIncludeFile ".\vSystems_Modules\Module_VdmSupport.pb"						; VirtualDriveSupport	::
 
-        XIncludeFile ".\vSystems_Modules\Module_SaveSupport.pb"						; SaveTool:: 
-        XIncludeFile ".\vSystems_Modules\Module_Menu_Unreal.pb"						; UnrealHelp::
-        XIncludeFile ".\vSystems_Modules\Module_Menu_Unity.pb"						;	UnityHelp::
-        XIncludeFile ".\vSystems_Modules\Module_Menu_Emulation.pb"				; PortsHelp::        
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    	; DB_Migrate::           
+        XIncludeFile ".\vSystems_Modules\Module_SaveSupport.pb"						; SaveTool		:: 
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Unreal.pb"						; UnrealHelp	::
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Unity.pb"						;	UnityHelp		::
+        XIncludeFile ".\vSystems_Modules\Module_Menu_Emulation.pb"				; PortsHelp		::        
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Migrate.pb"    	; DB_Migrate	::           
               
-        XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                	; Include Modules, Global Code Module (Menu System)              
+        XIncludeFile "..\INCLUDES\ClassEX_MenuSystem.pb"                	; CLSMNU			:: Include Modules, Global Code Module (Menu System)              
               
-        XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       	; vFont::
-        XIncludeFile ".\vSystems_Modules\Module_KeyShortCut.pb"         	; vKeys::        
-        XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            	; vItemTool::
-        XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          	; vThumbSys::
-        XIncludeFile ".\vSystems_Modules\Module_VImages.pb"             	; vImage::
-        XIncludeFile ".\vSystems_Modules\Module_InfoWindow.pb"          	; vInfo::
-        XIncludeFile ".\vSystems_Modules\Module_VSystem.pb"             	; vSystem::         
-        XIncludeFile ".\vSystems_Modules\Module_VEngine.pb"             	; vEngine::       
-        XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            	; vDiskPath::
-        XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            	; vInfoMenu::
-        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"			  			; vItem64E::
-        XIncludeFile ".\vSystems_Modules\Module_ArchivManager.pb"       	; vItem64E::        
+        XIncludeFile ".\vSystems_Modules\Module_Font_Settings.pb"       	; vFont				::
+        XIncludeFile ".\vSystems_Modules\Module_KeyShortCut.pb"         	; vKeys    		::        
+        XIncludeFile ".\vSystems_Modules\Module_ItemList.pb"            	; vItemTool		::
+        XIncludeFile ".\vSystems_Modules\Module_Thumbnails.pb"          	; vThumbSys		::
+        XIncludeFile ".\vSystems_Modules\Module_VImages.pb"             	; vImage			::
+        XIncludeFile ".\vSystems_Modules\Module_InfoWindow.pb"          	; vInfo				::
+        XIncludeFile ".\vSystems_Modules\Module_VSystem.pb"             	; vSystem			::         
+        XIncludeFile ".\vSystems_Modules\Module_VEngine.pb"             	; vEngine			::       
+        XIncludeFile ".\vSystems_Modules\Module_DiskPath.pb"            	; vDiskPath		::
+        XIncludeFile ".\vSystems_Modules\Module_InfoMenu.pb"            	; vInfoMenu		::
+        XIncludeFile ".\vSystems_Modules\Module_vItemC64E.pb"			  			; vItemC64E		::
+        XIncludeFile ".\vSystems_Modules\Module_ArchivManager.pb"       	; vArchiv			::        
         BackupRestart:       
         vSystem::System_CheckInstance()
         
@@ -100,10 +100,10 @@
         XIncludeFile ".\vSystems_Modules\Module_Update.pb"              	; Update System
         ; Menu System
                
-        XIncludeFile ".\vSystems_Modules\Module_Menu.pb"                	; Beinhaltet die Individuellen Menüs        
-              
-        XIncludeFile ".\vSystems_Modules\Module_DataBase_Update.pb"    		; DB_Update:: 
-        XIncludeFile ".\vSystems_Modules\Module_GuiInteract.pb"         	; Haupt Code Geschichten
+        XIncludeFile ".\vSystems_Modules\Module_Menu.pb"                	; INVMNU			::	Beinhaltet die Individuellen Menüs        
+
+        XIncludeFile ".\vSystems_Modules\Module_DataBase_Update.pb"    		; DB_Update		::
+        XIncludeFile ".\vSystems_Modules\Module_GuiInteract.pb"         	; Interact		::  Haupt Code Geschichten
         
 
         ;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
@@ -163,7 +163,7 @@
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
 ; CursorPosition = 64
-; FirstLine = 36
+; FirstLine = 33
 ; EnableAsm
 ; EnableThread
 ; EnableXP

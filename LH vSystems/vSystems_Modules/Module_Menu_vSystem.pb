@@ -1,4 +1,90 @@
-﻿DeclareModule vSystemHelp
+﻿DeclareModule vFilePortable
+	Declare.s GetFullPath(szFile.s)
+EndDeclareModule
+
+Module vFilePortable
+	
+  Procedure.s GetFullPath(szFile.s)
+        
+        
+        Protected OptOUT$ = "..\", OptIN$ = ".\", CharsCountOut.i, CharsCountIn.i, ReplaceShortChars = #False, ShortChar$ = "", sMaxChars.i, sMaxList                                              
+        ;
+        ; Prüfen auf den Verkürzten Pfad namen (Ausserhalb des Verzeichniss)
+        CharsCountOut = CountString(szFile,OptOUT$)
+        
+        If ( CharsCountOut >= 1 )
+            ReplaceShortChars = #True: ShortChar$ = OptOUT$: sMaxChars = CharsCountOut
+        Else
+            CharsCountIn  = CountString(szFile,OptIN$)                         
+            If ( CharsCountIn  >= 1 )
+                ReplaceShortChars = #True: ShortChar$ = OptIN$ : sMaxChars = CharsCountIn
+                If ( CharsCountIn = 1 )
+                    szFile = ReplaceString(szFile,ShortChar$,"",0,1,sMaxChars)
+                    ReplaceShortChars = #False
+                EndIf    
+            EndIf                    
+        EndIf    
+        
+        If ( ReplaceShortChars = #True )
+            NewList SourceParts.s()
+            ;
+						; Splitte den Source Path und Vergleiche diesen
+            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
+            FFH::PathPartsExt(Startup::*LHGameDB\PortablePath, SourceParts())                        
+            
+            ResetList( SourceParts() ):
+            sMaxList = ListSize(SourceParts())
+                     
+            
+            SString$ = ""
+            For  Index = 0 To sMaxChars -1
+                  
+                If ( SelectElement( SourceParts(),Index) <> 0)
+                    SString$ = SString$ + SourceParts()
+                EndIf    
+            Next Index    
+            
+            szFile = ReplaceString(szFile,ShortChar$,"",0,1,sMaxChars)
+            szFile = SString$ + szFile
+            
+            Select FileSize(szFile)
+                Case 0,-1
+                Case -2                                
+                Default
+            EndSelect                               
+        EndIf                   
+        
+        If ( ReplaceShortChars = #False )
+            ;
+            ; Prüfen wir den pfad obe dieser auf das programm Verzeichnis zeigt
+            Select FileSize( Startup::*LHGameDB\PortablePath + szFile )
+                Case 0
+                Case -1
+                Case -2
+                    szFile = Startup::*LHGameDB\PortablePath + szFile
+                    ProcedureReturn szFile
+                Default
+                    szFile = Startup::*LHGameDB\PortablePath + szFile
+                    ProcedureReturn szFile
+            EndSelect 
+            
+            ;
+            ; Prüfen wir den pfad ob gan wonders liegt            
+            Select FileSize( szFile )
+                Case 0                    
+                Case -1
+                Case -2
+                    ProcedureReturn szFile
+                Default
+                    ProcedureReturn szFile
+            EndSelect             
+        EndIf
+
+        ProcedureReturn szFile        
+      EndProcedure
+      
+EndModule
+DeclareModule vSystemHelp
 	
   Declare 		vSysCMD_MiniMize()
   Declare 		vSysCMD_Asynchron()
@@ -38,11 +124,68 @@
 	Declare 		vSysCMD_SavegameSupport()
 	Declare		vSysCMD_RegistrySupport()
 	Declare.s 	vSysCMD_ToolTipHelp()
+	Declare  	vSysCMD_FileProperties() 
 	
-EndDeclareModule
+EndDeclareModule       
 
 Module vSystemHelp
-	
+  	;
+		; Minimize vSystems  
+  Procedure vSysCMD_FileProperties()
+  	Protected DatabaseID.i, Base.i = DC::#Database_001, CurrentWindow.i = DC::#_Window_001
+  	Protected szFile.s = "", szWork.s = "", szArgs.s = "", Table.s = "Programs", szExts.s = ""
+  	
+  	
+    LSRowID = GetGadgetItemData(DC::#ListIcon_001,GetGadgetState(DC::#ListIcon_001))
+    LSBoxID = GetGadgetState(DC::#ListIcon_001)
+    If ( LSBoxID = -1 )
+         ProcedureReturn
+    EndIf
+          
+  	DatabaseID = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","",Startup::*LHGameDB\GameID,"",1)): 
+  	Debug ""
+  	Debug "Öffne Datei Eigenschaft"
+  	Debug "DatabaseID: " + Str(DatabaseID)
+  	Debug "Programm Fenster Aktiv: " + Str(GetActiveWindow())
+  	
+  	;
+		; Startup::*LHGameDB\Switch = 0 wird nicht zurückgesetzt
+  	;
+  	If ( IsWindow(CurrentWindow) )
+  		szFile = vFilePortable::GetFullPath( ExecSQL::nRow(Base,Table,"File_Default","",DatabaseID,"",1) )  	  	   	         			
+  		szWork = vFilePortable::GetFullPath( ExecSQL::nRow(Base,Table,"Path_Default","",DatabaseID,"",1) )
+    	szExts = GetExtensionPart(szFile)   		
+  		szArgs = ExecSQL::nRow(Base,Table,"Args_Default","",DatabaseID,"",1)
+  	Else
+  	;
+  	; Der Einstellungs-Modus für die Programme ist offen
+  		szFile = vFilePortable::GetFullPath(GetGadgetText(DC::#String_101))  	   	         			
+  		szWork = vFilePortable::GetFullPath(GetGadgetText(DC::#String_102))
+    	szExts = GetExtensionPart(szFile)   		
+    	szArgs = GetGadgetText(DC::#String_103)
+    	CurrentWindow =  DC::#_Window_003
+    EndIf
+    
+  	       
+  	Debug "Datei       : " + szFile
+  	Debug "D-String Lä.: " + Str(Len(szFile))
+  	Debug "Datei Größe : " + Str(FileSize(szFile))  	
+  	Debug "Arbeitspfad : " + szWork
+  	Debug "A-String Lä.: " + Str(Len(szWork))
+  	Debug "Pfad Größe : " + Str(FileSize(szWork))    	
+  	Debug "Argumente   : " + szArgs  	
+  	
+  	; Wenn die Datei ein Verzeichnis ist (szFile = -2)
+   	If (FileSize(szFile) = -1 ) Or (FileSize(szFile) = -2 ) Or( Len(szFile) = 0 ) 
+         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
+         ProcedureReturn
+   EndIf 
+       
+		; Öffne Dateieigenschaft
+    FFH::ShellExec(szFile, "properties","",#SEE_MASK_NOCLOSEPROCESS | #SEE_MASK_INVOKEIDLIST | #SEE_MASK_FLAG_NO_UI,#SW_SHOWNORMAL,#False,0)
+    ProcedureReturn    	
+  	
+	EndProcedure		
 	;
 	;
    Procedure.i Caret_SetPosition(nPos.i)
@@ -639,8 +782,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 38
-; Folding = vTBxfE98
+; CursorPosition = 158
+; FirstLine = 44
+; Folding = 8wIQ+PBf9
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
