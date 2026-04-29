@@ -124,13 +124,59 @@ DeclareModule vSystemHelp
 	Declare 		vSysCMD_SavegameSupport()
 	Declare		vSysCMD_RegistrySupport()
 	Declare.s 	vSysCMD_ToolTipHelp()
-	Declare  	vSysCMD_FileProperties() 
-	
+	Declare  	vSysCMD_FileProperties()
+	Declare.s	vSysCMD_FileGetBase()
+
 EndDeclareModule       
 
 Module vSystemHelp
   	;
-		; Minimize vSystems  
+		; Minimize vSystems
+  Procedure.s vSysCMD_FileGetBase()      
+  	Protected DatabaseID.i, Base.i = DC::#Database_001, CurrentWindow.i = DC::#_Window_001
+  	Protected szFile.s = "", szWork.s = "", szArgs.s = "", Table.s = "Programs", szExts.s = ""
+  	
+  	
+    LSRowID = GetGadgetItemData(DC::#ListIcon_001,GetGadgetState(DC::#ListIcon_001))
+    LSBoxID = GetGadgetState(DC::#ListIcon_001)
+    If ( LSBoxID = -1 )
+         ProcedureReturn
+    EndIf
+          
+  	DatabaseID = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","",Startup::*LHGameDB\GameID,"",1)): 
+  	Debug ""
+  	Debug "Öffne Datei Eigenschaft"
+  	Debug "DatabaseID: " + Str(DatabaseID)
+  	Debug "Programm Fenster Aktiv: " + Str(GetActiveWindow())
+  	
+  	;
+		; Startup::*LHGameDB\Switch = 0 wird nicht zurückgesetzt
+  	;
+  	If ( IsWindow(CurrentWindow) )
+  		szFile = vFilePortable::GetFullPath( ExecSQL::nRow(Base,Table,"File_Default","",DatabaseID,"",1) )  	  	   	         			
+  		szWork = vFilePortable::GetFullPath( ExecSQL::nRow(Base,Table,"Path_Default","",DatabaseID,"",1) )
+    	szExts = GetExtensionPart(szFile)   		
+  		szArgs = ExecSQL::nRow(Base,Table,"Args_Default","",DatabaseID,"",1)
+  	Else
+  	;
+  	; Der Einstellungs-Modus für die Programme ist offen
+  		szFile = vFilePortable::GetFullPath(GetGadgetText(DC::#String_101))  	   	         			
+  		szWork = vFilePortable::GetFullPath(GetGadgetText(DC::#String_102))
+    	szExts = GetExtensionPart(szFile)   		
+    	szArgs = GetGadgetText(DC::#String_103)
+    	CurrentWindow =  DC::#_Window_003
+    EndIf
+      	         
+  	; Wenn die Datei ein Verzeichnis ist (szFile = -2)
+   	If (FileSize(szFile) = -1 ) Or (FileSize(szFile) = -2 ) Or( Len(szFile) = 0 ) 
+         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
+         ProcedureReturn ""
+    EndIf 
+    
+    ProcedureReturn szFile
+  	
+  EndProcedure	
+  
   Procedure vSysCMD_FileProperties()
   	Protected DatabaseID.i, Base.i = DC::#Database_001, CurrentWindow.i = DC::#_Window_001
   	Protected szFile.s = "", szWork.s = "", szArgs.s = "", Table.s = "Programs", szExts.s = ""
@@ -182,7 +228,8 @@ Module vSystemHelp
    EndIf 
        
 		; Öffne Dateieigenschaft
-    FFH::ShellExec(szFile, "properties","",#SEE_MASK_NOCLOSEPROCESS | #SEE_MASK_INVOKEIDLIST | #SEE_MASK_FLAG_NO_UI,#SW_SHOWNORMAL,#False,0)
+		;FFH::ShellExec(szFile, "properties","",#SEE_MASK_NOCLOSEPROCESS | #SEE_MASK_INVOKEIDLIST | #SEE_MASK_FLAG_NO_UI,#SW_SHOWNORMAL,#False,0)
+    FFH::ShellExec(szFile, "properties","", #SEE_MASK_INVOKEIDLIST,#SW_SHOWNOACTIVATE,#False,0)
     ProcedureReturn    	
   	
 	EndProcedure		
@@ -782,9 +829,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 158
-; FirstLine = 44
-; Folding = 8wIQ+PBf9
+; CursorPosition = 231
+; FirstLine = 114
+; Folding = 8hRg9fC+5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

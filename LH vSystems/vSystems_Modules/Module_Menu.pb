@@ -112,7 +112,7 @@ Module INVMNU
     EndProcedure	
     ;
 		;         
-    Procedure Get_MenuItems_SaveSupport(MenuID.i)
+    Procedure Get_MenuItems_SaveSupport(MenuID.i)    	
     	Protected Result.i
     	
     	Select MenuID      	
@@ -157,7 +157,42 @@ Module INVMNU
     	EndSelect
     	
     EndProcedure
+    ;
 		;
+    Procedure Get_MenuItems_KxVXSupport(MenuID.i)
+    	Protected Result.i, IndexNum.i
+    	
+    	Select MenuID
+    		Case 1800:RegsVK::VxKx_Open_SupportURL_Next()   			
+    		Case 1802:vSystemHelp::vSysCMD_FileProperties()
+    		Case 1810: RegsVK::VxKx_Toggle_Enable(vSystemHelp::vSysCMD_FileGetBase())
+    		Case 1811: RegsVK::VxKx_Toggle_WinVer(vSystemHelp::vSysCMD_FileGetBase(), 1)
+    		Case 1812: RegsVK::VxKx_Toggle_WinVer(vSystemHelp::vSysCMD_FileGetBase(), 2)
+    		Case 1813: RegsVK::VxKx_Toggle_WinVer(vSystemHelp::vSysCMD_FileGetBase(), 3)
+    		Case 1814: RegsVK::VxKx_Toggle_WinVer(vSystemHelp::vSysCMD_FileGetBase(), 4)
+				Case 1815: RegsVK::VxKx_Toggle_WinVer(vSystemHelp::vSysCMD_FileGetBase(), 5)  			
+				Case 1816: RegsVK::VxKx_Toggle_WinVer_Strong(vSystemHelp::vSysCMD_FileGetBase())
+				Case 1817: RegsVK::VxKx_Toggle_ChildProcess(vSystemHelp::vSysCMD_FileGetBase())
+				Case 1818: RegsVK::VxKx_Toggle_SpecificWorks(vSystemHelp::vSysCMD_FileGetBase())
+					
+				Case 1819:
+					; Entfernen der Executable Einstellungen
+					IndexNum.i = RegsVK::VxKx_ListGet_Patched(vSystemHelp::vSysCMD_FileGetBase())
+					RegsVK::VxKx_Remove(IndexNum)
+					
+				Case 1820: RegsVK::VxKx_Open_KonfigTool_Next()
+				Case 1821: RegsVK::VxKx_Open_LoaderTool_Next()
+				Case 1822: RegsVK::VxKx_Open_LogTool_Next()
+				Case 1803: 
+					If IsWindow( DC::#_Window_003 )
+						Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Help",RegsVK::VxKx_Support_Help()	,2,0,"",0,0,DC::#_Window_003)	
+					Else						
+						Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Help",RegsVK::VxKx_Support_Help()	,2,0,"",0,0,DC::#_Window_001)	
+					EndIf
+					
+    	EndSelect
+    EndProcedure
+    ;
   	; App Menu. Ort: Programm, Media Device Einstellungs Fenster
     Procedure Get_AppMenu(MenuID.i, GadgetID.i)
         
@@ -243,6 +278,10 @@ Module INVMNU
         			Case 1735:	vSystemHelp::vSysCMD_QuickCommandAdmin()
         			Case 1736:	vSystemHelp::vSysCMD_FileProperties()        				
         		EndSelect
+        		
+        	Case 1800 To 1899
+        		Get_MenuItems_KxVXSupport(MenuID.i)
+        		
         	Default          
         		Debug "Kein Menüeintrag beim Index " + Str(MenuID)
         EndSelect
@@ -439,16 +478,13 @@ Module INVMNU
 	    	MenuItem(1623, "Config: Verzeichnis Nr.4 wählen")
 	    	MenuItem(1624, "Config: Verzeichnis Nr.5 wählen")    	
 	    	MenuBar() 	    	   	
-	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    	
-	    	If IsWindow( DC::#_Window_003 )		 	    	
-	    			MenuBar() 
-	    			MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
-	    			MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))        		
-	    			MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
-	    			MenuItem(1610, "Save Backup: Löschen",					ImageID( DI::#_MNU_SAVEBCKDEL))
-	    	Else
-	    			MenuBar() 
-	    	EndIf
+	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    		        	
+	    	MenuBar() 
+	    	MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
+	    	MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))        		
+	    	MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
+	    	MenuItem(1610, "Save Backup: Löschen",					ImageID( DI::#_MNU_SAVEBCKDEL))
+	    	MenuBar() 
 	    	MenuItem(1611, "Save Backup Komprimieren",					ImageID( DI::#_MNU_SAVECOMPRESS))    		
 	    	If IsWindow( DC::#_Window_003 )		    	
 	    		MenuBar() 	    		
@@ -460,10 +496,6 @@ Module INVMNU
 					; Tray Icon
     			MenuItem(1602, "Save Config: Erstellen",				ImageID( DI::#_MNU_SAVECREATE))
     			MenuItem(1603, "Save Config: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
-    			MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
-    			MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))
-    			MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
-    			MenuItem(1610, "Save Backup: Löschen"					,	ImageID( DI::#_MNU_SAVEBCKDEL))
     		EndIf	
     			
     	If CountGadgetItems(DC::#ListIcon_001) = 0
@@ -482,7 +514,121 @@ Module INVMNU
 	    EndIf 	
 	    
 	  EndProcedure
-	  
+	  ;
+	  ; Von 1800 bis 1899
+	  Procedure Set_AppMenu_KxVexSupport(MenuID.i)
+	  	
+	  	Protected KxVxInstalled	= -1
+	  	Protected KxVxStatus.s 	= ""
+	  	Protected KxOpt.i				= 0
+	  	Protected KxPatchedExe.s	= ""
+	  	
+	  	KxVxInstalled = RegsVK::VxKxInstallPath()
+	  	Select KxVxInstalled
+	  		Case 0: KxVxStatus = "Ok. Installed"
+	  		Case 1: KxVxStatus = "Not Installed"
+	  		Case 2: KxVxStatus = "Path Mismatch"
+	  	EndSelect	  		  	
+	  		  	
+	  	If IsWindow( DC::#_Window_003 )		    	
+	  		OpenSubMenu("vSystem: KxVex Support")	    		
+	  	Else
+	  		OpenSubMenu("KxVex Datei Support")
+	  	EndIf
+	  	
+	  	KxPatchedExe = GetFilePart( vSystemHelp::vSysCMD_FileGetBase(), #PB_FileSystem_NoExtension )
+	  	
+	  	MenuItem(1800, "VxKex NEXT Support")	  	
+	  	MenuItem(1801, "Status: " + KxVxStatus)
+	  	MenuItem(1803, "Hilfe und Kompatibilität")		  	
+	  	MenuItem(1802, "[" +	KxPatchedExe +  "]")		  	
+	  	MenuBar()
+	  	
+	  	MenuItem(1810, "Kompatibilität Einschalten")
+	  	MenuBar()
+	  	MenuItem(1811, "Täusche: Windows 7 (SP1)")
+	  	MenuItem(1812, "Täusche: Windows 8")
+	  	MenuItem(1813, "Täusche: Windows 8.1")
+	  	MenuItem(1814, "Täusche: Windows 10")
+	  	MenuItem(1815, "Täusche: Windows 11")
+	  	MenuBar()
+	  	MenuItem(1816, "Stärker Täuschen")
+	  	MenuBar()
+	  	MenuItem(1817, "Unterprozesse Ausschließen")
+	  	MenuItem(1818, "Patches/Hacks Deaktivieren")
+	  	MenuBar()	  	
+	  	MenuItem(1819, "VxKex Einstellung Entfernen")
+	  	MenuBar()	
+	  	MenuItem(1820, "VxKex: Konfigutions Tool")
+	  	MenuItem(1821, "VxKex: Programm Starter")			  	
+	  	MenuItem(1822, "VxKex: LOG Betrachter")	  	
+	  	CloseSubMenu()
+	  	
+	  	If (KxVxInstalled = 1)
+	  		; Nicht Installiert. Alles ausgrauen
+	  		DisableMenuItem(MenuID, 1810, 1)
+	  		DisableMenuItem(MenuID, 1811, 1)
+	  		DisableMenuItem(MenuID, 1812, 1)
+	  		DisableMenuItem(MenuID, 1813, 1)
+	  		DisableMenuItem(MenuID, 1814, 1)
+	  		DisableMenuItem(MenuID, 1815, 1)
+	  		DisableMenuItem(MenuID, 1816, 1)
+	  		DisableMenuItem(MenuID, 1817, 1)
+	  		DisableMenuItem(MenuID, 1818, 1)
+	  		DisableMenuItem(MenuID, 1819, 1)
+	  		DisableMenuItem(MenuID, 1820, 1)
+	  		DisableMenuItem(MenuID, 1821, 1)
+	  		DisableMenuItem(MenuID, 1822, 1)
+	  	Else	  		
+	  		IndexNum.i = RegsVK::VxKx_ListGet_Patched(vSystemHelp::vSysCMD_FileGetBase())
+	  		If (IndexNum = -1)
+	  			; Datei nicht gefunden
+	  			MNU_SetCheckmark(MenuID, 1810, 0)
+	  			SetMenuItemText(MenuID, 1810, "Kompatibilität Einschalten")
+	  			DisableMenuItem(MenuID, 1816, 1)
+	  			DisableMenuItem(MenuID, 1819, 1)
+	  		Else
+	  			; Datei gefunden prüfe Optionen
+	  			KxOpt = RegsVK::VxKx_GetOpt_Enabled(IndexNum)
+	  			If (KxOpt = 0)
+	  				MNU_SetCheckmark(MenuID, 1810, 1)
+	  				SetMenuItemText(MenuID, 1810, "Kompatibilität Ausschalten"); Disable For this Programm
+	  			Else
+	  				MNU_SetCheckmark(MenuID, 1810, 0)
+	  				SetMenuItemText(MenuID, 1810, "Kompatibilität Einschalten"); Enable For this Programm	  				
+	  			EndIf
+	  			
+	  			KxOpt = RegsVK::VxKx_GetOpt_WindowsVersion(IndexNum)
+	  			MNU_SetCheckmark(MenuID, 1811, 0)
+	  			MNU_SetCheckmark(MenuID, 1812, 0)
+	  			MNU_SetCheckmark(MenuID, 1813, 0)
+	  			MNU_SetCheckmark(MenuID, 1814, 0)
+	  			MNU_SetCheckmark(MenuID, 1815, 0)	  			
+	  			If (KxOpt > 0)
+	  				DisableMenuItem(MenuID, 1816, 0)
+	  				Select KxOpt
+	  					Case 1:MNU_SetCheckmark(MenuID, 1811, 1)
+	  					Case 2:MNU_SetCheckmark(MenuID, 1812, 1) 
+	  					Case 3:MNU_SetCheckmark(MenuID, 1813, 1) 
+	  					Case 4:MNU_SetCheckmark(MenuID, 1814, 1) 
+	  					Case 5:MNU_SetCheckmark(MenuID, 1815, 1) 	  						
+	  				EndSelect
+	  			Else
+	  				DisableMenuItem(MenuID, 1816, 1)
+	  			EndIf
+	  			
+	  			KxOpt = RegsVK::VxKx_GetOpt_StrongVersion(IndexNum)
+	  			MNU_SetCheckmark(MenuID, 1816, 0)
+	  			If (KxOpt = 3)
+	  				MNU_SetCheckmark(MenuID, 1816, 1)
+	  			EndIf
+	  			
+	  			MNU_SetCheckmark(MenuID, 1817, RegsVK::VxKx_GetOpt_ChildDisable(IndexNum) )
+	  			MNU_SetCheckmark(MenuID, 1818, RegsVK::VxKx_GetOpt_AppScDisable(IndexNum) )	  			
+	  			
+	  	EndIf	
+	  EndIf	  
+	  EndProcedure
 	  
     Procedure Set_AppMenu(MenuID.i)    	
     	Protected MxItem
@@ -593,7 +739,8 @@ Module INVMNU
     	Set_AppMenu_RegsSupport(MenuID)      				    	    					    
     	;
     	MenuBar() 
-    	MenuItem(1736, "vSystem: Datei Eingeschaft")    
+    	MenuItem(1736, "vSystem: Datei Eingeschaft")
+    	Set_AppMenu_KxVexSupport(MenuID.i)
     	MenuBar()
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
     EndProcedure    
@@ -1151,9 +1298,10 @@ Module INVMNU
     			
     		Case 2700 To 2750
     			Get_MenuItems_VirtualDriveSupport(MenuID.i)
-    		Case 97
-    			
+    		Case 97    			
     			vSystemHelp::vSysCMD_FileProperties()
+        Case 1800 To 1899
+        	Get_MenuItems_KxVXSupport(MenuID.i)    			
     			
     	EndSelect       
     EndProcedure
@@ -1282,6 +1430,16 @@ Module INVMNU
 	    	
 			EndProcedure 				
 			
+		;*******************************************************************************************************************************************************************			        		
+			Procedure Set_TrayMenu_KxVXSupport() 
+				
+			; CLSMNU::*MNU\HandleID[0]	MenuHandle
+			;
+			; ============================================================= vSystem Save Support    	   	    	
+				Set_AppMenu_KxVexSupport(CLSMNU::*MNU\HandleID[0])
+	    	
+			EndProcedure 	
+			
     ;*******************************************************************************************************************************************************************    
     Procedure Set_FileProps_Menu()            	
             MenuItem(97 , "Datei Eingeschaft Anzeigen",ImageID( DI::#_MNU_FPS ))
@@ -1339,8 +1497,11 @@ Module INVMNU
     		MenuBar()    		
     		Set_TrayMenu_SaveSupport()     		
     		MenuBar()
-    		Set_TrayMenu_RegsSupport()     		
-    		MenuBar()      		
+    		Set_TrayMenu_RegsSupport()
+    		MenuBar()    		
+    		Set_FileProps_Menu()
+    		Set_TrayMenu_KxVXSupport()
+    		MenuBar()    		
     		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
     		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
     		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
@@ -1360,8 +1521,6 @@ Module INVMNU
     		MenuBar()            
     		MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
     		CloseSubMenu()
-    		MenuBar()    		
-				Set_FileProps_Menu()
     		MenuBar()      		
     	EndIf
     	MenuItem(98, "vSystems Update"														,ImageID( DI::#_MNU_VSU ))        
@@ -1369,9 +1528,9 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1286
-; FirstLine = 732
-; Folding = BVBe--
+; CursorPosition = 185
+; FirstLine = 79
+; Folding = JGGYI5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

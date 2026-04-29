@@ -1760,8 +1760,12 @@ Module SaveTool
   	 	
   	;
 		;
-  	If ( Startup::*LHGameDB\SaveTool\SaveHandle )  		  		  		 		
-  		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0  			  
+  	If ( Startup::*LHGameDB\SaveTool\SaveHandle )		  		  		 		
+  		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0
+  			Delay(1)
+  			;If ( ListSize( SaveChange()  ) = -1)
+  			;	Break
+  			;EndIf
   			AddElement( SaveChange() )
   			SaveChange()\SaveLine = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)
   		Wend
@@ -2510,9 +2514,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 230
-; FirstLine = 220
-; Folding = 48UAw+nD2
+; CursorPosition = 1764
+; FirstLine = 1314
+; Folding = 48UAw+nL0
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

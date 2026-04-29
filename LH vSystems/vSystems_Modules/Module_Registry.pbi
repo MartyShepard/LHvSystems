@@ -154,6 +154,8 @@ Module Registry
 	#KEY_WOW64_64KEY = $100
 	#KEY_WOW64_32KEY = $200
 	
+	
+	
 	Macro OpenKey()
 		If WOW64
 			CompilerIf #PB_Compiler_Processor = #PB_Processor_x86
@@ -215,13 +217,20 @@ Module Registry
 	EndMacro
 	
 	Procedure.s GetLastErrorStr(error)
-		Protected Buffer.i, result.s
+		Protected Buffer.i, ErrorMessage.s
 		
 		If FormatMessage_(#FORMAT_MESSAGE_ALLOCATE_BUFFER | #FORMAT_MESSAGE_FROM_SYSTEM, 0, error, 0, @Buffer, 0, 0)
-			result = PeekS(Buffer)
+			ErrorMessage = PeekS(Buffer)
 			LocalFree_(Buffer)
 			
-			ProcedureReturn result
+			If (Len(ErrorMessage) > 0)
+				
+				ErrorMessage = Trim(ErrorMessage,Chr(13))
+				ErrorMessage = Left(ErrorMessage,Len(ErrorMessage)-1)
+				Debug "Registry Module: " + ErrorMessage
+				ProcedureReturn ErrorMessage
+			EndIf
+			ProcedureReturn ""
 		EndIf
 	EndProcedure
 	
@@ -235,13 +244,16 @@ Module Registry
 			ClearStructure(*Ret, RegValue)
 		EndIf
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf		
+		
 		error = RegOpenKeyEx_(topKey, KeyName, 0, #KEY_ENUMERATE_SUB_KEYS, @hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
 				*Ret\ERRORSTR = GetLastErrorStr(error)
 			EndIf
-			Debug GetLastErrorStr(error)
 			If hKey
 				RegCloseKey_(hKey)
 			EndIf
@@ -260,9 +272,8 @@ Module Registry
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		
@@ -279,14 +290,17 @@ Module Registry
 		
 		OpenKey()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegDeleteTree(hKey)
 		RegCloseKey_(hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)					
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn #True   
@@ -306,6 +320,10 @@ Module Registry
 		If Left(KeyName, 1) = "\"  : KeyName = Right(KeyName, Len(KeyName) - 1) : EndIf
 		If Right(KeyName, 1) = "\" : KeyName = Left(KeyName, Len(KeyName) - 1)  : EndIf
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		If RegDeleteKey
 			error = RegDeleteKey(topKey, KeyName, samDesired)
 		Else
@@ -315,9 +333,8 @@ Module Registry
 			If *Ret <> 0
 				ClearStructure(*Ret, RegValue)
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)	
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn #True
@@ -329,14 +346,17 @@ Module Registry
 		
 		OpenKey()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegDeleteValue_(hKey, ValueName)
 		RegCloseKey_(hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)		
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn #True         
@@ -348,14 +368,17 @@ Module Registry
 		
 		OpenKey()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegQueryInfoKey_(hKey, 0, 0, 0, @count, 0, 0, 0, 0, 0, 0, 0)
 		RegCloseKey_(hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn count
@@ -367,13 +390,16 @@ Module Registry
 		
 		OpenKeyS()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegQueryInfoKey_(hKey, 0, 0, 0, 0, @size, 0, 0, 0, 0, 0, 0)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			RegCloseKey_(hKey)
 			ProcedureReturn ""
 		EndIf
@@ -384,10 +410,9 @@ Module Registry
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)								
 			EndIf
-			Debug GetLastErrorStr(error)
-			ProcedureReturn ""
+			ProcedureReturn ""			
 		EndIf
 		ProcedureReturn result   
 	EndProcedure
@@ -398,14 +423,17 @@ Module Registry
 		
 		OpenKey()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegQueryInfoKey_(hKey, 0, 0, 0, 0, 0, 0, @count, 0, 0, 0, 0)
 		RegCloseKey_(hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn count
@@ -417,13 +445,16 @@ Module Registry
 		
 		OpenKeyS()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegQueryInfoKey_(hKey, 0, 0, 0, 0, 0, 0, 0, @size, 0, 0, 0)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			RegCloseKey_(hKey)
 			ProcedureReturn ""
 		EndIf
@@ -434,9 +465,8 @@ Module Registry
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn ""
 		EndIf
 		ProcedureReturn result   
@@ -448,14 +478,17 @@ Module Registry
 		
 		OpenKey()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+		
 		error = RegQueryValueEx_(hKey, ValueName, 0, @lpType, 0, 0)
 		RegCloseKey_(hKey)
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)			
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		ProcedureReturn lpType         
@@ -467,13 +500,17 @@ Module Registry
 		
 		OpenKeyS()
 		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf
+			
 		error = RegQueryValueEx_(hKey, ValueName, 0, 0, 0, @lpcbData)
 		If error
+						
 			If *Ret <> 0
-				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERROR 		= error
+				*Ret\ERRORSTR = GetLastErrorStr(error)				
 			EndIf
-			Debug GetLastErrorStr(error)
 			RegCloseKey_(hKey)
 			ProcedureReturn ""
 		EndIf
@@ -483,9 +520,8 @@ Module Registry
 			If *lpData = 0
 				If *Ret <> 0
 					*Ret\ERROR = #REG_ERR_ALLOCATE_MEMORY
-					*Ret\ERRORSTR = "Error: Can't allocate memory"
+					*Ret\ERRORSTR = "Error: Can't allocate memory"				
 				EndIf
-				Debug "Error: Can't allocate memory"
 				RegCloseKey_(hKey)
 				ProcedureReturn ""
 			EndIf
@@ -496,9 +532,8 @@ Module Registry
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)		
 			EndIf
-			Debug GetLastErrorStr(error)
 			FreeMemory(*lpData)
 			ProcedureReturn ""
 		EndIf   
@@ -619,9 +654,8 @@ Module Registry
 		If error
 			If *Ret <> 0
 				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)
+				*Ret\ERRORSTR = GetLastErrorStr(error)	
 			EndIf
-			Debug GetLastErrorStr(error)
 			If hKey
 				RegCloseKey_(hKey)
 			EndIf
@@ -635,7 +669,6 @@ Module Registry
 						*Ret\ERROR = #REG_ERR_REGVALUE_VAR_MISSING
 						*Ret\ERRORSTR = "Error: Required *Ret.RegValue parameter not found!"
 					EndIf
-					Debug "Error: Required *Ret.RegValue parameter not found!"
 					RegCloseKey_(hKey)
 					ProcedureReturn #False
 				EndIf
@@ -646,7 +679,6 @@ Module Registry
 						*Ret\ERROR = #REG_ERR_BINARYPOINTER_MISSING
 						*Ret\ERRORSTR = "Error: No Pointer to BINARY defined!"
 					EndIf
-					Debug "Error: No Pointer to BINARY defined!"
 					RegCloseKey_(hKey)
 					ProcedureReturn #False         
 				EndIf
@@ -686,8 +718,8 @@ Module Registry
 						If *Ret <> 0
 							*Ret\ERROR = #REG_ERR_ALLOCATE_MEMORY
 							*Ret\ERRORSTR = "Error: Can't allocate memory"
+							Debug *Ret\ERRORSTR							
 						EndIf
-						Debug "Error: Can't allocate memory"
 						RegCloseKey_(hKey)
 						ProcedureReturn #False           
 					EndIf
@@ -700,8 +732,8 @@ Module Registry
 			If *Ret <> 0
 				*Ret\ERROR = error
 				*Ret\ERRORSTR = GetLastErrorStr(error)
+				Debug *Ret\ERRORSTR				
 			EndIf
-			Debug GetLastErrorStr(error)
 			ProcedureReturn #False
 		EndIf
 		
@@ -739,8 +771,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	;EndIf
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 271
-; FirstLine = 169
-; Folding = HLA+
+; CursorPosition = 483
+; FirstLine = 392
+; Folding = n--+
 ; EnableAsm
 ; EnableXP

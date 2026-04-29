@@ -436,6 +436,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+				; Version 0.60.23
+				; Volle VxKex NEXT Untersztützung Implentiert
+				; Registry Module Aktualisiert
+        ; Tray Menu "Save Support" verändert
         
         ;
 				; Version 0.60.22
@@ -1264,8 +1269,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 440
-; FirstLine = 411
+; CursorPosition = 442
+; FirstLine = 414
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP
