@@ -289,65 +289,48 @@ DeclareModule Startup
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
-        ArchivTyp.s			
-        
+        ArchivTyp.s			        
         PortablePath.s{4096}        ;Portabler Pfad, wird übernommen von Base_Path
         WindowPosition.Point        ;Fenster Position  
         TaskbarCreate.l             ;Callback Message falls die Windows Taskbar (explorer neugeladen wird und das Pictogramm aufgefrischt werden muss)
                                     ;Siehe dazu die Message im Callback
         SortMode.i                  ;Sortier Modus für die Hauptliste (1 > Tile, 2 > Platform, 3 > Sprache, 4 > Emulator)
-        ProgrammQuit.i              ;True oder False
-        
+        ProgrammQuit.i              ;True oder False        
         FileMonitoring.i            ;Acrivate/DeActivateed with #True/False
-        Monitoring.FILE_MONITORING  ;
-        
+        Monitoring.FILE_MONITORING  ;        
         SaveTool.FILE_SAVESUPPORT
-        RegsTool.FILE_REGSSUPPORT
-        
-        DriveLetter.s            		; Virtual Drive Support: Laufwerksbuchstaben
-        
+        RegsTool.FILE_REGSSUPPORT        
+        DriveLetter.s            		; Virtual Drive Support: Laufwerksbuchstaben        
         hSplitterDef.i              ;Die Splitter Standard Höhe
-        hSplitterSav.i              ;Die Alten Höhe
-        
-        WindowHeight.i              ;Die Höhe Einstellbar
-        
+        hSplitterSav.i              ;Die Alten Höhe        
+        WindowHeight.i              ;Die Höhe Einstellbar        
         hScreenShotGadget.i         ;Die Statndard höhe für die Screenshots
-        wScreenShotGadget.i         ;Die Statndard höhe für die Screenshots 
-        
-        MaxScreenshots.i            ;Die Maximale Anzhal an Screenshots
-        
+        wScreenShotGadget.i         ;Die Statndard höhe für die Screenshots         
+        MaxScreenshots.i            ;Die Maximale Anzhal an Screenshots        
         bisImageDBChanged.i         ; 
         isGIF.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG
         isIFF.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG
         isPCX.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG
-        isDDS.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG        
-        
+        isDDS.i                     ; Fremd Bilder in Purebasic, Wird Konvertiert nach PNG                
         ;Images_Thread.i
         Images_Mutex.i[1024]
         Resize_Mutex.i 
         Resize_Thread.i
         Images_Thread.i[1024]
-        Images_Threaded.i[51]        
-        
+        Images_Threaded.i[51]                
         CBMFONT.l                   ; Commodore 64 Font
         C64LoadS8.s                 ; c1541.exe oder dm.exe, um das verzeichnis von C64er Images zu lesen
         OpenCBM_Tools.s             ; verzeichnis für OpenCBM Programme
-        OpenCBM_BPath.s             ; Zielverzeichnis für OpenCBM
-        
+        OpenCBM_BPath.s             ; Zielverzeichnis für OpenCBM        
         BaseSVNCurrent.s            ; The Current Database Version
         BaseSVNLoaded.s             ; The Version in Database
-        BaseSVNMigrate.i 
-        
-        TrayIconTitle.s             ; Tray Icon Titles 
-                
-        bRegHotKey.i                ; true/False 
-        
-        bFirstBootUp.i              ; true/False 
-        
+        BaseSVNMigrate.i         
+        TrayIconTitle.s             ; Tray Icon Titles                 
+        bRegHotKey.i                ; true/False         
+        bFirstBootUp.i              ; true/False         
         bUpdateProcess.i            ; true/False
         vItemLoaded.i               ; Nummer für das gestartete Programm > Siehe vItemTool
-        vItemColorF.i               ; TextFarbe                          > Siehe vItemTool
-        
+        vItemColorF.i               ; TextFarbe                          > Siehe vItemTool        
         bBuild32Bit.i               ; bool Is32Bit Exe
         VersionNumber.s             ; Version String (Nummer)
         Thread_ProcessHigh.i        ; 
@@ -436,6 +419,12 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
+        ;
+				; Version 0.60.24
+				; Thumbnails: Hintergrund aktivität geändert. Sollte Crash vermeiden
+				; SaveSupport Modul: Änderung des Titel nur sichern wenn man auch den Titel ändert
+        
         ;
 				; Version 0.60.23
 				; Volle VxKex NEXT Untersztützung Implentiert
@@ -1269,8 +1258,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 442
-; FirstLine = 414
+; CursorPosition = 424
+; FirstLine = 393
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

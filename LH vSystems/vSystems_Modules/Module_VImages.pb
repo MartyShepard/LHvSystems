@@ -306,7 +306,7 @@ Module vImages
     	Protected IntervalThread.i  = CreateThread(@Screens_Show_A_Thread(), 1)
     	
     	While IsThread(IntervalThread)        	
-    		WaitThread( IntervalThread,ProcessEX::DelayMicroSeconds(1))
+    		WaitThread( IntervalThread,ProcessEX::DelayMicroSeconds(25))
     	Wend
     	
     	DisableGadget( DC::#Contain_10, #False)     
@@ -1826,11 +1826,11 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 243
-; FirstLine = 230
-; Folding = -PA1zygB5f-
+; CursorPosition = 247
+; FirstLine = 226
+; Folding = -PA14y5B5f-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

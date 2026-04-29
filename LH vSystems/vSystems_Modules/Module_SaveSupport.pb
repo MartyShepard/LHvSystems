@@ -1760,14 +1760,15 @@ Module SaveTool
   	 	
   	;
 		;
-  	If ( Startup::*LHGameDB\SaveTool\SaveHandle )		  		  		 		
+  	If ( Startup::*LHGameDB\SaveTool\SaveHandle )
+  		AddElement( SaveChange() )
   		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0
   			Delay(1)
   			;If ( ListSize( SaveChange()  ) = -1)
   			;	Break
-  			;EndIf
-  			AddElement( SaveChange() )
+  			;EndIf  			
   			SaveChange()\SaveLine = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)
+				AddElement( SaveChange() )  			
   		Wend
   		
   		SaveFile_Close()    		
@@ -1913,11 +1914,16 @@ Module SaveTool
 		;
 		;
 	Procedure.i SaveFile_ChangeTitle(NewGameTitle.s, OldGameTitle.s)
-				Protected  CurrentCmd.s = GetGadgetText( DC::#String_007 )				
-				If FindString(CurrentCmd, "%savetool", 1 , #PB_String_NoCase  )					
-					SaveConfig_SetKeyValue("", -1, #False, 250, NewGameTitle.s, OldGameTitle.s)	
-				EndIf
-				ProcedureReturn -1
+		Protected  CurrentCmd.s = GetGadgetText( DC::#String_007 )
+		
+		If (NewGameTitle = OldGameTitle)
+			ProcedureReturn  -1
+		EndIf	
+		
+		If FindString(CurrentCmd, "%savetool", 1 , #PB_String_NoCase )			
+				SaveConfig_SetKeyValue("", -1, #False, 250, NewGameTitle.s, OldGameTitle.s)	
+		EndIf
+		ProcedureReturn -1
 	EndProcedure  	
 		;
     ;	
@@ -2514,9 +2520,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1764
-; FirstLine = 1314
-; Folding = 48UAw+nL0
+; CursorPosition = 1920
+; FirstLine = 439
+; Folding = TCAAAAAYw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

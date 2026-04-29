@@ -964,40 +964,45 @@ Module VEngine
                   Database_Get_Emulator(id)
               EndIf
               
-              ;
-              ; Hole die Höhe und Breite des Jeweiligen "Spiels"
-              Startup::*LHGameDB\wScreenShotGadget   = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsW",0,RowID,"",1)
-              Startup::*LHGameDB\hScreenShotGadget   = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsH",0,RowID,"",1) 
-              
-              If ( Startup::*LHGameDB\wScreenShotGadget  = 0 )
-                   Startup::*LHGameDB\wScreenShotGadget = 202
-              EndIf
-              If ( Startup::*LHGameDB\hScreenShotGadget  = 0 )
-                   Startup::*LHGameDB\hScreenShotGadget = 142
-              EndIf              
-              
-              ;
-              ; Edit Info Window
-              If IsWindow( DC::#_Window_006 )
-                        vInfo::Window_Props_Save()                        
-                        vInfo::Window_Reload()
-                        vEngine::Text_GetDB()
-              EndIf          
-                  
-                  
-              ;
-              ; Zeige Screenshots
-              If ( Startup::*LHGameDB\bFirstBootUp = #False )
-                vImages::Screens_SetThumbnails(4,4)             
-                vImages::Screens_Show() 
-              EndIf  
-              
+              ; Einstellungs Fenster ist Aktiv. Aktualisere nur wenn das Fenster nicht Aktiv ist
+              ; Sollte eine Doppelladen vermeiden der Screenshots 
+              If (Startup::*LHGameDB\Switch = 0)
+	              ;
+	              ; Hole die Höhe und Breite des Jeweiligen "Spiels"
+	              Startup::*LHGameDB\wScreenShotGadget   = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsW",0,RowID,"",1)
+	              Startup::*LHGameDB\hScreenShotGadget   = ExecSQL::iRow(DC::#Database_002,"GameShot","ThumbnailsH",0,RowID,"",1) 
+	              
+	              If ( Startup::*LHGameDB\wScreenShotGadget  = 0 )
+	                   Startup::*LHGameDB\wScreenShotGadget = 202
+	              EndIf
+	              If ( Startup::*LHGameDB\hScreenShotGadget  = 0 )
+	                   Startup::*LHGameDB\hScreenShotGadget = 142
+	              EndIf              
+	              
+	              ;
+	              ; Edit Info Window
+	              If IsWindow( DC::#_Window_006 )
+	                        vInfo::Window_Props_Save()                        
+	                        vInfo::Window_Reload()
+	                        vEngine::Text_GetDB()
+	              EndIf          
+	                  
+	                  
+	              ;
+	              ; Zeige Screenshots
+	              If ( Startup::*LHGameDB\bFirstBootUp = #False )
+	              	vImages::Screens_SetThumbnails(4,4)
+	              	Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Rufe Screens_Show() auf" + Str(Startup::*LHGameDB\GameID)) 
+	                vImages::Screens_Show() 
+	              EndIf  
+	              
+	              EndIf
               ;
               ; Resete die Update Section. Siehe Modul Itemslist            
               Startup::*LHGameDB\UpdateSection = -1
               Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished - Aktuelle ID " + Str(Startup::*LHGameDB\GameID))        
               
-              ProcessEX::LHFreeMem()              
+              ;ProcessEX::LHFreeMem()              
           EndIf    
       EndProcedure
     ;****************************************************************************************************************************************************************
@@ -1666,6 +1671,8 @@ Module VEngine
                 SetActiveGadget(-1)
                 Startup::*LHGameDB\Switch = 1 ;Edit Aktiv
                 
+                Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Einstellungs Fenster ist aktiv /var="+Str(Startup::*LHGameDB\Switch))  
+                
                 HideGadget(DC::#Contain_06,0) ;Container: Edit 
                 HideGadget(DC::#Contain_07,0) ;Container: Button Edit               
                 HideGadget(DC::#Contain_02,1) ;Container: Liste
@@ -1675,6 +1682,7 @@ Module VEngine
                 HideGadget(DC::#Splitter1,1)  ; Der Splitter                
                 SetActiveGadget(DC::#Contain_06)            
                 SetWindowText_(WindowID(DC::#_Window_001), "(Edit Mode) " + Startup::*LHGameDB\TrayIconTitle)                                
+                ProcedureReturn
                 
             Case DC::#Button_023, DC::#Button_024
                 ;
@@ -1686,7 +1694,8 @@ Module VEngine
                 
                 SetActiveGadget(-1)
                 Startup::*LHGameDB\Switch = 0 ;Listbox Aktiv               
-              
+                Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Einstellungs Fenster ist NICHT aktiv /var="+Str(Startup::*LHGameDB\Switch))  
+                
                 HideGadget(DC::#Contain_06,1) ;Container: Edit 
                 HideGadget(DC::#Contain_07,1) ;Container: Button Edit               
                 HideGadget(DC::#Contain_02,0) ;Container: Liste
@@ -1696,7 +1705,8 @@ Module VEngine
                 HideGadget(DC::#Splitter1,0)  ; Der Splitter                
                 SetActiveGadget(DC::#ListIcon_001) 
                 SetWindowText_(WindowID(DC::#_Window_001), Startup::*LHGameDB\TrayIconTitle)  
-                                
+                ProcedureReturn
+                
         EndSelect        
     EndProcedure        
     
@@ -8095,13 +8105,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1839
-; FirstLine = 926
-; Folding = rGGSSAW+--8--+n90
+; CursorPosition = 966
+; FirstLine = 685
+; Folding = 8GGySgW+-----+n90
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = K:\-=Test Operation Center
+; CurrentDirectory = D:\NewGame\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier
