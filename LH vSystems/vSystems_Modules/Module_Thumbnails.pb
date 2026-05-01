@@ -119,23 +119,23 @@ Module vThumbSys
     	
     	If IsImage(Startup::*LHImages\CpScreenPB[nSlot])
     		FreeImage( Startup::*LHImages\CpScreenPB[nSlot] )
-    		Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " CpScreenPB Cleared: " + Str(nSlot))     			
+    		;Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " CpScreenPB Cleared: " + Str(nSlot))     			
     	EndIf
     	If IsImage(Startup::*LHImages\OrScreenPB[nSlot])
     		FreeImage( Startup::*LHImages\OrScreenPB[nSlot] )
-    		Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " OrScreenPB Cleared: " + Str(nSlot))    			
+    		;Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " OrScreenPB Cleared: " + Str(nSlot))    			
     	EndIf 
     	If IsImage(Startup::*LHImages\OrScreenID[nSlot])
     		FreeImage( Startup::*LHImages\OrScreenID[nSlot] )
-    		Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " OrScreenID Cleared: " + Str(nSlot))
+    		;Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " OrScreenID Cleared: " + Str(nSlot))
     	EndIf
     	If IsImage(Startup::*LHImages\CpScreenID[nSlot])
     		FreeImage( Startup::*LHImages\CpScreenID[nSlot] )
-    		Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " CpScreenID Cleared: " + Str(nSlot))
+    		;Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " CpScreenID Cleared: " + Str(nSlot))
     	EndIf
     	If IsImage(Startup::*LHImages\ScreenGDID[nSlot])
     		FreeImage( Startup::*LHImages\ScreenGDID[nSlot] )	
-    		Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " ScreenGDID Cleared: " + Str(nSlot))
+    		;Request::SetDebugLog("Debug: " +#PB_Compiler_Module+ " #LINE: " +Str(#PB_Compiler_Line)+ " # " +#TAB$+ " ScreenGDID Cleared: " + Str(nSlot))
     	EndIf    	
     	
     EndProcedure	    
@@ -589,9 +589,9 @@ Module vThumbSys
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 367
-; FirstLine = 349
-; Folding = 8---
+; CursorPosition = 465
+; FirstLine = 54
+; Folding = rsA5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

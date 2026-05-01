@@ -27,7 +27,7 @@ DeclareModule ButtonEX
     
     Declare     Toggle(GadgetID, state)
     
-    Declare     GetState(GadgetID)
+    Declare.i     GetState(GadgetID)
     Declare     SetState(GadgetID, state)
     
     Declare.s   Gettext(GadgetID, TextID = 0)
@@ -306,7 +306,7 @@ Module ButtonEX
     ;********************************************************************************************************************************
     ;GetState
     ;________________________________________________________________________________________________________________________________
-    Procedure GetState(GadgetID)
+    Procedure.i GetState(GadgetID)
         If Not IsGadget(GadgetID)
             Debug "Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Internal Error Code #56GDEXTGS"            
             MessageRequester("Now Look What You've Done","Internal Error Code #56GDEXTGS"+Str(GadgetID),0)
@@ -432,9 +432,8 @@ Module ButtonEX
 EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 82
-; FirstLine = 45
-; Folding = ff7
+; CursorPosition = 29
+; Folding = f-+
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = ..\..\LH Game Database\Release_Test\

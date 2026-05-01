@@ -494,130 +494,174 @@ Module Registry
 		ProcedureReturn lpType         
 	EndProcedure
 	
+	Procedure.l Allocate_ReturnMemory(*Ret.RegValue)
+		
+		If (*RET <> 0)
+			FreeMemory(*Ret)
+		EndIf
+		
+		If (*Ret = 0)
+			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		EndIf		
+		ProcedureReturn *Ret
+		
+	EndProcedure
+	
 	Procedure.s ReadValue(topKey, KeyName.s, ValueName.s = "", WOW64 = #False, *Ret.RegValue = 0)
 		Protected error, result.s, samDesired = #KEY_READ
 		Protected hKey, lpType.l, *lpData, lpcbData.l, ExSZlength, *ExSZMem, i
 		
+		Protected RegError.i
+		Protected RegFatal.i = 0 ; Null alles in Ordnung
+		
 		OpenKeyS()
-		
-		If (*Ret = 0)
-			*Ret.RegValue = AllocateMemory(SizeOf(RegValue))
-		EndIf
 			
-		error = RegQueryValueEx_(hKey, ValueName, 0, 0, 0, @lpcbData)
-		If error
-						
-			If *Ret <> 0
-				*Ret\ERROR 		= error
-				*Ret\ERRORSTR = GetLastErrorStr(error)				
+		*Ret = Allocate_ReturnMemory(*Ret)
+
+		RegError = RegQueryValueEx_(hKey, ValueName, 0, 0, 0, @lpcbData)
+		If (RegError)
+			If (*Ret <> 0)
+				*Ret\ERROR 		= RegError
+				*Ret\ERRORSTR = GetLastErrorStr(RegError)				
 			EndIf
-			RegCloseKey_(hKey)
-			ProcedureReturn ""
+			RegCloseKey_(hKey): RegFatal = RegError
 		EndIf
 		
-		If lpcbData
-			*lpData = AllocateMemory(lpcbData)
-			If *lpData = 0
-				If *Ret <> 0
-					*Ret\ERROR = #REG_ERR_ALLOCATE_MEMORY
-					*Ret\ERRORSTR = "Error: Can't allocate memory"				
+		If (RegFatal = 0)
+		
+			If (lpcbData)
+				*lpData = AllocateMemory(lpcbData)
+				
+				If (*lpData = 0)
+					If (*Ret <> 0)
+						*Ret\ERROR 		= #REG_ERR_ALLOCATE_MEMORY
+						*Ret\ERRORSTR = "Error: Can't allocate memory"
+						RegFatal 			= 1
+					EndIf
+					RegCloseKey_(hKey)
 				EndIf
+			EndIf
+			
+			;
+			;
+			If (RegFatal = 0)
+				
+				RegError = RegQueryValueEx_(hKey, ValueName, 0, @lpType, *lpData, @lpcbData)
 				RegCloseKey_(hKey)
-				ProcedureReturn ""
-			EndIf
-		EndIf
-		
-		error = RegQueryValueEx_(hKey, ValueName, 0, @lpType, *lpData, @lpcbData)
-		RegCloseKey_(hKey)
-		If error
-			If *Ret <> 0
-				*Ret\ERROR = error
-				*Ret\ERRORSTR = GetLastErrorStr(error)		
-			EndIf
-			FreeMemory(*lpData)
-			ProcedureReturn ""
-		EndIf   
-		
-		If *Ret <> 0
-			*Ret\TYPE = lpType
-		EndIf
-		
-		Select lpType
-			Case #REG_BINARY
-				If lpcbData <= 2096
-					For i = 0 To lpcbData - 1
-						result + "$" + RSet(Hex(PeekA(*lpData + i)), 2, "0") + ","
-					Next
-				Else
-					For i = 0 To 2095
-						result + "$" + RSet(Hex(PeekA(*lpData + i)), 2, "0") + ","
-					Next
-				EndIf
-				result = Left(result, Len(result) - 1)
-				If *Ret <> 0
-					*Ret\BINARY = *lpData
-					*Ret\SIZE = lpcbData
-				EndIf
-				ProcedureReturn result ; we don't free the memory!
+				If (RegError)
+					If (*Ret <> 0)
+						*Ret\ERROR = RegError
+						*Ret\ERRORSTR = GetLastErrorStr(RegError)		
+					EndIf
+					FreeMemory(*lpData): RegFatal = RegError
+				EndIf   
 				
-			Case #REG_DWORD
-				If *Ret <> 0
-					*Ret\DWORD = PeekL(*lpData)
-					*Ret\SIZE = SizeOf(Long)
-				EndIf
-				result = Str(PeekL(*lpData))
-				
-			Case #REG_EXPAND_SZ
-				ExSZlength = ExpandEnvironmentStrings(*lpData, 0, 0)
-				If ExSZlength > 0
-					*ExSZMem = AllocateMemory(ExSZlength)
-					If *ExSZMem
-						If ExpandEnvironmentStrings(*lpData, *ExSZMem, ExSZlength)
-							result = PeekS(*ExSZMem)
-							If *Ret <> 0
-								*Ret\STRING = result
-								*Ret\SIZE = Len(result)
+				;
+				;
+				If (RegFatal = 0)
+					
+					If (*Ret <> 0): *Ret\TYPE = lpType: EndIf
+					
+					Select ( lpType )
+						;
+						;
+						Case #REG_BINARY
+							If (lpcbData <= 2096)
+								For i = 0 To lpcbData - 1
+									result + "$" + RSet(Hex(PeekA(*lpData + i)), 2, "0") + ","
+								Next
+							Else
+								For i = 0 To 2095
+									result + "$" + RSet(Hex(PeekA(*lpData + i)), 2, "0") + ","
+								Next
 							EndIf
-						EndIf
-						FreeMemory(*ExSZMem)
+							
+							result = Left(result, Len(result) - 1)
+							
+							If (*Ret <> 0)
+									*Ret\BINARY	= *lpData
+									*Ret\SIZE 	= lpcbData
+							EndIf
+							
+							ProcedureReturn result ; we don't free the memory!
+						;
+						;
+						Case #REG_DWORD
+							If (*Ret <> 0)
+									*Ret\DWORD 	= PeekL(*lpData)
+									*Ret\SIZE		= SizeOf(Long)
+							EndIf
+							result = Str(PeekL(*lpData))
+							
+						;
+						;
+						Case #REG_EXPAND_SZ
+							ExSZlength = ExpandEnvironmentStrings(*lpData, 0, 0)
+							
+							If (ExSZlength > 0)
+									*ExSZMem = AllocateMemory(ExSZlength)
+									If (*ExSZMem)
+											If ExpandEnvironmentStrings(*lpData, *ExSZMem, ExSZlength)
+												
+												result = PeekS(*ExSZMem)
+												If (*Ret <> 0)
+													*Ret\STRING	= result
+													*Ret\SIZE		= Len(result)
+												EndIf
+											EndIf
+											FreeMemory(*ExSZMem)
+									EndIf
+							Else
+								Debug "Error: Can't allocate memory"
+							EndIf
+							
+						;
+						;
+						Case #REG_MULTI_SZ
+							While (i < lpcbData)
+									If PeekS(*lpData + i, 1) = ""
+										result + #LF$
+									Else
+										result + PeekS(*lpData + i, 1)
+									EndIf
+									i + SizeOf(Character)
+							Wend
+								
+							If (Right(result, 1) = #LF$)
+									result = Left(result, Len(result) - 1)
+							EndIf
+							
+							If (*Ret <> 0)
+									*Ret\STRING	= result
+									*Ret\SIZE 	= Len(result)
+							EndIf
+							
+						;
+						;
+						Case #REG_QWORD
+							If (*Ret <> 0)
+									*Ret\QWORD = PeekQ(*lpData)
+									*Ret\SIZE = SizeOf(Quad)
+							EndIf
+							result = Str(PeekQ(*lpData))
+							
+						;
+						;
+						Case #REG_SZ
+							result = PeekS(*lpData)
+							If (*Ret <> 0)
+									*Ret\STRING = result
+									*Ret\SIZE = Len(result)
+							EndIf
+								
+					EndSelect
+					
+					If (*lpData <> 0)
+						FreeMemory(*lpData)
 					EndIf
-				Else
-					Debug "Error: Can't allocate memory"
-				EndIf
-				
-			Case #REG_MULTI_SZ
-				While i < lpcbData
-					If PeekS(*lpData + i, 1) = ""
-						result + #LF$
-					Else
-						result + PeekS(*lpData + i, 1)
-					EndIf
-					i + SizeOf(Character)
-				Wend
-				If Right(result, 1) = #LF$
-					result = Left(result, Len(result) - 1)
-				EndIf
-				If *Ret <> 0
-					*Ret\STRING = result
-					*Ret\SIZE = Len(result)
-				EndIf
-				
-			Case #REG_QWORD
-				If *Ret <> 0
-					*Ret\QWORD = PeekQ(*lpData)
-					*Ret\SIZE = SizeOf(Quad)
-				EndIf
-				result = Str(PeekQ(*lpData))
-				
-			Case #REG_SZ
-				result = PeekS(*lpData)
-				If *Ret <> 0
-					*Ret\STRING = result
-					*Ret\SIZE = Len(result)
-				EndIf
-		EndSelect
-		
-		FreeMemory(*lpData)
+				EndIf				
+			EndIf			
+		EndIf
 		
 		ProcedureReturn result
 	EndProcedure
@@ -771,8 +815,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	;EndIf
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 483
-; FirstLine = 392
-; Folding = n--+
+; CursorPosition = 637
+; FirstLine = 419
+; Folding = n--0
 ; EnableAsm
 ; EnableXP

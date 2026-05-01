@@ -2664,11 +2664,11 @@ Module RegsVK
 		EndIf
 		
 		If ( VxKx_GetOpt_StrongVersion(index) = 3)		
-			KEX_WinVerSpoof = 0
+			KEX_StrVerSpoof = 0
 		EndIf
 		
 		TempKeyPath = VxKx_GetOpt_KeyPath(index)
-		Registry::WriteValue(szRegTopKey, TempKeyPath, "KEX_WinVerSpoof" , Str(KEX_WinVerSpoof)		, #REG_DWORD)
+		Registry::WriteValue(szRegTopKey, TempKeyPath, "KEX_StrongVersionSpoof" , Str(KEX_StrVerSpoof)		, #REG_DWORD)
 		
 		VxKx_RemoveCheck(index)
 		
@@ -2794,8 +2794,8 @@ Module RegsVK
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2170
-; FirstLine = 398
+; CursorPosition = 2666
+; FirstLine = 649
 ; Folding = DAAAAAAAAAAA-PAA+-
 ; EnableAsm
 ; EnableXP

@@ -421,6 +421,17 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.26
+				; Tumbnail ChangeSize: Bugfix, Funktion wurde irrtümlicherweise lahm gelegt
+				; TextEdit Fenster Auto-Öffnen: Entfernt, stattdessen Farb änderung des Buttons
+				; um ein Hinweis zu geben das "Text" hinterlegt ist
+        ; Bugfix: Constante für den Text-Tab berichtigt
+        
+        ;
+				; Version 0.60.25
+				; VxKx Support: Ups-- Bugfix
+        
+        ;
 				; Version 0.60.24
 				; Thumbnails: Hintergrund aktivität geändert. Sollte Crash vermeiden
 				; SaveSupport Modul: Änderung des Titel nur sichern wenn man auch den Titel ändert
@@ -1258,7 +1269,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 424
+; CursorPosition = 428
 ; FirstLine = 393
 ; Folding = -L+
 ; EnableAsm

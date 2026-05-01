@@ -1595,10 +1595,103 @@ Module vImages
               FreeMemory( *params )
               
           EndIf            
-      EndProcedure      
-    ;******************************************************************************************************************************************
-    ;  Ändere Live Thumbnail Grösse. (Taste,Gui)
-    ;__________________________________________________________________________________________________________________________________________      
+        EndProcedure      
+  ;
+	;  Ändere Live Thumbnail Grösse. (Taste,Gui)
+  Procedure Thumbnail_SaveUpdate_Final() 
+  	Screens_Show()
+    SetGadgetText(DC::#Text_004,"")
+    HideGadget(DC::#Text_004,1)
+    SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)     	
+  EndProcedure    	
+  ;
+  ;
+  Procedure Thumbnail_SaveUpdate(Update.i)
+      	
+  	;
+		; Speichert und Update nur wenn die taste losgelassen wird.,
+  	If ( Update = #True )
+  		
+  		SetPriorityClass_(GetCurrentProcess_(),#HIGH_PRIORITY_CLASS)
+  		
+  		SetGadgetText(DC::#Text_004,"Save and Update Thumbnails Preview")
+  		
+  		Protected *ScreenShots, MemorySize.q       
+  		
+  		ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(Startup::*LHGameDB\wScreenShotGadget),Startup::*LHGameDB\GameID)
+  		ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(Startup::*LHGameDB\hScreenShotGadget),Startup::*LHGameDB\GameID)              
+  		
+  		For n = 1 To Startup::*LHGameDB\MaxScreenshots
+  			
+  			*ScreenShots = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")
+  			
+  			If (*ScreenShots <> 0)
+  				
+  				MemorySize + MemorySize(*ScreenShots)         
+  				DatabaseUpdate(DC::#Database_002, "PRAGMA mmap_size="+MemorySize+";")   				  				  				
+  				Screens_ChgThumbnails_Sub(*ScreenShots,n) 
+  				
+  				If IsImage(*ScreenShots): FreeImage(*ScreenShots): EndIf  				
+  				FreeMemory(*ScreenShots)
+  				
+  				SetGadgetText(DC::#Text_004,"Save and Update Thumbnails Preview ("+MathBytes::Bytes2String(MemorySize) +")")  				
+  			EndIf 
+  		Next    	
+  		
+  	EndIf
+      	
+  EndProcedure
+  ;
+	;
+  Procedure Thumbnail_ChangeSize(GetKeyNum.i, TimeSize.d)  	  	
+  	
+  	Debug "Thumbnail_ChangeSize: Key - " + Str(GetKeyNum) + " - TimeSize: " + Str(TimeSize )
+  	
+  	; 100 NumKey L w - 1
+		; 102 NumKey R w + 1
+		; 104 NumKey U h + 1
+		;  98 NumKey D h - 1  
+  	
+  	SetPriorityClass_(GetCurrentProcess_(),#HIGH_PRIORITY_CLASS)
+  	
+  	; Reduziere die Bildskalierung
+  	
+  	TimeSize /10.0
+  	
+  	Select GetKeyNum
+  		Case #VK_F5,103
+  			Startup::*LHGameDB\wScreenShotGadget + TimeSize
+  			Startup::*LHGameDB\hScreenShotGadget + TimeSize  
+  			
+  		Case #VK_F6,105
+  			Startup::*LHGameDB\wScreenShotGadget - TimeSize
+  			Startup::*LHGameDB\hScreenShotGadget - TimeSize                                
+  			
+  		Case 104: Startup::*LHGameDB\hScreenShotGadget + TimeSize                                                             
+  		Case  98: Startup::*LHGameDB\hScreenShotGadget - TimeSize  			
+  		Case 102: Startup::*LHGameDB\wScreenShotGadget + TimeSize                  
+  		Case 100: Startup::*LHGameDB\wScreenShotGadget - TimeSize                  
+  	EndSelect          
+  	
+  	If	(Startup::*LHGameDB\wScreenShotGadget <= 33 )
+  			 Startup::*LHGameDB\wScreenShotGadget  = 34
+  	EndIf
+  	
+  	If	(Startup::*LHGameDB\hScreenShotGadget <= 33 )
+  			 Startup::*LHGameDB\hScreenShotGadget  = 34
+  	EndIf
+  			
+  	vImages::Screens_SetThumbnails() 
+  	vImages::Screens_Show()
+  	
+  	HideGadget(DC::#Text_004,0)  	
+  	SetGadgetText(DC::#Text_004,"Resize Thumnails Size  Width:" + Startup::*LHGameDB\wScreenShotGadget+ " Height:" + Startup::*LHGameDB\hScreenShotGadget)
+  	
+  	SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
+  	ProcessEX::DelayMicroSeconds(DelayTime/100000)  	
+  EndProcedure
+  ;
+  ;
     Procedure Screens_ChgThumbnails(key.i, save.i = #False, DelayTime.i = 0, WMKeyUP = -1)
         
         ;
@@ -1614,98 +1707,23 @@ Module vImages
             ProcedureReturn
         EndIf
                 
-
-        If ( save = #True ) And (WMKeyUP = 257)
-            
-            SetGadgetText(DC::#Text_004,"Save and Update Thumbnails Preview")
-            
-            Protected *ScreenShots, MemorySize.q       
-            
-            SetPriorityClass_(GetCurrentProcess_(),#HIGH_PRIORITY_CLASS)
-            
-            ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsW", Str(Startup::*LHGameDB\wScreenShotGadget),Startup::*LHGameDB\GameID)
-            ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "ThumbnailsH", Str(Startup::*LHGameDB\hScreenShotGadget),Startup::*LHGameDB\GameID)              
-            
-            
-            For n = 1 To Startup::*LHGameDB\MaxScreenshots
-                
-                *ScreenShots = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")
-                
-                If (  *ScreenShots <> 0 )
-                    
-                    MemorySize + MemorySize(*ScreenShots)         
-                    DatabaseUpdate(DC::#Database_002, "PRAGMA mmap_size="+MemorySize+";") 
-                                   
-                    SetGadgetText(DC::#Text_004,"Save and Update Thumbnails Preview ("+MathBytes::Bytes2String(MemorySize) +")")
-                    
-                    Screens_ChgThumbnails_Sub(*ScreenShots,n) 
-                    
-                    If IsImage( *ScreenShots )
-                    	FreeImage(*ScreenShots)
-                    EndIf
-                    
-                    FreeMemory(*ScreenShots)
-                EndIf 
-            Next
-            ProcessEX::DelayMicroSeconds(DelayTime/100000)
-            Screens_Show()             
-            SetGadgetText(DC::#Text_004,""): HideGadget(DC::#Text_004,1)
-            SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
-            ProcedureReturn
-            
-        ElseIf ( save = #True ) And (WMKeyUP = -999)
-            SetGadgetText(DC::#Text_004,"Create Thumbnails Preview")
-            Screens_Show()             
-            SetGadgetText(DC::#Text_004,""): HideGadget(DC::#Text_004,1)
-            SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
-            ProcedureReturn
-        Else     
-            
-        	
-        	DelayTimeDouble.d = DelayTime/10.0
-        	Debug DelayTimeDouble
-            ; 100 NumKey L w - 1
-            ; 102 NumKey R w + 1
-            ; 104 NumKey U h + 1
-            ;  98 NumKey D h - 1  
-            
-            Select key
-                Case #VK_F5,103
-                    Startup::*LHGameDB\wScreenShotGadget + DelayTimeDouble
-                    Startup::*LHGameDB\hScreenShotGadget + DelayTimeDouble  
-                    
-                Case #VK_F6,105
-                    Startup::*LHGameDB\wScreenShotGadget - DelayTimeDouble
-                    Startup::*LHGameDB\hScreenShotGadget - DelayTimeDouble                                
-                    
-                Case 104: Startup::*LHGameDB\hScreenShotGadget + DelayTimeDouble                                                             
-                Case 98 : Startup::*LHGameDB\hScreenShotGadget - DelayTimeDouble
-                    
-                Case 102: Startup::*LHGameDB\wScreenShotGadget + DelayTimeDouble                  
-                Case 100: Startup::*LHGameDB\wScreenShotGadget - DelayTimeDouble                  
-            EndSelect          
-            
-            If (Startup::*LHGameDB\wScreenShotGadget <= 33 )
-                Startup::*LHGameDB\wScreenShotGadget  = 34
-            EndIf
-            
-            If (Startup::*LHGameDB\hScreenShotGadget <= 33 )
-                Startup::*LHGameDB\hScreenShotGadget  = 34
-            EndIf        
-            
-            HideGadget(DC::#Text_004,0)
-            SetGadgetText(DC::#Text_004,"Resize Thumnails Size  Width:" + Startup::*LHGameDB\wScreenShotGadget+ " Height:" + Startup::*LHGameDB\hScreenShotGadget)
-            
-            Debug "Resize Thumnails Size  Width:" + Str(Startup::*LHGameDB\wScreenShotGadget) + " Height:" + Str(Startup::*LHGameDB\hScreenShotGadget)
-            
-            ;SendMessage_( DC::#Contain_10, #WM_SETREDRAW,#False,0)
-            vImages::Screens_SetThumbnails() 
-            ;SendMessage_( DC::#Contain_10, #WM_SETREDRAW,#True,0)
-            vImages::Screens_Show()              
-            SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
-            ProcessEX::DelayMicroSeconds(DelayTime/100000)
-          
-        EndIf        
+        Debug "Screens_ChgThumbnails : KeyDown: " + Str(key) + " / KeyUp"+ Str(WMKeyUP)+ " - DelayTime: " + Str(DelayTime )
+        
+        Select WMKeyUP
+        	Case 257:
+        		Thumbnail_SaveUpdate(save)
+        		Thumbnail_SaveUpdate_Final()
+        		ProcedureReturn
+        		
+        	Case -999:	
+        		SetGadgetText(DC::#Text_004,"Create Thumbnails Preview")      		      		
+        		Thumbnail_SaveUpdate_Final()
+        		ProcedureReturn        		
+        		
+        	Default:
+        		Thumbnail_ChangeSize(key, DelayTime)
+        		
+        EndSelect       
     EndProcedure    
     ;******************************************************************************************************************************************
     ;  Ändere Thumbnail Grösse. 
@@ -1826,9 +1844,9 @@ Debug "EventwParam: " + Str(x)
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 247
-; FirstLine = 226
-; Folding = -PA14y5B5f-
+; CursorPosition = 1690
+; FirstLine = 459
+; Folding = PCAAAAABA58-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

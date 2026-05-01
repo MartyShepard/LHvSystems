@@ -47,6 +47,7 @@
     Declare     Text_GetDB()
     Declare.i   Text_GetDB_Check()
     Declare     Text_UpdateDB()
+    Declare		 Text_GetDB_Content()
     
     Declare     Thumbnails_SetAll()
     Declare     Thumbnails_Set(nSize.i)
@@ -980,12 +981,15 @@ Module VEngine
 	              EndIf              
 	              
 	              ;
+	              ; Prüft auf Text Inhalt und ändert die Farbe des Buttons
+	              vEngine::Text_GetDB_Content()
+	              ;
 	              ; Edit Info Window
 	              If IsWindow( DC::#_Window_006 )
-	                        vInfo::Window_Props_Save()                        
-	                        vInfo::Window_Reload()
-	                        vEngine::Text_GetDB()
-	              EndIf          
+	              	vInfo::Window_Props_Save()                        
+	                vInfo::Window_Reload()
+	                vEngine::Text_GetDB()	              	
+	              EndIf	
 	                  
 	                  
 	              ;
@@ -5079,57 +5083,58 @@ EndProcedure
     ;****************************************************************************************************************************************************************         
     Procedure    Text_UpdateDB()
         
-        Select Startup::*LHGameDB\InfoWindow\bTabNum
-                Case 1
-                	SetActiveGadget( DC::#Text_128 )
-                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", "",Startup::*LHGameDB\GameID)
-                	
-                    szText.s = GetGadgetText( DC::#String_112  )
-                    ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szText ,Startup::*LHGameDB\GameID)
-                Case 2
-                	SetActiveGadget( DC::#Text_129 )               
-                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", "",Startup::*LHGameDB\GameID)
-                	
-                    szText.s = GetGadgetText( DC::#String_112  )
-                    ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szText ,Startup::*LHGameDB\GameID)                    
-                Case 3
-                	SetActiveGadget( DC::#Text_130 )              
-                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", "",Startup::*LHGameDB\GameID)
-                	
-                    szText.s = GetGadgetText( DC::#String_112  )
-                    ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szText ,Startup::*LHGameDB\GameID)                    
-                Case 4                	
-                	SetActiveGadget( DC::#Text_131 )                              
-                	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", "",Startup::*LHGameDB\GameID)
-                	
-                    szText.s = GetGadgetText( DC::#String_112  )
-                    ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szText ,Startup::*LHGameDB\GameID)                   
-            EndSelect 
-            
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", "" ,Startup::*LHGameDB\GameID) 
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", "" ,Startup::*LHGameDB\GameID) 
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", "" ,Startup::*LHGameDB\GameID) 
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", "" ,Startup::*LHGameDB\GameID)             
-            
-            szText.s = ""
-            szText.s = GetGadgetText( DC::#Text_128  )           
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", szText ,Startup::*LHGameDB\GameID) 
-            
-            szText.s = ""
-            szText.s = GetGadgetText( DC::#Text_129  )         
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", szText ,Startup::*LHGameDB\GameID)           
-            
-            szText.s = ""
-            szText.s = GetGadgetText( DC::#Text_130  )          
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", szText ,Startup::*LHGameDB\GameID)              
-            
-            szText.s = ""
-            szText.s = GetGadgetText( DC::#Text_131  )      
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", szText ,Startup::*LHGameDB\GameID) 
-        	
-            vInfo::Modify_Reset()
-            vInfo::Caret_GetPosition()
-            
+    	Select Startup::*LHGameDB\InfoWindow\bTabNum
+    		Case 1
+    			SetActiveGadget( DC::#Text_128 )
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", "",Startup::*LHGameDB\GameID)
+    			
+    			szText.s = GetGadgetText( DC::#String_112  )
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szText ,Startup::*LHGameDB\GameID)
+    		Case 2
+    			SetActiveGadget( DC::#Text_129 )               
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", "",Startup::*LHGameDB\GameID)
+    			
+    			szText.s = GetGadgetText( DC::#String_112  )
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szText ,Startup::*LHGameDB\GameID)                    
+    		Case 3
+    			SetActiveGadget( DC::#Text_130 )              
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", "",Startup::*LHGameDB\GameID)
+    			
+    			szText.s = GetGadgetText( DC::#String_112  )
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szText ,Startup::*LHGameDB\GameID)                    
+    		Case 4                	
+    			SetActiveGadget( DC::#Text_131 )                              
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", "",Startup::*LHGameDB\GameID)
+    			
+    			szText.s = GetGadgetText( DC::#String_112  )
+    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szText ,Startup::*LHGameDB\GameID)                   
+    	EndSelect 
+    	
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", "" ,Startup::*LHGameDB\GameID) 
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", "" ,Startup::*LHGameDB\GameID) 
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", "" ,Startup::*LHGameDB\GameID) 
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", "" ,Startup::*LHGameDB\GameID)             
+    	
+    	szText.s = ""
+    	szText.s = GetGadgetText( DC::#Text_128  )           
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", szText ,Startup::*LHGameDB\GameID) 
+    	
+    	szText.s = ""
+    	szText.s = GetGadgetText( DC::#Text_129  )         
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", szText ,Startup::*LHGameDB\GameID)           
+    	
+    	szText.s = ""
+    	szText.s = GetGadgetText( DC::#Text_130  )          
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", szText ,Startup::*LHGameDB\GameID)              
+    	
+    	szText.s = ""
+    	szText.s = GetGadgetText( DC::#Text_131  )      
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", szText ,Startup::*LHGameDB\GameID) 
+    	
+    	vInfo::Modify_Reset()
+    	vInfo::Caret_GetPosition()
+    	
+    	Text_GetDB_Content()      
             
     EndProcedure   
     ;****************************************************************************************************************************************************************
@@ -5337,69 +5342,52 @@ EndProcedure
        
        Text_GetDB_ColorState()
    EndProcedure
-   ;**************************************************************************************************************************************************************** 
-   ; 
-   ;****************************************************************************************************************************************************************  
+   ;
+   ;
    Procedure.i Text_GetDB_Check()
-       
-       Protected bText1.i = #False, bText2.i = #False, bText3.i = #False, bText4.i = #False, szText.s
-       
-       szText = ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt1","",Startup::*LHGameDB\GameID,"",1)
-       If ( szText )
-           bText1 = #True
-       Else
-                      
-           szText = ""
-           szText = ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt2","",Startup::*LHGameDB\GameID,"",1)
-           If ( szText )
-               bText2 = #True
-           Else
-               
-               
-               szText = ""
-               szText = ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt3","",Startup::*LHGameDB\GameID,"",1)
-               If ( szText )
-                   bText3 = #True
-               Else
-                   
-                   
-                   szText = ""
-                   szText = ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt4","",Startup::*LHGameDB\GameID,"",1)
-                   If ( szText )
-                       bText4 = #True
-                   EndIf
-               EndIf
-           EndIf
-       EndIf
-       
       
+   	Protected TextLenMax.i = 0, TextLenTab1.i = 0,  TextLenTab2.i = 0,  TextLenTab3.i = 0,  TextLenTab4.i = 0
        
-       If   ( bText1 = #True ) 
-           Startup::*LHGameDB\InfoWindow\bTabNum    = 1
-           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_283           
-           ProcedureReturn 1
-                    
-       ElseIf   ( bText2 = #True )
-           Startup::*LHGameDB\InfoWindow\bTabNum    = 2
-           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_284
-           ProcedureReturn 1
-           
-       ElseIf   ( bText3 = #True )
-           Startup::*LHGameDB\InfoWindow\bTabNum    = 3       
-           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_285           
-           ProcedureReturn 1
-            
-       ElseIf   ( bText4 = #True )  
-           Startup::*LHGameDB\InfoWindow\bTabNum    = 4                    
-           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_285
-           ProcedureReturn 1        
-       Else
-           ProcedureReturn 0
-       EndIf    
+       TextLenTab1 = Len(ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt1","",Startup::*LHGameDB\GameID,"",1))
+       TextLenTab2 = Len(ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt2","",Startup::*LHGameDB\GameID,"",1))
+       TextLenTab3 = Len(ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt3","",Startup::*LHGameDB\GameID,"",1))
+       TextLenTab4 = Len(ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt4","",Startup::*LHGameDB\GameID,"",1))
        
-         
-   EndProcedure   
-
+       TextLenMax = TextLenTab1 + TextLenTab2 + TextLenTab3 + TextLenTab4
+       
+       Select TextLenMax
+       	Case 0
+       		ProcedureReturn 0
+       	Default
+       		If (TextLenTab1 > 0)
+           Startup::*LHGameDB\InfoWindow\bTabNum = 1
+           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_283
+          Else
+         		If (TextLenTab2 > 0)  
+           		Startup::*LHGameDB\InfoWindow\bTabNum    = 2
+           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_284
+         		ElseIf (TextLenTab3 > 0)
+           		Startup::*LHGameDB\InfoWindow\bTabNum    = 3       
+           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_285            	
+         		ElseIf (TextLenTab4 > 0)
+           		Startup::*LHGameDB\InfoWindow\bTabNum    = 4                    
+           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_286
+           	EndIf           	
+           EndIf
+           ProcedureReturn 1
+       EndSelect          
+    EndProcedure
+    ;
+		; Testet ob Text hinterlegt ist    
+    Procedure.i Text_GetDB_Content()
+    	
+    	If ( Text_GetDB_Check() = 1 )
+    		ButtonEX::SetColor(DC::#Button_016, $00BBC7, $F3AF5F)    		
+    	Else
+    		ButtonEX::SetColor(DC::#Button_016, RGB(255,255,255),$F3AF64)    
+    	EndIf   	
+    	ButtonEX::SetState(DC::#Button_016, ButtonEX::GetState(DC::#Button_016))
+    EndProcedure
    ;****************************************************************************************************************************************************************
    ; Open Path
    ;****************************************************************************************************************************************************************          
@@ -8105,9 +8093,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 966
-; FirstLine = 685
-; Folding = 8GGySgW+-----+n90
+; CursorPosition = 5136
+; FirstLine = 1071
+; Folding = DAACCAAAAgg6-9QAA-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

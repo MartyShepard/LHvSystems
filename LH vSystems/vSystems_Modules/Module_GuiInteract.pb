@@ -158,24 +158,29 @@ Module Interact
         EndSelect            
         ProcedureReturn EvntWait
     EndProcedure
-    ;******************************************************************************************************************************************
-    ; 
-    ;__________________________________________________________________________________________________________________________________________   
-    Procedure AutoOpen()
-                ;
-                ; Hole die Auto Öffnen Einstellung
-                Startup::*LHGameDB\InfoWindow\bTabAuto = ExecSQL::iRow(DC::#Database_001,"Settings","TabAutoOpen",0,1,"",1)
-
-                If ( Startup::*LHGameDB\InfoWindow\bActivated = #False ) And Not IsWindow(DC::#_Window_006) 
-                    
-                    If ( vInfo::Tab_AutoOpen() = 1 )
-                                                 
-                        If ( vEngine::Text_GetDB_Check() = 1 )
-                            ButtonEX::SetState(DC::#Button_016,1):
-                            vWindows::OpenWindow_EditInfos()                                                     
-                        EndIf    
-                    EndIf    
-                EndIf 
+    ;
+		;
+    Procedure.i Text_ContentCheck()
+    		vEngine::Text_GetDB_Content()    		    			
+    EndProcedure
+    ;
+    ;  
+    Procedure AutoOpen()  	
+    	;
+			; Hole die Auto Öffnen Einstellung
+    	
+    	Startup::*LHGameDB\InfoWindow\bTabAuto = ExecSQL::iRow(DC::#Database_001,"Settings","TabAutoOpen",0,1,"",1)
+    	
+    	If ( Startup::*LHGameDB\InfoWindow\bActivated = #False ) And Not IsWindow(DC::#_Window_006) 
+    		
+    		If ( vInfo::Tab_AutoOpen() = 1 )
+    			
+    			If ( vEngine::Text_GetDB_Check() = 1 )
+    				ButtonEX::SetState(DC::#Button_016,1):
+    				vWindows::OpenWindow_EditInfos()                                                     
+    			EndIf    
+    		EndIf    
+    	EndIf 
      EndProcedure   
     ;******************************************************************************************************************************************
     ; 
@@ -289,7 +294,10 @@ Module Interact
             DataModes(UnityCommandline.CmpUnityModus())
         UnuseModule UnityHelp   
             
-        AutoOpen()
+        ; AutoOpen()
+    		; Das öffnen des Fensters beim Start ausgeschaltet. Mag keine gute Idee gewesen sein.
+				; Stattdessen bekommt der Button Text eine andere Farbe
+    		Text_ContentCheck()    
         
         Startup::*LHGameDB\bFirstBootUp = #False
         
@@ -301,534 +309,524 @@ Module Interact
         EndIf
         
         Repeat
-            
-        	;vSystem::System_InfoToolTip(#True)    
+        	
         	vSystem::LCD_Info(#True, #False)
-            
-            EvntWait = WaitWindowEvent(): EvntWindow = EventWindow(): EvntGadget = EventGadget(): EvntType   = EventType()
-            EvntMenu = EventMenu()      : EvntwParam = EventwParam(): EvntlParam = EventlParam(): EvntData   = EventData()                                              
-            
-            Startup::*LHGameDB\SwitchNoItems = VEngine::Switcher_Pres_NoItems() 
-            ;
-            ;
-            EvntWait = MainCode_StringCallBack(EvntGadget, EvntwParam, EvntWait)                                                     
-            
-        ;
-				; Version Check
-				;  
-            If ( VersionsCheck.i = #True ) 
-            	Protected nTimeCheck.i = ElapsedMilliseconds()
-            	;Debug nTimeCheck
-            	If ( nTimeCheck > 5000 )
-            		SetGadgetText( DC::#Text_004,"")
-            		HideGadget(  DC::#Text_004, 1)
-            		VersionsCheck.i = #False
-            	EndIf
-            EndIf		
-    		
-    		 vWindows::GadgetWindowCheck()
+        	
+        	EvntWait = WaitWindowEvent(): EvntWindow = EventWindow(): EvntGadget = EventGadget(): EvntType   = EventType()
+        	EvntMenu = EventMenu()      : EvntwParam = EventwParam(): EvntlParam = EventlParam(): EvntData   = EventData()                                              
+        	
+        	Startup::*LHGameDB\SwitchNoItems = VEngine::Switcher_Pres_NoItems() 
+        	;
+					;
+        	EvntWait = MainCode_StringCallBack(EvntGadget, EvntwParam, EvntWait)                                                     
+        	
+        	;
+					; Version Check
+					;  
+        	If ( VersionsCheck.i = #True ) 
+        		Protected nTimeCheck.i = ElapsedMilliseconds()
+        		;Debug nTimeCheck
+        		If ( nTimeCheck > 5000 )
+        			SetGadgetText( DC::#Text_004,"")
+        			HideGadget(  DC::#Text_004, 1)
+        			VersionsCheck.i = #False
+        		EndIf
+        	EndIf		
+        	
+        	vWindows::GadgetWindowCheck()
         
         
-            Select EvntWait                                                           
-                    
-                                                               
-                Case #PB_Event_GadgetDrop                    
-                    vWindows::DragnDrop_Support(EvntGadget.i)                    
-                                                   
-                    ;***************************************************************************
-                    ;        
-                Case #WM_MOUSEWHEEL
-                	If Form::IsOverObject( GadgetID( DC::#Contain_10 ) )
-                			;	SetActiveGadget( -1)
-                			;	SetActiveGadget( DC::#Contain_10)
-                        SetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y, GetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y) + ( MouseWheelDelta() * GadgetHeight( DC::#Contain_10 ) ))                                             
-                        Continue    
-                                        
-                  ElseIf Form::IsOverObject( GadgetID( DC::#ListIcon_001 ) )
-                				;SetActiveGadget( -1)
-                				;SetActiveGadget( DC::#ListIcon_001)
-                			EndIf	
-                            
-                Case #WM_KEYDOWN                                             
-                    Select EvntwParam 
-                        ;
-                        ; Beim Loslassen der Taste wird die grössse gespeichert
-                    	Case #VK_F5, 102, 104,103 ; Grösser
-                          	If (GetAsyncKeyState_(#VK_F5) & 32768 = 32768) Or
-                          	   (GetAsyncKeyState_(102) & 32768 = 32768) Or
-                          		 (GetAsyncKeyState_(104) & 32768 = 32768) Or
-                          		 (GetAsyncKeyState_(103) & 32768 = 32768)                 		
-                            If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-                                ;
-                                ; Resete Tastenwiederholung
-                                EvntRepeat = 0                                
-                                ;
-                                ;
-                                vImages::Screens_ChgThumbnails(0,#True,EvntRepeat,EvntWait)  
-                                Continue
-                              EndIf
-                            EndIf                            
-                          Case #VK_F6, 98, 100,105 ; Kleiner (Kein Neuladen der Images)
-                          	If (GetAsyncKeyState_(#VK_F6) & 32768 = 32768) Or
-                          	   (GetAsyncKeyState_(98) & 32768 = 32768) Or
-                          		 (GetAsyncKeyState_(100) & 32768 = 32768) Or
-                          		 (GetAsyncKeyState_(105) & 32768 = 32768)
-                          		
-	                            If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-	                                ;
-	                                ; Resete Tastenwiederholung
-	                                EvntRepeat = 0                                
-	                                ;
-	                                ;
-	                                vImages::Screens_ChgThumbnails(0,#True,EvntRepeat,-999)                                                                
-	                                Continue
-	                            EndIf                          
-                            EndIf
-                        Case #VK_DELETE
-                            If (Startup::*LHGameDB\Switch = 0)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_DELETE) & 32768 = 32768)
-                                VEngine::Database_Remove()  
-                                Continue
-                            EndIf                           
-                            ;  
-                            ; Benutzer Drückt Escape im Editor Fenster
-                        Case #VK_ESCAPE:
-                            If (Startup::*LHGameDB\Switch = 1)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_ESCAPE) & 32768 = 32768) 
-                                VEngine::ListBox_GetData_LeftMouse(#True)                                        
-                                VEngine::Switcher_Pres_List( DC::#Button_024)
-                                Continue
-                            EndIf    
-                        Case #VK_F1                           
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F1) & 32768 = 32768) 
-                                Startup::*LHGameDB\SortMode = 0
-                                VEngine::Thread_LoadGameList_Sort()                            
-                                Continue
-                            EndIf
-                            
-                        Case #VK_F2
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F2) & 32768 = 32768)                             
-                                Startup::*LHGameDB\SortMode = 1
-                                VEngine::Thread_LoadGameList_Sort()                          
-                                Continue
-                            EndIf
-                            
-                        Case #VK_F3                           
-                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F3) & 32768 = 32768) 
-                                Startup::*LHGameDB\SortMode = 2
-                                VEngine::Thread_LoadGameList_Sort()
-                                Continue
-                            EndIf
-                            
-                        Case #VK_F4                                                       
-                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F4) & 32768 = 32768)                        		
-	                        			If 	(Startup::*LHGameDB\SortMode <= 4)
-	                        				Startup::*LHGameDB\SortMode = 3
-	                        			Else
-	                        				Startup::*LHGameDB\SortMode = 5
-	                        			EndIf
-	                              VEngine::Thread_LoadGameList_Sort()
-	                              Continue
-                            EndIf                                             
-                        	
-                        Case #VK_RETURN                                                       
-                        	If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And ( GetActiveGadget() = DC::#ListIcon_001 )                        		
-                        		If (GetAsyncKeyState_(#VK_RETURN) & 32768 = 32768)
-                        				VEngine::DOS_Prepare()
-                        				Continue  
-                        			EndIf                                                      
-                            EndIf                            
-                            
-                                                                              
-                            
-                        Default
-                            If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-                            EndIf    
-                            Debug "MainCode() Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
-                        EndSelect
-                        
-                    If ( GetAsyncKeyState_(#VK_CONTROL) & 32768 = 32768 And GetAsyncKeyState_(#VK_S) & 32768 = 32768 And Startup::*LHGameDB\Switch = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)                                 
-                                 VEngine::Update_Changes()
-                                 VEngine::ListBox_GetData_LeftMouse(#True)                                        
-                                 VEngine::Switcher_Pres_List(DC::#Button_023)
-                                Continue
-                    EndIf
+        	Select EvntWait                                                           
+
+        		Case #PB_Event_GadgetDrop                    
+        			vWindows::DragnDrop_Support(EvntGadget.i)                    
+   
+        		Case #WM_MOUSEWHEEL
+        			If Form::IsOverObject( GadgetID( DC::#Contain_10 ) )
+        				SetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y, GetGadgetAttribute(DC::#Contain_10, #PB_ScrollArea_Y) + ( MouseWheelDelta() * GadgetHeight( DC::#Contain_10 ) ))                                             
+        				Continue    
+        			EndIf                      
+        			
+        		Case #WM_KEYDOWN                                             
+        			Select EvntwParam 
+        					
+        				Case #VK_DELETE
+        					If (Startup::*LHGameDB\Switch = 0)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_DELETE) & 32768 = 32768)
+        						VEngine::Database_Remove()  
+        						Continue
+        					EndIf                           
+        					;  
+									; Benutzer Drückt Escape im Editor Fenster
+        				Case #VK_ESCAPE:
+        					If (Startup::*LHGameDB\Switch = 1)  And (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_ESCAPE) & 32768 = 32768) 
+        						VEngine::ListBox_GetData_LeftMouse(#True)                                        
+        						VEngine::Switcher_Pres_List( DC::#Button_024)
+        						Continue
+        					EndIf    
+        				Case #VK_F1                           
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F1) & 32768 = 32768) 
+        						Startup::*LHGameDB\SortMode = 0
+        						VEngine::Thread_LoadGameList_Sort()                            
+        						Continue
+        					EndIf
+        					
+        				Case #VK_F2
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F2) & 32768 = 32768)                             
+        						Startup::*LHGameDB\SortMode = 1
+        						VEngine::Thread_LoadGameList_Sort()                          
+        						Continue
+        					EndIf
+        					
+        				Case #VK_F3                           
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F3) & 32768 = 32768) 
+        						Startup::*LHGameDB\SortMode = 2
+        						VEngine::Thread_LoadGameList_Sort()
+        						Continue
+        					EndIf
+        					
+        				Case #VK_F4                                                       
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And (GetAsyncKeyState_(#VK_F4) & 32768 = 32768)                        		
+        						If 	(Startup::*LHGameDB\SortMode <= 4)
+        							Startup::*LHGameDB\SortMode = 3
+        						Else
+        							Startup::*LHGameDB\SortMode = 5
+        						EndIf
+        						VEngine::Thread_LoadGameList_Sort()
+        						Continue
+        					EndIf                                             
+        					
+        				Case #VK_RETURN                                                       
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False) And ( GetActiveGadget() = DC::#ListIcon_001 )                        		
+        						If (GetAsyncKeyState_(#VK_RETURN) & 32768 = 32768)
+        							VEngine::DOS_Prepare()
+        							Continue  
+        						EndIf                                                      
+        					EndIf                            
+
+        				Default
+        					If (Startup::*LHGameDB\InfoWindow\bActivated = #False)
+        					EndIf    
+        					Debug "MainCode() Main KeyCode : " + EvntwParam + " - Key: " + Chr(EvntwParam)
+        			EndSelect
+              	
+        			If 	( GetAsyncKeyState_(#VK_CONTROL) & 32768 = 32768 And
+        			   	  GetAsyncKeyState_(#VK_S)       & 32768 = 32768 And
+        			   	  Startup::*LHGameDB\Switch = 1 ) And
+        			   	(Startup::*LHGameDB\InfoWindow\bActivated = #False)                                 
+        				
+        				VEngine::Update_Changes()
+        				VEngine::ListBox_GetData_LeftMouse(#True)                                        
+        				VEngine::Switcher_Pres_List(DC::#Button_023)
+        				Continue
+        			EndIf
                              
-                    Select EvntwParam
-		                		Case #VK_UP, #VK_DOWN, #VK_0 To #VK_9, #VK_A To #VK_Z, 34, 33
-		                			
-		                			If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)
-		                				vInfo::Modify_EndCheck()
-		                				vInfo::Modify_Reset()
-		                				VEngine::ListBox_GetData_KeyBoard(EvntwParam)
-		                				VEngine::ListBox_GetData_LeftMouse()
-		                				Debug "MainCode() Up/Down"
-		                				Continue
-		                				
-		                			EndIf                     		
-                    		
-                            ;
-                            ; Beim Drücken der Taste wird die Thumbnail grösse geändert                            
-                            ; 100 NumKey L w - 1
-                            ; 102 NumKey R w + 1
-                            ; 104 NumKey U h + 1
-                            ;  98 NumKey D h - 1 
-		                		Case #VK_F5, #VK_F6, 98, 100, 102, 104, 103, 105
-
-		                			If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 )  And ( Startup::*LHGameDB\SwitchNoItems = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)               				
-                                ;
-																; Tastenwiederholung
-                            		Debug "MainCode() Grössenänderung"
-                                EvntRepeat + 1
-                                vImages::Screens_ChgThumbnails(EvntwParam, #False, EvntRepeat,EvntWait)
-                                 Continue
-                          EndIf 
-                                                        
-                        Default
-                    EndSelect                        
-  		
-                    ;
-                    ; Registriere Hotkey CTRL-S für Speichern/Updaten                    
-                Case #WM_HOTKEY
-                    Select EvntwParam
-                        Case 1
-                            If ( Startup::*LHGameDB\Switch = 1 )
-                                 Continue
-                             EndIf
-                     EndSelect
-                     
-                     
-                ;Case #WM_KEYDOWN                	
-
-
-                                             
-                     
-                Case #PB_Event_Gadget                    
-                    Select EvntGadget
-                                                        
-                        Case DC::#String_001 To DC::#String_011
-                            Select EvntType
-                                Case #PB_EventType_Change 
-                                    VEngine::Change_Title(EvntGadget)
-                                    Continue
-                            EndSelect
-                                                   
-                        Case DC::#Calendar
-                            Select EvntType
-                                Case #PB_EventType_Change 
-                                    VEngine::Database_Set_Release()
-                                    Continue
-                            EndSelect 
-                            
-                            ;
-                            ; Splitter Gadget
-                        Case  DC::#Splitter1  
-                            Select EvntType                                                                                                                                        
-                                Case 2  ; Links Doppelklick
-                                    ;                                                                        
-                                    ; Resette die Höhe der ListIco                                    
-                                    VEngine::PicSupport_Hide_Show()                                                                                                                                             
-                                    Continue
-                                Case #PB_EventType_MouseMove 
-                                    ;
-                                    ; Verändere die Höhe der ListIcon                                    
-                                    ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
-                                    Continue
-                                    
-                                Case #PB_EventType_LeftButtonUp
-                                    If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 )
-                                        ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),Startup::*LHGameDB\GameID)  
-                                        Continue
-                                    EndIf    
-                            EndSelect                                                              
-                            
-                        Case DC::#ListIcon_001
-                        	
-                            Select EvntType                                                                                                    
-                                Case #PB_EventType_LeftClick
-                                    ;BaseCode::GetBaseItem(0)                                   
-                                    If ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftClick)
-                                        vInfo::Modify_EndCheck()
-                                        vInfo::Modify_Reset()
-                                        VEngine::ListBox_GetData_LeftMouse()
-                                        Delay(3)
-                                        Continue
-                                    EndIf                                                                        
-                                    ;                             
-                                Case #PB_EventType_RightClick       
-                                    If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_RightClick)
-                                    	VEngine::ListBox_GetData_LeftMouse()
-                                    	Delay(3)
-                                        Continue
-                                    EndIf    
-                                    
-                                    
-                                Case #PB_EventType_LeftDoubleClick                                 
-                                    If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftDoubleClick)
-                                    	VEngine::DOS_Prepare()
-                                    	Delay(3)
-                                        Continue
-                                    EndIf                                      
-                            EndSelect
-                            
-                               
-                            ;
-                            ; Button Liste (Standard Ansicht)
-                        Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_287
-                            
-                            If Form::IsOverObject(GadgetID(DC::#Button_287)) And ( ToolTipSystemShow = #True )
-                                ToolTipSystemShow = #False
-                                vSystem::System_InfoToolTip()
-                                SSTTIP::ToolTipMode(0,DC::#Button_287,Startup::ToolTipSystemInfo.s)
-                                Delay(25)
-                            Else
-                                ToolTipSystemShow = #True
-                                Delay(25)
-                            EndIf
-                            
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed
-                                    Select EvntGadget
-                                            ;
-                                            ; Add, Neuer Eintrag
-                                        Case DC::#Button_010
-                                            ButtonEX::SetState(EvntGadget,0): VEngine::DataBase_Add()
-                                            Continue
-                                            
-                                            ;
-                                            ; Duplicate
-                                        Case DC::#Button_011
-                                            ButtonEX::SetState(EvntGadget,0): VEngine::DataBase_Duplicate()
-                                            Continue
-                                            
-                                            ;
-                                            ; Eintrag Löschen
-                                        Case DC::#Button_012
-                                            ButtonEX::SetState(EvntGadget,0): VEngine::Database_Remove()  
-                                            Continue
-                                            ;
-                                            ; Eintrag Editieren
-                                        Case DC::#Button_013
-                                            ButtonEX::SetState(EvntGadget,0): VEngine::Switcher_Pres_List(EvntGadget)                                               
-                                            Continue
-                                          
-                                            ;
-                                            ; Start programm
-                                        Case DC::#Button_014
-                                            ButtonEX::SetState(EvntGadget,0): VEngine::DOS_Prepare()
-                                            Continue
-                                            
-                                            ;
-                                            ; Edit Infos zum Item
-                                        Case DC::#Button_016
-                                            Select ButtonEX::Getstate(EvntGadget)
-                                                Case 0
-                                                    
-                                                    ButtonEX::SetState(EvntGadget,1):
-                                                    vWindows::OpenWindow_EditInfos()                                                                                                         
-                                                    Continue
-                                                Case 1                                                 
-                                                    ButtonEX::SetState(EvntGadget,0):
-                                                    vInfo::Modify_EndCheck()
-                                                    vInfo::Modify_Reset()                                                       
-                                                    vInfo::Window_Props_Save()   
-                                                    vInfo::Window_Close()
-                                                    Continue
-                                            EndSelect  
-                                            
-                                            ;
-                                            ; Edit Infos zum Item
-                                        Case DC::#Button_283 To DC::#Button_286
-                                            Select ButtonEX::Getstate(EvntGadget)
-                                                Case 0                               
-                                                    vInfo::Tab_Switch(EvntGadget)
-                                                    vEngine::Text_GetDB()
-                                                    ButtonEX::SetState(EvntGadget,1):
-                                                    Continue
-                                                Case 1
-                                                    ButtonEX::SetState(EvntGadget,1):
-                                                    Continue
-                                                    
-                                            EndSelect 
-                                            
-                                           ;
-                                           ; Info Button
-                                        Case DC::#Button_287                                           
-                                            ButtonEX::SetState(EvntGadget,0)
-                                            Continue                                            
-                                    EndSelect                                          
-                            EndSelect                         
-                            
-                            Select EvntType
-                                Case #PB_EventType_RightClick
-                                    ButtonEX::SetState(EvntGadget,ButtonEX::GetState(EvntGadget) )
-                                    Select ButtonEX::ButtonExEvent(EvntGadget) 
-                                        Case ButtonEX::#ButtonGadgetEx_Pressed:
-                                            
-                                            ;Select EvntGadget
-                                                ;
-                                                ; Einträge Löschen bias auf den ersten
-                                            ;    Case DC::#Button_012
-                                            ;        ButtonEX::SetState(EvntGadget,0): VEngine::Database_Remove(1,#True) 
-                                            ;        Continue                                                    
-                                            ;EndSelect
-                                    EndSelect
-                                    
-                                            Select EvntGadget                                            
-                                                Case DC::#Button_283: vInfoMenu::Cmd_TabRen(EvntGadget):Continue 
-                                                Case DC::#Button_284: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
-                                                Case DC::#Button_285: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
-                                                Case DC::#Button_286: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
-                                            EndSelect        
-                                    ;EndSelect
-                            EndSelect                                  
-                            ;
-                            ;Einstellungen
-                            ;                   
-                        Case DC::#Button_023, DC::#Button_024
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
-                                    Select EvntGadget
-                                            ;                                                         
-                                            ; Update Title, Year, Subtitle                               
-                                        Case DC::#Button_023
-                                            VEngine::Update_Changes()                                            
-                                            
-                                            ;                                            
-                                            ; Dont Update Title Year etc..                                            
-                                        Case DC::#Button_024
-                                            
-                                    EndSelect
-                                    VEngine::ListBox_GetData_LeftMouse(#True)                                        
-                                    VEngine::Switcher_Pres_List(EvntGadget)
-                                    
-                            EndSelect
-                            ;
-                            ;
-                            ; Disk Image Handling/ Datei Manager
-                            ; 
-                        Case DC::#Button_103 To DC::#Button_106       
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
-                                    Select EvntGadget
-                                        Case DC::#Button_103:  vEngine::FileManageR_MediumCheck(DC::#String_008,DC::#String_107):Continue
-                                        Case DC::#Button_104:  vEngine::FileManageR_MediumCheck(DC::#String_009,DC::#String_108):Continue
-                                        Case DC::#Button_105:  vEngine::FileManageR_MediumCheck(DC::#String_010,DC::#String_109):Continue                                            
-                                        Case DC::#Button_106:  vEngine::FileManageR_MediumCheck(DC::#String_011,DC::#String_110):Continue                                            
-                                    EndSelect                                                                                                      
-                            EndSelect                                             
-                            ;
-                            ;Sortier Buttons
-                            ;                                
-                        Case DC::#Button_025 To DC::#Button_028
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
-                                    Select EvntGadget
-                                            ;                                                         
-                                            ; Update Title, Year, Subtitle                               
-                                        Case DC::#Button_025: Startup::*LHGameDB\SortMode = 0: VEngine::Thread_LoadGameList_Sort():Continue                                            
-                                        Case DC::#Button_026: Startup::*LHGameDB\SortMode = 1: VEngine::Thread_LoadGameList_Sort():Continue   
-                                        Case DC::#Button_027: Startup::*LHGameDB\SortMode = 2: VEngine::Thread_LoadGameList_Sort():Continue  
-                                        Case DC::#Button_028:
-                                        	If ( Startup::*LHGameDB\SortXtendMode = #True )
-                                        		Startup::*LHGameDB\SortMode = 5
-                                        	Else	
-                                        		Startup::*LHGameDB\SortMode = 3
-                                        	EndIf
-                                        	VEngine::Thread_LoadGameList_Sort()
-                                        	Continue                                                                                          
-                                    EndSelect                                                                                                      
-                            EndSelect                            
-                            
-                            ;
-                            ;Edit Cancel
-                            ; 
-                        Case DC::#Button_020 To DC::#Button_022, DC::#Button_033
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
-                                    Select EvntGadget
-                                        Case DC::#Button_020
-                                            vWindows::OpenWindow_Sys1()
-                                            VEngine::ListBox_GetData_LeftMouse(#True)
-                                            Continue
-                                            
-                                        Case DC::#Button_021                                            
-                                            vWindows::OpenWindow_Sys1(1)        
-                                            VEngine::ListBox_GetData_LeftMouse(#True)
-                                            Continue
-                                            
-                                        Case DC::#Button_022
-                                            vWindows::OpenWindow_Sys2()
-                                            VEngine::ListBox_GetData_LeftMouse(#True) 
-                                            Continue
-                                            
-                                        Case DC::#Button_033
-                                            ;vWindows::OpenWindow_Sys64()
-                                            ;VEngine::ListBox_GetData_LeftMouse(#True)                                              
-                                    EndSelect        
-                                    
-                            EndSelect                             
-                            ;
-                            ;
-                            ; Close , Menu1 und Menu 2 Button?? 
-                        Case DC::#Button_001
-                            Select ButtonEX::ButtonExEvent(EvntGadget)  
-                                Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0) 
-                                    Select EvntGadget
-                                            ;
-                                            ; Close Buttons
-                                        Case DC::#Button_001                                            
-                                            Startup::*LHGameDB\ProgrammQuit = INVMNU::Request_MSG_Quit()                                           
-                                   EndSelect        
-                            EndSelect
-                            
-                            ;
-                            ; Minimzed Stuff
-                        Case DC::#Button_002
-                            Select ButtonEX::ButtonExEvent(EvntGadget)
-                                 Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0) 
-                            EndSelect
-                            
-                            Select EvntType
-                                Case #PB_EventType_LeftClick
-                                    SetWindowState(DC::#_Window_001, #PB_Window_Minimize)
-                                    
-                                    If IsWindow( DC::#_Window_006 )
-                                        SetWindowState(DC::#_Window_006, #PB_Window_Minimize) 
-                                    EndIf    
-                                    
-                                    Continue
-                                    
-                                Case #PB_EventType_RightClick
-                                    ShowWindow_(WindowID(DC::#_Window_001),#SW_MINIMIZE)
-                                    
-                                    If IsWindow( DC::#_Window_006 )
-                                        ShowWindow_(WindowID(DC::#_Window_006),#SW_MINIMIZE)
-                                    EndIf
-                                    
-                                    DesktopEX::Icon_HideFromTaskBar(WindowID(DC::#_Window_001),1)
-  
-                                    Continue
-                            EndSelect        
-                            ;
-                            ;
-                            ;
-                        Case Startup::*LHImages\ScreenGDID[1] To Startup::*LHImages\ScreenGDID[Startup::*LHGameDB\MaxScreenshots]
-                            If ( Startup::*LHGameDB\SwitchNoItems = 1 )
-                                Select EvntType
-                                    Case #PB_EventType_LeftDoubleClick
-                                        ;
-                                        ; GadgetID Übergeben
-                                        vWindows::OpenWindow_Sys3(EvntGadget) :VEngine::ListBox_GetData_LeftMouse(#True) 
-                                        Continue
-                                    Case #PB_EventType_RightClick
-                                        ;
-                                        ; Hole die Gadget Position
-                                        ;
-                                        ;
-                                        CLSMNU::SetGetMenu_(EvntGadget,DC::#_Window_001, #PB_Any, 0, GadgetWidth(EvntGadget) - 60, 45, 1,4, #True)
-                                        Continue                                                                                                        
-                                EndSelect          
-                            EndIf  
-                    EndSelect  
+        			Select EvntwParam
+        				Case #VK_UP, #VK_DOWN, #VK_0 To #VK_9, #VK_A To #VK_Z, 34, 33
+        					
+        					If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (Startup::*LHGameDB\InfoWindow\bActivated = #False)        						
+        						vInfo::Modify_EndCheck()
+        						vInfo::Modify_Reset()
+        						VEngine::ListBox_GetData_KeyBoard(EvntwParam)
+        						VEngine::ListBox_GetData_LeftMouse()
+        						Debug "MainCode() Up/Down"
+        						Continue
+        						
+        					EndIf                     		
+        					
+        					;
+									; Beim Drücken der Taste wird die Thumbnail grösse geändert                            
+									; 100 NumKey L w - 1
+									; 102 NumKey R w + 1
+									; 104 NumKey U h + 1
+									;  98 NumKey D h - 1 
+        				Case #VK_F5, #VK_F6, 98, 100, 102, 104, 103, 105
+        					
+        					If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 )  And ( Startup::*LHGameDB\SwitchNoItems = 1 )And (Startup::*LHGameDB\InfoWindow\bActivated = #False)               				
+        						;
+										; Tastenwiederholung
+        						Debug "MainCode() Grössenänderung"
+        						EvntRepeat + 1
+        						vImages::Screens_ChgThumbnails(EvntwParam, #False, EvntRepeat,EvntWait)
+        						Continue
+        					EndIf 
+        					
+        				Default
+        			EndSelect                        
+        			
+        		Case #WM_KEYUP
+        			Select EvntwParam                 			
+        					;
+									; Beim Loslassen der Taste grössse speichern
+									; Thumbnails vergrößern
+        				Case #VK_F5, 102, 104,103 
+        					;If (GetAsyncKeyState_(#VK_F5) & 32768 = 32768) Or
+									;   (GetAsyncKeyState_(102) & 32768 = 32768) Or
+									;   (GetAsyncKeyState_(104) & 32768 = 32768) Or
+									;   (GetAsyncKeyState_(103) & 32768 = 32768)                 		
+        					If WindowID(DC::#_Window_001) And
+        					   ( Startup::*LHGameDB\Switch 								= 0 ) And
+        					   ( Startup::*LHGameDB\SwitchNoItems 				= 1 ) And
+        					   ( Startup::*LHGameDB\InfoWindow\bActivated = #False)     					       
+        						vImages::Screens_ChgThumbnails(0,#True, 0, #WM_KEYUP)
+        						Debug "#WM_KEYUP (A)"
+        						Continue
+        					EndIf
+        					;
+									; Beim Loslassen der Taste grössse speichern
+									; Thumbnails verkleinern und kein Neuladen der Original Bilder nötig
+        				Case #VK_F6, 98, 100,105; Kleiner 
+																				;If (GetAsyncKeyState_(#VK_F6) & 32768 = 32768) Or
+																				;   (GetAsyncKeyState_(98) & 32768 = 32768) Or
+																				;   (GetAsyncKeyState_(100) & 32768 = 32768) Or
+																				;   (GetAsyncKeyState_(105) & 32768 = 32768)
+        					If WindowID(DC::#_Window_001) And
+        					   ( Startup::*LHGameDB\Switch 								= 0 ) And
+        					   ( Startup::*LHGameDB\SwitchNoItems 				= 1 ) And
+        					   ( Startup::*LHGameDB\InfoWindow\bActivated = #False)
+        						Debug "#WM_KEYUP (B)" 
+        						vImages::Screens_ChgThumbnails(0,#True,0,-999)                                                                
+        						Continue
+        					EndIf
+        			EndSelect
+        			
+        			;
+							; Registriere Hotkey CTRL-S für Speichern/Updaten
+        		Case #WM_HOTKEY
+        			Select EvntwParam
+        				Case 1
+        					If ( Startup::*LHGameDB\Switch = 1 )
+        						Continue
+        					EndIf
+        			EndSelect                                          
+              	
+        		Case #PB_Event_Gadget                    
+        			Select EvntGadget
+        					
+        				Case DC::#String_001 To DC::#String_011
+        					Select EvntType
+        						Case #PB_EventType_Change 
+        							VEngine::Change_Title(EvntGadget)
+        							Continue
+        					EndSelect
+        					
+        				Case DC::#Calendar
+        					Select EvntType
+        						Case #PB_EventType_Change 
+        							VEngine::Database_Set_Release()
+        							Continue
+        					EndSelect 
+        					
+        					;
+									; Splitter Gadget
+        				Case  DC::#Splitter1  
+        					Select EvntType                                                                                                                                        
+        						Case 2  ; Links Doppelklick
+														;                                                                        
+														; Resette die Höhe der ListIco                                    
+        							VEngine::PicSupport_Hide_Show()                                                                                                                                             
+        							Continue
+        						Case #PB_EventType_MouseMove 
+        							;
+											; Verändere die Höhe der ListIcon                                    
+        							ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))
+        							Continue
+        							
+        						Case #PB_EventType_LeftButtonUp
+        							If WindowID(DC::#_Window_001) And ( Startup::*LHGameDB\Switch = 0 ) And ( Startup::*LHGameDB\SwitchNoItems = 1 )
+        								ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(GetGadgetState(DC::#Splitter1) ),Startup::*LHGameDB\GameID)  
+        								Continue
+        							EndIf    
+        					EndSelect                                                              
+              			
+        				Case DC::#ListIcon_001
+        					
+        					Select EvntType                                                                                                    
+        						Case #PB_EventType_LeftClick
+        							;BaseCode::GetBaseItem(0)                                   
+        							If ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftClick)
+        								vInfo::Modify_EndCheck()
+        								vInfo::Modify_Reset()
+        								VEngine::ListBox_GetData_LeftMouse()
+        								Delay(3)
+        								Continue
+        							EndIf                                                                        
+        							;                             
+        						Case #PB_EventType_RightClick       
+        							If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_RightClick)
+        								VEngine::ListBox_GetData_LeftMouse()
+        								Delay(3)
+        								Continue
+        							EndIf    
+        							
+        							
+        						Case #PB_EventType_LeftDoubleClick                                 
+        							If  ( GetActiveGadget() = DC::#ListIcon_001 ) And (EvntType = #PB_EventType_LeftDoubleClick)
+        								VEngine::DOS_Prepare()
+        								Delay(3)
+        								Continue
+        							EndIf                                      
+        					EndSelect
+              			
+              			
+              			;
+										; Button Liste (Standard Ansicht)
+              		Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_287
+              			
+              			If Form::IsOverObject(GadgetID(DC::#Button_287)) And ( ToolTipSystemShow = #True )
+              				ToolTipSystemShow = #False
+              				vSystem::System_InfoToolTip()
+              				SSTTIP::ToolTipMode(0,DC::#Button_287,Startup::ToolTipSystemInfo.s)
+              				Delay(25)
+              			Else
+              				ToolTipSystemShow = #True
+              				Delay(25)
+              			EndIf
+              			
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed
+              					Select EvntGadget
+              							;
+														; Add, Neuer Eintrag
+              						Case DC::#Button_010
+              							ButtonEX::SetState(EvntGadget,0): VEngine::DataBase_Add()
+              							Continue
+              							
+              							;
+														; Duplicate
+              						Case DC::#Button_011
+              							ButtonEX::SetState(EvntGadget,0): VEngine::DataBase_Duplicate()
+              							Continue
+              							
+              							;
+														; Eintrag Löschen
+              						Case DC::#Button_012
+              							ButtonEX::SetState(EvntGadget,0): VEngine::Database_Remove()  
+              							Continue
+              							;
+														; Eintrag Editieren
+              						Case DC::#Button_013
+              							ButtonEX::SetState(EvntGadget,0): VEngine::Switcher_Pres_List(EvntGadget)                                               
+              							Continue
+              							
+              							;
+														; Start programm
+              						Case DC::#Button_014
+              							ButtonEX::SetState(EvntGadget,0): VEngine::DOS_Prepare()
+              							Continue
+              							
+              							;
+														; Edit Infos zum Item
+              						Case DC::#Button_016
+              							Select ButtonEX::Getstate(EvntGadget)
+              								Case 0
+              									
+              									ButtonEX::SetState(EvntGadget,1):
+              									vWindows::OpenWindow_EditInfos()                                                                                                         
+              									Continue
+              								Case 1                                                 
+              									ButtonEX::SetState(EvntGadget,0):
+              									vInfo::Modify_EndCheck()
+              									vInfo::Modify_Reset()                                                       
+              									vInfo::Window_Props_Save()   
+              									vInfo::Window_Close()
+              									Continue
+              							EndSelect  
+              							
+              							;
+														; Edit Infos zum Item
+              						Case DC::#Button_283 To DC::#Button_286
+              							Select ButtonEX::Getstate(EvntGadget)
+              								Case 0                               
+              									vInfo::Tab_Switch(EvntGadget)
+              									vEngine::Text_GetDB()
+              									ButtonEX::SetState(EvntGadget,1):
+              									Continue
+              								Case 1
+              									ButtonEX::SetState(EvntGadget,1):
+              									Continue
+              									
+              							EndSelect 
+              							
+              							;
+														; Info Button
+              						Case DC::#Button_287                                           
+              							ButtonEX::SetState(EvntGadget,0)
+              							Continue                                            
+              					EndSelect                                          
+              			EndSelect                         
+              			
+              			Select EvntType
+              				Case #PB_EventType_RightClick
+              					ButtonEX::SetState(EvntGadget,ButtonEX::GetState(EvntGadget) )
+              					Select ButtonEX::ButtonExEvent(EvntGadget) 
+              						Case ButtonEX::#ButtonGadgetEx_Pressed:
+              							
+              							;Select EvntGadget
+														;
+														; Einträge Löschen bias auf den ersten
+														;    Case DC::#Button_012
+														;        ButtonEX::SetState(EvntGadget,0): VEngine::Database_Remove(1,#True) 
+														;        Continue                                                    
+														;EndSelect
+              					EndSelect
+              					
+              					Select EvntGadget                                            
+              						Case DC::#Button_283: vInfoMenu::Cmd_TabRen(EvntGadget):Continue 
+              						Case DC::#Button_284: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
+              						Case DC::#Button_285: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
+              						Case DC::#Button_286: vInfoMenu::Cmd_TabRen(EvntGadget):Continue                                             
+              					EndSelect        
+              					;EndSelect
+              			EndSelect                                  
+              			;
+										;Einstellungen
+										;                   
+              		Case DC::#Button_023, DC::#Button_024
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
+              					Select EvntGadget
+              							;                                                         
+														; Update Title, Year, Subtitle                               
+              						Case DC::#Button_023
+              							VEngine::Update_Changes()                                            
+              							
+              							;                                            
+														; Dont Update Title Year etc..                                            
+              						Case DC::#Button_024
+              							
+              					EndSelect
+              					VEngine::ListBox_GetData_LeftMouse(#True)                                        
+              					VEngine::Switcher_Pres_List(EvntGadget)
+              					
+              			EndSelect
+              			;
+										;
+										; Disk Image Handling/ Datei Manager
+										; 
+              		Case DC::#Button_103 To DC::#Button_106       
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
+              					Select EvntGadget
+              						Case DC::#Button_103:  vEngine::FileManageR_MediumCheck(DC::#String_008,DC::#String_107):Continue
+              						Case DC::#Button_104:  vEngine::FileManageR_MediumCheck(DC::#String_009,DC::#String_108):Continue
+              						Case DC::#Button_105:  vEngine::FileManageR_MediumCheck(DC::#String_010,DC::#String_109):Continue                                            
+              						Case DC::#Button_106:  vEngine::FileManageR_MediumCheck(DC::#String_011,DC::#String_110):Continue                                            
+              					EndSelect                                                                                                      
+              			EndSelect                                             
+              			;
+										;Sortier Buttons
+										;                                
+              		Case DC::#Button_025 To DC::#Button_028
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
+              					Select EvntGadget
+              							;                                                         
+														; Update Title, Year, Subtitle                               
+              						Case DC::#Button_025: Startup::*LHGameDB\SortMode = 0: VEngine::Thread_LoadGameList_Sort():Continue                                            
+              						Case DC::#Button_026: Startup::*LHGameDB\SortMode = 1: VEngine::Thread_LoadGameList_Sort():Continue   
+              						Case DC::#Button_027: Startup::*LHGameDB\SortMode = 2: VEngine::Thread_LoadGameList_Sort():Continue  
+              						Case DC::#Button_028:
+              							If ( Startup::*LHGameDB\SortXtendMode = #True )
+              								Startup::*LHGameDB\SortMode = 5
+              							Else	
+              								Startup::*LHGameDB\SortMode = 3
+              							EndIf
+              							VEngine::Thread_LoadGameList_Sort()
+              							Continue                                                                                          
+              					EndSelect                                                                                                      
+              			EndSelect                            
+              			
+              			;
+										;Edit Cancel
+										; 
+              		Case DC::#Button_020 To DC::#Button_022, DC::#Button_033
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0)
+              					Select EvntGadget
+              						Case DC::#Button_020
+              							vWindows::OpenWindow_Sys1()
+              							VEngine::ListBox_GetData_LeftMouse(#True)
+              							Continue
+              							
+              						Case DC::#Button_021                                            
+              							vWindows::OpenWindow_Sys1(1)        
+              							VEngine::ListBox_GetData_LeftMouse(#True)
+              							Continue
+              							
+              						Case DC::#Button_022
+              							vWindows::OpenWindow_Sys2()
+              							VEngine::ListBox_GetData_LeftMouse(#True) 
+              							Continue
+              							
+              						Case DC::#Button_033
+              							;vWindows::OpenWindow_Sys64()
+														;VEngine::ListBox_GetData_LeftMouse(#True)                                              
+              					EndSelect        
+              					
+              			EndSelect                             
+              			;
+										;
+										; Close , Menu1 und Menu 2 Button?? 
+              		Case DC::#Button_001
+              			Select ButtonEX::ButtonExEvent(EvntGadget)  
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0) 
+              					Select EvntGadget
+              							;
+														; Close Buttons
+              						Case DC::#Button_001                                            
+              							Startup::*LHGameDB\ProgrammQuit = INVMNU::Request_MSG_Quit()                                           
+              					EndSelect        
+              			EndSelect
+              			
+              			;
+										; Minimzed Stuff
+              		Case DC::#Button_002
+              			Select ButtonEX::ButtonExEvent(EvntGadget)
+              				Case ButtonEX::#ButtonGadgetEx_Pressed: ButtonEX::SetState(EvntGadget,0) 
+              			EndSelect
+              			
+              			Select EvntType
+              				Case #PB_EventType_LeftClick
+              					SetWindowState(DC::#_Window_001, #PB_Window_Minimize)
+              					
+              					If IsWindow( DC::#_Window_006 )
+              						SetWindowState(DC::#_Window_006, #PB_Window_Minimize) 
+              					EndIf    
+              					
+              					Continue
+              					
+              				Case #PB_EventType_RightClick
+              					ShowWindow_(WindowID(DC::#_Window_001),#SW_MINIMIZE)
+              					
+              					If IsWindow( DC::#_Window_006 )
+              						ShowWindow_(WindowID(DC::#_Window_006),#SW_MINIMIZE)
+              					EndIf
+              					
+              					DesktopEX::Icon_HideFromTaskBar(WindowID(DC::#_Window_001),1)
+              					
+              					Continue
+              			EndSelect        
+              			;
+										;
+										;
+              		Case Startup::*LHImages\ScreenGDID[1] To Startup::*LHImages\ScreenGDID[Startup::*LHGameDB\MaxScreenshots]
+              			If ( Startup::*LHGameDB\SwitchNoItems = 1 )
+              				Select EvntType
+              					Case #PB_EventType_LeftDoubleClick
+              						;
+													; GadgetID Übergeben
+              						vWindows::OpenWindow_Sys3(EvntGadget) :VEngine::ListBox_GetData_LeftMouse(#True) 
+              						Continue
+              					Case #PB_EventType_RightClick
+              						;
+													; Hole die Gadget Position
+													;
+													;
+              						CLSMNU::SetGetMenu_(EvntGadget,DC::#_Window_001, #PB_Any, 0, GadgetWidth(EvntGadget) - 60, 45, 1,4, #True)
+              						Continue                                                                                                        
+              				EndSelect          
+              			EndIf  
+              	EndSelect  
                     
                    
                     ;***************************************************************************
@@ -929,9 +927,9 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 295
-; FirstLine = 228
-; Folding = f+
+; CursorPosition = 253
+; FirstLine = 191
+; Folding = f-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
