@@ -91,115 +91,104 @@ Module vInfoMenu
    Procedure    Cmd_Save(SaveAsNewFile.i = #False)
        
        Protected szFile.s, szText.s, szFilePath.s, szFileProg.s, szExtension.s , szPattern.s, szTitle.s =  "Speichern" 
-       Protected nEncoding = #PB_Unicode
+       Protected nEncoding = #PB_Unicode, LastTab.i = Startup::*LHGameDB\InfoWindow\bTabNum
        
-       szFile.s = vEngine::Getfile_Portbale_ModeOut( GetGadgetText( DC::#String_112 ) )
-           
-           szFilePath.s = GetPathPart( szFile )
-           szFileProg.s = GetFilePart( szFile ) 
-           szExtension  = GetExtensionPart( szFileProg )
-                             
-           ;
-           ; Kein Datei nicht gefunden           
-           If ( FileSize(szFilePath + szFileProg ) = -1 )
-               SaveAsNewFile = #True
-               szTitle = szTitle + " (Datei nicht Gefunden)"
-           EndIf    
-           
-           ;
-           ; Kein Dateinamen im Gadget String oder existiert nicht          
-           If ( Len(szFileProg) = 0 ) Or ( Len(szFilePath) = 0 )
-                   
-                   If ( Len(szFileProg) = 0 )
-                        szFileProg = "Neues Textdokument"
-                    EndIf 
-                    szTitle.s = "Neue Datei " + szTitle
-           EndIf            
-           
-           If ( SaveAsNewFile = #True )
-               
-               If  ( szExtension = "")
-                   szExtension = "txt"
-               EndIf
-               
-               szPattern = "Auto (*."+LCase(szExtension)+")|*."+LCase(szExtension)+"|Alle Dateien (*.*)|*.*"
-               
-               szFile = SaveFileRequester( szTitle, szFilePath + GetFilePart( szFileProg,1 ), szPattern,0 )
-               
-                If ( szFile )
-                    szFilePath.s = GetPathPart( szFile )                    
-                    Select SelectedFilePattern()
-                    	Case 0
-                    		szFileProg = GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
-                        	szFileProg + "." + szExtension
-                        	
-                        Case 1 ; Wir gehen davon aus das der User ein Patten drangeängt hat
-                        	szFileProg = GetFilePart( szFile )
-                        	szExtension= GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
-                    EndSelect        
-                    
-                    szFile = vEngine::Getfile_Portbale_ModeIn( szFilePath + szFileProg )
-                    
-                   SetGadgetText( DC::#String_112,szFile)                               
-                   Select Startup::*LHGameDB\InfoWindow\bTabNum
-                        Case 1
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szFile  ,Startup::*LHGameDB\GameID)
-                        Case 2
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szFile  ,Startup::*LHGameDB\GameID)                    
-                        Case 3
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szFile  ,Startup::*LHGameDB\GameID)                    
-                        Case 4
-                            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szFile  ,Startup::*LHGameDB\GameID)                   
-                   EndSelect                     
-                EndIf                             
-                
-            EndIf
-            
-           nEncoding    =  vInfo::File_CheckEncode (szFilePath + szFileProg)
-           
-           Select Startup::*LHGameDB\InfoWindow\bTabNum
-               Case 1
-                   SetActiveGadget( DC::#Text_128 )
-                   vEngine::Text_UpdateDB()
-                   szText.s = GetGadgetText( DC::#Text_128  )
-               Case 2
-                   SetActiveGadget( DC::#Text_129 )                                        
-                   vEngine::Text_UpdateDB()
-                   szText.s = GetGadgetText( DC::#Text_129  )                  
-               Case 3
-                   SetActiveGadget( DC::#Text_130 )              
-                   vEngine::Text_UpdateDB()
-                   szText.s = GetGadgetText( DC::#Text_130  )                 
-               Case 4
-                   SetActiveGadget( DC::#Text_131 )              
-                   vEngine::Text_UpdateDB()
-                   szText.s = GetGadgetText( DC::#Text_131  )                    
-           EndSelect 
-           
-           
-          ; Debug ""
-          ; Debug "Save Text"
-          ; Debug "========="
-          ; Debug szText
-          ; Debug ""
-           
-           If FileSize( szFilePath + szFileProg ) > 0
-           	           	
-            	Date$ = FormatDate("%yyyy_%mm_%dd", Date())
-            	Time$ = FormatDate("%hh_%ii_%ss"  , Date())            	            
-            	CopyFile( szFilePath + szFileProg , szFilePath + szFileProg + " " + Date$ + "-"+ Time$ + "."+ szExtension)
-           EndIf
-            
-           hFile = CreateFile( #PB_Any,  szFilePath + szFileProg)
-           If ( hFile )
-               Select nEncoding
-                   Case 0
-                       WriteString(hFile, szText)
-                   Default
-                       WriteString(hFile, szText, nEncoding)                      
-                EndSelect
-                CloseFile( hFile )    
-            EndIf
+       Debug ""
+       Debug "Speichere Datei von Tab-Nummer: " + Str(LastTab) + " von 4"
+       
+       If (Len(GetGadgetText( DC::#String_112 )) > 0)
+       	szFile.s = vEngine::Getfile_Portbale_ModeOut( GetGadgetText( DC::#String_112 ) )
+       EndIf
+       
+       szFilePath.s = GetPathPart( szFile )
+       szFileProg.s = GetFilePart( szFile ) 
+       szExtension  = GetExtensionPart( szFileProg )
+       
+       ;
+			 ; Kein Datei nicht gefunden           
+       If ( FileSize(szFilePath + szFileProg ) = -1 )
+       	SaveAsNewFile = #True
+       	szTitle = szTitle + " (Datei nicht Gefunden)"
+       EndIf    
+       
+       ;
+			 ; Kein Dateinamen im Gadget String oder existiert nicht          
+       If ( Len(szFileProg) = 0 ) Or ( Len(szFilePath) = 0 )
+       	
+       	If ( Len(szFileProg) = 0 )
+       		szFileProg = "Neues Textdokument"
+       	EndIf 
+       	
+       	szTitle.s = "Neue Datei " + szTitle
+       EndIf            
+       
+       If ( SaveAsNewFile = #True )       	
+       	If  ( szExtension = "")
+       		szExtension = "txt"
+       	EndIf
+       	
+       	szPattern = "Auto (*."+LCase(szExtension)+")|*."+LCase(szExtension)+"|Alle Dateien (*.*)|*.*"       	
+       	szFile    = SaveFileRequester( szTitle, szFilePath + GetFilePart( szFileProg,1 ), szPattern,0 )
+       	
+       	If ( szFile )
+       		szFilePath.s = GetPathPart( szFile )                    
+       		Select SelectedFilePattern()
+       			Case 0
+       				szFileProg = GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
+       				szFileProg + "." + szExtension
+       				
+       			Case 1 ; Wir gehen davon aus das der User ein Patten drangeängt hat
+       				szFileProg = GetFilePart( szFile )
+       				szExtension= GetFilePart( szFile, #PB_FileSystem_NoExtension ) 
+       		EndSelect        
+       		
+       		szFile = vEngine::Getfile_Portbale_ModeIn( szFilePath + szFileProg )
+       		
+       		SetGadgetText( DC::#String_112,szFile)                               
+       		Select Startup::*LHGameDB\InfoWindow\bTabNum
+       			Case 1
+       				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szFile  ,Startup::*LHGameDB\GameID)
+       			Case 2
+       				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szFile  ,Startup::*LHGameDB\GameID)                    
+       			Case 3
+       				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szFile  ,Startup::*LHGameDB\GameID)                    
+       			Case 4
+       				ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szFile  ,Startup::*LHGameDB\GameID)                   
+       		EndSelect                     
+       	EndIf                                    	
+       EndIf
+       
+       nEncoding =  vInfo::File_CheckEncode (szFilePath + szFileProg)
+       
+       If FileSize( szFilePath + szFileProg ) > 0
+       	
+       	Date$ = FormatDate("%yyyy_%mm_%dd", Date())
+       	Time$ = FormatDate("%hh_%ii_%ss"  , Date())            	            
+       	CopyFile( szFilePath + szFileProg , szFilePath + szFileProg + " " + Date$ + "-"+ Time$ + "."+ szExtension)
+       EndIf
+       
+       hFile = CreateFile( #PB_Any,  szFilePath + szFileProg)
+       If ( hFile )
+       	
+       	Select Startup::*LHGameDB\InfoWindow\bTabNum
+       		Case 1
+       			szText.s = GetGadgetText( DC::#Text_128 )
+       		Case 2
+       			szText.s = GetGadgetText( DC::#Text_129 )
+       		Case 3
+       			szText.s = GetGadgetText( DC::#Text_130 )
+       		Case 4
+       			szText.s = GetGadgetText( DC::#Text_131 )
+       	EndSelect           	
+       	
+       	Select nEncoding
+       		Case 0
+       			WriteString(hFile, szText)
+       		Default
+       			WriteString(hFile, szText, nEncoding)
+       	EndSelect
+       	CloseFile( hFile )    
+       EndIf
             
    EndProcedure
    ;**************************************************************************************************************************************************************** 
@@ -454,9 +443,9 @@ Module vInfoMenu
      EndProcedure    
     
 EndModule    
-; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 190
-; FirstLine = 94
+; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; CursorPosition = 98
+; FirstLine = 40
 ; Folding = DgBA+
 ; EnableAsm
 ; EnableXP

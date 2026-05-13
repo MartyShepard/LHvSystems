@@ -196,22 +196,22 @@ Module vInfo
     EndProcedure      
     Procedure.i Tab_GetGadget()
         
-        Protected EvntGadget = -1
-        
-           Select Startup::*LHGameDB\InfoWindow\bTabNum
-           Case 1: EvntGadget = DC::#Text_128
-           Case 2: EvntGadget = DC::#Text_129
-           Case 3: EvntGadget = DC::#Text_130
-           Case 4: EvntGadget = DC::#Text_131
-       EndSelect
-       
-       If ( EvntGadget = -1 )
-            msg.s = "Modul: " + #PB_Compiler_Module + #CR$ + "Line :" + Str(#PB_Compiler_Line) + #CR$ + "Lost Object Edit Focus - Activ = " + Str(Startup::*LHGameDB\InfoWindow\bTabNum) + #CR$ + "Use Tab 1.."
-            Request::MSG(Startup::*LHGameDB\TitleVersion, "vSyst3ms Err0r"   ,msg,2,2)
-            EvntGadget = DC::#Text_128
-       EndIf
-        
-       ProcedureReturn EvntGadget
+    	Protected EvntGadget = -1
+    	
+    	Select Startup::*LHGameDB\InfoWindow\bTabNum
+    		Case 1: EvntGadget = DC::#Text_128
+    		Case 2: EvntGadget = DC::#Text_129
+    		Case 3: EvntGadget = DC::#Text_130
+    		Case 4: EvntGadget = DC::#Text_131
+    	EndSelect
+    	
+    	If ( EvntGadget = -1 )
+    		msg.s = "Modul: " + #PB_Compiler_Module + #CR$ + "Line :" + Str(#PB_Compiler_Line) + #CR$ + "Lost Object Edit Focus - Activ = " + Str(Startup::*LHGameDB\InfoWindow\bTabNum) + #CR$ + "Use Tab 1.."
+    		Request::MSG(Startup::*LHGameDB\TitleVersion, "vSyst3ms Err0r"   ,msg,2,2)
+    		EvntGadget = DC::#Text_128
+    	EndIf
+    	
+    	ProcedureReturn EvntGadget
     EndProcedure
    ;**************************************************************************************************************************************************************** 
    ; 
@@ -718,12 +718,11 @@ Module vInfo
                 HideGadget( DC::#Contain_16,0)
                 SetActiveGadget( DC::#Text_128 )
                 SetFocus_( GadgetID( DC::#Text_128  ) )
-                Edit_Url_Support(DC::#Text_128 ) 
-                Startup::*LHGameDB\InfoWindow\bTabNum = 1
+                Edit_Url_Support(DC::#Text_128 )                 
                 vInfo::Wordwrap_Get()
                 vInfo::Get_MaxLines()                
                 vInfo::Caret_GetPosition()                
-                ProcedureReturn 
+                Startup::*LHGameDB\InfoWindow\bTabNum = 1
                 
             Case DC::#Button_284                      
                 ButtonEX::SetState(DC::#Button_284,1):                
@@ -731,11 +730,10 @@ Module vInfo
                 SetActiveGadget( DC::#Text_129 )
                 SetFocus_( GadgetID( DC::#Text_129  ) )
                 Edit_Url_Support(DC::#Text_129 ) 
-                Startup::*LHGameDB\InfoWindow\bTabNum = 2
                 vInfo::Wordwrap_Get()
                 vInfo::Get_MaxLines()                
                 vInfo::Caret_GetPosition()
-                ProcedureReturn 
+                Startup::*LHGameDB\InfoWindow\bTabNum = 2
                 
             Case DC::#Button_285         
                 ButtonEX::SetState(DC::#Button_285,1):                
@@ -743,11 +741,10 @@ Module vInfo
                 SetActiveGadget( DC::#Text_130 )
                 SetFocus_( GadgetID( DC::#Text_130  ) )                
                 Edit_Url_Support(DC::#Text_130 ) 
-                Startup::*LHGameDB\InfoWindow\bTabNum = 3
                 vInfo::Wordwrap_Get()
                 vInfo::Get_MaxLines()
                 vInfo::Caret_GetPosition()
-                ProcedureReturn 
+                Startup::*LHGameDB\InfoWindow\bTabNum = 3                
                 
             Case DC::#Button_286    
                 ButtonEX::SetState(DC::#Button_286,1):                
@@ -755,14 +752,14 @@ Module vInfo
                 SetActiveGadget( DC::#Text_131 )
                 SetFocus_( GadgetID( DC::#Text_131  ) )                
                 Edit_Url_Support(DC::#Text_131 ) 
-                Startup::*LHGameDB\InfoWindow\bTabNum = 4
                 vInfo::Wordwrap_Get()
                 vInfo::Get_MaxLines()                
                 vInfo::Caret_GetPosition()
-                ProcedureReturn 
+                Startup::*LHGameDB\InfoWindow\bTabNum = 4                
         EndSelect 
         
-        
+        Debug "TextEditor Tab Offen " + Str(Startup::*LHGameDB\InfoWindow\bTabNum) + " von 4"
+        ProcedureReturn         
     EndProcedure    
    ;****************************************************************************************************************************************************************
    ; Text Drucken , Set Margin 
@@ -1388,13 +1385,7 @@ Module vInfo
           (Startup::*LHGameDB\InfoWindow\Modified\bEdit3 = 1) Or
           (Startup::*LHGameDB\InfoWindow\Modified\bEdit4 = 1)
            szMod = "($) "
-       EndIf
-       
-       ;Debug "\nModify"
-       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit1 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit1 ) 
-       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit2 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit2 )        
-       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit3 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit3 )        
-       ;Debug "Startup::*LHGameDB\InfoWindow\Modified\bEdit4 =" + Str( Startup::*LHGameDB\InfoWindow\Modified\bEdit4 )        
+       EndIf     
        
        szEditInfo + szMod + "Items: "+ Str( CountGadgetItems( DC::#ListIcon_001) ) + " - "
        szEditInfo + "Sel: "   + RSet( Str( GetGadgetState( DC::#ListIcon_001)+1 ), 3, Chr(32) ) + " | " 
@@ -1806,10 +1797,10 @@ EndModule
 ; Ctrl+Shift+Right Arrow	Increase font size.	Font size changes by 1 point IN the range 4pt-11pt; by 2points for 12pt-28pt; it changes from 28pt -> 36pt -> 48pt -> 72pt -> 80pt; it changes by 10 points in the range 80pt - 1630pt; the maximum value is 1638.
 ; Ctrl+Shift+Left Arrow	Decrease font size.	See Ctrl+Shift+Right Arrow comments.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 303
-; FirstLine = 275
+; CursorPosition = 1387
+; FirstLine = 1080
 ; Folding = -fJ+45f+-H-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame\
+; CurrentDirectory = D:\Elder Scrolls 5 - Skyrim\

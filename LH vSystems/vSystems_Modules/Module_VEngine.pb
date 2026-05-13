@@ -5080,61 +5080,48 @@ EndProcedure
    
     ;****************************************************************************************************************************************************************
     ; Info Window Texte in die DB Speichern
-    ;****************************************************************************************************************************************************************         
+		;****************************************************************************************************************************************************************
+    Procedure    Text_UpdateDB_Save(GadgetID.i, PathGadget.i, TextGadget.i, DataBaseID_Text.s, DataBaseID_Path.s)
+    	
+    	Protected szText.s = "", szPath.s = ""
+    	
+    	SetActiveGadget( GadgetID )
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", DataBaseID_Path, "",Startup::*LHGameDB\GameID)
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", DataBaseID_Text, "",Startup::*LHGameDB\GameID)
+    	
+    	szPath = GetGadgetText( TextGadget )
+    	szText = GetGadgetText( PathGadget )
+    	
+    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", DataBaseID_Path, szPath ,Startup::*LHGameDB\GameID)
+			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", DataBaseID_Text, szText ,Startup::*LHGameDB\GameID) 
+    	    	
+    EndProcedure
+    
     Procedure    Text_UpdateDB()
-        
-    	Select Startup::*LHGameDB\InfoWindow\bTabNum
-    		Case 1
-    			SetActiveGadget( DC::#Text_128 )
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", "",Startup::*LHGameDB\GameID)
-    			
-    			szText.s = GetGadgetText( DC::#String_112  )
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat1", szText ,Startup::*LHGameDB\GameID)
+    	
+    	Protected LastTab.i
+    	
+    	Debug "Text-Editor Tab-Save Update" + Str(Startup::*LHGameDB\InfoWindow\bTabNum) + " von 4"
+    	
+    	LastTab = Startup::*LHGameDB\InfoWindow\bTabNum
+    	
+    	Select LastTab
+    		Case 1    			
+    			Text_UpdateDB_Save(DC::#Text_128,  DC::#String_112, DC::#Text_128, "EditDat1", "EditTxt1")    			
     		Case 2
-    			SetActiveGadget( DC::#Text_129 )               
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", "",Startup::*LHGameDB\GameID)
-    			
-    			szText.s = GetGadgetText( DC::#String_112  )
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat2", szText ,Startup::*LHGameDB\GameID)                    
+    			Text_UpdateDB_Save(DC::#Text_129,  DC::#String_112, DC::#Text_129, "EditDat2", "EditTxt2")   			
     		Case 3
-    			SetActiveGadget( DC::#Text_130 )              
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", "",Startup::*LHGameDB\GameID)
-    			
-    			szText.s = GetGadgetText( DC::#String_112  )
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat3", szText ,Startup::*LHGameDB\GameID)                    
+    			Text_UpdateDB_Save(DC::#Text_130,  DC::#String_112, DC::#Text_130, "EditDat3", "EditTxt3")    			                   
     		Case 4                	
-    			SetActiveGadget( DC::#Text_131 )                              
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", "",Startup::*LHGameDB\GameID)
-    			
-    			szText.s = GetGadgetText( DC::#String_112  )
-    			ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditDat4", szText ,Startup::*LHGameDB\GameID)                   
+    			Text_UpdateDB_Save(DC::#Text_131,  DC::#String_112, DC::#Text_131, "EditDat4", "EditTxt4")                 
     	EndSelect 
     	
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", "" ,Startup::*LHGameDB\GameID) 
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", "" ,Startup::*LHGameDB\GameID) 
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", "" ,Startup::*LHGameDB\GameID) 
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", "" ,Startup::*LHGameDB\GameID)             
-    	
-    	szText.s = ""
-    	szText.s = GetGadgetText( DC::#Text_128  )           
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt1", szText ,Startup::*LHGameDB\GameID) 
-    	
-    	szText.s = ""
-    	szText.s = GetGadgetText( DC::#Text_129  )         
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt2", szText ,Startup::*LHGameDB\GameID)           
-    	
-    	szText.s = ""
-    	szText.s = GetGadgetText( DC::#Text_130  )          
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt3", szText ,Startup::*LHGameDB\GameID)              
-    	
-    	szText.s = ""
-    	szText.s = GetGadgetText( DC::#Text_131  )      
-    	ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "EditTxt4", szText ,Startup::*LHGameDB\GameID) 
-    	
     	vInfo::Modify_Reset()
+    	
+    	Startup::*LHGameDB\InfoWindow\bTabNum = LastTab    	
     	vInfo::Caret_GetPosition()
     	
-    	Text_GetDB_Content()      
+    	;Text_GetDB_Content()      
             
     EndProcedure   
     ;****************************************************************************************************************************************************************
@@ -5144,34 +5131,34 @@ EndProcedure
         
         Debug ""
         If ( ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt1","",Startup::*LHGameDB\GameID,"",1) )
-           Debug "Farbwechsel für DC::#Button_283 durch DC::#Text_128"
+           ;Debug "Farbwechsel für DC::#Button_283 durch DC::#Text_128"
            ButtonEX::SetColor(DC::#Button_283, GetSysColor_(#COLOR_3DFACE), $F3AF64)
        Else
-           Debug "Standard Farbe für DC::#Button_283 durch DC::#Text_128"             
+           ;Debug "Standard Farbe für DC::#Button_283 durch DC::#Text_128"             
            ButtonEX::SetColor(DC::#Button_283, RGB(113, 147, 165),$F3AF64 )           
        EndIf
        
        If ( ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt2","",Startup::*LHGameDB\GameID,"",1) )  
-           Debug "Farbwechsel für DC::#Button_284 durch DC::#Text_129"           
+           ;Debug "Farbwechsel für DC::#Button_284 durch DC::#Text_129"           
            ButtonEX::SetColor(DC::#Button_284, GetSysColor_(#COLOR_3DFACE), $F3AF64)
        Else
-           Debug "Standard Farbe für DC::#Button_284 durch DC::#Text_129"             
+           ;Debug "Standard Farbe für DC::#Button_284 durch DC::#Text_129"             
            ButtonEX::SetColor(DC::#Button_284, RGB(113, 147, 165),$F3AF64 )
        EndIf  
        
        If ( ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt3","",Startup::*LHGameDB\GameID,"",1) )      
-           Debug "Farbwechsel für DC::#Button_285 durch DC::#Text_130"           
+           ;Debug "Farbwechsel für DC::#Button_285 durch DC::#Text_130"           
            ButtonEX::SetColor(DC::#Button_285, GetSysColor_(#COLOR_3DFACE), $F3AF64)
        Else
-           Debug "Standard Farbe für DC::#Button_285 durch DC::#Text_130"             
+           ;Debug "Standard Farbe für DC::#Button_285 durch DC::#Text_130"             
            ButtonEX::SetColor(DC::#Button_285, RGB(113, 147, 165),$F3AF64 )
        EndIf  
        
        If ( ExecSQL::nRow(DC::#Database_001,"Gamebase","EditTxt4","",Startup::*LHGameDB\GameID,"",1) )      
-           Debug "Farbwechsel für DC::#Button_286 durch DC::#Text_131"
+           ;Debug "Farbwechsel für DC::#Button_286 durch DC::#Text_131"
            ButtonEX::SetColor(DC::#Button_286,GetSysColor_(#COLOR_3DHIGHLIGHT), $F3AF64)
        Else
-           Debug "Standard Farbe für DC::#Button_286 durch DC::#Text_131"             
+           ;Debug "Standard Farbe für DC::#Button_286 durch DC::#Text_131"             
            ButtonEX::SetColor(DC::#Button_286, RGB(113, 147, 165),$F3AF64 )           
        EndIf  
               
@@ -5360,23 +5347,21 @@ EndProcedure
        		ProcedureReturn 0
        	Default
        		If (TextLenTab1 > 0)
-           Startup::*LHGameDB\InfoWindow\bTabNum = 1
-           Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_283
-          Else
-         		If (TextLenTab2 > 0)  
-           		Startup::*LHGameDB\InfoWindow\bTabNum    = 2
-           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_284
-         		ElseIf (TextLenTab3 > 0)
-           		Startup::*LHGameDB\InfoWindow\bTabNum    = 3       
-           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_285            	
-         		ElseIf (TextLenTab4 > 0)
-           		Startup::*LHGameDB\InfoWindow\bTabNum    = 4                    
-           		Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_286
-           	EndIf           	
-           EndIf
-           ProcedureReturn 1
-       EndSelect          
-    EndProcedure
+       			Startup::*LHGameDB\InfoWindow\bTabNum = 1
+       			Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_283
+       		ElseIf (TextLenTab2 > 0)  
+       			Startup::*LHGameDB\InfoWindow\bTabNum    = 2
+       			Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_284
+       		ElseIf (TextLenTab3 > 0)
+       			Startup::*LHGameDB\InfoWindow\bTabNum    = 3       
+       			Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_285            	
+       		ElseIf (TextLenTab4 > 0)
+       			Startup::*LHGameDB\InfoWindow\bTabNum    = 4                    
+       			Startup::*LHGameDB\InfoWindow\TabButton = DC::#Button_286
+       		EndIf           	
+       	ProcedureReturn 1
+     EndSelect          
+   EndProcedure
     ;
 		; Testet ob Text hinterlegt ist    
     Procedure.i Text_GetDB_Content()
@@ -8093,13 +8078,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5136
-; FirstLine = 1071
-; Folding = DAACCAAAAgg6-9QAA-
+; CursorPosition = 5360
+; FirstLine = 1277
+; Folding = DAACCAAAAgg6-8hAA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame\
+; CurrentDirectory = D:\Elder Scrolls 5 - Skyrim\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

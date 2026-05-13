@@ -1502,13 +1502,28 @@ Module GuruCallBack
                        MenuBar()  
                        MenuItem(572, "Ausführen"                                    ,ImageID( DI::#_MNU_RUN ))                
                        MenuItem(516, "Info Schliessen"                              ,ImageID( DI::#_MNU_CLS ))  
-                                             
+                       
+                       If (Len(GetGadgetText( DC::#String_112 )) = 0)                       	
+                       	DisableMenuItem(DC::#EditMenu, 511, #True)
+                       	DisableMenuItem(DC::#EditMenu, 513, #True)
+                       	DisableMenuItem(DC::#EditMenu, 570, #True)
+                       	DisableMenuItem(DC::#EditMenu, 571, #True)
+                       	DisableMenuItem(DC::#EditMenu, 574, #True)
+                       	DisableMenuItem(DC::#EditMenu, 575, #True)
+                       	
+                       	DisableMenuItem(DC::#EditMenu, 558, #True)
+                       	DisableMenuItem(DC::#EditMenu, 559, #True)
+                       	DisableMenuItem(DC::#EditMenu, 560, #True)
+                       	DisableMenuItem(DC::#EditMenu, 561, #True)
+                       	DisableMenuItem(DC::#EditMenu, 562, #True)
+                       	DisableMenuItem(DC::#EditMenu, 563, #True)
+                        DisableMenuItem(DC::#EditMenu, 564, #True)
+                       	DisableMenuItem(DC::#EditMenu, 565, #True)                     	
+                       EndIf
                    EndIf                 
                EndIf               
            Case #WM_LBUTTONUP
-               vInfo::Caret_GetPosition()  
-               
-           
+               vInfo::Caret_GetPosition()                          
        EndSelect
        
        ProcedureReturn CallWindowProc_(*ed\oldprc, hwnd, msg, wParam, lParam) 
@@ -1567,8 +1582,8 @@ Module GuruCallBack
     EndProcedure     
 EndModule  
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 108
-; FirstLine = 81
+; CursorPosition = 1504
+; FirstLine = 1308
 ; Folding = fPvjv-
 ; EnableAsm
 ; EnableXP

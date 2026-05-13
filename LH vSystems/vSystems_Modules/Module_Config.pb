@@ -421,6 +421,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.27
+				; Modul TextEditor: Speicherung bezieht sich nur auf das aktuelle Tab, welches offen ist.
+				; Modul TextEditor: Popupmenü ausgebaut ob sich eine Datei im Strin #112 befindet
+        
+        ;
 				; Version 0.60.26
 				; Tumbnail ChangeSize: Bugfix, Funktion wurde irrtümlicherweise lahm gelegt
 				; TextEdit Fenster Auto-Öffnen: Entfernt, stattdessen Farb änderung des Buttons
@@ -1269,8 +1274,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 428
-; FirstLine = 393
+; CursorPosition = 424
+; FirstLine = 402
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP
