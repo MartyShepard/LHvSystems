@@ -125,14 +125,14 @@ DeclareModule vSystemHelp
 	Declare		vSysCMD_RegistrySupport()
 	Declare.s 	vSysCMD_ToolTipHelp()
 	Declare  	vSysCMD_FileProperties()
-	Declare.s	vSysCMD_FileGetBase()
+	Declare.s	vSysCMD_FileGetBase(Silent.b = #False)
 
 EndDeclareModule       
 
 Module vSystemHelp
   	;
 		; Minimize vSystems
-  Procedure.s vSysCMD_FileGetBase()      
+  Procedure.s vSysCMD_FileGetBase(Silent.b = #False)      
   	Protected DatabaseID.i, Base.i = DC::#Database_001, CurrentWindow.i = DC::#_Window_001
   	Protected szFile.s = "", szWork.s = "", szArgs.s = "", Table.s = "Programs", szExts.s = ""
   	
@@ -168,8 +168,11 @@ Module vSystemHelp
     EndIf
       	         
   	; Wenn die Datei ein Verzeichnis ist (szFile = -2)
-   	If (FileSize(szFile) = -1 ) Or (FileSize(szFile) = -2 ) Or( Len(szFile) = 0 ) 
-         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
+    If (FileSize(szFile) = -1 ) Or (FileSize(szFile) = -2 ) Or( Len(szFile) = 0 )
+        If (Silent)
+          ProcedureReturn ""
+        EndIf  
+         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","A: Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
          ProcedureReturn ""
     EndIf 
     
@@ -223,7 +226,7 @@ Module vSystemHelp
   	
   	; Wenn die Datei ein Verzeichnis ist (szFile = -2)
    	If (FileSize(szFile) = -1 ) Or (FileSize(szFile) = -2 ) Or( Len(szFile) = 0 ) 
-         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
+         Request::MSG(Startup::*LHGameDB\TitleVersion, "ERROR: Programm nicht Konfiguriert!","B: Es wurde kein Programm eingerichtet oder nicht gefunden" ,2,2,"",0,0,CurrentWindow)
          ProcedureReturn
    EndIf 
        
@@ -829,10 +832,10 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 231
-; FirstLine = 114
+; CursorPosition = 172
+; FirstLine = 58
 ; Folding = 8hRg9fC+5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = B:\The Chaos Engine\
+; CurrentDirectory = D:\NewGame2\

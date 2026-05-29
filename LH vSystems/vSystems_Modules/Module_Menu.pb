@@ -536,7 +536,11 @@ Module INVMNU
 	  		OpenSubMenu("KxVex Datei Support")
 	  	EndIf
 	  	
-	  	KxPatchedExe = GetFilePart( vSystemHelp::vSysCMD_FileGetBase(), #PB_FileSystem_NoExtension )
+	  	KxPatchedExe = GetFilePart( vSystemHelp::vSysCMD_FileGetBase(#True), #PB_FileSystem_NoExtension )
+	  	
+	  	If (KxPatchedExe = "")
+	  	  KxPatchedExe = "Nicht Konfiguriert"
+	  	EndIf
 	  	
 	  	MenuItem(1800, "VxKex NEXT Support")	  	
 	  	MenuItem(1801, "Status: " + KxVxStatus)
@@ -580,7 +584,7 @@ Module INVMNU
 	  		DisableMenuItem(MenuID, 1821, 1)
 	  		DisableMenuItem(MenuID, 1822, 1)
 	  	Else	  		
-	  		IndexNum.i = RegsVK::VxKx_ListGet_Patched(vSystemHelp::vSysCMD_FileGetBase())
+	  		IndexNum.i = RegsVK::VxKx_ListGet_Patched(vSystemHelp::vSysCMD_FileGetBase(#True))
 	  		If (IndexNum = -1)
 	  			; Datei nicht gefunden
 	  			MNU_SetCheckmark(MenuID, 1810, 0)
@@ -1528,8 +1532,8 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 185
-; FirstLine = 79
+; CursorPosition = 540
+; FirstLine = 153
 ; Folding = JGGYI5
 ; EnableAsm
 ; EnableXP

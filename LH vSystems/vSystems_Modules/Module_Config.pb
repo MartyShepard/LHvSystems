@@ -421,6 +421,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.28
+				; Modul TextEditor: NoTab Bug. Erster ist nun immer Tab 1
+        ; Modul MenuSystem: Popupmenü -> Nervige Fehlermeldung still gemacht
+        
+        ;
 				; Version 0.60.27
 				; Modul TextEditor: Speicherung bezieht sich nur auf das aktuelle Tab, welches offen ist.
 				; Modul TextEditor: Popupmenü ausgebaut ob sich eine Datei im Strin #112 befindet
@@ -1178,7 +1183,7 @@ Module Startup
 
          *LHGameDB\InfoWindow\bActivated= #False
          *LHGameDB\InfoWindow\bPrint    = #False
-         *LHGameDB\InfoWindow\bTabNum   = 0
+         *LHGameDB\InfoWindow\bTabNum   = 1
          *LHGameDB\InfoWindow\bTabAuto  = #False
          *LHGameDB\InfoWindow\TabButton = DC::#Button_283
          *LHGameDB\InfoWindow\nMaxLines = 0         
@@ -1274,11 +1279,11 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 424
-; FirstLine = 402
+; CursorPosition = 425
+; FirstLine = 397
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame2\
 ; EnableUnicode

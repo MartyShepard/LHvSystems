@@ -833,7 +833,9 @@ Module FORM
        EndIf
        
        ProcedureReturn #True
-    EndProcedure  
+     EndProcedure
+     
+ 
     ;**************************************************************************************************
     ;
     ; Resize Image to hold the Aspect Ration, Alternative als Thread
@@ -1122,8 +1124,8 @@ Module FORM
     EndProcedure   
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 87
-; FirstLine = 55
+; CursorPosition = 837
+; FirstLine = 318
 ; Folding = 8XjAAv8
 ; EnableAsm
 ; EnableXP

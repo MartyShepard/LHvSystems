@@ -861,7 +861,7 @@ Module Interact
                 Case #PB_Event_Menu
                     Select EvntMenu
                         Case 500 To 599
-                            vInfoMenu::MainSelect(EvntMenu)
+                          vInfoMenu::MainSelect(EvntMenu)
                             Continue
                         Default
                             CLSMNU::MenuItemSelect_(EvntMenu) 
@@ -927,8 +927,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 253
-; FirstLine = 191
+; CursorPosition = 863
+; FirstLine = 791
 ; Folding = f-
 ; EnableAsm
 ; EnableXP

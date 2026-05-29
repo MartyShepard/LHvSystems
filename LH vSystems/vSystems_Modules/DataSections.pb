@@ -419,7 +419,8 @@ Module DI
 
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 20
+; CursorPosition = 82
+; FirstLine = 64
 ; Folding = -
 ; EnableAsm
 ; EnableXP
