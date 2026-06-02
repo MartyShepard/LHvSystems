@@ -1106,11 +1106,11 @@ Module RegsTool
 				ChangedHKLM =  StructRegistryFile() \Path
 				If FindString(UCase(ChangedHKLM), "[HKEY_LOCAL_MACHINE\SOFTWARE\" )
 					
-					If FindString( UCase(ChangedHKLM), "[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" )
+					If FindString( UCase(ChangedHKLM), "[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432NODE\" )
 						Continue
 					EndIf
 					
-					ChangedHKLM = ReplaceString( ChangedHKLM, "HKEY_LOCAL_MACHINE\SOFTWARE\", "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" ,  #PB_String_NoCase  )
+					ChangedHKLM = ReplaceString( ChangedHKLM, "HKEY_LOCAL_MACHINE\SOFTWARE\", "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432NODE\" ,  #PB_String_NoCase  )
  					StructRegistryFile() \Path = ChangedHKLM
 				EndIf					
 			EndIf	
@@ -1120,16 +1120,16 @@ Module RegsTool
 		
 	EndProcedure
 	;
-	;
+	; Entfernt Wow6432Node im Path wenn dieser Importiert wird
 	Procedure.s RegsConfigFile_Read_ChangeRemoveWOW(szPath.s)
 		Protected ChangedHKLM.s
 		
-		If FindString(szPath, "[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\" )									
+		If FindString(UCase(szPath), "[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432NODE\" )									
 			;
 			;
 			; HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Programm\ to HKEY_LOCAL_MACHINE\SOFTWARE\Programm\
 			ChangedHKLM =  szPath			
-			ChangedHKLM = ReplaceString( ChangedHKLM, "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\", "HKEY_LOCAL_MACHINE\SOFTWARE\" )			
+			ChangedHKLM = ReplaceString( UCase(ChangedHKLM), "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432NODE\", "HKEY_LOCAL_MACHINE\SOFTWARE\" )			
 			ProcedureReturn ChangedHKLM					
 		EndIf
 		
@@ -1200,7 +1200,8 @@ Module RegsTool
 										Break
 									Else
 										
-										Debug #CR$ + "Changed"
+									  Debug #CR$ + "Changed"
+										Debug "Schlüssel:" + StructRegistryFile() \Path 
 										Debug "Key      :" + UserKey
 										Debug "Voher    :" + StructRegistryFile() \value
 										Debug "Nachher  :" + PathChanged
@@ -1851,7 +1852,7 @@ Module RegsTool
 		 EndSelect
 	EndProcedure	  
   ;
-	;
+	; Vergleicht den Title mit von der Datenbank (NICHT ID)
   Procedure.s RegsConfig_MenuFileExists()
   	
   	Protected Result.i
@@ -1864,7 +1865,7 @@ Module RegsTool
   	If (Result = #True)
   		ProcedureReturn "Status: OK"
   	Else
-  		ProcedureReturn "Status: Falscher Spieletitel"
+  		ProcedureReturn "Status: Nicht Konfiguriert"
   	EndIf
   	
   	ProcedureReturn ""
@@ -2794,9 +2795,9 @@ Module RegsVK
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2666
-; FirstLine = 649
-; Folding = DAAAAAAAAAAA-PAA+-
+; CursorPosition = 1867
+; FirstLine = 492
+; Folding = DAAAAAkkAChAHAAAA+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

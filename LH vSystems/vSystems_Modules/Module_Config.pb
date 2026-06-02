@@ -421,6 +421,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.29
+				; Modul Registry  : Vergleich Bug #HKLM fixed
+        ; Modul Registry  : Popupmenü -> Status text geändert
+        
+        ;
 				; Version 0.60.28
 				; Modul TextEditor: NoTab Bug. Erster ist nun immer Tab 1
         ; Modul MenuSystem: Popupmenü -> Nervige Fehlermeldung still gemacht
