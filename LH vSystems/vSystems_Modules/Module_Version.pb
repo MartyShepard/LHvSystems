@@ -3,9 +3,9 @@
 ;
 Title       = "vSystems"
 ; Neu Version
-Version     = "0.60.29b"
+Version     = "0.60.30b"
 ; Alte Version
-OldVersion.s= "0.60.28b"
+OldVersion.s= "0.60.29b"
 dbSVN       = "db004"                                             ; Diese muss seperat beim ersten erstellen der Datenbank auch stehen
 Build32Bit.i= #False
 Builddate   = FormatDate( "%dd-%mm-%yyyy", #PB_Compiler_Date )

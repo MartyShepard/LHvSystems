@@ -421,6 +421,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.30
+        ; Modul Savetool  : Schutz vor Illegalen zeichen
+        ; Modul Registry  : Verzeichnistruktur geändert für Multiples Verzeichniss
+        
+        ;
 				; Version 0.60.29
 				; Modul Registry  : Vergleich Bug #HKLM fixed
         ; Modul Registry  : Popupmenü -> Status text geändert
@@ -1284,8 +1289,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 425
-; FirstLine = 397
+; CursorPosition = 420
+; FirstLine = 403
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

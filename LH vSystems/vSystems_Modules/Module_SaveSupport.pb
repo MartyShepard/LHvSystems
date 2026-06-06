@@ -98,6 +98,7 @@ Module SaveTool
 	Structure STRUCT_SAVETOOL
 		Directory$
 		GameTitle$
+		BaseTitle$
  	EndStructure        
  	Global NewList SaveDirectorys.STRUCT_SAVETOOL()
  	
@@ -108,6 +109,7 @@ Module SaveTool
 		BackupDelay.i
 		BackupCompress.i
 		CompressLevel.i
+		DatabaseID.i
  	EndStructure        
  	Global NewList SaveOptions.STRUCT_SAVETOOLOPTIONS()
  	
@@ -179,7 +181,57 @@ Module SaveTool
 		ProcedureReturn file
 	EndProcedure		
 		;
+    ;
+	Procedure.s RemoveIllegalChar(szFile.s)
+	  ;
+    ; Prüfung auf Illegale Zeichen
+    ; Ab dem Dritten zeichen da sich die ersten beiden
+    ; um das Root Laufwerk handelt 'C:'
+    ;--------------------------------------------------
+	  Protected szCompare.s
+	  Protected CharFound.b = #False	  
+	  If (Len(szFile) > 0)
+	    szCompare = szFile
+	    
+  	  For nIndex.i = 3 To Len(szFile)
+  	    nChar.c = Asc(Mid(szFile,nIndex,1))
+  	    Select nChar
+  	      Case ':','"','?','|','<','>'
+  	        Debug "Illegales Zeichen Entdeckt: '" + Chr(nChar) + "' / Position: " + Str(nIndex)
+  	        szFile = ReplaceString( szCompare, Chr(nChar), "_", #PB_String_InPlace, nIndex, 1)
+  	        Debug "Removed: '" + Chr(nChar) + "'"
+  	        CharFound.b = #True
+  	      Default						      
+  	    EndSelect    
+  	  Next
+  	  
+  	  If ( CharFound )
+  	    ProcedureReturn szCompare
+  	  EndIf
+  	EndIf
+  	
+	  ProcedureReturn szFile
+	EndProcedure
 		;
+    ; Nur Zahlen (Für die Versionummer)
+	Procedure.i GetvSystemVersion(szString.s)
+	  
+	  Protected szVersion.s = ""
+	  Protected CharFound.b = #False	
+	  
+	  For nIndex.i = 0 To Len(szString)
+	    nChar.c = Asc(Mid(szString,nIndex,1))
+	    Select nChar
+	      Case '0' To '9'
+	        szVersion + Chr(nChar)  	        
+	      Default						      
+	    EndSelect    
+	  Next
+	  
+	  ProcedureReturn Val(szVersion)
+	EndProcedure	
+	  ;
+	  ;
 	Procedure.b SHGetFolderPath_Forbidden(ShPath.s)
 		
 			ShPath = Slash_Add(ShPath)
@@ -331,7 +383,12 @@ Module SaveTool
  		;
     ;
  	Procedure.s SaveConfig_GetGameTitle()
- 		ProcedureReturn  ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID ,"",1)
+ 	  Protected GameTitle.s = ""
+ 	  GameTitle = ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID ,"",1)
+ 	  Debug ""
+    Debug "SaveConfig_GetGameTitle(): ID   = " + Str(Startup::*LHGameDB\GameID)
+ 	  Debug "SaveConfig_GetGameTitle(): Name = " + GameTitle
+ 	  ProcedureReturn  GameTitle
  	EndProcedure	
 		;
 		;
@@ -520,7 +577,7 @@ Module SaveTool
   			StatusMsg = "Status: Nicht Konfiguriert"
   		Default
   			FirstElement( SaveDirectorys() )
-  			ConfigGameTitle		= SaveDirectorys()\GameTitle$
+  			ConfigGameTitle		= SaveDirectorys()\BaseTitle$
   			DataBaseGameTitle = SaveConfig_GetGameTitle()
   			
   			If LCase( DataBaseGameTitle ) = LCase( ConfigGameTitle )
@@ -1049,8 +1106,12 @@ Module SaveTool
   		ForEach SaveDirectorys() 			  			
 						;
 						; Der Letzte Backslash muss für die SHFileOp etnfernt werden	  			
-						Protected Source.s =	Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
+  		      Protected Source.s =	Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
+;  		      Source = RemoveIllegalChar(DestTo)  		  
 						Protected DestTo.s = 	RemoveSlash(SaveDirectorys()\Directory$)
+						
+						Debug "SaveContent_Restore(): Quelle = " + Source
+						Debug "SaveContent_Restore(): Ziel   = " + DestTo
 						
 						ShNativ.b = SHGetFolderPath_Forbidden(DestTo)
 						If ( ShNativ = #True )
@@ -1204,7 +1265,12 @@ Module SaveTool
 	  			
 						Source.s = SaveDirectorys()\Directory$
 						DestTo.s = Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
-						
+
+						Debug "SaveContent_Backup(): Quelle = " + Source
+						Debug "SaveContent_Backup(): Ziel   = " + DestTo
+
+;						DestTo = RemoveIllegalChar(DestTo)						
+
 						ShNativ.b = SHGetFolderPath_Forbidden(Source)
 						If ( ShNativ = #True )
 							Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support Abort","ACHTUNG: "+#CR$+"Eingetragendes Natives Home-User Verzeichnis ist nicht Erlaubt." + #CR$ + Source ,2,2,"",0,0,DC::#_Window_001)
@@ -1332,10 +1398,12 @@ Module SaveTool
   	Protected Value_RestoreDelay.s 		= "RestoreDelay"
   	Protected Value_BackupDelay.s 			= "Backup-Delay"  
   	Protected Value_BackupCompress.s 	= "BackupCompress"
-  	Protected Value_CompressLevel.s 		= "Compress-Level"  	
+  	Protected Value_CompressLevel.s 		= "Compress-Level"
+  	Protected Value_DatabaseID.s 		  = "DatabaseID"
   	;
 		;
-  	TitleFound = #False
+  	TitleFound    = #False
+  	vSysVersion.i = GetvSystemVersion(Startup::*LHGameDB\VersionNumber)
   	
   	If ( Startup::*LHGameDB\SaveTool\SaveHandle )
   		
@@ -1351,22 +1419,28 @@ Module SaveTool
   			EndIf
   				
   			ItemData = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)
+  			Debug "SaveContent_Read(): " + ItemData
   			
   			If Left(ItemData, 1) = "[" And Right(ItemData, 1)= "]" And TitleFound = #False
   				
   				If (BrakeCount = 1)
   					;
-						; Spiel Gefunden, nicht mehr zu tun
+            ; Spiel Gefunden, nicht mehr zu tun
+  				  Debug "SaveContent_Read(): Spiel Gefunden, nicht mehr zu tun"
   					Break
   				EndIf      			
   				
   				;
 					; Vergleiche den Title aus der Config mit dem aus der Datenbank
-					; 
+          ;
+          Debug "SaveContent_Read(): Vergleiche den Titel aus der Config mit dem aus der Datenbank"    				
   				ItemData = Mid(ItemData, 2, Len(ItemData)-2 )
-  				If LCase(SaveConfig_GetGameTitle()) = LCase(ItemData)    				
+  				Debug " -> " + ItemData
+  				If LCase(SaveConfig_GetGameTitle()) = LCase(ItemData)
+  				  
   					BrakeCount + 1
   					TitleFound = #True
+  					Debug " -> TitleFound ? #True"
   					Continue
   				EndIf	 
   				
@@ -1386,11 +1460,20 @@ Module SaveTool
   					
   					;If Not Right(ItemDirectory, 1) = "\"
 						;	ItemDirectory + "\"
-						;EndIf	
-  					
+						;EndIf	   					
   					AddElement(SaveDirectorys())
-  					SaveDirectorys()\GameTitle$ =  SaveConfig_GetGameTitle()  					  					
-  					SaveDirectorys()\Directory$ =  SHGetFolderPath(ItemDirectory) 
+  					SaveDirectorys()\GameTitle$ =  RemoveIllegalChar(SaveConfig_GetGameTitle())					  					
+  					SaveDirectorys()\Directory$ =  SHGetFolderPath(ItemDirectory)
+  					SaveDirectorys()\BaseTitle$ =  SaveConfig_GetGameTitle()
+  					
+  					If (vSysVersion > 6029)
+  					  Protected szSubFolder.s = ""
+  					  szSubFolder = Left(ItemData,6) ; Folder
+  					  nSubCount.i = Val(Mid(ItemData,7,3))
+  					  If (nSubCount > 1)
+  					    SaveDirectorys()\GameTitle$ = SaveDirectorys()\GameTitle$ + "\BackupFolder" + Str(nSubCount) + "\"
+  					  EndIf
+  					EndIf  					
   				EndIf 
   				
   			ElseIf ( Left(ItemData,11) = Value_RestoreData ) And TitleFound = #True
@@ -1419,13 +1502,32 @@ Module SaveTool
   				SaveOptions()\BackupCompress = SaveContent_Read_Options(Value, 14, ItemData, #True, #False)
   				If SaveOptions()\BackupData = -1
   				EndIf
-  				
+
   			ElseIf ( Left(ItemData,14) = Value_CompressLevel ) And TitleFound = #True				
-  				Value.s = Value_CompressLevel
+  			  Value.s = Value_CompressLevel
   				SaveOptions()\CompressLevel = SaveContent_Read_Options(Value, 14, ItemData, #False, #True)
   				If SaveOptions()\CompressLevel = 0
-  					  SaveOptions()\CompressLevel = 9
-  				EndIf  				  				
+  					 SaveOptions()\CompressLevel = 9
+  			  EndIf
+  				If (vSysVersion =< 6029)
+  				  ;
+            ; Letzte Keyvalue für den Spiele Titel, aussteighen
+  				  ; Bei der alten version gibt kein DatabaseID Check
+  				  Break
+  				EndIf
+
+  			ElseIf ( Left(ItemData,10) = Value_DatabaseID ) And TitleFound = #True	And (vSysVersion > 6029)
+  				Value.s = Value_DatabaseID
+  				SaveOptions()\DatabaseID = SaveContent_Read_Options(Value, 10, ItemData, #False, #True)
+  				If SaveOptions()\DatabaseID > 0
+  				  szBaseID.i = Startup::*LHGameDB\GameID
+  				  szCompID.i = SaveOptions()\DatabaseID
+  				  ;
+  				  ; Prüfung für den selben Spiele Titel.
+  				  If (szBaseID <> szCompID)  				    
+  				    Continue
+  				  EndIf
+  			  EndIf  			  
   				;
 					; Letzte Keyvalue für den Spiele Titel, aussteighen
   				Break
@@ -1643,7 +1745,7 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "RestoreDelay=250")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Backup-Delay=250")
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "BackupCompress=false")
-			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Compress-Level=9")				
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "Compress-Level=9")
 	EndProcedure
 	Procedure.i SaveConfig_Generate()
 		
@@ -1681,6 +1783,7 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "[GameTitle]")
 			
 			SaveConfig_Generate_Options()
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "DatabaseID=-1")
 
 		EndIf
 		SaveFile_Close()
@@ -1721,6 +1824,7 @@ Module SaveTool
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "["+SaveConfig_GetGameTitle()+"]")
 
 			SaveConfig_Generate_Options()
+			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "DatabaseID="+Str(Startup::*LHGameDB\GameID))	
 			
     	Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Der Titel: '"+SaveConfig_GetGameTitle()+"' wurde in die Config Hinzugefügt",2,0,"",0,0,DC::#_Window_001)			
 		SaveFile_Close()	
@@ -2520,9 +2624,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1920
-; FirstLine = 439
-; Folding = TCAAAAAYw
+; CursorPosition = 1468
+; FirstLine = 953
+; Folding = D5NAC-j---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
