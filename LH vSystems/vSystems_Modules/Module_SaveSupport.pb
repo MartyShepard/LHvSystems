@@ -4,14 +4,14 @@
 	Declare.i SaveFile_Close()
 	Declare	 SaveContent_Delete()
 	Declare   SaveConfig_AddCMD()
-	Declare.i SaveConfig_AddGame()
+	Declare.i SaveConfig_AddGame(QuickEdit.b = #False)
 	Declare   SaveConfig_Help()
 	Declare	 SaveConfig_Edit(Option.i = 0)
 	Declare.i SaveConfig_Create(Request.i = 0)
 	Declare	 SaveContent_Backup(Options.i = 0, Request.i = 0)
 	Declare	 SaveContent_Restore(Options.i = 0, Request.i = 0)
 	Declare.i SaveContent_Compress()
-	Declare.i SaveContent_Read()
+	Declare.i SaveContent_Read(SupressDialog.b = #False)
 	Declare.i SaveConfig_OpenSaves()
 	Declare.i SaveConfig_ShowDirectories()
 	Declare.i GetSaveOption(KeyOption.i)
@@ -127,7 +127,6 @@ Module SaveTool
   	PackFile.s
   	Level.i
   EndStructure
-  
    ;
    ; Prototyp = Procedure
   Prototype SHGetKnownFolderPath__(rfid, dwFlags.l, hToken, *ppszPath)
@@ -385,9 +384,6 @@ Module SaveTool
  	Procedure.s SaveConfig_GetGameTitle()
  	  Protected GameTitle.s = ""
  	  GameTitle = ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID ,"",1)
- 	  Debug ""
-    Debug "SaveConfig_GetGameTitle(): ID   = " + Str(Startup::*LHGameDB\GameID)
- 	  Debug "SaveConfig_GetGameTitle(): Name = " + GameTitle
  	  ProcedureReturn  GameTitle
  	EndProcedure	
 		;
@@ -536,7 +532,7 @@ Module SaveTool
 		;
   Procedure.i GetSaveOption(KeyOption.i)
   	
-  	SaveContent_Read()  	
+  	SaveContent_Read(#True)  	
   	ResetList(SaveOptions())
   	Protected *Element = FirstElement(SaveOptions())
   	If *Element	
@@ -565,8 +561,7 @@ Module SaveTool
   	If FileSize( Startup::*LHGameDB\SaveTool\SaveFile ) = -1
   		ProcedureReturn "Status: Keine Konfiguration"
   	EndIf
-  	
-  	SaveContent_Read()
+  	SaveContent_Read(#True)
   	
   	ResetList( SaveDirectorys() )
   	
@@ -574,7 +569,7 @@ Module SaveTool
   	
   	Select Count
   		Case -1, 0
-  			StatusMsg = "Status: Nicht Konfiguriert"
+  			StatusMsg = "Status: Blank! Keine Verz."
   		Default
   			FirstElement( SaveDirectorys() )
   			ConfigGameTitle		= SaveDirectorys()\BaseTitle$
@@ -596,9 +591,7 @@ Module SaveTool
   			Else
   				StatusMsg = "Status: Falscher Spieletitel"
   			EndIf
-  			
 
-  			
   	EndSelect
 
   	ClearList( SaveDirectorys() )
@@ -803,15 +796,13 @@ Module SaveTool
 		ResetList( FileSystemList() )
 		
 		*PARAMS\Directory = RemoveSlash(*PARAMS\Directory)
-		
-		
+				
   	;
 		; Erstellung des Archiv mit Datum und Zeit angabe
 		; 
 		Date.s = FormatDate("%yyyy-%mm-%dd", Date())
 		Time.s = FormatDate("%hh-%ii-%ss", Date())
-		
-		
+				
 		*PARAMS\PackFile = *PARAMS\Directory + "-["+Date +" # "+ Time + "]" +".7z"
 		
 		hPackFile = CreatePack(#PB_Any, *PARAMS\PackFile , #PB_PackerPlugin_Lzma, *PARAMS\Level)  	
@@ -821,9 +812,7 @@ Module SaveTool
 			
   	HideGadget(DC::#Text_004,0)
   	SetGadgetText(DC::#Text_004,"")    
-  	
-  	
-  	
+
 		While NextElement( FileSystemList() )
 			
 			If Len( FileSystemList()\FullPath ) > 0
@@ -940,7 +929,7 @@ Module SaveTool
   	Protected Directory.s = ""
   	Protected Count.i
   	
-  	SaveContent_Read()
+  	SaveContent_Read(#True)
   	
   	SaveConfig_SetButtonState()
   	
@@ -955,8 +944,7 @@ Module SaveTool
 			SaveConfig_SetButtonState(#False)
 			ProcedureReturn  -1
 		EndIf
-		
-		
+
 		;
 		; Listet alle Dateien und Ordner im 'Save'-Verzeichnis auf
 		FileSystem_Search(Directory) 
@@ -968,9 +956,6 @@ Module SaveTool
 		EndIf		
 		;
 		; Compress Files
-		;FileSystem_CompressFiles(Directory)
-		
-
     *Params.COMPRESSPARAMS = AllocateMemory(SizeOf(COMPRESSPARAMS))
     InitializeStructure(*Params, COMPRESSPARAMS) 
     
@@ -1106,8 +1091,7 @@ Module SaveTool
   		ForEach SaveDirectorys() 			  			
 						;
 						; Der Letzte Backslash muss für die SHFileOp etnfernt werden	  			
-  		      Protected Source.s =	Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
-;  		      Source = RemoveIllegalChar(DestTo)  		  
+  		      Protected Source.s =	Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$		  
 						Protected DestTo.s = 	RemoveSlash(SaveDirectorys()\Directory$)
 						
 						Debug "SaveContent_Restore(): Quelle = " + Source
@@ -1215,8 +1199,7 @@ Module SaveTool
 			
 			Result = DialogRequest_SaveSupport(Options)
 			
- 			;Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support", "Backup: Die Sicherungsdateien des Spiels nach vSystems Verschieben?."+#CR$+" (Löschung verschiebt den Quell Inhalt in den Müllemier) ",11,1,ProgramFilename(),0,0,DC::#_Window_001 )         
- 			If Result = #False
+ 		If Result = #False
  				CleanListing()
  				ProcedureReturn #False
  			ElseIf ( Result = 4 ) And (Options = 0)
@@ -1260,16 +1243,16 @@ Module SaveTool
   			HideGadget(DC::#Text_004,0)
       	SetGadgetText(DC::#Text_004,Notify)    		    		
     	EndIf
-    
+    	
+    	
   		ForEach SaveDirectorys()
 	  			
 						Source.s = SaveDirectorys()\Directory$
 						DestTo.s = Startup::*LHGameDB\SaveTool\SavePath + SaveDirectorys()\GameTitle$
-
+						
+						Debug ""
 						Debug "SaveContent_Backup(): Quelle = " + Source
-						Debug "SaveContent_Backup(): Ziel   = " + DestTo
-
-;						DestTo = RemoveIllegalChar(DestTo)						
+						Debug "SaveContent_Backup(): Ziel   = " + DestTo					
 
 						ShNativ.b = SHGetFolderPath_Forbidden(Source)
 						If ( ShNativ = #True )
@@ -1341,13 +1324,6 @@ Module SaveTool
       	SetGadgetText(DC::#Text_004,"")    
       EndIf
       
-      ;
-      ; Check Attributes
-      ;FileSystem_Search(Slash_Add(DestTo), #True)
-			;If ListSize( FileSystemList() ) > -1			
-			;	ClearList( FileSystemList() )	
-			;EndIf
-      
       CleanListing()
   		Debug "vSystem Save Support: Backup (END)"      
   		ProcedureReturn 0
@@ -1385,21 +1361,26 @@ Module SaveTool
   EndProcedure
   	;
     ;  
-  Procedure.i  SaveContent_Read()
+  Procedure.i  SaveContent_Read(SupressDialog.b = #False)
   	
   	SaveFile_Read()
   	
   	Protected nPos.i, BrakeCount.i, SafeCount.i
+  	;
+  	; Max Ini Optionen ohne "Folder 1-5"
+  	Protected MaxOptions.i = 7, CntOptions.i = 0
+  	
   	Protected ItemData.s = "", ItemDirectory.s = "", TitleFound.i
   	;
 		; Optionen die abgefragt und in die Liste geischert werden
-  	Protected Value_RestoreData.s 			= "RestoreData"
-  	Protected Value_BackupData.s  			= "Backup-Data" 			 			
-  	Protected Value_RestoreDelay.s 		= "RestoreDelay"
-  	Protected Value_BackupDelay.s 			= "Backup-Delay"  
-  	Protected Value_BackupCompress.s 	= "BackupCompress"
-  	Protected Value_CompressLevel.s 		= "Compress-Level"
-  	Protected Value_DatabaseID.s 		  = "DatabaseID"
+  	Protected Value_RestoreData.s 			= "RestoreData"   : bRestoreData.b    = #False
+  	Protected Value_BackupData.s  			= "Backup-Data"   : bBackupData.b     = #False
+  	Protected Value_RestoreDelay.s 		= "RestoreDelay"  : bRestoreDelay.b   = #False
+  	Protected Value_BackupDelay.s 			= "Backup-Delay"  : bBackupDelay.b    = #False
+  	Protected Value_BackupCompress.s 	= "BackupCompress": bBackupCompress.b = #False
+  	Protected Value_CompressLevel.s 		= "Compress-Level": bCompressLevel.b  = #False
+  	Protected Value_DatabaseID.s 		  = "DatabaseID"    : bDatabaseID.b     = #False
+  	
   	;
 		;
   	TitleFound    = #False
@@ -1411,131 +1392,174 @@ Module SaveTool
   		
   		While Eof( Startup::*LHGameDB\SaveTool\SaveHandle ) = 0
   			
-  			If ( SafeCount > 1 )
+  			;If ( SafeCount > 1 )
   				;
 					; Wenn der Letze Schlüssel im Abschnitt nicht gefunden wird, steige sicherheitshalber aus
-  				SaveOptions()\CompressLevel = 9
-  				Break
-  			EndIf
+  				;SaveOptions()\CompressLevel = 9
+  				;Break
+  			;EndIf
   				
-  			ItemData = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)
-  			Debug "SaveContent_Read(): " + ItemData
+  			ItemData = ReadString(Startup::*LHGameDB\SaveTool\SaveHandle)  			
   			
-  			If Left(ItemData, 1) = "[" And Right(ItemData, 1)= "]" And TitleFound = #False
+  			If (Left(ItemData, 1) = "#") Or (Left(ItemData, 1) = "")
+  			  Continue
+  			EndIf
+  			
+  			If Left(ItemData, 1) = "[" And Right(ItemData, 1)= "]"
   				
   				If (BrakeCount = 1)
   					;
             ; Spiel Gefunden, nicht mehr zu tun
-  				  Debug "SaveContent_Read(): Spiel Gefunden, nicht mehr zu tun"
+  				  Debug "SaveContent_Read(): Spiel Gefunden"
   					Break
   				EndIf      			
   				
-  				;
-					; Vergleiche den Title aus der Config mit dem aus der Datenbank
-          ;
-          Debug "SaveContent_Read(): Vergleiche den Titel aus der Config mit dem aus der Datenbank"    				
-  				ItemData = Mid(ItemData, 2, Len(ItemData)-2 )
-  				Debug " -> " + ItemData
-  				If LCase(SaveConfig_GetGameTitle()) = LCase(ItemData)
-  				  
-  					BrakeCount + 1
-  					TitleFound = #True
-  					Debug " -> TitleFound ? #True"
-  					Continue
-  				EndIf	 
-  				
-  			ElseIf ( Left(ItemData,6) = "Folder" ) And TitleFound = #True
-  				
-  				;
-					; Hole die Verzeichnisse
-  				nPos = FindString( ItemData, "=", 6)
-  				If nPos > 6
-  					nPos 					= Len (ItemData) - nPos
-  					If nPos = 0
-  						Continue
-  					EndIf
-  					;
-						; Todo CLSID
-  					ItemDirectory = Right(ItemData,nPos)
-  					
-  					;If Not Right(ItemDirectory, 1) = "\"
-						;	ItemDirectory + "\"
-						;EndIf	   					
-  					AddElement(SaveDirectorys())
-  					SaveDirectorys()\GameTitle$ =  RemoveIllegalChar(SaveConfig_GetGameTitle())					  					
-  					SaveDirectorys()\Directory$ =  SHGetFolderPath(ItemDirectory)
-  					SaveDirectorys()\BaseTitle$ =  SaveConfig_GetGameTitle()
-  					
-  					If (vSysVersion > 6029)
-  					  Protected szSubFolder.s = ""
-  					  szSubFolder = Left(ItemData,6) ; Folder
-  					  nSubCount.i = Val(Mid(ItemData,7,3))
-  					  If (nSubCount > 1)
-  					    SaveDirectorys()\GameTitle$ = SaveDirectorys()\GameTitle$ + "\BackupFolder" + Str(nSubCount) + "\"
-  					  EndIf
-  					EndIf  					
-  				EndIf 
-  				
-  			ElseIf ( Left(ItemData,11) = Value_RestoreData ) And TitleFound = #True
-  				SafeCount + 1
-  				Value.s = Value_RestoreData  				
-  				SaveOptions()\RestoreData = SaveContent_Read_Options(Value, 11, ItemData, #True, #False)
-  				If SaveOptions()\RestoreData = -1  					
-  				EndIf      		
-  				
-  			ElseIf ( Left(ItemData,11) = Value_BackupData ) And TitleFound = #True
-  				Value.s = Value_BackupData  				
-  				SaveOptions()\BackupData = SaveContent_Read_Options(Value, 11, ItemData, #True, #False)
-  				If SaveOptions()\BackupData = -1
-  				EndIf	   					
-  				
-  			ElseIf ( Left(ItemData,12) =	Value_RestoreDelay ) And TitleFound = #True 				
-  				Value.s = Value_RestoreDelay
-  				SaveOptions()\RestoreDelay = SaveContent_Read_Options(Value, 12, ItemData, #False, #True)					      				
-  				
-  			ElseIf ( Left(ItemData,12) = Value_BackupDelay ) And TitleFound = #True 				
-  				Value.s = Value_BackupDelay    			
-  				SaveOptions()\BackupDelay = SaveContent_Read_Options(Value, 12, ItemData, #False, #True)						      			
-  				
-  			ElseIf ( Left(ItemData,14) = Value_BackupCompress ) And TitleFound = #True				
-  				Value.s = Value_BackupCompress
-  				SaveOptions()\BackupCompress = SaveContent_Read_Options(Value, 14, ItemData, #True, #False)
-  				If SaveOptions()\BackupData = -1
+  				If (TitleFound = #False)
+    				;
+  					; Vergleiche den Title aus der Config mit dem aus der Datenbank
+            ;   				
+    				ItemData = Mid(ItemData, 2, Len(ItemData)-2 )
+    				If LCase(SaveConfig_GetGameTitle()) = LCase(ItemData)
+    				  
+    					BrakeCount + 1
+    					TitleFound = #True
+    					Debug " -> TitleFound: " + ItemData
+    					Continue
+    				EndIf
   				EndIf
-
-  			ElseIf ( Left(ItemData,14) = Value_CompressLevel ) And TitleFound = #True				
-  			  Value.s = Value_CompressLevel
-  				SaveOptions()\CompressLevel = SaveContent_Read_Options(Value, 14, ItemData, #False, #True)
-  				If SaveOptions()\CompressLevel = 0
-  					 SaveOptions()\CompressLevel = 9
-  			  EndIf
-  				If (vSysVersion =< 6029)
-  				  ;
-            ; Letzte Keyvalue für den Spiele Titel, aussteighen
-  				  ; Bei der alten version gibt kein DatabaseID Check
-  				  Break
-  				EndIf
-
-  			ElseIf ( Left(ItemData,10) = Value_DatabaseID ) And TitleFound = #True	And (vSysVersion > 6029)
-  				Value.s = Value_DatabaseID
-  				SaveOptions()\DatabaseID = SaveContent_Read_Options(Value, 10, ItemData, #False, #True)
-  				If SaveOptions()\DatabaseID > 0
-  				  szBaseID.i = Startup::*LHGameDB\GameID
-  				  szCompID.i = SaveOptions()\DatabaseID
-  				  ;
-  				  ; Prüfung für den selben Spiele Titel.
-  				  If (szBaseID <> szCompID)  				    
-  				    Continue
-  				  EndIf
-  			  EndIf  			  
-  				;
-					; Letzte Keyvalue für den Spiele Titel, aussteighen
-  				Break
-  			EndIf      			      	            	
-  		Wend      	    	
-  	EndIf 	
-  	SaveFile_Close()      
+  			ElseIf	(TitleFound = #True)
+  			  
+    			If ( Left(ItemData,6) = "Folder" )
+    				;
+  					; Hole die Verzeichnisse
+    				nPos = FindString( ItemData, "=", 6)
+    				If nPos > 6
+    					nPos 					= Len (ItemData) - nPos
+    					If nPos = 0
+    						Continue
+    					EndIf
+    					;
+              ; Todo CLSID  					
+    					ItemDirectory = Right(ItemData,nPos)
+    					
+    				  Debug "SaveContent_Read()  Add Directoy: "+ Left(ItemData,9) + " = " + ItemDirectory
 			
+    					AddElement(SaveDirectorys())
+    					SaveDirectorys()\GameTitle$ =  RemoveIllegalChar(SaveConfig_GetGameTitle())					  					
+    					SaveDirectorys()\Directory$ =  SHGetFolderPath(ItemDirectory)
+    					SaveDirectorys()\BaseTitle$ =  SaveConfig_GetGameTitle()
+    					
+    					nSubCount.i = Val(Mid(ItemData,7,3))
+    					If (nSubCount > 1)
+    					  SaveDirectorys()\GameTitle$ = SaveDirectorys()\GameTitle$ + "\_Folder00" + Str(nSubCount) + "\"
+    					EndIf
+    				EndIf 
+    				
+    			ElseIf (Left(ItemData,11) = Value_RestoreData)
+    				;SafeCount + 1
+    				Value.s = Value_RestoreData  				
+    				SaveOptions()\RestoreData= SaveContent_Read_Options(Value,11, ItemData, #True, #False)
+    				CntOptions + 1: bRestoreData = #True
+    				
+    			ElseIf (Left(ItemData,11) = Value_BackupData)
+    				Value.s = Value_BackupData  				
+    				SaveOptions()\BackupData = SaveContent_Read_Options(Value, 11, ItemData, #True, #False)
+    				CntOptions + 1: bBackupData = #True
+    				
+    			ElseIf (Left(ItemData,12) = Value_RestoreDelay)
+    				Value.s = Value_RestoreDelay
+    				SaveOptions()\RestoreDelay = SaveContent_Read_Options(Value, 12, ItemData, #False, #True)
+    				CntOptions + 1: bRestoreDelay = #True
+    				
+    			ElseIf (Left(ItemData,12) = Value_BackupDelay) 				
+    				Value.s = Value_BackupDelay    			
+    				SaveOptions()\BackupDelay = SaveContent_Read_Options(Value, 12, ItemData, #False, #True)
+    				CntOptions + 1: bBackupDelay = #True
+    				
+    			ElseIf (Left(ItemData,14) = Value_BackupCompress)			
+    				Value.s = Value_BackupCompress
+    				SaveOptions()\BackupCompress = SaveContent_Read_Options(Value, 14, ItemData, #True, #False)
+    				CntOptions + 1: bBackupCompress = #True
+  
+    			ElseIf (Left(ItemData,14) = Value_CompressLevel)				
+    			  Value.s = Value_CompressLevel
+    				SaveOptions()\CompressLevel = SaveContent_Read_Options(Value, 14, ItemData, #False, #True)
+    				If (SaveOptions()\CompressLevel = 0)
+    					  SaveOptions()\CompressLevel = 9
+    			  EndIf
+    			  CntOptions + 1: bCompressLevel = #True
+    			  
+    			ElseIf ( Left(ItemData,10) = Value_DatabaseID)
+    				Value.s = Value_DatabaseID
+    				SaveOptions()\DatabaseID = SaveContent_Read_Options(Value, 10, ItemData, #False, #True)
+    				
+    				If (SaveOptions()\DatabaseID >= 0)
+    				  szBaseID.i = Startup::*LHGameDB\GameID
+    				  szCompID.i = SaveOptions()\DatabaseID
+    				  ;
+    				  ; Prüfung für den selben Spiele Titel.
+    				  If (szBaseID <> szCompID)
+    				    TitleFound        = #False
+  	            bRestoreData.b    = #False
+  	            bBackupData.b     = #False
+  	            bRestoreDelay.b   = #False
+  	            bBackupDelay.b    = #False
+  	            bBackupCompress.b = #False
+  	            bCompressLevel.b  = #False
+  	            bDatabaseID.b     = #False
+  	            CntOptions        = 0
+  	            BrakeCount        = 0
+    				    ClearList(SaveDirectorys())
+    				    Continue
+    				  EndIf
+    				EndIf
+    				CntOptions + 1: bDatabaseID = #True    				
+    			EndIf
+    		EndIf	
+    		If (MaxOptions = CntOptions)
+    		    Break
+    		EndIf    			
+    	Wend
+    	
+    	If (SupressDialog = #False)
+      	If (ListSize( SaveDirectorys() ) > 0)
+      	  If LCase(SaveConfig_GetGameTitle()) = LCase(SaveDirectorys()\BaseTitle$)
+          	If (MaxOptions <> CntOptions)
+          	  Protected szMessage.s = ""
+          	  szMessage = "Achtung:"+ #CRLF$ +
+          	              "Bei dem Titel: '"+SaveDirectorys()\BaseTitle$+"'" + #CRLF$ +
+          	              "Stimmt die Anzahl der Optionen nicht:"+ #CRLF$ + #CRLF$
+          	  
+          	  If (bRestoreData = #False)
+          	    szMessage + "- Ini Option: RestoreData nicht gefunden"   + #CRLF$
+          	  EndIf
+          	  If (bBackupData = #False)
+          	    szMessage + "- Ini Option: Backup-Data nicht gefunden"   + #CRLF$
+          	  EndIf  	  
+          	  If (bRestoreDelay = #False)
+          	    szMessage + "- Ini Option: RestoreDelay nicht gefunden"  + #CRLF$
+          	  EndIf
+          	  If (bBackupDelay = #False)
+          	    szMessage + "- Ini Option: Backup-Delay nicht gefunden"  + #CRLF$
+          	  EndIf
+          	  If (bBackupCompress = #False)
+          	    szMessage + "- Ini Option: BackupCompress nicht gefunden"+ #CRLF$
+          	  EndIf  	  
+          	  If (bCompressLevel = #False)
+          	    szMessage + "- Ini Option: Compress-Level nicht gefunden"+ #CRLF$
+          	  EndIf 
+          	  If (bDatabaseID = #False)
+          	    szMessage + "- Ini Option: DatabaseID="+Startup::*LHGameDB\GameID+" nicht gefunden" + #CRLF$
+          	  EndIf
+          	  
+          	  Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support",szMessage,2,1,"",0,0,DC::#_Window_001)
+        	  EndIf
+        	EndIf
+        EndIf
+      EndIf
+  	EndIf
+  	SaveFile_Close()  	
+  	
 	EndProcedure
     ;
 		;
@@ -1568,7 +1592,7 @@ Module SaveTool
 	EndProcedure		
 		;
 		;  Modus 0 = Backup Kopieren, 1 = Backup Verschieben
-		Procedure.i DialogRequest_SaveDelete()
+	Procedure.i DialogRequest_SaveDelete()
 			Protected Result, ChildWindow, Title.s, Message.s
 			
 			; Selektiere die Richtige Window ID. Diese ist wichtig für den Request Dialog
@@ -1610,7 +1634,7 @@ Module SaveTool
 			
 			ProcedureReturn #False
 		EndProcedure	
-	;
+	  ;
 		;	
 	Procedure.i SaveContent_Delete()
 		Protected HasConfig.b = #False, HasGameSaveDir.b = #False, Result.i, Message.s, RemovedConfig.i, RemovedFolder.i
@@ -1810,8 +1834,10 @@ Module SaveTool
 	EndProcedure
     ;
     ;
-	Procedure.i SaveConfig_AddGame()
-		
+	Procedure.i SaveConfig_AddGame(QuickEdit.b = #False)
+	  
+	  Protected r.b = 0
+	  
 		SaveConfig_Create()
 		
 		If Exists_GameTitle() = #True			
@@ -1819,15 +1845,27 @@ Module SaveTool
 		EndIf
 		
 		SaveFile_Open(1)
-		
+				  
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "")	
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "["+SaveConfig_GetGameTitle()+"]")
 
 			SaveConfig_Generate_Options()
 			WriteStringN(Startup::*LHGameDB\SaveTool\SaveHandle, "DatabaseID="+Str(Startup::*LHGameDB\GameID))	
 			
-    	Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support","Der Titel: '"+SaveConfig_GetGameTitle()+"' wurde in die Config Hinzugefügt",2,0,"",0,0,DC::#_Window_001)			
-		SaveFile_Close()	
+		  Protected szvSysMsg1.s = "vSystem Save Support"
+		  Protected szvSysMsg2.s = "Der Titel: '"+SaveConfig_GetGameTitle()+"' wurde in die Config Hinzugefügt"
+		  
+		  If (QuickEdit)
+		    Request::*MsgEx\CheckBox_Txt = "Konfig Öffnen und Editieren?"
+		    r = Request::MSG(Startup::*LHGameDB\TitleVersion, szvSysMsg1,szvSysMsg2,2,0,"",1,0,DC::#_Window_001)
+		  Else
+			  Request::MSG(Startup::*LHGameDB\TitleVersion, szvSysMsg1,szvSysMsg2,2,0,"",0,0,DC::#_Window_001)
+			EndIf
+	 SaveFile_Close()
+	 
+	 If (QuickEdit) And (r = 4)
+	   SaveTool::SaveConfig_Edit()
+	 EndIf
 	EndProcedure
 		;
 		;
@@ -1859,9 +1897,8 @@ Module SaveTool
  		EndStructure        
  		NewList SaveChange.STRUCT_SAVECHANGE()
 		;
-		; 1st Read File an save content in the List
+    ; 1st Read File an save content in the List
   	SaveFile_Read()
-  	 	
   	;
 		;
   	If ( Startup::*LHGameDB\SaveTool\SaveHandle )
@@ -1894,7 +1931,9 @@ Module SaveTool
   				If Len( NewGameTitle.s ) > 0 And Len( OldGameTitle.s ) > 0
   					;
 						; Spiele Titel Umbennenung
-  					SaveChange()\SaveLine = "[" + NewGameTitle + "]"
+  				  SaveChange()\SaveLine = "[" + NewGameTitle + "]"
+  				  OldGameTitle = RemoveIllegalChar(OldGameTitle)
+  				  NewGameTitle = RemoveIllegalChar(NewGameTitle)  				  
   					If FileSize( Startup::*LHGameDB\SaveTool\SavePath + OldGameTitle ) = -2
   						OldGameTitle = Startup::*LHGameDB\SaveTool\SavePath + OldGameTitle
   						NewGameTitle = Startup::*LHGameDB\SaveTool\SavePath + NewGameTitle
@@ -2039,12 +2078,9 @@ Module SaveTool
 			; True = Verzeichnis Erstellt
 		EndIf
 		
-		SaveConfig_Create()
-			
-		SaveContent_Read()
-		
-		SaveContent_Backup()	
-					
+		SaveConfig_Create()			
+		SaveContent_Read()		
+		SaveContent_Backup()						
 	EndProcedure	
     ;
     ;
@@ -2624,9 +2660,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1468
-; FirstLine = 953
-; Folding = D5NAC-j---
+; CursorPosition = 1935
+; FirstLine = 1365
+; Folding = D5dBH-j-0-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

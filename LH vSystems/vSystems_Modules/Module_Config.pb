@@ -421,6 +421,10 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.31
+        ; Modul Savetool  : Überarbeitet
+        
+        ;
 				; Version 0.60.30
         ; Modul Savetool  : Schutz vor Illegalen zeichen
         ; Modul Registry  : Verzeichnistruktur geändert für Multiples Verzeichniss
@@ -1289,7 +1293,7 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 420
+; CursorPosition = 425
 ; FirstLine = 403
 ; Folding = -L+
 ; EnableAsm

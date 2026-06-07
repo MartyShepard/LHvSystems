@@ -118,7 +118,7 @@ Module INVMNU
     	Select MenuID      	
     		Case 1600:	SaveTool::SaveConfig_Help()            			
     		Case 1601:	SaveTool::SaveConfig_Create(1)         			            			
-    		Case 1602:	SaveTool::SaveConfig_AddGame()            			
+    		Case 1602:	SaveTool::SaveConfig_AddGame(#True)            			
     		Case 1603:	SaveTool::SaveConfig_Edit()            			
     		Case 1604
     			SaveTool::SaveContent_Read()		; Config Liste Initialiseren
@@ -1532,9 +1532,9 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 540
-; FirstLine = 153
-; Folding = JGGYI5
+; CursorPosition = 121
+; FirstLine = 15
+; Folding = JCHYI5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
