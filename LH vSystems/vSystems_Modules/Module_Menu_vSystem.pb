@@ -26,11 +26,15 @@ Module vFilePortable
         EndIf    
         
         If ( ReplaceShortChars = #True )
-            NewList SourceParts.s()
             ;
 						; Splitte den Source Path und Vergleiche diesen
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
-            FFH::PathPartsExt(Startup::*LHGameDB\PortablePath, SourceParts())                        
+          Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
+                     
+            FFH::PathPartsExt(Startup::*LHGameDB\PortablePath)
+            
+            NewList SourceParts.s() 
+            CopyList(FFH::CharList(),SourceParts())
+            
             
             ResetList( SourceParts() ):
             sMaxList = ListSize(SourceParts())
@@ -86,46 +90,49 @@ Module vFilePortable
 EndModule
 DeclareModule vSystemHelp
 	
-  Declare 		vSysCMD_MiniMize()
-  Declare 		vSysCMD_Asynchron()
-  Declare 		vSysCMD_WinApi()
-  Declare 		vSysCMD_Borderless()
-  Declare 		vSysCMD_BorderlessC()
-  Declare 		vSysCMD_BorderlessB()
-  Declare 		vSysCMD_BorderlessCB()
-  Declare 		vSysCMD_MetricsCalc()
-  Declare 		vSysCMD_KeyModShift()
-  Declare 		vSysCMD_DisableScreenShot()
-  Declare 		vSysCMD_LockMouse()
-  Declare 		vSysCMD_FreeMemory()
-  Declare 		vSysCMD_DisableTaskbar()
-  Declare 		vSysCMD_DisableExplorer()
-  Declare 		vSysCMD_DisableAero()
-  Declare 		vSysCMD_CpuAffinity1()
-  Declare 		vSysCMD_CpuAffinity2()
-  Declare 		vSysCMD_CpuAffinity3()
-  Declare 		vSysCMD_CpuAffinity4()
-  Declare 		vSysCMD_CpuAffinityF()
-  Declare 		vSysCMD_Monitoring()
-  Declare 		vSysCMD_FirewallBlock()
+  Declare		vSysCMD_MiniMize()
+  Declare		vSysCMD_Asynchron()
+  Declare		vSysCMD_WinApi()
+  Declare		vSysCMD_Borderless()
+  Declare		vSysCMD_BorderlessC()
+  Declare		vSysCMD_BorderlessB()
+  Declare		vSysCMD_BorderlessCB()
+  Declare		vSysCMD_MetricsCalc()
+  Declare		vSysCMD_KeyModShift()
+  Declare		vSysCMD_DisableScreenShot()
+  Declare		vSysCMD_LockMouse()
+  Declare		vSysCMD_FreeMemory()
+  Declare		vSysCMD_DisableTaskbar()
+  Declare		vSysCMD_DisableExplorer()
+  Declare		vSysCMD_DisableAero()
+  Declare		vSysCMD_CpuAffinity1()
+  Declare		vSysCMD_CpuAffinity2()
+  Declare		vSysCMD_CpuAffinity3()
+  Declare		vSysCMD_CpuAffinity4()
+  Declare		vSysCMD_CpuAffinityF()
+  Declare		vSysCMD_Monitoring()
+  Declare		vSysCMD_FirewallBlock()
   Declare		vSysCMD_MediaDevice1() 
-  Declare 		vSysCMD_MediaDeviceCommand()
-  Declare 		vSysCMD_NoOutPut()
-  Declare 		vSysCMD_LogRedirect()
-  Declare 		vSysCMD_KeyModDisableTask()	
-	Declare 		vSysCMD_NoDoubleQuotes()
-	Declare 		vSysCMD_MameCMDHelp()
-	Declare 		vSysCMD_PackSupport()
-	Declare 		vSysCMD_HelpSupport_Main()
-	Declare 		vSysCMD_HelpSupport_Borderless()
-	Declare 		vSysCMD_VirtualDriveSupport()
-	Declare 		vSysCMD_QuickCommand()
-	Declare		vSysCMD_QuickCommandAdmin()
-	Declare 		vSysCMD_SavegameSupport()
-	Declare		vSysCMD_RegistrySupport()
-	Declare.s 	vSysCMD_ToolTipHelp()
-	Declare  	vSysCMD_FileProperties()
-	Declare.s	vSysCMD_FileGetBase(Silent.b = #False)
+  Declare 	vSysCMD_MediaDeviceCommand()
+  Declare 	vSysCMD_NoOutPut()
+  Declare 	vSysCMD_LogRedirect()
+  Declare 	vSysCMD_KeyModDisableTask()	
+  Declare 	vSysCMD_NoDoubleQuotes()
+  Declare 	vSysCMD_MameCMDHelp()
+  Declare 	vSysCMD_PackSupport()
+  Declare 	vSysCMD_HelpSupport_Main()
+  Declare 	vSysCMD_HelpSupport_Borderless()
+  Declare 	vSysCMD_VirtualDriveSupport()
+  Declare 	vSysCMD_QuickCommand()
+  Declare		vSysCMD_QuickCommandAdmin()
+  Declare 	vSysCMD_SavegameSupport()
+  Declare		vSysCMD_RegistrySupport()
+  Declare.s vSysCMD_ToolTipHelp()
+  Declare  	vSysCMD_FileProperties()
+  Declare   vSysCMD_VKexNextSupport()
+  Declare.b CheckCMD_VKexNextSupport()
+  Declare.s	vSysCMD_FileGetBase(Silent.b = #False)
+  Declare.s vSysCMD_WebViewSupport(nIndex.i = 0)
 
 EndDeclareModule       
 
@@ -683,8 +690,54 @@ Module vSystemHelp
   Procedure vSysCMD_RegistrySupport()
 		StrGetSet("regssp")
 	EndProcedure	
-	
-	
+	  ;
+		; Registry VKexNext
+  Procedure vSysCMD_VKexNextSupport()
+		StrGetSet("vxkex")
+	EndProcedure	
+	Procedure.b CheckCMD_VKexNextSupport()
+	  
+	  Protected Pos.i = 0
+	  
+    Protected DatabaseID.i, Base.i = DC::#Database_001, CurrentWindow.i = DC::#_Window_001
+  	Protected szArgs.s = "", Table.s = "Programs", nWindowIndex.i
+  	
+  	nWindowIndex = GetActiveWindow()
+  	
+    LSRowID = GetGadgetItemData(DC::#ListIcon_001,GetGadgetState(DC::#ListIcon_001))
+    LSBoxID = GetGadgetState(DC::#ListIcon_001)
+    If ( LSBoxID = -1 )
+         ProcedureReturn #False
+    EndIf
+          
+  	DatabaseID = Val(ExecSQL::nRow(DC::#Database_001,"Gamebase","PortID","",Startup::*LHGameDB\GameID,"",1)): 
+  	Debug "DatabaseID: " + Str(DatabaseID)
+  	Debug "Programm Fenster Aktiv: " + Str(GetActiveWindow())
+
+  	If ((nWindowIndex = -1) And IsWindow(CurrentWindow))
+  	  
+  	  szArgs = ExecSQL::nRow(Base,Table,"Args_Default","",DatabaseID,"",1)
+  	  Pos = FindString( szArgs, Chr(37) + "vxkex", 1, #PB_String_CaseSensitive)
+	    If ( Pos > 0 )
+	      ProcedureReturn #True
+	    EndIf
+	    
+  	ElseIf (nWindowIndex = 3)
+  	  
+  	  ; Der Einstellungs-Modus für die Programme ist offen 
+  	  szArgs = GetGadgetText(DC::#String_103)  	  
+  	  
+  	  Pos = FindString( szArgs, Chr(37) + "vxkex", 1, #PB_String_CaseSensitive)
+  	  
+	    If ( Pos > 0 )
+	      ProcedureReturn #True
+	    EndIf
+	    
+    EndIf	  
+	   
+	  ProcedureReturn #False
+  EndProcedure
+
 	Procedure vSysCMD_HelpSupport_Main()	
 		
 		Protected TipInfo_Text.s = #CR$ +
@@ -829,13 +882,129 @@ Module vSystemHelp
 		                    "          (For Apps that adding automatic quotes '"+Chr(34)+"')"    + #CR$ 
 		ProcedureReturn ToolTipInfo_Text$
 	EndProcedure		
+	
+	Procedure.s vSysCMD_CleanAscii(szText.s, szReplace.s = "")
+	  
+	  Protected nIndex = -1,  nLen.i = Len(szText), szChar.c = 0, szNew.s = ""
+	  
+	  If (szText)	    	    
+	    For nIndex  = 1 To nLen
+	      szChar.c = Asc( Mid(szText,nIndex,1))
+	      Select szChar
+	        Case  45, 58, 91, 93
+	          szNew + ""
+	          
+	          ; Space
+	        Case 32
+	          If (szReplace)
+	            szNew + szReplace
+	          Else
+	            szNew + Chr(szChar)
+	          EndIf
+	          
+	          ; Zahlen
+	        Case 48 To 47
+	          szNew + Chr(szChar)
+	          
+	          ; Buchstaben groß
+	        Case 65 To 90
+	          szNew + Chr(szChar)
+	          
+	          ; Buchstaben klein
+	        Case 97 To 122
+	          szNew + Chr(szChar)
+	          
+	      EndSelect
+	    Next
+	    
+	    
+	    szText = ReplaceString(szNew, szReplace+szReplace, szReplace)
+	  EndIf
+	  
+	  ProcedureReturn szText
+	EndProcedure
+	Procedure.s vSysCMD_WebViewSupport(nIndex.i = 0)
+	  
+	  NewList WebSeiten.s()
+	  ;
+    ; Webseiten Liste
+    ; Fängt bei menupunkt 1900. Die liste bei 0.
+	  ;
+	  ; 0
+	  AddElement( WebSeiten() ): WebSeiten() = "github.com/MartyShepard/LHvSystems"
+	  
+	  ; 1
+	  AddElement( WebSeiten() ): WebSeiten() = "www.pcgamingwiki.com"
+	  AddElement( WebSeiten() ): WebSeiten() = "www.mobygames.com"
+	  AddElement( WebSeiten() ): WebSeiten() = "ogdb.eu"
+	  AddElement( WebSeiten() ): WebSeiten() = "vndb.org"
+	  
+	  ResetList( WebSeiten() )
+	  Protected eIndex =  nIndex - 1900: SelectElement(WebSeiten(), eIndex)
+	  
+	  Protected szSuchString.s = ""
+	  Protected Rows.i         = ExecSQL::CountRows(DC::#Database_001,"Gamebase") 	   
+
+	  	  
+	  If Rows > 0  
+	    szSuchString   = ExecSQL::nRow(DC::#Database_001,"Gamebase","GameTitle","",Startup::*LHGameDB\GameID,"",1)
+	  EndIf
+	  	  
+	  Protected szURL.s = WebSeiten()
+	  
+	  Debug "WebViewSupport - Title Index: " + Str(Startup::*LHGameDB\GameID) + "/ " + Str(Rows)
+	    	    
+
+	  If ( szURL )
+	    
+	    szURL  = "https://" + szURL
+	    	    	    
+  	  ;
+      ; Suchtitel Hinzufügen
+	    If (szSuchString )
+	      	      
+	      Select eIndex
+	          ; PcGaming Wiki
+    	    Case 1
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+    	      szURL = szURL + "/w/index.php?search=" + szSuchString + "&title=Special%3ASearch&profile=default&fulltext=1"    	      
+    	      
+    	      ; MobyGames
+    	    Case 2
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "%20") 	      
+    	      szURL = szURL + "/search/?q=" + szSuchString     	      
+    	      
+    	       ; OGDB
+    	    Case 3
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+    	      szURL = szURL + "/index.php?section=simplesearchresults&searchstring=" +szSuchString+ "&how=AND"
+    	      
+    	      ; Visual Novel Database
+    	    Case 4
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+            szURL = szURL + "/v?q=" +szSuchString+ "&sb=Search%21&ch=&f="	      
+    	  EndSelect  	     	  
+  	  EndIf
+ 	  
+	    ;
+	    ; Mit Auswahl.... das muß ich mir überlegen
+      ; Flags.b = 4                                               
+      ; FFH::SHOpenWithDialog_(szURL, Flags)
+      
+      FFH::ShellExec(szURL, "open","",#Null,#SW_SHOWNORMAL,#False,1)
+   EndIf   
+        
+   ;Startup::*LHGameDB\InfoWindow\sUrlAdresse = ""        
+   ;Startup::*LHGameDB\InfoWindow\bURLOpnWith = #True  
+  ProcedureReturn ""	  
+	EndProcedure
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 172
-; FirstLine = 58
-; Folding = 8hRg9fC+5
+; CursorPosition = 709
+; FirstLine = 292
+; Folding = 8hBAICCgj-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame2\
+; CurrentDirectory = D:\NewGame\

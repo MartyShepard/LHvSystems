@@ -132,7 +132,8 @@ DeclareModule DC
 		; Info Window
 		#Button_283: #Button_284: #Button_285: #Button_286: #Button_287
 		
-		
+		; Screen Window
+		#Button_301: #Button_302: #Button_303
 	EndEnumeration
 	Debug "- Button Gadget  #0611 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
 	
@@ -172,7 +173,7 @@ DeclareModule DC
 		#Text_137: #Text_138: #Text_139
 		
 		; Image Window
-		#Text_140
+		#Text_140: #Text_141
 		
 	EndEnumeration
 	Debug "- Text Gadget    #1601 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
@@ -281,8 +282,8 @@ EndDeclareModule
 Module DC
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 246
-; FirstLine = 214
+; CursorPosition = 175
+; FirstLine = 144
 ; Folding = -
 ; EnableAsm
 ; EnableXP

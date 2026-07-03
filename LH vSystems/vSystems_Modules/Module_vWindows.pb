@@ -456,7 +456,7 @@ Module vWindows
 											CloseList = GuruCallBack::PostEvents_Close(hwnd):  
 											
 										Case DC::#Button_278
-											CLSMNU::SetGetMenu_(ListEventGadget,DC::#_Window_003, #PB_Any, 0, GadgetWidth(ListEventGadget) - 30, 32, 4,3, #false)                                             
+											CLSMNU::SetGetMenu_(ListEventGadget,DC::#_Window_003, #PB_Any, 0, GadgetWidth(ListEventGadget) - 30, 32, 4,3, #False)                                             
 									EndSelect
 							EndSelect                     
 							
@@ -539,12 +539,18 @@ Module vWindows
 	;
 	;
 	; Offnet ein Fenster für die Screenshots
-	;       
+  ;
 	Procedure OpenWindow_Sys3(ImageGadgetID)                        
 		
-		Protected  CloseList.i = #False, hwnd.i       
+		Protected  CloseList.i = #False, hwnd.i    
 	
-		SetActiveGadget(-1):hwnd = MagicGUI::DefaultWindow(DC::#_Window_004): GuruCallBack::PostEvents_Resize(hwnd) 		
+		SetActiveGadget(-1)
+		
+		hwnd = MagicGUI::DefaultWindow(DC::#_Window_004)
+		GuruCallBack::PostEvents_Resize(hwnd)
+		
+		SetGadgetText(DC::#Text_140, "")
+		vImages::SlideShow_ButtonTimeText()
 		vImages::Screens_ShowWindow(ImageGadgetID, DC::#_Window_004)				
 		
 		GuruCallBack::ScrollAreaGadgetSetCallback(DC::#Contain_11, DC::#_Window_004)
@@ -556,40 +562,105 @@ Module vWindows
 		SetActiveWindow( DC::#_Window_004 )
 		SetActiveGadget( DC::#Contain_11  )
 
+		
 		vImages::Screens_ShowWindow_Info()
+		
+		SetGadgetText(DC::#Text_141,"")
+		
+		WindowBounds(hwnd, 800,512 ,#PB_Ignore ,#PB_Ignore )
+		WinGuru::Center(Hwnd, WindowWidth(Hwnd), WindowHeight(Hwnd), Hwnd) 
+		
 		HideWindow(hwnd,0) 
+
+		
 		Repeat
 			ListEvent       = WaitWindowEvent(): ListEventWindow = EventWindow()
 			ListEventGadget = EventGadget()    : ListEventType   = EventType()
 			ListEventMenu   = EventMenu()      : ListEventParam  = EventwParam()
-			ListEventParami = EventlParam()    : ListEventData   = EventData()                        
+			ListEventParami = EventlParam()    : ListEventData   = EventData()                        	
 			
 			Select ListEvent                      
 					
-				Case #PB_Event_GadgetDrop                                                   
+			  Case #PB_Event_GadgetDrop
+			  Case #WM_KEYUP
+			    
+			    If ( GetActiveWindow() = 4)
+			      Select ListEventParam
+			        Case 68, 39, 102 ; Nächstes Bild (d,Pfeil Rechts, Nummern Tastatur 6)
+			          ImageGadgetID = vImages::LoadImage_Next(ImageGadgetID)
+			          
+			        Case 65, 37, 100 ; Vorheriges Bild (a,Pfeil Links, Nummern Tastatur 4)  
+			          ImageGadgetID = vImages::LoadImage_Prev(ImageGadgetID)
+			          
+			        Case 27 ; ESC Taste			          			          		          
+		              CloseList = GuruCallBack::PostEvents_Close(hwnd)
+		              
+			        Case 32 ; SlideShow Mode (Space taste)			          
+			          If (vImages::SlideShow_Switch() = #True)
+			            If (vImages::SlideShow_Thread_Runnin() = #False)
+			              vImages::SlideShow_Thread_Start(ImageGadgetID)
+			            EndIf
+			          Else
+                    vImages::SlideShow_Thread_Stop()
+		            EndIf
+		          Case 107
+		            vImages::SlideShow_Timer(107)
+		          Case 109
+		            vImages::SlideShow_Timer(109)
+			        Default  
+			          Debug ListEventParam
+			      EndSelect
+			    EndIf
+			    
 				Case #PB_Event_Gadget
 					
 					Select ListEventGadget 
-							
+					    					  
 						Case DC::#Button_201
-							; Close
-							;____________________________________________________________________________________________________________________                            
+						  ;
+						  ; Close                            
 							Select ButtonEX::ButtonExEvent(ListEventGadget)  
-								Case BUTTONEX::#ButtonGadgetEx_Pressed:
+							  Case ButtonEX::#ButtonGadgetEx_Pressed							    
 									CloseList = GuruCallBack::PostEvents_Close(hwnd)
 							EndSelect
 							
 						Case DC::#Button_202
-							; Resize
-							;____________________________________________________________________________________________________________________  
-							
+						  ;
+							; Resize  							
 						Case DC::#Contain_11
+						  
+						Case DC::#Button_301
+						  Select ButtonEX::ButtonExEvent(ListEventGadget)  
+						    Case ButtonEX::#ButtonGadgetEx_Pressed					      
+                  ImageGadgetID = vImages::LoadImage_Prev(ImageGadgetID)
+						  EndSelect
+						  
+						Case DC::#Button_302
+						  Select ButtonEX::ButtonExEvent(ListEventGadget)  
+						    Case ButtonEX::#ButtonGadgetEx_Pressed						      
+                  ImageGadgetID = vImages::LoadImage_Next(ImageGadgetID)
+              EndSelect
+              
+						Case DC::#Button_303
+						  Select ButtonEX::ButtonExEvent(ListEventGadget)
+						      
+						    Case ButtonEX::#ButtonGadgetEx_Pressed						      
+			          If (vImages::SlideShow_Switch() = #True)
+			            If (vImages::SlideShow_Thread_Runnin() = #False)
+			              vImages::SlideShow_Thread_Start(ImageGadgetID)
+			            EndIf
+			          Else
+                    vImages::SlideShow_Thread_Stop()
+                EndIf                  
+							EndSelect	              
 					EndSelect
 					
 			EndSelect	
 						
 		Until CloseList.i = #True:
-		
+
+		  vImages::SlideShow_Thread_Stop()		
+
 			;
 			;
 			; Clear Structure
@@ -1395,11 +1466,11 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 458
-; FirstLine = 103
-; Folding = Bw2
+; CursorPosition = 567
+; FirstLine = 42
+; Folding = Bg2
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

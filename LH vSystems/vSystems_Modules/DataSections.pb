@@ -15,10 +15,19 @@ DeclareModule DI
         #_MNU_CLS: #_MNU_WMS: #_MNU_WMT: #_MNU_WMH: #_MNU_SPL: #_MNU_DPC: #_MNU_ATO: #_MNU_EXE: #_MNU_EXD: #_MNU_AEE
         #_MNU_AED: #_MNU_TBD: #_MNU_TBE: #_MNU_SWN: #_MNU_SFN: #_MNU_TB1: #_MNU_TB2: #_MNU_TB3: #_MNU_TB4: #_MNU_TB5
         #_MNU_DIR: #_MNU_RAL: #_MNU_RNE: #_MNU_FEX: #_MNU_FPS: #_MNU_URL: #_MNU_RUN: #_MNU_MAM: #_MNU_VSY: #_MNU_VSU
-        #_MNU_MON: #_MNU_VSP: #_MNU_MIP: #_MNU_MIR:	#_MNU_MIV: #_MNU_MIF: #_MNU_MWW: #_MNU_VSI: #_MNU_PIN
+        #_MNU_MON: #_MNU_VSP: #_MNU_MIP: #_MNU_MIR:	#_MNU_MIV: #_MNU_MIF: #_MNU_MWW: #_MNU_VSI: #_MNU_PIN: #_MNU_RME
+        #_MNU_RMK: #_MNU_REG: #_MNU_RAK: #_MNU_RIF: #_MNU_RHP: #_MNU_RFL: #_MNU_RCV: #_MNU_WEB
+        
+        #_MNU_WEB_MOBY:#_MNU_WEB_VNDB:#_MNU_WEB_OGDB:#_MNU_WEB_PCGW
         
         #_MNU_SAVESUPPORT: #_MNU_SAVEBCKCOPY: #_MNU_SAVEBCKMOVE:	#_MNU_SAVERSTCOPY: #_MNU_SAVEBCKDEL: #_MNU_SAVECREATE
-        #_MNU_SAVEEDIT	 : #_MNU_SAVECOMPRESS
+        #_MNU_SAVEEDIT	 : #_MNU_SAVECOMPRESS:#_MNU_SAVEINFO   :  #_MNU_SAVEHELP   : #_MNU_SAVEFILE
+        
+        #_MNU_VXMENU: #_MNU_VXHTTP: #_MNU_VXINFO: #_MNU_VXHELP : #_MNU_VXAKTIV: #_MNU_VXWN07: #_MNU_VXWN08: #_MNU_VXWN10
+        #_MNU_VXWN11: #_MNU_VXREMOVE
+        
+        #_MNU_VDMENU: #_MNU_VDON: #_MNU_VDOFF: 
+        
     EndEnumeration
     Debug "- Menu ImageIcon #2601 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
     
@@ -32,6 +41,7 @@ DeclareModule DI
         #_BTN_CLOSE_0N  : #_BTN_CLOSE_0H    : #_BTN_CLOSE_0P    : #_BTN_CLOSE_0D
         #_BTN_MINIM_0N  : #_BTN_MINIM_0H    : #_BTN_MINIM_0P    : #_BTN_MINIM_0D
         #_BTN_RESIZ_0N  : #_BTN_RESIZ_0H    : #_BTN_RESIZ_0P    : #_BTN_RESIZ_0D             
+        #_BTN_GREY4_0NX :
         
         #_BTN_ITEM_ADD_N: #_BTN_ITEM_ADD_H  : #_BTN_ITEM_ADD_P  : #_BTN_ITEM_ADD_D
         #_BTN_ITEM_COP_N: #_BTN_ITEM_COP_H  : #_BTN_ITEM_COP_P  : #_BTN_ITEM_COP_D
@@ -52,8 +62,11 @@ DeclareModule DI
         
         #_BTN_TAB_N     : #_BTN_TAB_H       : #_BTN_TAB_P       : #_BTN_TAB_D     
         #_BTN_SWT_P     :
-        #_BTN_INFO_0N  : #_BTN_INFO_0H    : #_BTN_INFO_0P    		: #_BTN_INFO_0D        
-
+        #_BTN_INFO_0N   : #_BTN_INFO_0H     : #_BTN_INFO_0P     : #_BTN_INFO_0D        
+        
+        #_BTN_SSWR_N    :#_BTN_SSWR_H       : #_BTN_SSWR_P      : #_BTN_SSWR_D
+        #_BTN_SSWL_N    :#_BTN_SSWL_H       : #_BTN_SSWL_P      : #_BTN_SSWL_D
+        #_BTN_SSWV_N    :#_BTN_SSWV_H       : #_BTN_SSWV_P      : #_BTN_SSWV_D
         
     EndEnumeration
     Debug "- Button ImageID #2801 -> #" + RSet( Str( #PB_Compiler_EnumerationValue-1), 4,"0") + #TAB$ + "| End Value: #"+ RSet( Str(MaxPBEnums) ,4,"0") +"| Free: " + Str(MaxPBEnums - ( #PB_Compiler_EnumerationValue-1))
@@ -80,22 +93,31 @@ Module DI
     CatchImage(#_MNU_DIR, ?_MNU_DIR):   CatchImage(#_MNU_RAL, ?_MNU_RAL):   CatchImage(#_MNU_RNE, ?_MNU_RNE):   CatchImage(#_MNU_FEX, ?_MNU_FEX):   CatchImage(#_MNU_FPS, ?_MNU_FPS)
     CatchImage(#_MNU_URL, ?_MNU_URL):   CatchImage(#_MNU_RUN, ?_MNU_RUN):		CatchImage(#_MNU_MAM, ?_MNU_MAM):		CatchImage(#_MNU_VSY, ?_MNU_VSY):		CatchImage(#_MNU_VSU, ?_MNU_VSU)
     CatchImage(#_MNU_MON, ?_MNU_MON):		CatchImage(#_MNU_VSP, ?_MNU_VSP):		CatchImage(#_MNU_MIP, ?_MNU_MIP):		CatchImage(#_MNU_MIR, ?_MNU_MIR):		CatchImage(#_MNU_MIV, ?_MNU_MIV)
-    CatchImage(#_MNU_MIF, ?_MNU_MIF):		CatchImage(#_MNU_MWW, ?_MNU_MWW):	  CatchImage(#_MNU_VSI, ?_MNU_VSI):		CatchImage(#_MNU_PIN, ?_MNU_PIN):
+    CatchImage(#_MNU_MIF, ?_MNU_MIF):		CatchImage(#_MNU_MWW, ?_MNU_MWW):	  CatchImage(#_MNU_VSI, ?_MNU_VSI):		CatchImage(#_MNU_PIN, ?_MNU_PIN):   CatchImage(#_MNU_RME, ?_MNU_RME)
+    CatchImage(#_MNU_RMK, ?_MNU_RMK):   CatchImage(#_MNU_REG, ?_MNU_REG):   CatchImage(#_MNU_RAK, ?_MNU_RAK):   CatchImage(#_MNU_RIF, ?_MNU_RIF):   CatchImage(#_MNU_RHP, ?_MNU_RHP)
+    CatchImage(#_MNU_RFL, ?_MNU_RFL):   CatchImage(#_MNU_RCV, ?_MNU_RCV):   CatchImage(#_MNU_WEB, ?_MNU_WEB)  
     ;
     ; Save Support
     CatchImage(#_MNU_SAVESUPPORT, ?_MNU_SAVESUPPORT):     CatchImage(#_MNU_SAVEBCKCOPY, ?_MNU_SAVEBCKCOPY):			CatchImage(#_MNU_SAVEBCKMOVE, ?_MNU_SAVEBCKMOVE):
-    CatchImage(#_MNU_SAVERSTCOPY, ?_MNU_SAVERSTCOPY): 		CatchImage(#_MNU_SAVEBCKDEL , ?_MNU_SAVEBCKDEL ):			CatchImage(#_MNU_SAVECREATE, ?_MNU_SAVECREATE):
-    CatchImage(#_MNU_SAVEEDIT	  , ?_MNU_SAVEEDIT)		:			CatchImage(#_MNU_SAVECOMPRESS,?_MNU_SAVECOMPRESS):      
-    
-    
+    CatchImage(#_MNU_SAVERSTCOPY, ?_MNU_SAVERSTCOPY): 		CatchImage(#_MNU_SAVEBCKDEL , ?_MNU_SAVEBCKDEL ):			CatchImage(#_MNU_SAVECREATE , ?_MNU_SAVECREATE):
+    CatchImage(#_MNU_SAVEEDIT	  , ?_MNU_SAVEEDIT)		:			CatchImage(#_MNU_SAVECOMPRESS,?_MNU_SAVECOMPRESS):    CatchImage(#_MNU_SAVEINFO   , ?_MNU_SAVEINFO):
+    CatchImage(#_MNU_SAVEHELP   , ?_MNU_SAVEHELP)   :     CatchImage(#_MNU_SAVEFILE   , ?_MNU_SAVEFILE)   :
     ;
+    ;
+    CatchImage(#_MNU_VXMENU, ?_MNU_VXMENU): CatchImage(#_MNU_VXHTTP, ?_MNU_VXHTTP): CatchImage(#_MNU_VXINFO, ?_MNU_VXINFO): CatchImage(#_MNU_VXHELP, ?_MNU_VXHELP)
+    CatchImage(#_MNU_VXAKTIV,?_MNU_VXAKTIV):CatchImage(#_MNU_VXWN07, ?_MNU_VXWN07): CatchImage(#_MNU_VXWN08, ?_MNU_VXWN08): CatchImage(#_MNU_VXWN10, ?_MNU_VXWN10)
+    CatchImage(#_MNU_VXWN11, ?_MNU_VXWN11): CatchImage(#_MNU_VXREMOVE, ?_MNU_VXREMOVE)            
+    ;
+    CatchImage(#_MNU_VDMENU, ?_MNU_VDMENU): CatchImage(#_MNU_VDON, ?_MNU_VDON) : CatchImage(#_MNU_VDOFF, ?_MNU_VDOFF)     
+    
     ; Button Images
     CatchImage(#_BTN_GREY4_0N, ?_BTN_GREY4_0N): CatchImage(#_BTN_GREY4_0H, ?_BTN_GREY4_0H): CatchImage(#_BTN_GREY4_0P, ?_BTN_GREY4_0P): CatchImage(#_BTN_GREY4_0D, ?_BTN_GREY4_0D)
-    CatchImage(#_BTN_GREY4_1H,?_BTN_GREY4_1H) : CatchImage(#_BTN_GREY4_2H,?_BTN_GREY4_2H) : CatchImage(#_BTN_GREY4_LC,?_BTN_GREY4_LC) : CatchImage(#_BTN_GREY4_RC,?_BTN_GREY4_RC)
+    CatchImage(#_BTN_GREY4_1H, ?_BTN_GREY4_1H): CatchImage(#_BTN_GREY4_2H,?_BTN_GREY4_2H) : CatchImage(#_BTN_GREY4_LC,?_BTN_GREY4_LC) : CatchImage(#_BTN_GREY4_RC,?_BTN_GREY4_RC)
+    CatchImage(#_BTN_GREY4_0NX,?_BTN_GREY4_0NX)
     
     CatchImage(#_BTN_CLOSE_0N, ?_BTN_CLOSE_0N): CatchImage(#_BTN_CLOSE_0H, ?_BTN_CLOSE_0H): CatchImage(#_BTN_CLOSE_0P, ?_BTN_CLOSE_0P): CatchImage(#_BTN_CLOSE_0D, ?_BTN_CLOSE_0D)
     CatchImage(#_BTN_MINIM_0N, ?_BTN_MINIM_0N): CatchImage(#_BTN_MINIM_0H, ?_BTN_MINIM_0H): CatchImage(#_BTN_MINIM_0P, ?_BTN_MINIM_0P): CatchImage(#_BTN_MINIM_0D, ?_BTN_MINIM_0D)
-    CatchImage(#_BTN_INFO_0N, ?_BTN_INFO_0N): CatchImage(#_BTN_INFO_0H, ?_BTN_INFO_0H): CatchImage(#_BTN_INFO_0P, ?_BTN_INFO_0P): CatchImage(#_BTN_INFO_0D, ?_BTN_INFO_0D)    
+    CatchImage(#_BTN_INFO_0N , ?_BTN_INFO_0N) : CatchImage(#_BTN_INFO_0H , ?_BTN_INFO_0H) : CatchImage(#_BTN_INFO_0P, ?_BTN_INFO_0P)  : CatchImage(#_BTN_INFO_0D, ?_BTN_INFO_0D)    
     CatchImage(#_BTN_RESIZ_0N, ?_BTN_RESIZ_0N): CatchImage(#_BTN_RESIZ_0H, ?_BTN_RESIZ_0H): CatchImage(#_BTN_RESIZ_0P, ?_BTN_RESIZ_0P): CatchImage(#_BTN_RESIZ_0D, ?_BTN_RESIZ_0D)
     CatchImage(#_BTN_MENU_N  , ?_BTN_MENU_N  ): CatchImage(#_BTN_MENU_H  , ?_BTN_MENU_H  ): CatchImage(#_BTN_MENU_P  , ?_BTN_MENU_P  ): CatchImage(#_BTN_MENU_D  , ?_BTN_MENU_D  )
     
@@ -117,7 +139,12 @@ Module DI
       
     CatchImage(DC::#_PNG_LEER, ?_PNG_LEER)
     
+    CatchImage(#_BTN_SSWR_N, ?_BTN_SSWR_N): CatchImage(#_BTN_SSWR_H, ?_BTN_SSWR_H): CatchImage(#_BTN_SSWR_P, ?_BTN_SSWR_P): CatchImage(#_BTN_SSWR_D, ?_BTN_SSWR_D)    
+    CatchImage(#_BTN_SSWL_N, ?_BTN_SSWL_N): CatchImage(#_BTN_SSWL_H, ?_BTN_SSWL_H): CatchImage(#_BTN_SSWL_P, ?_BTN_SSWL_P): CatchImage(#_BTN_SSWL_D, ?_BTN_SSWL_D)
+    CatchImage(#_BTN_SSWV_N, ?_BTN_SSWV_N): CatchImage(#_BTN_SSWV_H, ?_BTN_SSWV_N): CatchImage(#_BTN_SSWV_P, ?_BTN_SSWV_P): CatchImage(#_BTN_SSWV_D, ?_BTN_SSWV_D)
     
+    ; Webseiten
+    CatchImage(#_MNU_WEB_MOBY, ?_MNU_WEB_MOBY): CatchImage(#_MNU_WEB_VNDB, ?_MNU_WEB_VNDB): CatchImage(#_MNU_WEB_OGDB, ?_MNU_WEB_OGDB): CatchImage(#_MNU_WEB_PCGW, ?_MNU_WEB_PCGW)    
     DataSection
         
         
@@ -142,6 +169,9 @@ Module DI
         
         _BTN_GREY4_RC:
         IncludeBinary "Data_Images\Buttons\Grey4_HoverRC.png"      
+        
+        _BTN_GREY4_0NX:
+        IncludeBinary "Data_Images\Buttons\Grey4_HoverXX.png"
         
         _BTN_CLOSE_0N:
         IncludeBinary "Data_Images\Buttons\CloseN.png"
@@ -260,6 +290,36 @@ Module DI
         IncludeBinary "Data_Images\Buttons\MENUP.png"
         _BTN_MENU_D:
         IncludeBinary "Data_Images\Buttons\MENUD.png"     
+        
+        ;  //----------------------------------------------------------------------------;SlideShow Rechts Button (Size 30x30)
+        _BTN_SSWR_N:
+        IncludeBinary "Data_Images\Buttons\SlideRN.png" ; Normal
+        _BTN_SSWR_H:
+        IncludeBinary "Data_Images\Buttons\SlideRH.png" ; Hover
+        _BTN_SSWR_P:
+        IncludeBinary "Data_Images\Buttons\SlideRP.png" ; Pressed
+        _BTN_SSWR_D:
+        IncludeBinary "Data_Images\Buttons\SlideRD.png" ; Disabled
+        
+        ;  //----------------------------------------------------------------------------;SlideShow Links Button (Size 30x30)
+        _BTN_SSWL_N:
+        IncludeBinary "Data_Images\Buttons\SlideLN.png" ; Normal
+        _BTN_SSWL_H:
+        IncludeBinary "Data_Images\Buttons\SlideLH.png" ; Hover
+        _BTN_SSWL_P:
+        IncludeBinary "Data_Images\Buttons\SlideLP.png" ; Pressed
+        _BTN_SSWL_D:
+        IncludeBinary "Data_Images\Buttons\SlideLD.png" ; Disabled        
+        
+        ;  //----------------------------------------------------------------------------;SlideShow Links Button (Size 30x30)
+        _BTN_SSWV_N:
+        IncludeBinary "Data_Images\Buttons\SShowN.png" ; Normal
+        _BTN_SSWV_H:
+        IncludeBinary "Data_Images\Buttons\SShowH.png" ; Hover
+        _BTN_SSWV_P:
+        IncludeBinary "Data_Images\Buttons\SShowP.png" ; Pressed
+        _BTN_SSWV_D:
+        IncludeBinary "Data_Images\Buttons\SShowD.png" ; Disabled 
         
         ;//----------------------------------------------------------------------------;No-Screenshots (Size 256x192)   
         _PNG_NOSA:
@@ -397,6 +457,33 @@ Module DI
         IncludeBinary "Data_Images\MENU\vSysPfeil.png"         
         _MNU_PIN:
         IncludeBinary "Data_Images\MENU\MnuPicureInfo.png"      
+        _MNU_RME:
+        IncludeBinary "Data_Images\MENU\RegMenu.png"  
+        _MNU_RMK:
+        IncludeBinary "Data_Images\MENU\RegKonf.png"
+        _MNU_REG:
+        IncludeBinary "Data_Images\MENU\RegEdit.png"        
+        _MNU_RAK:
+        IncludeBinary "Data_Images\MENU\RegAddKonf.png"
+        _MNU_RIF:
+        IncludeBinary "Data_Images\MENU\RegInfo.png"
+        _MNU_RHP:
+        IncludeBinary "Data_Images\MENU\RegHelp.png"        
+        _MNU_RFL:
+        IncludeBinary "Data_Images\MENU\RegFile.png" 
+        _MNU_RCV:
+        IncludeBinary "Data_Images\MENU\RegConvert.png"
+        
+        _MNU_WEB:
+        IncludeBinary "Data_Images\MENU\Connect.png"
+        _MNU_WEB_MOBY:
+        IncludeBinary "Data_Images\MENU\Connect_MOBY.png"
+        _MNU_WEB_VNDB:
+        IncludeBinary "Data_Images\MENU\Connect_VNDB.png"
+        _MNU_WEB_OGDB:
+        IncludeBinary "Data_Images\MENU\Connect_OGDB.png"
+        _MNU_WEB_PCGW:
+        IncludeBinary "Data_Images\MENU\Connect_PCGW.png"
         
         _MNU_SAVESUPPORT:
         IncludeBinary "Data_Images\MENU\SaveSupport.png"           
@@ -413,14 +500,46 @@ Module DI
         _MNU_SAVEEDIT:
         IncludeBinary "Data_Images\MENU\SaveEdit.png"
         _MNU_SAVECOMPRESS:
-        IncludeBinary "Data_Images\MENU\SaveCompress.png"         
+        IncludeBinary "Data_Images\MENU\SaveCompress.png"
+        _MNU_SAVEINFO:
+        IncludeBinary "Data_Images\MENU\SaveInfo.png"
+        _MNU_SAVEHELP:
+        IncludeBinary "Data_Images\MENU\SaveHelp.png"
+        _MNU_SAVEFILE:
+        IncludeBinary "Data_Images\MENU\SaveFile.png"
+        
+        _MNU_VXMENU:
+        IncludeBinary "Data_Images\MENU\VxMenu.png"
+        _MNU_VXHTTP:
+        IncludeBinary "Data_Images\MENU\VxWeb.png"
+        _MNU_VXINFO:
+        IncludeBinary "Data_Images\MENU\VxInfo.png"
+        _MNU_VXHELP:
+        IncludeBinary "Data_Images\MENU\VxHelp.png"
+        _MNU_VXAKTIV:
+        IncludeBinary "Data_Images\MENU\VxAktiv.png"
+        _MNU_VXWN07:
+        IncludeBinary "Data_Images\MENU\VxW7.png"
+        _MNU_VXWN08:
+        IncludeBinary "Data_Images\MENU\VxW8.png"
+        _MNU_VXWN10:
+        IncludeBinary "Data_Images\MENU\VxW10.png"
+        _MNU_VXWN11:
+        IncludeBinary "Data_Images\MENU\VxW11.png"
+        _MNU_VXREMOVE:
+        IncludeBinary "Data_Images\MENU\VxRem.png"
+        
+        _MNU_VDMENU:
+        IncludeBinary "Data_Images\MENU\VirtualDrivemenu.png"
+        _MNU_VDON:
+        IncludeBinary "Data_Images\MENU\VirtualEnable.png" 
+        _MNU_VDOFF:
+        IncludeBinary "Data_Images\MENU\VirtualOff.png"
     EndDataSection
-    
-
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 82
-; FirstLine = 64
+; CursorPosition = 110
+; FirstLine = 88
 ; Folding = -
 ; EnableAsm
 ; EnableXP

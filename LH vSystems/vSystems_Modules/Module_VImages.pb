@@ -4,38 +4,50 @@
     
     Declare Screens_DragDrop_Support()
     
-    Declare Screens_Menu_Import(GadgetID.i)
-    Declare Screens_Menu_Save_Image(GadgetID.i)
-    Declare Screens_Menu_Save_Images_All()
-    Declare Screens_Menu_Delete_Single(CurrentGadget.i)
-    Declare Screens_Menu_Delete_All()
-    Declare Screens_Menu_Copy_Image(GadgetID.i)
-    Declare Screens_Menu_Paste_Import(GadgetID.i)
+    Declare   Screens_Menu_Import(GadgetID.i)
+    Declare   Screens_Menu_Save_Image(GadgetID.i)
+    Declare   Screens_Menu_Save_Images_All()
+    Declare   Screens_Menu_Delete_Single(CurrentGadget.i)
+    Declare   Screens_Menu_Delete_All()
+    Declare   Screens_Menu_Delete_All_DB() 
+    Declare   Screens_Menu_Copy_Image(GadgetID.i)
+    Declare   Screens_Menu_Paste_Import(GadgetID.i)
     
     Declare.i Screen_GetThumnbailSlot( ThumbnailGadget.i )
     
     Declare.i Screens_Menu_Check_Clipboard()
     Declare.s Screens_Menu_Info_Image()
     
-    Declare Screens_Import(CurrentGadget.i, FileStream.s = "")
+    Declare   Screens_Import(CurrentGadget.i, FileStream.s = "")
     
-    Declare Screens_Show()   
-    Declare Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i)
-    Declare Screens_ShowWindow_Info()
+    Declare   Screens_Show()   
+    Declare   Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i, FirstOpen.b = #True)
+    Declare   Screens_ShowWindow_Info()
+    Declare   SlideShow_Kill()
+    Declare   SlideShow_Thread_Start(ImgGadgetID.i)
+    Declare.b SlideShow_Thread_Runnin()
+    Declare   SlideShow_Thread_Stop()
+    Declare   SlideShow_ButtonTimeText()
     
     Declare.i Screens_SetThumbnails(OffsetX.i = 4,OffsetY.i = 4)
-    Declare Screens_SzeThumbnails_Reset()
-    Declare Screens_ChgThumbnails(key.i, save.i = #False, DelayTime.i = 0, WMKeyUP = -1)
+    Declare   Screens_SzeThumbnails_Reset()
+    Declare   Screens_ChgThumbnails(key.i, save.i = #False, DelayTime.i = 0, WMKeyUP = -1)
     Declare.l Screens_ChgThumbnails_Sub(*ScreenShots,n)
-    Declare Screens_Copy_ResizeToGadget(n.i,StructImagePB.i, ImageGadgetID.i, Resize.i = #True)
+    Declare   Screens_Copy_ResizeToGadget(n.i,StructImagePB.i, ImageGadgetID.i, Resize.i = #True)
     
-    Declare     Thumbnails_SetReDraw( bReDraw.i = #True )
+    Declare   Thumbnails_SetReDraw( bReDraw.i = #True )
     
     Declare		Window_ZoomScroll(ZoomDelta.w = 0)    
     Declare.l	Window_GetCurrentRaw( CurrentGadgetID.i )
     Declare.i	Window_GetCurrentPbs( ImageData.l       )
     
+    Declare.i SlideShow_LoadImage(ImageGadgetID.i)
+    Declare   SlideShow_Thread(ParaID.i)
+    Declare.b SlideShow_Switch()
+    Declare   SlideShow_Timer(TimerKey.i)
     
+    Declare.i LoadImage_Next(ImageGadgetID.i)
+    Declare.i LoadImage_Prev(ImageGadgetID.i)    
     
 EndDeclareModule
 
@@ -57,6 +69,12 @@ Module vImages
         Level.i
         slot.i
     EndStructure   
+    
+    Global SlideSwitch.b = #False
+    Global SlideTimeStart.i   = 0
+    Global SlideTimeElapsed.i = 0
+    Global SlideTimeDelay.i   = 5000    
+    Global SlideShowThread.i  = 0
     
     Procedure   Thumbnails_SetReDraw( GadgetRedraw.i = #True )        
         Protected cnt        
@@ -810,13 +828,13 @@ Module vImages
     ;******************************************************************************************************************************************
     ;  Holt das Originale Bild aus der DB
     ;__________________________________________________________________________________________________________________________________________     
-    Procedure.l Screens_Menu_Get_Original(n)        
+    Procedure.l Screens_Menu_Get_Original(n)
+      Protected *MemoryImage
         *MemoryImage = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")  
         If ( *MemoryImage <> 0 )
             Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage))
             ;Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage) -1)            
-            ProcedureReturn Unknown
-           
+            ProcedureReturn Unknown           
         EndIf
         ProcedureReturn 0
     EndProcedure  
@@ -1091,28 +1109,94 @@ Module vImages
     ;__________________________________________________________________________________________________________________________________________     
     Procedure Screens_Menu_Delete_All()
         
-        Protected ImageData.l, UserAsk.i = #True
+      Protected ImageData.l, UserAsk.i = #True
+      
+      For n = 1 To Startup::*LHGameDB\MaxScreenshots
+        ImageData.l  = Screens_Menu_Get_Original(n)
+        If ( ImageData <> 0 )
+          
+          If ( UserAsk = #True )
+            Result.i = vItemTool::DialogRequest_Def("Löschen","Wirklich?" + #CRLF$ + #CRLF$ +
+                                                              "Alle Bilder aus dem Aktuellen Eintrag Löschen ?")
+            UserAsk = #False
+          EndIf
+          
+          If (Result = 1) And (UserAsk = #False)
+            ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(n) +"_Thb", "",Startup::*LHGameDB\GameID)                     
+            ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(n) +"_big", "",Startup::*LHGameDB\GameID)              
+          Else
+            ProcedureReturn                    
+          EndIf                  
+        EndIf
+        Thread_DoEvents() 
+      Next     
+      vImages::Screens_SzeThumbnails_Reset(): Screens_Show()       
+    EndProcedure
+    ;
+    ;  Holt das Originale Bild aus der DB  (Aktualiisert)
+    Procedure.l DB_Get_OriginalImage(nImageIndex.i, BaseGameID.i)
+      
+      Protected *MemoryImage
+      
+      *MemoryImage = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nImageIndex)+ "_Big",BaseGameID,"BaseGameID")  
+      If ( *MemoryImage <> 0 )
+        Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage))
+        ProcedureReturn Unknown
+      EndIf
+     ProcedureReturn 0
         
-        For n = 1 To Startup::*LHGameDB\MaxScreenshots
-            ImageData.l  = Screens_Menu_Get_Original(n)
+    EndProcedure     
+    ;      
+    ;
+    ;  Alle Bilder in der DB Löschen
+    Procedure Screens_Menu_Delete_All_DB()    
+      
+      Protected  Rows.i = -1, ImageData.l, UserAsk.i = #True, Result.i, RowIndex.i, ImageIndex.i, RowMessage.s = ""
+      
+      ; Anzahl der Items in der DB Prüfen
+      Rows = ExecSQL::CountRows(DC::#Database_001,"Gamebase")
+                
+      Select Rows
+        Case 0
+          ProcedureReturn 
+        Default
+          If (Rows = 1)
+          RowMessage = "Alle Bilder aus dem 1 Eintrag Löschen?"
+          Else
+          RowMessage = "Alle Bilder aus insgesammt "+Str(Rows)+" Einträgen Löschen?"
+          EndIf
+            
+          Result.i = vItemTool::DialogRequest_Def("Löschen","Wirklich?" + #CRLF$ + #CRLF$ + RowMessage)                                   
+    EndSelect
+        
+    If (Result = 1)
+      
+      ;
+      ;Zeige Satus
+      HideGadget(DC::#Text_004,0)
+      
+      For RowIndex = 1 To Rows
+        For ImageIndex.i = 1 To Startup::*LHGameDB\MaxScreenshots
+            ImageData.l  = DB_Get_OriginalImage(ImageIndex, RowIndex)
             If ( ImageData <> 0 )
-                
-                If ( UserAsk = #True )
-                    Result.i = vItemTool::DialogRequest_Def("Löschen","Wirklich ALLE Bilder Löschen ?")
-                    UserAsk = #False
-                EndIf
-                
-                If (Result = 1) And (UserAsk = #False)
-                    ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(n) +"_Thb", "",Startup::*LHGameDB\GameID)                     
-                    ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(n) +"_big", "",Startup::*LHGameDB\GameID)              
-                Else
-                    ProcedureReturn                    
-                EndIf                  
-            EndIf
-            Thread_DoEvents() 
-        Next     
-        vImages::Screens_SzeThumbnails_Reset(): Screens_Show()       
-    EndProcedure      
+               ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(ImageIndex) +"_Thb", "",RowIndex)                     
+               ExecSQL::UpdateRow(DC::#Database_002,"GameShot", "Shot"+ Str(ImageIndex) +"_big", "",RowIndex)
+               Debug "Lösche aus ID: " +Str(RowIndex)+ " - Bild: "+ Str(ImageIndex)
+               SetGadgetText(DC::#Text_004, "Lösche aus ID: " +Str(RowIndex)+ " - Bild: "+ Str(ImageIndex))
+             Else
+               Debug "Kein Bild in der ID: " +Str(RowIndex)+ " - Bild: "+ Str(ImageIndex)
+             EndIf
+             Thread_DoEvents()
+          Next
+          
+      Next  
+
+      SetGadgetText(DC::#Text_004, "")
+      HideGadget(DC::#Text_004,1)
+      vImages::Screens_SzeThumbnails_Reset(): Screens_Show()             
+    EndIf
+        
+    EndProcedure
     ;******************************************************************************************************************************************
     ;  Drag'n'Drop Unterstützung bei den Gadgets für die Screenshot's hinzufügen
     ;__________________________________________________________________________________________________________________________________________     
@@ -1138,7 +1222,11 @@ Module vImages
     	sMsg + Str( Startup::*LHimgEdit\bmOrig\bits )
     	sMsg + " Dateigröße: "
     	sMsg + Startup::*LHimgEdit\bmOrig\imgsize
-
+    	
+      If (SlideSwitch = #True)
+        sMsg + " - SlideShow Aktiv [Drücke Space um zu beenden] (Verzögerung "+Str(SlideTimeDelay/1000)+"sek)"
+      EndIf   
+        
      	SetGadgetText(DC::#Text_140, sMsg)
      	
     EndProcedure
@@ -1446,13 +1534,18 @@ Module vImages
     EndProcedure    
     ;******************************************************************************************************************************************
     ;  Bild Ins Fenster Packen
-    ;__________________________________________________________________________________________________________________________________________     
-    Procedure Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i)
-    	
+    ;__________________________________________________________________________________________________________________________________________
+    
+    Procedure Screens_ShowWindow(CurrentGadgetID.i, Hwnd.i, FirstOpen.b = #True)
+	Macro Min(a, b)
+	  Bool((a) < (b)) * (a) + Bool((a) >= (b)) * (b)
+	EndMacro    	
     		Debug #CRLF$ + "Screens ShowWindow ([Thumbnail Gadget] " + CurrentGadgetID + ",[Hwnd] " + Hwnd + ")"
     		
     		HideGadget(DC::#Text_004,0)
-    		SetGadgetText(DC::#Text_004, "Lade und Öffne Bild .. [ Extrahiere aus der DB ID " + CurrentGadgetID + "]")
+    		If ( FirstOpen )
+    		  SetGadgetText(DC::#Text_004, "Lade und Öffne Bild .. [ Extrahiere aus der DB ID " + CurrentGadgetID + "]")
+    		EndIf
     		
         Protected DesktopW.i	= DesktopEX::MonitorInfo_Display_Size(#False,#True)        
         Protected DesktopH.i	= DesktopEX::MonitorInfo_Display_Size(#True)
@@ -1477,49 +1570,92 @@ Module vImages
         	ImageWidth .i   = ImageWidth ( ImageData )         	
         	ImageHeight.i   = ImageHeight( ImageData )                   
         	
-        	If Not ( Startup::*LHimgEdit\CpyData = 0 )
-        		       		
-        		Debug " Desktop Size (Weite/Höhe):" + Str( DesktopW ) + "x" + Str( DesktopH ) 
-        		Debug " Taskbar Höhe             :" + Str( TaskbarH )
-        		Debug " Rahmen Größe             :" + Str( BordSize )
-        		Debug " Title Border Größe       :" + Str( TitlSize )          		
-        		Debug " Bild Größe   (Weite/Höhe):" + Str( ImageWidth ) + "x" + Str( ImageHeight )
-        		
-        		Debug " Weite des Bildes Prüfen  :"
-        		WindowW.i = Screen_ShowWindow_GetDimensionW(Hwnd, ImageWidth , DesktopW, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)  
-        		
-        		Debug " Höhe des Bildes Prüfen  :"      		
-        		WindowH.i = Screen_ShowWindow_GetDimensionH(Hwnd, ImageHeight, DesktopH, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)        		
-        		
-        		Debug " Fenstergröße (Weite/Höhe):" + Str( WindowW ) + "x" + Str( WindowH )
-        		
-  					Startup::*LHimgEdit\bmCopy\x = 0
-						Startup::*LHimgEdit\bmCopy\y = 0
-						Startup::*LHimgEdit\bmCopy\w = ImageWidth (Startup::*LHimgEdit\CpyData )
-						Startup::*LHimgEdit\bmCopy\h = ImageHeight(Startup::*LHimgEdit\CpyData )
-						
-						SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth  , Startup::*LHimgEdit\bmCopy\w )
-						SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight , Startup::*LHimgEdit\bmCopy\h )
-						
-        		ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, WindowW-(BordSize*2), WindowH)
-        		 
-						If IsImage( ImageData )
-        			FreeImage( ImageData )
-        		EndIf	
-        		
-        		WinGuru::Center(Hwnd, WindowW, WindowH, Hwnd) 
-        		
-        		vImages::Window_ZoomScroll()         		        		
-        		
-        		If ImageWidth >= WindowW
-        				ShowWindow_(WindowID(Hwnd), #SW_MAXIMIZE)
-        				DesktopEX::Get_TaskbarHeight(Hwnd)
-        		EndIf		
-        		
-    				HideGadget(DC::#Text_004,1)
-    				SetGadgetText(DC::#Text_004, "")        		
+        	If ( FirstOpen = #False )
+        	  SendMessage_(GadgetID(DC::#Contain_11),#WM_SETREDRAW,#False,0)
+        	  HideGadget(DC::#Contain_11,1)
         	EndIf
-        EndIf	
+        	If Not ( Startup::*LHimgEdit\CpyData = 0 )
+        	  
+        	  Debug " Desktop Size (Weite/Höhe):" + Str( DesktopW ) + "x" + Str( DesktopH ) 
+        	  Debug " Taskbar Höhe             :" + Str( TaskbarH )
+        	  Debug " Rahmen Größe             :" + Str( BordSize )
+        	  Debug " Title Border Größe       :" + Str( TitlSize )          		
+        	  Debug " Bild Größe   (Weite/Höhe):" + Str( ImageWidth ) + "x" + Str( ImageHeight )
+        	      
+        	  Debug " Weite des Bildes Prüfen  :"
+        	  WindowW.i = Screen_ShowWindow_GetDimensionW(Hwnd, ImageWidth , DesktopW, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)  
+        	  
+        	  Debug " Höhe des Bildes Prüfen  :"      		
+        	  WindowH.i = Screen_ShowWindow_GetDimensionH(Hwnd, ImageHeight, DesktopH, TaskbarH, BordSize, TitlSize, SnapSize, ThumbnailSlot, ImageData)        		
+        	          	  
+        	  Debug " Fenstergröße (Weite/Höhe):" + Str( WindowW ) + "x" + Str( WindowH )
+        	  
+            ; === Aspect Ratio korrekt berechnen ===
+            ;Protected.f Scale = Min(WindowW / DesktopW, WindowH / DesktopH)
+            ;Scale - 0.05
+            ;WindowW = Round(WindowW * Scale, #PB_Round_Nearest)
+            ;WindowH = Round(WindowH * Scale, #PB_Round_Nearest)
+            
+        	  Startup::*LHimgEdit\bmCopy\x = 0
+        	  Startup::*LHimgEdit\bmCopy\y = 0
+        	  
+        	  If ( FirstOpen )
+        	    Startup::*LHimgEdit\bmCopy\w = ImageWidth (Startup::*LHimgEdit\CpyData )
+        	    Startup::*LHimgEdit\bmCopy\h = ImageHeight(Startup::*LHimgEdit\CpyData )
+        	  Else
+
+        	    Startup::*LHimgEdit\bmCopy\w = WindowWidth(Hwnd)
+        	    Startup::*LHimgEdit\bmCopy\h = WindowHeight(Hwnd)-60
+        	  EndIf
+        	          	 
+        	  SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth  , Startup::*LHimgEdit\bmCopy\w )
+        	  SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight , Startup::*LHimgEdit\bmCopy\h )
+        	  
+        	  If IsImage( ImageData )
+        	    FreeImage( ImageData )
+        	  EndIf
+        	  
+        	  If ( FirstOpen )
+        	    ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, WindowW-(BordSize*2), WindowH)
+        	    
+        	    WinGuru::Center(Hwnd, WindowW, WindowH, Hwnd) 
+        	    
+        	    vImages::Window_ZoomScroll()         		        		
+        	    
+        	  Else
+        	    vImages::Window_ZoomScroll()
+        	    
+        	    If ( ImageWidth (Startup::*LHimgEdit\CpyData ) < WindowWidth(Hwnd) )
+        	      Define xPosW = ImageWidth(Startup::*LHimgEdit\CpyData )
+        	      Startup::*LHimgEdit\bmCopy\w = xPosW						      
+        	      SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerWidth  ,Startup::*LHimgEdit\bmCopy\w )
+        	    EndIf
+        	    
+        	    If ImageHeight(Startup::*LHimgEdit\CpyData )  < WindowHeight(Hwnd)						      						      
+        	      Define xPosH = ImageHeight(Startup::*LHimgEdit\CpyData )
+        	      Startup::*LHimgEdit\bmCopy\h = xPosH			      
+        	      SetGadgetAttribute( DC::#Contain_11, #PB_ScrollArea_InnerHeight  ,Startup::*LHimgEdit\bmCopy\h )
+        	    EndIf
+        	    
+        	    ;ResizeWindow(hwnd, #PB_Ignore, #PB_Ignore, WindowWidth(Hwnd), WindowHeight(Hwnd))
+        	    ;WinGuru::Center(Hwnd, WindowWidth(Hwnd), WindowHeight(Hwnd), Hwnd) 
+        	    	
+        	    SendMessage_(GadgetID(DC::#Contain_11),#WM_SETREDRAW,#True,0)
+        	    HideGadget(DC::#Contain_11,0)
+        	    vImages::Window_ZoomScroll() 
+        	    					    
+        	    
+        	  EndIf
+        	    If ( FirstOpen )
+        	    If ImageWidth >= WindowW
+        	      ShowWindow_(WindowID(Hwnd), #SW_MAXIMIZE)
+        	      DesktopEX::Get_TaskbarHeight(Hwnd)
+        	    EndIf
+        	    EndIf
+        	  HideGadget(DC::#Text_004,1)
+        	  SetGadgetText(DC::#Text_004, "")
+        	EndIf
+        EndIf
 
      EndProcedure
 
@@ -1692,39 +1828,39 @@ Module vImages
   EndProcedure
   ;
   ;
-    Procedure Screens_ChgThumbnails(key.i, save.i = #False, DelayTime.i = 0, WMKeyUP = -1)
+  Procedure Screens_ChgThumbnails(key.i, save.i = #False, DelayTime.i = 0, WMKeyUP = -1)
+    
+    ;
+    ; Bewege nicht den Listbox Cursor
+    SetGadgetState( DC::#ListIcon_001, GetGadgetState(DC::#ListIcon_001) ) 
+    
+    Startup::*LHGameDB\GadgetIDCheck = DC::#ListIcon_001
+    SetActiveGadget(Startup::*LHGameDB\GadgetIDCheck)		    	
+    
+    If ( CountGadgetItems(DC::#ListIcon_001) = 0 )
+      ;
+      ; Null Items in der Liste - mach nichts
+      ProcedureReturn
+    EndIf
+    
+    Debug "Screens_ChgThumbnails : KeyDown: " + Str(key) + " / KeyUp"+ Str(WMKeyUP)+ " - DelayTime: " + Str(DelayTime )
+    
+    Select WMKeyUP
+      Case 257:
+        Thumbnail_SaveUpdate(save)
+        Thumbnail_SaveUpdate_Final()
+        ProcedureReturn
         
-        ;
-        ; Bewege nicht den Listbox Cursor
-    		SetGadgetState( DC::#ListIcon_001, GetGadgetState(DC::#ListIcon_001) ) 
-    	
-				Startup::*LHGameDB\GadgetIDCheck = DC::#ListIcon_001
-				SetActiveGadget(Startup::*LHGameDB\GadgetIDCheck)		    	
+      Case -999:	
+        SetGadgetText(DC::#Text_004,"Create Thumbnails Preview")      		      		
+        Thumbnail_SaveUpdate_Final()
+        ProcedureReturn        		
         
-        If ( CountGadgetItems(DC::#ListIcon_001) = 0 )
-            ;
-            ; Null Items in der Liste - mach nichts
-            ProcedureReturn
-        EndIf
-                
-        Debug "Screens_ChgThumbnails : KeyDown: " + Str(key) + " / KeyUp"+ Str(WMKeyUP)+ " - DelayTime: " + Str(DelayTime )
+      Default:
+        Thumbnail_ChangeSize(key, DelayTime)
         
-        Select WMKeyUP
-        	Case 257:
-        		Thumbnail_SaveUpdate(save)
-        		Thumbnail_SaveUpdate_Final()
-        		ProcedureReturn
-        		
-        	Case -999:	
-        		SetGadgetText(DC::#Text_004,"Create Thumbnails Preview")      		      		
-        		Thumbnail_SaveUpdate_Final()
-        		ProcedureReturn        		
-        		
-        	Default:
-        		Thumbnail_ChangeSize(key, DelayTime)
-        		
-        EndSelect       
-    EndProcedure    
+    EndSelect       
+  EndProcedure    
     ;******************************************************************************************************************************************
     ;  Ändere Thumbnail Grösse. 
     ;__________________________________________________________________________________________________________________________________________        
@@ -1740,7 +1876,7 @@ Module vImages
     Procedure.w MouseWheelDelta() 
       Protected x.w     
       x.w = ( (EventwParam() >>16) &$FFFF )
-Debug "EventwParam: " + Str(x)
+      Debug "EventwParam: " + Str(x)
       ProcedureReturn -(x / 120) 
     EndProcedure
     ;
@@ -1840,13 +1976,168 @@ Debug "EventwParam: " + Str(x)
     	
     	Debug "Ziel (Weite): "+ Str(w) + "x" + Str(h) + " :(Höhe) / " + " Depth: " + Str(ImageDepth(Startup::*LHimgEdit\CpyData ))  
     	    	
-    EndProcedure	
+    EndProcedure
+		;
+		;
+    ;    
+    Procedure.i SlideShow_LoadImage(ImageGadgetID.i)
+      
+      SetGadgetText(DC::#Text_140, "Vorwärts - Lade und Öffne Bild .. [ Extrahiere aus der DB ID " +Str(ImageGadgetID-2109) + "/50 ] ...")							        
+      vImages::Screens_ShowWindow(ImageGadgetID, DC::#_Window_004, #False)
+      vImages::Screens_ShowWindow_Info()
+      
+      ProcedureReturn ImageGadgetID
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure SlideShow_Thread(ParaID.i)
+      
+      Delay(SlideTimeDelay/2500)
+      Repeat
+        SlideTimeStart = ElapsedMilliseconds()
+        
+        If (ParaID > 2158)
+          ParaID = 2110
+        ElseIf (ParaID < 2110)
+          ParaID = 2110
+        Else
+          ParaID +1
+        EndIf                
+        ParaID = SlideShow_LoadImage(ParaID)
+        Delay(SlideTimeDelay)
+        
+        SlideTimeElapsed = ElapsedMilliseconds()-SlideTimeStart
+      ForEver
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.i LoadImage_Next(ImageGadgetID.i)
+      If (ImageGadgetID > 2158)
+        ProcedureReturn 2110
+      Else
+        Define.s zsMSG = "Vorwärts - Lade und Öffne Bild .. [ Extrahiere aus der DB ID " +Str(ImageGadgetID-2109) + "/50 ] ..."               
+        ImageGadgetID +1
+        SetGadgetText(DC::#Text_140,zsMSG)							        
+        Screens_ShowWindow(ImageGadgetID, DC::#_Window_004, #False)
+        Screens_ShowWindow_Info()
+      EndIf 
+      ProcedureReturn ImageGadgetID
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.i LoadImage_Prev(ImageGadgetID.i)
+      If (ImageGadgetID < 2111)
+        ProcedureReturn 2158
+      Else
+        ImageGadgetID -1
+        Define.s zsMSG = "Rückwärts - Lade und Öffne Bild .. [ Extrahiere aus der DB ID " + Str(ImageGadgetID-2109) + "/50 ] ... "      
+        SetGadgetText(DC::#Text_140, zsMSG)
+        Screens_ShowWindow(ImageGadgetID, DC::#_Window_004, #False)
+        Screens_ShowWindow_Info()							      
+      EndIf
+      ProcedureReturn ImageGadgetID
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure.b SlideShow_Switch()
+      
+      If (SlideSwitch = #True)
+        SetGadgetText(DC::#Text_140,"SlideShow Ausgeschaltet")        
+        SlideSwitch = #False
+        ButtonEX::Disable(DC::#Button_301, 0)        
+        ButtonEX::Disable(DC::#Button_302, 0)        
+        ButtonEX::Toggle(DC::#Button_303, 1)
+        ButtonEX::SetState(DC::#Button_303, 0)
+        Delay(1000)
+        Screens_ShowWindow_Info()
+      Else
+        SetGadgetText(DC::#Text_140,"SlideShow Eingeschaltet")        
+        SlideSwitch = #True
+        ButtonEX::Disable(DC::#Button_301, 1)
+        ButtonEX::Disable(DC::#Button_302, 1)
+        ButtonEX::Toggle(DC::#Button_303, 0)
+        ButtonEX::SetState(DC::#Button_303, 1)
+        Delay(100)        
+      EndIf
+      ProcedureReturn SlideSwitch
+      
+    EndProcedure
+    ;
+    ;
+    ;    
+    Procedure SlideShow_Kill()
+      
+      If (SlideSwitch = #True)
+        SlideSwitch = #False
+      EndIf
+      
+    EndProcedure
+    ;
+    ;
+    ;
+    Procedure SlideShow_ButtonTimeText()
+      ButtonEX::Settext(DC::#Button_303, 0,Str(SlideTimeDelay/1000))
+      ButtonEX::Settext(DC::#Button_303, 1,Str(SlideTimeDelay/1000))
+      ButtonEX::Settext(DC::#Button_303, 2,Str(SlideTimeDelay/1000))
+      ;SetGadgetText(DC::#Text_140,"SlideShow Dauer geändert "+Str(SlideTimeDelay/1000))      
+    EndProcedure     
+    ;
+    ;
+    ;    
+    Procedure SlideShow_Timer(TimerKey.i)
+      
+      If (SlideTimeDelay >= 1000 And TimerKey = 107)
+        SlideTimeDelay + 1000
+        
+      ElseIf (SlideTimeDelay >= 1000 And TimerKey = 109)
+        SlideTimeDelay - 1000
+        
+        If SlideTimeDelay < 1000
+          SlideTimeDelay = 1000
+        EndIf        
+      EndIf
+      
+      Define.s zsMSG = GetGadgetText(DC::#Text_140)
+      SlideShow_ButtonTimeText()      
+      Delay(150)
+      SetGadgetText(DC::#Text_140,zsMSG)
+    EndProcedure
+    ;
+    ;
+    ;
+    Procedure SlideShow_Thread_Start(ImgGadgetID.i)
+      SlideShowThread = CreateThread(@SlideShow_Thread(), ImgGadgetID)
+    EndProcedure
+    ;
+    ;
+    ;
+    Procedure.b SlideShow_Thread_Runnin()
+      If ( SlideShowThread > 0 )
+        ProcedureReturn #True
+      EndIf
+      ProcedureReturn #False
+    EndProcedure
+    ;
+    ;
+    ;
+    Procedure SlideShow_Thread_Stop()
+      If (IsThread(SlideShowThread) > 0)
+        KillThread(SlideShowThread)
+        SlideShowThread = 0
+        SlideShow_Kill()        
+        Delay(25)
+      EndIf
+    EndProcedure   
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1690
-; FirstLine = 459
-; Folding = PCAAAAABA58-
+; CursorPosition = 2052
+; FirstLine = 1083
+; Folding = PCAQgg-FAOf---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -126,7 +126,7 @@ DeclareModule Registry
 EndDeclareModule
 
 Module Registry
-	EnableExplicit
+	;EnableExplicit
 	
 	Prototype RegDeleteKey(hKey.i, lpSubKey.p-Unicode, samDesired.l, Reserved.l = 0)
 	Prototype RegSetValue(hKey.i, lpValueName.p-Unicode, Reserved.l, dwType.l, *lpData, cbData.l)
@@ -516,7 +516,15 @@ Module Registry
 		
 		OpenKeyS()
 			
-		*Ret = Allocate_ReturnMemory(*Ret)
+		If (*Ret <> 0)
+		  Debug "--"
+		EndIf
+		
+		*ReG.RegValue = AllocateMemory(SizeOf(RegValue))
+		If (*Ret)
+		  *Ret.RegValue = AllocateMemory(SizeOf(RegValue))
+		  CopyStructure(*ReG, *Ret, RegValue)
+		EndIf
 
 		RegError = RegQueryValueEx_(hKey, ValueName, 0, 0, 0, @lpcbData)
 		If (RegError)
@@ -560,7 +568,9 @@ Module Registry
 				;
 				If (RegFatal = 0)
 					
-					If (*Ret <> 0): *Ret\TYPE = lpType: EndIf
+				  If (*Ret <> 0)
+				    *RET\TYPE = lpType
+				  EndIf
 					
 					Select ( lpType )
 						;
@@ -815,8 +825,8 @@ CompilerIf #PB_Compiler_IsMainFile
 	;EndIf
 CompilerEndIf
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 637
-; FirstLine = 419
-; Folding = n--0
+; CursorPosition = 675
+; FirstLine = 374
+; Folding = nLg0
 ; EnableAsm
 ; EnableXP

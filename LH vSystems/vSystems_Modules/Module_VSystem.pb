@@ -1236,8 +1236,11 @@ Module vSystem
     ;
     ;
     Procedure.s System_Get_Internal_Count()        
-        x = CountGadgetItems(DC::#ListIcon_001)
-         ProcedureReturn Str(x)
+         ; x = CountGadgetItems(DC::#ListIcon_001)
+         ; Anzahl der Items in der DB Prüfen
+         Protected Rows.i = ExecSQL::CountRows(DC::#Database_001,"Gamebase")
+          
+         ProcedureReturn Str(Rows)
     EndProcedure
     ;
     ;
@@ -1251,7 +1254,7 @@ Module vSystem
                               "GFX: " + System_Get_Internal_GFX() + Chr(13) +      
                               "WIN: " + System_Get_Internal_WIN() + Chr(13) +                          
                               "MEM: " + System_Get_Internal_MEM() + Chr(13) + Chr(13) + 
-                              "Einträge: " + System_Get_Internal_Count() + Chr(13) + Chr(13) +
+                              "Einträge: " + System_Get_Internal_Count() +" [DatabaseID Selektiert " + Str( Startup::*LHGameDB\GameID ) + "] "+ Chr(13) + Chr(13) +
                               "Developed by Marty Shepard"
             
             Startup::ToolTipSystemInfo = TooltipString     
@@ -1656,9 +1659,9 @@ EndModule
 ;     	EndIf 
 ;     EndProcedure 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 588
-; FirstLine = 265
-; Folding = PBk+Ps8-
+; CursorPosition = 1247
+; FirstLine = 827
+; Folding = PBk+P98-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

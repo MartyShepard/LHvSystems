@@ -776,6 +776,7 @@ Module SaveTool
 		
 		PackDirectory = Slash_Add(PackDirectory)
 		PackFilePath = ReplaceString( FileSystemList()\FullPath, PackDirectory , "", 0)
+		PackFilePath = ReplaceString( PackFilePath, "\" , "/", 0)
 		
 		Select bMemory
 			Case #False:				
@@ -2660,9 +2661,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1935
-; FirstLine = 1365
-; Folding = D5dBH-j-0-
+; CursorPosition = 778
+; FirstLine = 213
+; Folding = TYAAA-j-0-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -29,7 +29,7 @@ DeclareModule FFH
 	;         Declare.s SetClSIDVariable(Path$)        
 	Declare.i ForceCreateDirectories(Path$)        
 	Declare.i CreateShortenedPath(GadgetID.L, Path.S, Handle.l, OptString$ = "", Width.i = 10)
-	Declare   PathPartsExt(sText.s, List CharList.s(), sChar$ = Chr(92))
+	Declare.b  PathPartsExt(sText.s, sChar$ = Chr(92))
 	;         
 	;         Declare.i GetDriveTypCheck(Drive$)
 	;                 
@@ -69,7 +69,7 @@ DeclareModule FFH
   
 	
 	
-                 
+  Global NewList CharList.s()               
 EndDeclareModule
 
 
@@ -500,6 +500,354 @@ Module FFH
 		ProcedureReturn iResult
 	EndProcedure
 	
+
+	; CreateMem Internal  
+	Procedure CreateMem(Array files.s(1))
+		
+		Protected i, j, size, *mem, *pmem
+		
+		j = ArraySize(files())
+		For i = 0 To j
+			If Right(files(i), 1) = "\" : files(i) = Left(files(i), Len(files(i)) - 1) : EndIf
+			size + StringByteLength(files(i)) + 1 * SizeOf(Character)
+		Next
+		size  + 1 * SizeOf(Character)
+		*mem = AllocateMemory(size)
+		If *mem
+			*pmem = *mem
+			For i = 0 To j
+				PokeS(*pmem, files(i))
+				*pmem + StringByteLength(files(i)) + 1 * SizeOf(Character)
+			Next
+		EndIf
+		ProcedureReturn *mem
+	EndProcedure
+
+	
+	Procedure.i Thread_MAME_Roms_Get(t)
+		; Leere Procedure .... 
+	EndProcedure	
+	Procedure.q HTTP_GetContentLength(Url$)
+		
+		#HTTP_QUERY_CONTENT_LENGTH=5
+		
+		Protected FileSizet.s=Space(20),FileSize.q, Size,hINET,hURL
+		
+		hINET=InternetOpen_("blub",0,0,0,0)
+		If hINET
+			hURL =InternetOpenUrl_(hINET,Url$,0,0,$80000000,0)
+			If hURL
+				Size=Len(FileSizet)
+				
+				HttpQueryInfo_(hURL,#HTTP_QUERY_CONTENT_LENGTH,@FileSizet,@Size,#Null)
+				
+				FileSize=Val(FileSizet)
+				
+				InternetCloseHandle_(hURL)
+				InternetCloseHandle_(hINET)
+			Else
+				InternetCloseHandle_(hINET)
+			EndIf
+		EndIf
+		ProcedureReturn FileSize
+	EndProcedure        
+          
+	Procedure.i DeleteLine(iFileID,sFileName.s,iDelLineNum.i)
+		;------------------------------------------------------
+		; ***** Fast code by Bernd (infratec), made fail friendly by IdeasVacuum *****
+		
+		iReturnVal.i = #True
+		iSize.l = FileSize(sFileName)
+		iReadLen.l = 0
+		i.i = 1
+		n.i = 0
+		iLength.l = 0
+		
+		If iSize > 0
+			
+			If ReadFile(iFileID,sFileName)
+				
+				*Buffer = AllocateMemory(iSize)
+				If *Buffer
+					
+					iReadLen = ReadData(iFileID, *Buffer, iSize)
+					CloseFile(iFileID)
+					
+					If(iReadLen = iSize)
+						
+						While i < iDelLineNum
+							
+							If PeekA(*Buffer + n) = $0A
+								i + 1
+							EndIf
+							
+							n + 1
+						Wend
+						
+						*Dest = *Buffer + n
+						n = 0
+						
+						While PeekA(*Dest + n) <> $0A
+							n + 1
+						Wend
+						
+						*Source = *Dest + n + 1
+						iLength = (*Buffer + iSize) - *Source
+						
+						MoveMemory(*Source, *Dest, iLength)
+						
+						iSize - n - 1
+						
+						If CreateFile(iFileID, sFileName)
+							
+							WriteData(iFileID, *Buffer, iSize)
+							CloseFile(iFileID)
+						Else
+							MessageRequester("File Issue","File create failed",#PB_MessageRequester_Ok)
+							iReturnVal = #False
+						EndIf
+						
+					Else
+						MessageRequester("Memory Issue","File read failed",#PB_MessageRequester_Ok)
+						iReturnVal = #False
+					EndIf
+					
+					FreeMemory(*Buffer)
+				Else
+					MessageRequester("Memory Issue","Memory allocation failed",#PB_MessageRequester_Ok)
+					iReturnVal = #False
+				EndIf
+			Else
+				MessageRequester("File Issue","File open failed",#PB_MessageRequester_Ok)
+				iReturnVal = #False
+			EndIf
+		Else
+			MessageRequester("File Issue","File empty",#PB_MessageRequester_Ok)
+			iReturnVal = #False
+		EndIf
+		
+		ProcedureReturn(iReturnVal)
+		
+	EndProcedure
+	
+	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+	;Dies BENÖTIGT ein CoInitialize_(#Null) vor dem Stringgadget und ein CoUninitialize_() beim beenden des Fenster
+	Procedure SHAutoComplete(GadgetID.i, FileHistory = #False, PathHistory = #False, UrlHistory = #False, Flags.l = 0)
+		
+	    ;SH Autovervollständigen
+	    ;Dies BENÖTIGT ein CoInitialize_(#Null) und ein CoUninitialize_()
+	    #SHACF_DEFAULT          = $00000000
+	    #SHACF_FILESYSTEM       = $00000001
+	    #SHACF_URLHISTORY       = $00000002
+	    #SHACF_URLMRU           = $00000004
+	    #SHACF_URLALL           = #SHACF_URLHISTORY | #SHACF_URLMRU
+	    #SHACF_USETAB           = $00000008
+	    #SHACF_FILESYS_ONLY     = $00000010
+	    #SHACF_AUTOSUGGEST_FORCE_ON  = $10000000
+	    #SHACF_AUTOSUGGEST_FORCE_OFF = $20000000
+	    #SHACF_AUTOAPPEND_FORCE_ON   = $40000000
+	    #SHACF_AUTOAPPEND_FORCE_OFF  = $80000000
+	    #SHACF_FILESYS_DIRS = $00000020  
+		
+		CoInitialize_(#Null)
+		
+		If IsGadget( GadgetID )
+			
+			If ( FileHistory = #True )
+				Flags | #SHACF_FILESYSTEM
+			EndIf
+			
+			If ( PathHistory = #True )
+				Flags | #SHACF_FILESYS_ONLY
+			EndIf                
+			
+			If ( UrlHistory = #True )
+				Flags | #SHACF_URLALL
+			EndIf                 
+			
+			SHAutoComplete_( GadgetID( GadgetID ), #SHACF_AUTOAPPEND_FORCE_ON | #SHACF_AUTOSUGGEST_FORCE_ON | Flags)
+			SendMessage_(GadgetID( GadgetID ), #EM_SETSEL, Len( GetGadgetText( GadgetID )+1), GetGadgetText( GadgetID ) + 1 )
+			
+		EndIf
+	EndProcedure			
+	
+  Procedure.b PathPartsExt(sText.s, sChar$ = Chr(92))
+    ; Sicherheits-Check
+  Debug(#CRLF$ + "Modul Init: " + #PB_Compiler_Module +  " =======================================")
+    
+  If Not ListSize(CharList()) >= 0   ; Prüft, ob die Liste überhaupt existiert
+      Debug "FEHLER: Liste wurde nicht mit NewList angelegt!"
+      CallDebugger
+        ProcedureReturn #False
+    EndIf
+        
+    If (ListSize( CharList() ) >=0)
+      ForEach CharList()      
+        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List CharList(): '"+CharList()+"'") 
+        CharList() = ""
+      Next
+      ClearList( CharList() )   ; Alte Einträge löschen
+    EndIf
+    
+    If Trim(sText) = ""
+        ProcedureReturn #False
+    EndIf
+    
+    Protected i.i
+    Protected count = CountString(sText, sChar$) + 1
+    
+    For i = 1 To count
+        Protected part.s = StringField(sText, i, sChar$)
+        
+        If part <> ""                     ; Leere Teile überspringen (z.B. bei "\\")
+            AddElement(CharList())
+            CharList() = part
+        EndIf
+    Next i
+    
+    ; Optional: Backslash wieder anhängen (wie in deiner alten Version)
+    If sChar$ = Chr(92) And ListSize(CharList()) > 0
+        ForEach CharList()
+            If Right(CharList(), 1) <> Chr(92)
+                CharList() + Chr(92)
+            EndIf
+        Next
+    EndIf
+    ProcedureReturn #True
+EndProcedure
+  
+	Procedure.s Doc_BIF_Flags()
+		
+		; Für die CSIDl
+		; https://docs.microsoft.com/en-us/windows/win32/shell/csidl
+		
+		;#BIF_BROWSEINCLUDEURLS (0x00000080)
+		;0x00000080. Version 5.0. The browse dialog box can display URLs. The #BIF_USENEWUI And #BIF_BROWSEINCLUDEFILES flags must also
+		;be set. If any of these three flags are Not set, the browser dialog box rejects URLs. Even when these flags are set, the browse
+		;dialog box displays URLs only If the folder that contains the selected item supports URLs. When the folder's IShellFolder::GetAttributesOf
+		;method is called To request the selected item's attributes, the folder must set the SFGAO_FOLDER attribute flag. Otherwise, the browse
+		;dialog box will Not display the URL.
+		
+		;#BIF_EDITBOX|#BIF_VALIDATE
+		;0x00000010. Version 4.71. Include an edit control in the browse dialog box that allows the user to type the name of an item.
+		
+		;#BIF_NEWDIALOGSTYLE or #BIF_USENEWUI
+		;0x00000040. Version 5.0. Use the new user Interface. Setting this flag provides the user With a larger dialog box that can
+		;be resized. The dialog box has several new capabilities, including: drag-And-drop capability within the dialog box, reordering,
+		;shortcut menus, new folders, delete, And other shortcut menu commands.
+		
+		;#BIF_NONEWFOLDERBUTTON (0x00000200)
+		;0x00000200. Version 6.0. Do Not include the New Folder button IN the browse dialog box.
+		
+		;#BIF_BROWSEFORCOMPUTER (0x00001000)
+		;0x00001000. Only Return computers. If the user selects anything other than a computer, the OK button is grayed.        
+		
+		;#BIF_BROWSEFORPRINTER (0x00002000)
+		;0x00002000. Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed. 
+		;IN Windows XP And later systems, the best practice is To use a Windows XP-style dialog, setting the root of the dialog To the
+		;Printers And Faxes folder (CSIDL_PRINTERS).
+		
+		;#BIF_BROWSEINCLUDEFILES (0x00004000)
+		;0x00004000. Version 4.71. The browse dialog box displays files As well As folders.
+		
+		;#BIF_SHAREABLE (0x00008000)
+		;0x00008000. Version 5.0. The browse dialog box can display sharable resources on remote systems. This is intended For applications
+		;that want To expose remote shares on a local system. The #BIF_NEWDIALOGSTYLE flag must also be set.             
+		
+		; CSIDL_ADMINTOOLS                  FOLDERID_AdminTools         Version 5.0. The file system directory that is used To store administrative tools For an individual user. The MMC will save customized consoles To this directory, And it will roam With the user.
+		; CSIDL_ALTSTARTUP                  FOLDERID_Startup            The file system directory that corresponds To the user's nonlocalized Startup program group. This value is recognized in Windows Vista for backward compatibility, but the folder itself no longer exists.
+		; CSIDL_APPDATA                     FOLDERID_RoamingAppData     Version 4.71. The file system directory that serves As a common repository For application-specific Data. A typical path is C:\Documents And Settings\username\Application Data.
+		; CSIDL_BITBUCKET                   FOLDERID_RecycleBinFolder   The virtual folder that contains the objects IN the user's Recycle Bin.
+		; CSIDL_CDBURN_AREA                 FOLDERID_CDBurning          Version 6.0. The file system directory that acts As a staging area For files waiting To be written To a CD. A typical path is C:\Documents And Settings\username\Local Settings\Application Data\Microsoft\CD Burning.
+		; CSIDL_COMMON_ADMINTOOLS           FOLDERID_CommonAdminTools   Version 5.0. The file system directory that contains administrative tools For all users of the computer.
+		; CSIDL_COMMON_ALTSTARTUP           FOLDERID_CommonStartup      The file system directory that corresponds To the nonlocalized Startup program group For all users. This value is recognized IN Windows Vista For backward compatibility, but the folder itself no longer exists.
+		; CSIDL_COMMON_APPDATA              FOLDERID_ProgramData        Version 5.0. The file system directory that contains application Data For all users. A typical path is C:\Documents And Settings\All Users\Application Data. This folder is used For application Data that is Not user specific. For example, an application can store a spell-check dictionary, a database of clip art, Or a log file IN the CSIDL_COMMON_APPDATA folder. This information will Not roam And is available To anyone using the computer.
+		; CSIDL_COMMON_DESKTOPDIRECTORY     FOLDERID_PublicDesktop      The file system directory that contains files And folders that appear on the desktop For all users. A typical path is C:\Documents And Settings\All Users\Desktop.
+		; CSIDL_COMMON_DOCUMENTS            FOLDERID_PublicDocuments    The file system directory that contains documents that are common To all users. A typical path is C:\Documents And Settings\All Users\Documents.
+		; CSIDL_COMMON_FAVORITES            FOLDERID_Favorites          The file system directory that serves As a common repository For favorite items common To all users.
+		; CSIDL_COMMON_MUSIC                FOLDERID_PublicMusic        Version 6.0. The file system directory that serves As a repository For music files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Music.
+		; CSIDL_COMMON_OEM_LINKS            FOLDERID_CommonOEMLinks     This value is recognized IN Windows Vista For backward compatibility, but the folder itself is no longer used.
+		; CSIDL_COMMON_PICTURES             FOLDERID_PublicPictures     Version 6.0. The file system directory that serves As a repository For image files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Pictures.
+		; CSIDL_COMMON_PROGRAMS             FOLDERID_CommonPrograms     The file system directory that contains the directories For the common program groups that appear on the Start menu For all users. A typical path is C:\Documents And Settings\All Users\Start Menu\Programs.
+		; CSIDL_COMMON_STARTMENU            FOLDERID_CommonStartMenu    The file system directory that contains the programs And folders that appear on the Start menu For all users. A typical path is C:\Documents And Settings\All Users\Start Menu.
+		; CSIDL_COMMON_STARTUP              FOLDERID_CommonStartup      The file system directory that contains the programs that appear IN the Startup folder For all users. A typical path is C:\Documents And Settings\All Users\Start Menu\Programs\Startup.
+		; CSIDL_COMMON_TEMPLATES            FOLDERID_CommonTemplates    The file system directory that contains the templates that are available To all users. A typical path is C:\Documents And Settings\All Users\Templates.
+		; CSIDL_COMMON_VIDEO                FOLDERID_PublicVideos       Version 6.0. The file system directory that serves As a repository For video files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Videos.
+		; CSIDL_COMPUTERSNEARME             FOLDERID_NetworkFolder      The folder that represents other computers IN your workgroup.
+		; CSIDL_CONNECTIONS                 FOLDERID_ConnectionsFolder  The virtual folder that represents Network Connections, that contains network And dial-up connections.
+		; CSIDL_CONTROLS                    FOLDERID_ControlPanelFolder The virtual folder that contains icons For the Control Panel applications.
+		; CSIDL_COOKIES                     FOLDERID_Cookies            The file system directory that serves As a common repository For Internet cookies. A typical path is C:\Documents And Settings\username\Cookies.
+		; CSIDL_DESKTOP                     FOLDERID_Desktop            The virtual folder that represents the Windows desktop, the root of the namespace.
+		; CSIDL_DESKTOPDIRECTORY            FOLDERID_Desktop            The file system directory used To physically store file objects on the desktop (Not To be confused With the desktop folder itself). A typical path is C:\Documents And Settings\username\Desktop.
+		; CSIDL_DRIVES                      FOLDERID_ComputerFolder     The virtual folder that represents My Computer, containing everything on the local computer: storage devices, printers, And Control Panel. The folder can also contain mapped network drives.
+		; CSIDL_FAVORITES                   FOLDERID_Favorites          The file system directory that serves As a common repository For the user's favorite items. A typical path is C:\Documents and Settings\username\Favorites.
+		; CSIDL_FONTS                       FOLDERID_Fonts              A virtual folder that contains fonts. A typical path is C:\Windows\Fonts.
+		; CSIDL_HISTORY                     FOLDERID_History            The file system directory that serves As a common repository For Internet history items.
+		; CSIDL_INTERNET                    FOLDERID_InternetFolder     A virtual folder For Internet Explorer.
+		; CSIDL_INTERNET_CACHE              FOLDERID_InternetCache      Version 4.72. The file system directory that serves As a common repository For temporary Internet files. A typical path is C:\Documents And Settings\username\Local Settings\Temporary Internet Files.
+		; CSIDL_LOCAL_APPDATA               FOLDERID_LocalAppData       Version 5.0. The file system directory that serves As a Data repository For local (nonroaming) applications. A typical path is C:\Documents And Settings\username\Local Settings\Application Data.
+		; CSIDL_MYDOCUMENTS                 FOLDERID_Documents          Version 6.0. The virtual folder that represents the My Documents desktop item. This value is equivalent To CSIDL_PERSONAL.
+		; CSIDL_MYMUSIC                     FOLDERID_Music              The file system directory that serves As a common repository For music files. A typical path is C:\Documents And Settings\User\My Documents\My Music.
+		; CSIDL_MYPICTURES                  FOLDERID_Pictures           Version 5.0. The file system directory that serves As a common repository For image files. A typical path is C:\Documents And Settings\username\My Documents\My Pictures.
+		; CSIDL_MYVIDEO                     FOLDERID_Videos             Version 6.0. The file system directory that serves As a common repository For video files. A typical path is C:\Documents And Settings\username\My Documents\My Videos.
+		; CSIDL_NETHOOD                     FOLDERID_NetHood            A file system directory that contains the link objects that may exist IN the My Network Places virtual folder. It is Not the same As CSIDL_NETWORK, which represents the network namespace root. A typical path is C:\Documents And Settings\username\NetHood.
+		; CSIDL_NETWORK                     FOLDERID_NetworkFolder      A virtual folder that represents Network Neighborhood, the root of the network namespace hierarchy.
+		; CSIDL_PERSONAL                    FOLDERID_Documents          Version 6.0. The virtual folder that represents the My Documents desktop item. This is equivalent To CSIDL_MYDOCUMENTS.
+		;Previous To Version 6.0. The file system directory used To physically store a user's common repository of documents. A typical path is C:\Documents and Settings\username\My Documents. This should be distinguished from the virtual My Documents folder in the namespace. To access that virtual folder, use SHGetFolderLocation, which returns the ITEMIDLIST for the virtual location, or refer to the technique described in Managing the File System.
+		; CSIDL_PRINTERS                    FOLDERID_PrintersFolder     The virtual folder that contains installed printers.
+		; CSIDL_PRINTHOOD                   FOLDERID_PrintHood          The file system directory that contains the link objects that can exist IN the Printers virtual folder. A typical path is C:\Documents And Settings\username\PrintHood.
+		; CSIDL_PROFILE                     FOLDERID_Profile            Version 5.0. The user's profile folder. A typical path is C:\Users\username. Applications should not create files or folders at this level; they should put their data under the locations referred to by CSIDL_APPDATA or CSIDL_LOCAL_APPDATA. However, if you are creating a new Known Folder the profile root referred to by CSIDL_PROFILE is appropriate.
+		; CSIDL_PROGRAM_FILES               FOLDERID_ProgramFiles       Version 5.0. The Program Files folder. A typical path is C:\Program Files.
+		; CSIDL_PROGRAM_FILESX86            FOLDERID_ProgramFilesX86    
+		; CSIDL_PROGRAM_FILES_COMMON        FOLDERID_ProgramFilesCommon Version 5.0. A folder For components that are Shared across applications. A typical path is C:\Program Files\Common. Valid only For Windows XP.
+		; CSIDL_PROGRAM_FILES_COMMONX86     FOLDERID_ProgramFilesCommonX86
+		; CSIDL_PROGRAMS                    FOLDERID_Programs           The file system directory that contains the user's program groups (which are themselves file system directories). A typical path is C:\Documents and Settings\username\Start Menu\Programs.
+		; CSIDL_RECENT                      FOLDERID_Recent             The file system directory that contains shortcuts To the user's most recently used documents. A typical path is C:\Documents and Settings\username\My Recent Documents. To create a shortcut in this folder, use SHAddToRecentDocs. In addition to creating the shortcut, this function updates the Shell's List of recent documents And adds the shortcut To the My Recent Documents submenu of the Start menu.
+		; CSIDL_RESOURCES                   FOLDERID_ResourceDir         Windows Vista. The file system directory that contains resource Data. A typical path is C:\Windows\Resources.
+		; CSIDL_RESOURCES_LOCALIZED         FOLDERID_LocalizedResourcesDir
+		; CSIDL_SENDTO                      FOLDERID_SendTo             The file system directory that contains Send To menu items. A typical path is C:\Documents And Settings\username\SendTo.
+		; CSIDL_STARTMENU                   FOLDERID_StartMenu          The file system directory that contains Start menu items. A typical path is C:\Documents And Settings\username\Start Menu.
+		; CSIDL_STARTUP                     FOLDERID_Startup            The file system directory that corresponds To the user's Startup program group. The system starts these programs whenever the associated user logs on. A typical path is C:\Documents and Settings\username\Start Menu\Programs\Startup.
+		; CSIDL_SYSTEM                      FOLDERID_System             Version 5.0. The Windows System folder. A typical path is C:\Windows\System32.
+		; CSIDL_SYSTEMX86                   FOLDERID_SystemX86          
+		; CSIDL_TEMPLATES                   FOLDERID_Templates          The file system directory that serves As a common repository For document templates. A typical path is C:\Documents And Settings\username\Templates.
+		; CSIDL_WINDOWS                     FOLDERID_Windows            Version 5.0. The Windows directory Or SYSROOT. This corresponds To the %windir% Or %SYSTEMROOT% environment variables. A typical path is C:\Windows.
+		
+		; Flags
+		; CSIDL_FLAG_CREATE                 KF_FLAG_CREATE              Version 5.0. Combine With another CSIDL To force the creation of the associated folder If it does Not exist.
+		; CSIDL_FLAG_DONT_UNEXPAND          KF_FLAG_DONT_UNEXPAND       Combine With another CSIDL constant To ensure the expansion of environment variables.
+		; CSIDL_FLAG_DONT_VERIFY            KF_FLAG_DONT_VERIFY         Combine With another CSIDL constant, except For CSIDL_FLAG_CREATE, To Return an unverified folder path With no attempt To create Or initialize the folder.
+		; CSIDL_FLAG_NO_ALIAS               KF_FLAG_NO_ALIAS            Combine With another CSIDL constant To ensure the retrieval of the true system path For the folder, free of any aliased placeholders such As %USERPROFILE%, returned by SHGetFolderLocation. This flag has no effect on paths returned by SHGetFolderPath.
+		; CSIDL_FLAG_PER_USER_INIT          
+		; CSIDL_FLAG_MASK              A mask For any valid CSIDL flag value.                
+	EndProcedure 
+		
+	Procedure _Recycle(File$)
+		SHFileOp.SHFILEOPSTRUCT
+		m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
+		If m
+			PokeS(m,File$)
+			SHFileOp\pFrom  = m
+			SHFileOp\wFunc  = #FO_DELETE
+			SHFileOp\fFlags = #FOF_ALLOWUNDO|#FOF_SILENT|#FOF_NOCONFIRMATION
+			result = SHFileOperation_(SHFileOp)
+			FreeMemory(m)
+		EndIf
+	EndProcedure
+	
+	Procedure _Delete(File$)
+		SHFileOp.SHFILEOPSTRUCT
+		m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
+		If m
+			PokeS(m,File$)
+			SHFileOp\pFrom  = m
+			SHFileOp\wFunc  = #FO_DELETE
+			SHFileOp\fFlags = #FOF_SILENT|#FOF_NOCONFIRMATION
+			result = SHFileOperation_(SHFileOp)
+			FreeMemory(m)
+		EndIf  
+	EndProcedure
+	
 	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	;    
 	; Windows Delete File To Recyclebin (Droopy)
@@ -849,31 +1197,9 @@ Module FFH
 ; 		EndSelect
 ; 		ProcedureReturn Result
 ; 	EndProcedure
-	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
-	; CreateMem Internal  
-	Procedure CreateMem(Array files.s(1))
-		
-		Protected i, j, size, *mem, *pmem
-		
-		j = ArraySize(files())
-		For i = 0 To j
-			If Right(files(i), 1) = "\" : files(i) = Left(files(i), Len(files(i)) - 1) : EndIf
-			size + StringByteLength(files(i)) + 1 * SizeOf(Character)
-		Next
-		size  + 1 * SizeOf(Character)
-		*mem = AllocateMemory(size)
-		If *mem
-			*pmem = *mem
-			For i = 0 To j
-				PokeS(*pmem, files(i))
-				*pmem + StringByteLength(files(i)) + 1 * SizeOf(Character)
-			Next
-		EndIf
-		ProcedureReturn *mem
-	EndProcedure
-	
-	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
-	; Copy
+	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    	
+;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+; Copy
 ; 	Procedure.i Copy(Array sources.s(1), Array dest.s(1), title.s = "", hWnd = 0, flags = #FOF_NOCONFIRMATION | #FOF_NOCONFIRMMKDIR | #FOF_NOERRORUI)
 ; 		Protected info.SHFILEOPSTRUCT
 ; 		Protected *source, *dest, result
@@ -1123,34 +1449,6 @@ Module FFH
 ; 		ProcedureReturn lR            
 ; 	EndProcedure
 	
-	Procedure.i Thread_MAME_Roms_Get(t)
-		; Leere Procedure .... 
-	EndProcedure	
-	Procedure.q HTTP_GetContentLength(Url$)
-		
-		#HTTP_QUERY_CONTENT_LENGTH=5
-		
-		Protected FileSizet.s=Space(20),FileSize.q, Size,hINET,hURL
-		
-		hINET=InternetOpen_("blub",0,0,0,0)
-		If hINET
-			hURL =InternetOpenUrl_(hINET,Url$,0,0,$80000000,0)
-			If hURL
-				Size=Len(FileSizet)
-				
-				HttpQueryInfo_(hURL,#HTTP_QUERY_CONTENT_LENGTH,@FileSizet,@Size,#Null)
-				
-				FileSize=Val(FileSizet)
-				
-				InternetCloseHandle_(hURL)
-				InternetCloseHandle_(hINET)
-			Else
-				InternetCloseHandle_(hINET)
-			EndIf
-		EndIf
-		ProcedureReturn FileSize
-	EndProcedure        
-	
 ; 	Procedure HTTP_ReciveFile_ThreadStart()
 ; 		Protected ActionThread.i
 ; 		
@@ -1223,319 +1521,69 @@ Module FFH
 ; 		ProcedureReturn 0
 ; 	EndProcedure
 	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
-	; DeleteLine , Delete a String a Text Line           
-	Procedure.i DeleteLine(iFileID,sFileName.s,iDelLineNum.i)
-		;------------------------------------------------------
-		; ***** Fast code by Bernd (infratec), made fail friendly by IdeasVacuum *****
-		
-		iReturnVal.i = #True
-		iSize.l = FileSize(sFileName)
-		iReadLen.l = 0
-		i.i = 1
-		n.i = 0
-		iLength.l = 0
-		
-		If iSize > 0
-			
-			If ReadFile(iFileID,sFileName)
-				
-				*Buffer = AllocateMemory(iSize)
-				If *Buffer
-					
-					iReadLen = ReadData(iFileID, *Buffer, iSize)
-					CloseFile(iFileID)
-					
-					If(iReadLen = iSize)
-						
-						While i < iDelLineNum
-							
-							If PeekA(*Buffer + n) = $0A
-								i + 1
-							EndIf
-							
-							n + 1
-						Wend
-						
-						*Dest = *Buffer + n
-						n = 0
-						
-						While PeekA(*Dest + n) <> $0A
-							n + 1
-						Wend
-						
-						*Source = *Dest + n + 1
-						iLength = (*Buffer + iSize) - *Source
-						
-						MoveMemory(*Source, *Dest, iLength)
-						
-						iSize - n - 1
-						
-						If CreateFile(iFileID, sFileName)
-							
-							WriteData(iFileID, *Buffer, iSize)
-							CloseFile(iFileID)
-						Else
-							MessageRequester("File Issue","File create failed",#PB_MessageRequester_Ok)
-							iReturnVal = #False
-						EndIf
-						
-					Else
-						MessageRequester("Memory Issue","File read failed",#PB_MessageRequester_Ok)
-						iReturnVal = #False
-					EndIf
-					
-					FreeMemory(*Buffer)
-				Else
-					MessageRequester("Memory Issue","Memory allocation failed",#PB_MessageRequester_Ok)
-					iReturnVal = #False
-				EndIf
-			Else
-				MessageRequester("File Issue","File open failed",#PB_MessageRequester_Ok)
-				iReturnVal = #False
-			EndIf
-		Else
-			MessageRequester("File Issue","File empty",#PB_MessageRequester_Ok)
-			iReturnVal = #False
-		EndIf
-		
-		ProcedureReturn(iReturnVal)
-		
-	EndProcedure
-	
-	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-	;Dies BENÖTIGT ein CoInitialize_(#Null) vor dem Stringgadget und ein CoUninitialize_() beim beenden des Fenster
-	Procedure SHAutoComplete(GadgetID.i, FileHistory = #False, PathHistory = #False, UrlHistory = #False, Flags.l = 0)
-		
-	    ;SH Autovervollständigen
-	    ;Dies BENÖTIGT ein CoInitialize_(#Null) und ein CoUninitialize_()
-	    #SHACF_DEFAULT          = $00000000
-	    #SHACF_FILESYSTEM       = $00000001
-	    #SHACF_URLHISTORY       = $00000002
-	    #SHACF_URLMRU           = $00000004
-	    #SHACF_URLALL           = #SHACF_URLHISTORY | #SHACF_URLMRU
-	    #SHACF_USETAB           = $00000008
-	    #SHACF_FILESYS_ONLY     = $00000010
-	    #SHACF_AUTOSUGGEST_FORCE_ON  = $10000000
-	    #SHACF_AUTOSUGGEST_FORCE_OFF = $20000000
-	    #SHACF_AUTOAPPEND_FORCE_ON   = $40000000
-	    #SHACF_AUTOAPPEND_FORCE_OFF  = $80000000
-	    #SHACF_FILESYS_DIRS = $00000020  
-		
-		CoInitialize_(#Null)
-		
-		If IsGadget( GadgetID )
-			
-			If ( FileHistory = #True )
-				Flags | #SHACF_FILESYSTEM
-			EndIf
-			
-			If ( PathHistory = #True )
-				Flags | #SHACF_FILESYS_ONLY
-			EndIf                
-			
-			If ( UrlHistory = #True )
-				Flags | #SHACF_URLALL
-			EndIf                 
-			
-			SHAutoComplete_( GadgetID( GadgetID ), #SHACF_AUTOAPPEND_FORCE_ON | #SHACF_AUTOSUGGEST_FORCE_ON | Flags)
-			SendMessage_(GadgetID( GadgetID ), #EM_SETSEL, Len( GetGadgetText( GadgetID )+1), GetGadgetText( GadgetID ) + 1 )
-			
-		EndIf
-	EndProcedure   
+  ; DeleteLine , Delete a String a Text Line 
 	
 	;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
 	; Splitted den Path oder eine Textzeile       
 	; Example: FFH::PathPartsExt(TestFile$, Parts()) wobew Parts ein Liste ist (Newlist Parts.()) 
 	;   
-	Procedure PathPartsExt(sText.s, List CharList.s(), sChar$ = Chr(92))
-		
-		Structure tChar
-			StructureUnion
-				c.c
-				s.s { 1 }
-			EndStructureUnion      
-		EndStructure    
-		
-		Protected nLines.l , lCounter.l , iMax, *Source .tChar, nCharsPerLine.w, CharMax.i
-		
-		CharMax = CountString(sText,sChar$)          
-		CharCnt = CharMax
-		
-		If ( CharMax = 0 ) And ( Len(sText) = 0 )
-			ProcedureReturn #False
-		EndIf       
-		
-		If ( Len(sText) >= 1 )
-			
-			For i = 1 To CharMax + 3
-				index$ = StringField(sText, i, sChar$) :lCounter = 0               
-				
-				*Source.tChar   = @index$                
-				nCharsPerLine.w = Len ( index$ )
-				
-				If nCharsPerLine.w <> 0                               
-					nLines.l = Len ( index$ ) / nCharsPerLine  
-				EndIf
-				
-				If ( *Source\c <> 0 )
-					AddElement ( CharList() )
-					While *Source\c
-						
-						If nCharsPerLine - 1 < lCounter
-							AddElement ( CharList() )                            
-							lCounter = 0
-						EndIf
-						
-						CharList() + *Source\s
-						lCounter + 1
-						*Source  + SizeOf ( CHARACTER )                        
-					Wend
-					;
-					; Hänge den Backslash wieder dran
-					If ( sChar$ = Chr(92) ); And CharCnt > 1) 
-																 ;CharCnt - 1
-						CharList() + Chr(92)
-					EndIf    
-				EndIf
-				
-			Next
-		EndIf
-		ProcedureReturn #True
-		
-	EndProcedure
+; 	Procedure PathPartsExt(sText.s, List CharList.s(), sChar$ = Chr(92))
+; 		
+; 		Structure tChar
+; 			StructureUnion
+; 				c.c
+; 				s.s { 1 }
+; 			EndStructureUnion      
+; 		EndStructure    
+; 		
+; 		Protected nLines.l , lCounter.l , iMax, *Source .tChar, nCharsPerLine.w, CharMax.i
+; 		
+; 		CharMax = CountString(sText,sChar$)          
+; 		CharCnt = CharMax
+; 		
+; 		If ( CharMax = 0 ) And ( Len(sText) = 0 )
+; 			ProcedureReturn #False
+; 		EndIf       
+; 		
+; 		If ( Len(sText) >= 1 )
+; 			
+; 			For i = 1 To CharMax + 3
+; 				index$ = StringField(sText, i, sChar$) :lCounter = 0               
+; 				
+; 				*Source.tChar   = @index$                
+; 				nCharsPerLine.w = Len ( index$ )
+; 				
+; 				If nCharsPerLine.w <> 0                               
+; 					nLines.l = Len ( index$ ) / nCharsPerLine  
+; 				EndIf
+; 				
+; 				If ( *Source\c <> 0 )
+; 					AddElement ( CharList() )
+; 					While *Source\c
+; 						
+; 						If nCharsPerLine - 1 < lCounter
+; 							AddElement ( CharList() )                            
+; 							lCounter = 0
+; 						EndIf
+; 						
+; 						CharList() + *Source\s
+; 						lCounter + 1
+; 						*Source  + SizeOf ( CHARACTER )                        
+; 					Wend
+; 					;
+; 					; Hänge den Backslash wieder dran
+; 					If ( sChar$ = Chr(92) ); And CharCnt > 1) 
+; 																 ;CharCnt - 1
+; 						CharList() + Chr(92)
+; 					EndIf    
+; 				EndIf
+; 				
+; 			Next
+; 		EndIf
+; 		ProcedureReturn #True
+; 		
+; 	EndProcedure
 	
-	Procedure.s Doc_BIF_Flags()
-		
-		; Für die CSIDl
-		; https://docs.microsoft.com/en-us/windows/win32/shell/csidl
-		
-		;#BIF_BROWSEINCLUDEURLS (0x00000080)
-		;0x00000080. Version 5.0. The browse dialog box can display URLs. The #BIF_USENEWUI And #BIF_BROWSEINCLUDEFILES flags must also
-		;be set. If any of these three flags are Not set, the browser dialog box rejects URLs. Even when these flags are set, the browse
-		;dialog box displays URLs only If the folder that contains the selected item supports URLs. When the folder's IShellFolder::GetAttributesOf
-		;method is called To request the selected item's attributes, the folder must set the SFGAO_FOLDER attribute flag. Otherwise, the browse
-		;dialog box will Not display the URL.
-		
-		;#BIF_EDITBOX|#BIF_VALIDATE
-		;0x00000010. Version 4.71. Include an edit control in the browse dialog box that allows the user to type the name of an item.
-		
-		;#BIF_NEWDIALOGSTYLE or #BIF_USENEWUI
-		;0x00000040. Version 5.0. Use the new user Interface. Setting this flag provides the user With a larger dialog box that can
-		;be resized. The dialog box has several new capabilities, including: drag-And-drop capability within the dialog box, reordering,
-		;shortcut menus, new folders, delete, And other shortcut menu commands.
-		
-		;#BIF_NONEWFOLDERBUTTON (0x00000200)
-		;0x00000200. Version 6.0. Do Not include the New Folder button IN the browse dialog box.
-		
-		;#BIF_BROWSEFORCOMPUTER (0x00001000)
-		;0x00001000. Only Return computers. If the user selects anything other than a computer, the OK button is grayed.        
-		
-		;#BIF_BROWSEFORPRINTER (0x00002000)
-		;0x00002000. Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed. 
-		;IN Windows XP And later systems, the best practice is To use a Windows XP-style dialog, setting the root of the dialog To the
-		;Printers And Faxes folder (CSIDL_PRINTERS).
-		
-		;#BIF_BROWSEINCLUDEFILES (0x00004000)
-		;0x00004000. Version 4.71. The browse dialog box displays files As well As folders.
-		
-		;#BIF_SHAREABLE (0x00008000)
-		;0x00008000. Version 5.0. The browse dialog box can display sharable resources on remote systems. This is intended For applications
-		;that want To expose remote shares on a local system. The #BIF_NEWDIALOGSTYLE flag must also be set.             
-		
-		; CSIDL_ADMINTOOLS                  FOLDERID_AdminTools         Version 5.0. The file system directory that is used To store administrative tools For an individual user. The MMC will save customized consoles To this directory, And it will roam With the user.
-		; CSIDL_ALTSTARTUP                  FOLDERID_Startup            The file system directory that corresponds To the user's nonlocalized Startup program group. This value is recognized in Windows Vista for backward compatibility, but the folder itself no longer exists.
-		; CSIDL_APPDATA                     FOLDERID_RoamingAppData     Version 4.71. The file system directory that serves As a common repository For application-specific Data. A typical path is C:\Documents And Settings\username\Application Data.
-		; CSIDL_BITBUCKET                   FOLDERID_RecycleBinFolder   The virtual folder that contains the objects IN the user's Recycle Bin.
-		; CSIDL_CDBURN_AREA                 FOLDERID_CDBurning          Version 6.0. The file system directory that acts As a staging area For files waiting To be written To a CD. A typical path is C:\Documents And Settings\username\Local Settings\Application Data\Microsoft\CD Burning.
-		; CSIDL_COMMON_ADMINTOOLS           FOLDERID_CommonAdminTools   Version 5.0. The file system directory that contains administrative tools For all users of the computer.
-		; CSIDL_COMMON_ALTSTARTUP           FOLDERID_CommonStartup      The file system directory that corresponds To the nonlocalized Startup program group For all users. This value is recognized IN Windows Vista For backward compatibility, but the folder itself no longer exists.
-		; CSIDL_COMMON_APPDATA              FOLDERID_ProgramData        Version 5.0. The file system directory that contains application Data For all users. A typical path is C:\Documents And Settings\All Users\Application Data. This folder is used For application Data that is Not user specific. For example, an application can store a spell-check dictionary, a database of clip art, Or a log file IN the CSIDL_COMMON_APPDATA folder. This information will Not roam And is available To anyone using the computer.
-		; CSIDL_COMMON_DESKTOPDIRECTORY     FOLDERID_PublicDesktop      The file system directory that contains files And folders that appear on the desktop For all users. A typical path is C:\Documents And Settings\All Users\Desktop.
-		; CSIDL_COMMON_DOCUMENTS            FOLDERID_PublicDocuments    The file system directory that contains documents that are common To all users. A typical path is C:\Documents And Settings\All Users\Documents.
-		; CSIDL_COMMON_FAVORITES            FOLDERID_Favorites          The file system directory that serves As a common repository For favorite items common To all users.
-		; CSIDL_COMMON_MUSIC                FOLDERID_PublicMusic        Version 6.0. The file system directory that serves As a repository For music files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Music.
-		; CSIDL_COMMON_OEM_LINKS            FOLDERID_CommonOEMLinks     This value is recognized IN Windows Vista For backward compatibility, but the folder itself is no longer used.
-		; CSIDL_COMMON_PICTURES             FOLDERID_PublicPictures     Version 6.0. The file system directory that serves As a repository For image files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Pictures.
-		; CSIDL_COMMON_PROGRAMS             FOLDERID_CommonPrograms     The file system directory that contains the directories For the common program groups that appear on the Start menu For all users. A typical path is C:\Documents And Settings\All Users\Start Menu\Programs.
-		; CSIDL_COMMON_STARTMENU            FOLDERID_CommonStartMenu    The file system directory that contains the programs And folders that appear on the Start menu For all users. A typical path is C:\Documents And Settings\All Users\Start Menu.
-		; CSIDL_COMMON_STARTUP              FOLDERID_CommonStartup      The file system directory that contains the programs that appear IN the Startup folder For all users. A typical path is C:\Documents And Settings\All Users\Start Menu\Programs\Startup.
-		; CSIDL_COMMON_TEMPLATES            FOLDERID_CommonTemplates    The file system directory that contains the templates that are available To all users. A typical path is C:\Documents And Settings\All Users\Templates.
-		; CSIDL_COMMON_VIDEO                FOLDERID_PublicVideos       Version 6.0. The file system directory that serves As a repository For video files common To all users. A typical path is C:\Documents And Settings\All Users\Documents\My Videos.
-		; CSIDL_COMPUTERSNEARME             FOLDERID_NetworkFolder      The folder that represents other computers IN your workgroup.
-		; CSIDL_CONNECTIONS                 FOLDERID_ConnectionsFolder  The virtual folder that represents Network Connections, that contains network And dial-up connections.
-		; CSIDL_CONTROLS                    FOLDERID_ControlPanelFolder The virtual folder that contains icons For the Control Panel applications.
-		; CSIDL_COOKIES                     FOLDERID_Cookies            The file system directory that serves As a common repository For Internet cookies. A typical path is C:\Documents And Settings\username\Cookies.
-		; CSIDL_DESKTOP                     FOLDERID_Desktop            The virtual folder that represents the Windows desktop, the root of the namespace.
-		; CSIDL_DESKTOPDIRECTORY            FOLDERID_Desktop            The file system directory used To physically store file objects on the desktop (Not To be confused With the desktop folder itself). A typical path is C:\Documents And Settings\username\Desktop.
-		; CSIDL_DRIVES                      FOLDERID_ComputerFolder     The virtual folder that represents My Computer, containing everything on the local computer: storage devices, printers, And Control Panel. The folder can also contain mapped network drives.
-		; CSIDL_FAVORITES                   FOLDERID_Favorites          The file system directory that serves As a common repository For the user's favorite items. A typical path is C:\Documents and Settings\username\Favorites.
-		; CSIDL_FONTS                       FOLDERID_Fonts              A virtual folder that contains fonts. A typical path is C:\Windows\Fonts.
-		; CSIDL_HISTORY                     FOLDERID_History            The file system directory that serves As a common repository For Internet history items.
-		; CSIDL_INTERNET                    FOLDERID_InternetFolder     A virtual folder For Internet Explorer.
-		; CSIDL_INTERNET_CACHE              FOLDERID_InternetCache      Version 4.72. The file system directory that serves As a common repository For temporary Internet files. A typical path is C:\Documents And Settings\username\Local Settings\Temporary Internet Files.
-		; CSIDL_LOCAL_APPDATA               FOLDERID_LocalAppData       Version 5.0. The file system directory that serves As a Data repository For local (nonroaming) applications. A typical path is C:\Documents And Settings\username\Local Settings\Application Data.
-		; CSIDL_MYDOCUMENTS                 FOLDERID_Documents          Version 6.0. The virtual folder that represents the My Documents desktop item. This value is equivalent To CSIDL_PERSONAL.
-		; CSIDL_MYMUSIC                     FOLDERID_Music              The file system directory that serves As a common repository For music files. A typical path is C:\Documents And Settings\User\My Documents\My Music.
-		; CSIDL_MYPICTURES                  FOLDERID_Pictures           Version 5.0. The file system directory that serves As a common repository For image files. A typical path is C:\Documents And Settings\username\My Documents\My Pictures.
-		; CSIDL_MYVIDEO                     FOLDERID_Videos             Version 6.0. The file system directory that serves As a common repository For video files. A typical path is C:\Documents And Settings\username\My Documents\My Videos.
-		; CSIDL_NETHOOD                     FOLDERID_NetHood            A file system directory that contains the link objects that may exist IN the My Network Places virtual folder. It is Not the same As CSIDL_NETWORK, which represents the network namespace root. A typical path is C:\Documents And Settings\username\NetHood.
-		; CSIDL_NETWORK                     FOLDERID_NetworkFolder      A virtual folder that represents Network Neighborhood, the root of the network namespace hierarchy.
-		; CSIDL_PERSONAL                    FOLDERID_Documents          Version 6.0. The virtual folder that represents the My Documents desktop item. This is equivalent To CSIDL_MYDOCUMENTS.
-		;Previous To Version 6.0. The file system directory used To physically store a user's common repository of documents. A typical path is C:\Documents and Settings\username\My Documents. This should be distinguished from the virtual My Documents folder in the namespace. To access that virtual folder, use SHGetFolderLocation, which returns the ITEMIDLIST for the virtual location, or refer to the technique described in Managing the File System.
-		; CSIDL_PRINTERS                    FOLDERID_PrintersFolder     The virtual folder that contains installed printers.
-		; CSIDL_PRINTHOOD                   FOLDERID_PrintHood          The file system directory that contains the link objects that can exist IN the Printers virtual folder. A typical path is C:\Documents And Settings\username\PrintHood.
-		; CSIDL_PROFILE                     FOLDERID_Profile            Version 5.0. The user's profile folder. A typical path is C:\Users\username. Applications should not create files or folders at this level; they should put their data under the locations referred to by CSIDL_APPDATA or CSIDL_LOCAL_APPDATA. However, if you are creating a new Known Folder the profile root referred to by CSIDL_PROFILE is appropriate.
-		; CSIDL_PROGRAM_FILES               FOLDERID_ProgramFiles       Version 5.0. The Program Files folder. A typical path is C:\Program Files.
-		; CSIDL_PROGRAM_FILESX86            FOLDERID_ProgramFilesX86    
-		; CSIDL_PROGRAM_FILES_COMMON        FOLDERID_ProgramFilesCommon Version 5.0. A folder For components that are Shared across applications. A typical path is C:\Program Files\Common. Valid only For Windows XP.
-		; CSIDL_PROGRAM_FILES_COMMONX86     FOLDERID_ProgramFilesCommonX86
-		; CSIDL_PROGRAMS                    FOLDERID_Programs           The file system directory that contains the user's program groups (which are themselves file system directories). A typical path is C:\Documents and Settings\username\Start Menu\Programs.
-		; CSIDL_RECENT                      FOLDERID_Recent             The file system directory that contains shortcuts To the user's most recently used documents. A typical path is C:\Documents and Settings\username\My Recent Documents. To create a shortcut in this folder, use SHAddToRecentDocs. In addition to creating the shortcut, this function updates the Shell's List of recent documents And adds the shortcut To the My Recent Documents submenu of the Start menu.
-		; CSIDL_RESOURCES                   FOLDERID_ResourceDir         Windows Vista. The file system directory that contains resource Data. A typical path is C:\Windows\Resources.
-		; CSIDL_RESOURCES_LOCALIZED         FOLDERID_LocalizedResourcesDir
-		; CSIDL_SENDTO                      FOLDERID_SendTo             The file system directory that contains Send To menu items. A typical path is C:\Documents And Settings\username\SendTo.
-		; CSIDL_STARTMENU                   FOLDERID_StartMenu          The file system directory that contains Start menu items. A typical path is C:\Documents And Settings\username\Start Menu.
-		; CSIDL_STARTUP                     FOLDERID_Startup            The file system directory that corresponds To the user's Startup program group. The system starts these programs whenever the associated user logs on. A typical path is C:\Documents and Settings\username\Start Menu\Programs\Startup.
-		; CSIDL_SYSTEM                      FOLDERID_System             Version 5.0. The Windows System folder. A typical path is C:\Windows\System32.
-		; CSIDL_SYSTEMX86                   FOLDERID_SystemX86          
-		; CSIDL_TEMPLATES                   FOLDERID_Templates          The file system directory that serves As a common repository For document templates. A typical path is C:\Documents And Settings\username\Templates.
-		; CSIDL_WINDOWS                     FOLDERID_Windows            Version 5.0. The Windows directory Or SYSROOT. This corresponds To the %windir% Or %SYSTEMROOT% environment variables. A typical path is C:\Windows.
-		
-		; Flags
-		; CSIDL_FLAG_CREATE                 KF_FLAG_CREATE              Version 5.0. Combine With another CSIDL To force the creation of the associated folder If it does Not exist.
-		; CSIDL_FLAG_DONT_UNEXPAND          KF_FLAG_DONT_UNEXPAND       Combine With another CSIDL constant To ensure the expansion of environment variables.
-		; CSIDL_FLAG_DONT_VERIFY            KF_FLAG_DONT_VERIFY         Combine With another CSIDL constant, except For CSIDL_FLAG_CREATE, To Return an unverified folder path With no attempt To create Or initialize the folder.
-		; CSIDL_FLAG_NO_ALIAS               KF_FLAG_NO_ALIAS            Combine With another CSIDL constant To ensure the retrieval of the true system path For the folder, free of any aliased placeholders such As %USERPROFILE%, returned by SHGetFolderLocation. This flag has no effect on paths returned by SHGetFolderPath.
-		; CSIDL_FLAG_PER_USER_INIT          
-		; CSIDL_FLAG_MASK              A mask For any valid CSIDL flag value.                
-	EndProcedure 
-	
-	
-	Procedure _Recycle(File$)
-		SHFileOp.SHFILEOPSTRUCT
-		m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
-		If m
-			PokeS(m,File$)
-			SHFileOp\pFrom  = m
-			SHFileOp\wFunc  = #FO_DELETE
-			SHFileOp\fFlags = #FOF_ALLOWUNDO|#FOF_SILENT|#FOF_NOCONFIRMATION
-			result = SHFileOperation_(SHFileOp)
-			FreeMemory(m)
-		EndIf
-	EndProcedure
-	
-	Procedure _Delete(File$)
-		SHFileOp.SHFILEOPSTRUCT
-		m = AllocateMemory(( Len(File$)+2 ) * SizeOf(Character) )
-		If m
-			PokeS(m,File$)
-			SHFileOp\pFrom  = m
-			SHFileOp\wFunc  = #FO_DELETE
-			SHFileOp\fFlags = #FOF_SILENT|#FOF_NOCONFIRMATION
-			result = SHFileOperation_(SHFileOp)
-			FreeMemory(m)
-		EndIf  
-	EndProcedure
 	
 	;  DataSection
 	;          FOLDERID_NetworkFolder: ; {D20BEEC4-5CA8-4905-AE3B-BF251EA09B53}
@@ -2080,9 +2128,9 @@ CompilerEndIf
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 463
-; FirstLine = 419
-; Folding = ---4
+; CursorPosition = 685
+; FirstLine = 307
+; Folding = PI-3
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = Release\

@@ -41,7 +41,7 @@
     Declare     PicSupport_Hide_Show()
     
     Declare.s   Getfile_Portbale_ModeOut(TestFile$)
-    Declare.s   Getfile_Portbale_Modein(TestFile$)
+    Declare.s   Getfile_Portbale_ModeIn(szTestFile.s = "")
     
     Declare     Text_Show()
     Declare     Text_GetDB()
@@ -1624,7 +1624,7 @@ Module VEngine
         ListIconBox_Get_InfoPosition()
         
         ;List_AutoSelect()
-        SetActiveGadget(DC::#ListIcon_001)
+        SetActiveGadget(DC::#ListIcon_001)        
     EndProcedure
     ;****************************************************************************************************************************************************************
     ;
@@ -1856,142 +1856,177 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ;
     ;****************************************************************************************************************************************************************     
-    Procedure.s Getfile_Portbale_ModeIn(TestFile$)
+    Procedure.s Getfile_Portbale_ModeIn(szTestFile.s = "")
+      
+      Debug(#CRLF$ + "Modul Init: " + #PB_Compiler_Module +  " =======================================")
+      
+      Protected sMaxList.i, dMaxList.i, Index.i, MaxIndex.i, SString$, DString$, CompareBaseP$ = "", CompareResult.i
+      Protected OptDIR$, OptIn.b = #False, OptOut.b = #False 
+      Protected szOrigSourcePath.s = ""
+      Protected szOrigDestPath.s   = ""
+      Protected szOrigDestFile.s   = ""
+      
+      If (szTestFile)        
+        ; 
+        ; Original Path. Nicht kleingesschrieben
         
-        Protected sMaxList.i, dMaxList.i, Index.i, MaxIndex.i, SString$, DString$, CompareBaseP$ = "", CompareResult.i
-        Protected OrigSourcePath$, OrigDestinPath$, OrigDestinFile$, OptDIR$, OptIn = #False, OptOut = #False 
+        szOrigSourcePath = Startup::*LHGameDB\PortablePath
+        szOrigDestPath = GetPathPart(szTestFile)
+        szOrigDestFile = GetFilePart(szTestFile)
         
-        If (TestFile$)
-            NewList SourceParts.s()
-            NewList Destn_Parts.s()
-            ; 
-            ; Original Path. Nicht kleingesschrieben
-            
-            OrigSourcePath$ = Startup::*LHGameDB\PortablePath
-            OrigDestinPath$ = GetPathPart(TestFile$)
-            OrigDestinFile$ = GetFilePart(TestFile$)
-            
-            If ( OrigSourcePath$ = OrigDestinPath$ )
-                ; Beide Pfade sind von anfang an identisch
-                ; Übernehmen wir so
-                OrigDestinPath$ = ReplaceString(OrigDestinPath$,OrigSourcePath$,"",0,1,1)
-                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File In: " + Chr(13) + OrigDestinPath$ + OrigDestinFile$)
-                ProcedureReturn OrigDestinPath$ + OrigDestinFile$
-            EndIf
-            
-            
-            ;
-						; Splitte den Source Path und Vergleiche diesen
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigSourcePath$+ "Linkes Ist SourceParts()")
-            FFH::PathPartsExt(OrigSourcePath$, SourceParts())
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigDestinPath$+ "Linked Ist Destn_Parts()")            
-            FFH::PathPartsExt(OrigDestinPath$, Destn_Parts())        
-            
-            ResetList( SourceParts() ): ResetList( Destn_Parts() )
-            
-            sMaxList = ListSize(SourceParts())
-            dMaxList = ListSize(Destn_Parts())
-            
-            If ( sMaxList > dMaxList )
-                ;
-                ; Source Pfad ist grösser als der Destinations Pfad                
-                 MaxIndex = dMaxList
-            ElseIf ( sMaxList < dMaxList )
-                ;
-                ; Destinations Pfad ist grösser als der Source Pfad                
-                 MaxIndex = sMaxList                
-            ElseIf ( sMaxList = dMaxList )
-                ;
-                ; Destinations Pfad ist gleich gross wie der Source Pfad                 
-                 MaxIndex = sMaxList                 
-            EndIf    
-            
-            For Index = 0 To MaxIndex -1
-                SelectElement( SourceParts(),Index)
-                SelectElement( Destn_Parts(),Index)
-                
-                SString$ = SourceParts()
-                DString$ = Destn_Parts()
-                If ( SString$ <> DString$ )
-                    Break;
-                EndIf    
-                    
-                If ( SString$ = DString$ )
-                    
-                    CompareResult + 1
-                    CompareBaseP$ + DString$
-                    
-                    If ( CompareBaseP$ = Startup::*LHGameDB\PortablePath )
-                        ;
-                        ; Der Programm Path ist gleich
-                        OptIn = #True
-                        Break;
-                    EndIf    
-                    
-                    If (Index = MaxIndex -1)
-                        ;
-                        ;Liegt ausserhalb des Programms Verzeichnisses
-                        OptOut = #True
-                        Break
-                    EndIf 
-                    
-                    If ( CompareResult = 0 And Index = 0 )
-                        ;
-                        ; Die Root Laufwerke sind anders, break schon mal hier dsurchführen
-                        Break;
-                    EndIf    
-                EndIf                                
-            Next
-            
-            ;
-            ; Liste Löschen
-            ClearList( Destn_Parts() )  
-            ;
-						; Pfad splitten anhand des ORIGINALEN Pfad
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+OrigDestinPath$+ "Linked Ist Destn_Parts() ()")
-            FFH::PathPartsExt(OrigDestinPath$ , Destn_Parts())
-            ResetList( Destn_Parts() )
-            
-            If ( CompareResult >= 1 )
-                
-                OptDIR$ = "..\": CreateInsidePath = #False
-                If      ( sMaxList > dMaxList ) And ( OptOut = #True ): OptDIR$ = "..\"                                                            
-                    ;
-                    ; Ziel befindet sich im Verzeichnis wo auch die Datenbank ist                    
-                ElseIf  ( sMaxList < dMaxList ) And ( OptIn  = #True ): OptDIR$ = ".\"
-                    
-                    CompareResult - 1
-                    
-                    For Index = 0 To CompareResult
-                        
-                        SelectElement( Destn_Parts(),Index)
-                        
-                        If ( CompareResult = Index )
-                            OrigDestinPath$ = ReplaceString(OrigDestinPath$,Destn_Parts(),OptDIR$,0,1,1)
-                        Else
-                            OrigDestinPath$ = ReplaceString(OrigDestinPath$,Destn_Parts(),"",0,1,1)
-                        EndIf    
-                    Next  
-                    
-                    CreateInsidePath = #True
-                    ;
-                    ; Ziel befindet sich ausserhalb des Verzeichnis auf der selben Platte                   
-                EndIf    
-                
-                If ( CreateInsidePath = #False )
-                    For Index = 0 To CompareResult -1
-                        SelectElement( Destn_Parts(),Index)
-                        OrigDestinPath$ = ReplaceString(OrigDestinPath$,Destn_Parts(),OptDIR$,0,1,1)
-                    Next Index                      
-                EndIf
-            EndIf
-            
-            Startup::*LHGameDB\PortablePath = OrigSourcePath$
-            TestFile$ = OrigDestinPath$ + OrigDestinFile$ 
+        If ( szOrigSourcePath = szOrigDestPath )
+          ; Beide Pfade sind von anfang an identisch
+          ; Übernehmen wir so
+          szOrigDestPath = ReplaceString(szOrigDestPath,szOrigSourcePath,"",0,1,1)
+          Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File In: " + Chr(13) + szOrigDestPath + szOrigDestFile)
+          ProcedureReturn szOrigDestPath + szOrigDestFile
+        EndIf
+        
+        FFH::PathPartsExt(szOrigSourcePath)
+        
+        If ( ListSize( FFH::CharList() ) > 0 )
+          ;
+          ; Splitte den Source Path und Vergleiche
+          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List SourceParts(): '"+szOrigSourcePath+"'") 
+          
+          NewList SourceParts.s()              
+          CopyList( FFH::CharList(),SourceParts() )
+          
+          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List ClearList( FFH::CharList() )")             
+          ClearList( FFH::CharList() )
+        EndIf
+        
+        ;
+        ; Splitte den Source Path und Vergleiche  
+        FFH::PathPartsExt(szOrigDestPath)
+        If ( ListSize( FFH::CharList() ) > 0 )
+          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List Destn_Parts(): '"+szOrigDestPath+"'") 
+          
+          
+          NewList Destn_Parts.s()
+          CopyList( FFH::CharList(),Destn_Parts() )
+          
+          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List ClearList( FFH::CharList() )")
+          ClearList( FFH::CharList() )
         EndIf  
         
-         Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File In: " + Chr(13) + TestFile$)
-        ProcedureReturn TestFile$
+        
+        ResetList( SourceParts() ): ResetList( Destn_Parts() )
+        
+        sMaxList = ListSize(SourceParts())
+        dMaxList = ListSize(Destn_Parts())
+        
+        If ( sMaxList > dMaxList )
+          ;
+          ; Source Pfad ist grösser als der Destinations Pfad                
+          MaxIndex = dMaxList
+        ElseIf ( sMaxList < dMaxList )
+          ;
+          ; Destinations Pfad ist grösser als der Source Pfad                
+          MaxIndex = sMaxList                
+        ElseIf ( sMaxList = dMaxList )
+          ;
+          ; Destinations Pfad ist gleich gross wie der Source Pfad                 
+          MaxIndex = sMaxList                 
+        EndIf    
+        
+        For Index = 0 To MaxIndex -1
+          SelectElement( SourceParts(),Index)
+          SelectElement( Destn_Parts(),Index)
+          
+          SString$ = SourceParts()
+          DString$ = Destn_Parts()
+          If ( SString$ <> DString$ )
+            Break;
+          EndIf    
+          
+          If ( SString$ = DString$ )
+            
+            CompareResult + 1
+            CompareBaseP$ + DString$
+            
+            If ( CompareBaseP$ = Startup::*LHGameDB\PortablePath )
+              ;
+              ; Der Programm Path ist gleich
+              OptIn = #True
+              Break;
+            EndIf    
+            
+            If (Index = MaxIndex -1)
+              ;
+              ;Liegt ausserhalb des Programms Verzeichnisses
+              OptOut = #True
+              Break
+            EndIf 
+            
+            If ( CompareResult = 0 And Index = 0 )
+              ;
+              ; Die Root Laufwerke sind anders, break schon mal hier dsurchführen
+              Break;
+            EndIf    
+          EndIf                                
+        Next
+        
+        ;
+        ; Liste Löschen
+        ClearList( Destn_Parts() )  
+        
+        ;
+        ; Pfad splitten anhand den ORIGINALEN Pfad vergleichen            
+        FFH::PathPartsExt(szOrigDestPath)
+        If ( ListSize( FFH::CharList() ) > 0 )
+          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List Destn_Parts(): '"+szOrigDestPath+"'")          
+          CopyList( FFH::CharList(),Destn_Parts() )
+        EndIf  
+        
+        ResetList( Destn_Parts() )
+        
+        If ( CompareResult >= 1 )
+          
+          OptDIR$ = "..\": CreateInsidePath = #False
+          If      ( sMaxList > dMaxList ) And ( OptOut = #True ): OptDIR$ = "..\"                                                            
+            ;
+            ; Ziel befindet sich im Verzeichnis wo auch die Datenbank ist                    
+          ElseIf  ( sMaxList < dMaxList ) And ( OptIn  = #True ): OptDIR$ = ".\"
+            
+            CompareResult - 1
+            
+            For Index = 0 To CompareResult
+              
+              SelectElement( Destn_Parts(),Index)
+              
+              If ( CompareResult = Index )
+                szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),OptDIR$,0,1,1)
+              Else
+                szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),"",0,1,1)
+              EndIf    
+            Next  
+            
+            CreateInsidePath = #True
+            ;
+            ; Ziel befindet sich ausserhalb des Verzeichnis auf der selben Platte                   
+          EndIf    
+          
+          If ( CreateInsidePath = #False )
+            For Index = 0 To CompareResult -1
+              SelectElement( Destn_Parts(),Index)
+              szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),OptDIR$,0,1,1)
+            Next Index                      
+          EndIf
+        EndIf
+        
+        Startup::*LHGameDB\PortablePath = szOrigSourcePath
+        szTestFile = szOrigDestPath + szOrigDestFile 
+      EndIf  
+      
+      If ( ListSize( FFH::CharList() ) > 0 )
+        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / ClearList FFH::CharList()") 
+        ClearList( FFH::CharList() )
+      EndIf 
+      
+      Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / File In: '"+szTestFile+"'") 
+      Debug("Modul Exit : " + #PB_Compiler_Module +  " =======================================")
+      ProcedureReturn szTestFile
     EndProcedure    
     ;****************************************************************************************************************************************************************
     ;
@@ -3093,17 +3128,21 @@ Module VEngine
                        EndSelect        
                        
                        ; Preapre For Uncompress
-                       ;    FileRnd.i = Random(99999,10000)                                 ; Set a Random File                        
+                       ; Entpacke die Datei in Temp/Mülleimer
+                       ;    FileRnd.i = Random(99999,10000)                                 ; Set a Random File
+                            FilesEx.s = GetFilePart( PackEntryFileName$ )
                             Filesfx.s = GetExtensionPart( PackEntryFileName$ )                  ; Extract Extension
-                            FileNme.s = GetTemporaryDirectory() + "_MediaDevice_"+ Str(n) + "." + Filesfx   ; Extract File
+                            FileNme.s = GetTemporaryDirectory() + FilesEx                       ; Extract File
+                            
+                       ;    FileNme.s = GetTemporaryDirectory() + "_MediaDevice_"+ Str(n) + "." + Filesfx   ; Extract File
                             
                             Filesze.i = UncompressPackFile(z, FileNme, PackEntryFileName$ )   ; Uncpmpress File to Temp
                             
                             If FileSize(FileNme) ! Filesze
                                 ; There was a Error
-                                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","There was a error to uncompress File " +#CRLF$+ 
-                                                                                        GetFilePart(Device)+#CRLF$+
-                                                                                        "Extract Error: "+ PackEntryFileName$,2,2,"",0,0,DC::#_Window_005)
+                                Request::MSG(Startup::*LHGameDB\TitleVersion, "W.T.F: ","Fehler beim Entpacken der Datei:" + #CRLF$ + 
+                                                                                        GetFilePart(Device)                + #CRLF$ +
+                                                                                        "Archiv Datei:" + PackEntryFileName$ , 2, 2, "", 0, 0, DC::#_Window_005)
                                 ClosePack(z)  
                                 ProcedureReturn Device
                             EndIf    
@@ -3112,7 +3151,7 @@ Module VEngine
                                                    
                             Request::SetDebugLog("Compressed Image Packed  : "+Chr(34)+ Device             +Chr(34)+"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))                             
                             Request::SetDebugLog("Compressed Image UnPacked: "+Chr(34)+ PackEntryFileName$ +Chr(34)+"  "+#PB_Compiler_Module + " #" + Str(#PB_Compiler_Line))
-                       ClosePack(z)     
+                       ClosePack(z)
                        ProcedureReturn FileNme
                        ; Löschen nicht vergessen
                        Break
@@ -3327,6 +3366,8 @@ Module VEngine
         Startup::*LHGameDB\Settings_SaveTool = #False        
         Startup::*LHGameDB\Settings_VrtlDrve = #False 
         Startup::*LHGameDB\Settings_Registry = #False
+        Startup::*LHGameDB\Settings_VKexNext = #False        
+        
         
         Startup::*LHGameDB\vKeyActivShot = #False       ; Einstellung für den Loop
         Startup::*LHGameDB\vKeyActivKill = #False       ; Einstellung für den Loop  
@@ -3336,20 +3377,161 @@ Module VEngine
     ; Section Set Media Device
     ;****************************************************************************************************************************************************************    
     
-    
+    Procedure.s DOS_SetupSlots(Args.s, ArcSupport.i, NoQuotes.i)
+      
+      If (Args)
+        
+        Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+ Str(#PB_Compiler_Line) + #CR$ +  #TAB$  + "Setup Slots")
+        
+        Protected nIndex.b          = 0
+        Protected SlotExtdCmd.b     = 0
+        Protected szSlotDevice.s    = ""
+        Protected szSlotComand.s    = ""
+        Protected szTempArgument.s  = Args
+        
+        Structure Slot_t
+          szDevice.s
+          SlotExtdCmd.b
+        EndStructure
+        
+        NewList SlotContent.Slot_t()
+        
+        AddElement( SlotContent() )
+        SlotContent()\szDevice    = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev0","",Startup::*LHGameDB\GameID,"",1)
+        SlotContent()\SlotExtdCmd = #False
+        
+        AddElement( SlotContent() )
+        SlotContent()\szDevice    = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev1","",Startup::*LHGameDB\GameID,"",1)
+        SlotContent()\SlotExtdCmd = #False      
+        
+        AddElement( SlotContent() )
+        SlotContent()\szDevice    = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev2","",Startup::*LHGameDB\GameID,"",1)
+        SlotContent()\SlotExtdCmd = #False
+        
+        AddElement( SlotContent() )
+        SlotContent()\szDevice    = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev3","",Startup::*LHGameDB\GameID,"",1)
+        SlotContent()\SlotExtdCmd = #False
+        
+        ;
+        ; Kommando "%sc" zählen und überprüfen
+        SlotExtdCmd + CountString(szTempArgument,"%sc")
+        
+        If (SlotExtdCmd > 0)
+          
+          For nIndex = 0 To SlotExtdCmd -1
+            
+            If (nIndex = 0)
+              SelectElement( SlotContent(), 0) 
+              SlotContent()\SlotExtdCmd = #True            
+            EndIf
+            
+            If (nIndex = 1)
+              SelectElement( SlotContent(), 1) 
+              SlotContent()\SlotExtdCmd = #True
+            EndIf
+            
+            If (nIndex = 2)
+              SelectElement( SlotContent(), 2) 
+              SlotContent()\SlotExtdCmd = #True
+            EndIf
+            
+            If (nIndex = 3)
+              SelectElement( SlotContent(), 3) 
+              SlotContent()\SlotExtdCmd = #True
+            EndIf
+          Next
+        EndIf
+        
+        If IsWindow(DC::#_Window_005)
+          ; Quck Start - For C64 File Manager
+          ;
+          SelectElement( SlotContent(), 0) 
+          SlotContent()\szDevice  = GetGadgetText( DC::#String_102 )
+          Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ C64 File Manager: " + SlotContent()\szDevice )          
+        EndIf
+        
+        For nIndex = 0 To 3
+          ResetList( SlotContent() )
+          SelectElement( SlotContent(), nIndex)        
+          
+          If ( Len( SlotContent()\szDevice ) > 0 And SlotContent()\SlotExtdCmd = #False)
+            
+            szSlotDevice = Getfile_Portbale_ModeOut(SlotContent()\szDevice)
+            
+            Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ Medium: " + szSlotDevice)              
+
+            ; Unterstützung für Archive
+            If ( ArcSupport  = 1 )              
+              Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ " Slot " + Str(nIndex) + "/ ArcSupport")              
+              szSlotDevice = DOS_PKARC(szSlotDevice, 1)
+            EndIf
+
+            ; Unterstützung für "Double Quotes"          
+            If (NoQuotes = -1 )              
+              Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ NoQuotes")              
+              szSlotDevice = DOS_Device_VerifySpace(szSlotDevice)
+            EndIf
+            
+            ;
+            ; Hole die Position von dem Commando "%s"
+            Define xPos.i = FindString(szTempArgument, "%s")
+            
+            If (xPos = 0)
+              Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ Medium: Position %s nicht gefunden")
+              CallDebugger            
+            EndIf
+            
+            szTempArgument = ReplaceString(szTempArgument,"%s", szSlotDevice,0,xPos,1)
+            
+          ElseIf ( Len( SlotContent()\szDevice ) > 0 And SlotContent()\SlotExtdCmd = #True)
+            
+            szSlotComand = SlotContent()\szDevice
+            If ( Right(szSlotComand, 1) = Chr( 34 ) ) And ( Left(szSlotComand, 1) = Chr( 34 ) )
+              szSlotComand = Mid( szSlotComand, 2, Len(szSlotComand)-2 ) 
+            EndIf
+                        
+            Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line) +#TAB$+"Slot " + Str(nIndex) + "/ Erweitertes Kommando: " + szSlotComand)                   
+            ;
+            ; Hole die Position von dem Commando "%sc"
+            Define xPos.i = FindString(szTempArgument, "%sc")
+            If (xPos = 0)
+              Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ Medium: Position %sc nicht gefunden")
+              CallDebugger
+            EndIf
+            
+            szTempArgument = ReplaceString(szTempArgument,"%sc", szSlotComand,0,xPos,1)            
+          EndIf
+        Next        
+        Args = szTempArgument
+        
+        ;
+        ;
+        ;Mame/ Mess Helper.
+        If ( Startup::*LHGameDB\Settings_MameHelp = #True )
+          Args = DOS_Argv_MameHelp(Args)
+          Debug("Modul: "+#PB_Compiler_Module+"/ Line: "+Str(#PB_Compiler_Line)+#TAB$+ "Slot " + Str(nIndex) + "/ Medium: Settings Mame Help")
+        EndIf        
+      EndIf
+      
+      ProcedureReturn Args
+      
+    EndProcedure
+    ;
+    ;
+    ;
     Procedure.s DOS_Device(Args.s, CheckPrg.s, sSlot.i = 0, FullPath.s = "")
         
         Protected s.s, Device1$, Device2$, Device3$, Device4$, DevPosition1 = -1, DevPosition2 = -1, DevPosition3 = -1, DevPosition4 = -1, CommandPos.i = -1, NoQuotes.i = -1, nq.s,  ArcSupport.i = -1
         
         DOS_Prepare_Argument_Settings()
         
-        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Commandline Support : =======================================")   
+        Debug("Modul Init: " + #PB_Compiler_Module + " ## Commandline Support : =======================================")
+        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Argumente: '"+Args+"'")        
         ;
         ; Medien Gespeichert. Prüfen wir
         ;
         ; Lege die Medien in die Strings Device1$ bis 4
         
-        Debug Args
         For  ArgIndex = 1 To Len(Args)
             
             s.s = Mid(Args,ArgIndex,1)
@@ -3388,7 +3570,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_bBlockFW = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Block Firewall Net (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Block Firewall Net (Activ)")  
         EndIf         
             
         ;
@@ -3402,23 +3584,23 @@ Module VEngine
                 If ( s =  "%n" )
                     s.s + Mid(Args,ArgIndex+2,1)
                     If ( s =  "%nb" )
-                        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: NoBorder (Activ)")                         
+                        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder (Activ)")                         
                         Startup::*LHGameDB\Settings_NoBorder = #True
                         s.s + Mid(Args,ArgIndex+3,1)
                         
                         If ( s =  "%nbc" )                        
-                            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: NoBorder (Activ) ( +Center Window )")                         
+                            Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder (Activ) ( +Center Window )")                         
                             Startup::*LHGameDB\Settings_NBCenter = #True
                             s.s + Mid(Args,ArgIndex+4,1)
                             
                             If ( s =  "%nbcb" )
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: NoBorder (Activ) ( +Remove Style #OverlappedWindow )")  
+                                Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder (Activ) ( +Remove Style #OverlappedWindow )")  
                                 Startup::*LHGameDB\Settings_OvLapped = #True
                             EndIf                            
                         EndIf
                         
                         If ( s =  "%nbb" ) 
-                            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: NoBorder (Activ) ( +Remove Style #OverlappedWindow )")  
+                            Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder (Activ) ( +Remove Style #OverlappedWindow )")  
                             Startup::*LHGameDB\Settings_OvLapped = #True                                
                         EndIf   
 
@@ -3426,18 +3608,18 @@ Module VEngine
                             NBTime.s = Str(NBIndex)                                                        
                             If ( Mid(Args,ArgIndex+5,1) =  NBTime) And (s =  "%nbcb")
                                 
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
                                 Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
                                 s.s + Mid(Args,ArgIndex+5,1)
                                 Break;
                             ElseIf ( s =  "%nbc"+NBTime Or s =  "%nbb"+NBTime)
                                 
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
                                 Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
                                 Break;
                             ElseIf (s =  "%nb"+NBTime)
                                 
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline:  NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
+                                Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / NoBorder Time ["+Str(NBIndex+1)+" ] (Activ)")
                                 Startup::*LHGameDB\Settings_NoBoTime = NBIndex*255  
                                 Break;
                             EndIf                             
@@ -3502,7 +3684,7 @@ Module VEngine
                                 s.s + Mid(Args,ArgIndex+4,1)
                                 
                                 If ( s =  "%cpuf" )
-                                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Zugehörigkeit Alle CPUS (Activ)")                         
+                                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Zugehörigkeit Alle CPUS (Activ)")                         
                                     Startup::*LHGameDB\Settings_Affinity = 999
                                     Args = DOS_TrimArg(Args.s, s) 
                                     Break;
@@ -3510,7 +3692,7 @@ Module VEngine
                                     For CPUIndex = 0 To 64
                                         CPUNum.s = Str(CPUIndex)
                                         If ( s =  "%cpu"+CPUNum )
-                                            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Zugehörigkeit ["+Str(CPUIndex+1)+" CPU] (Activ)") 
+                                            Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Zugehörigkeit ["+Str(CPUIndex+1)+" CPU] (Activ)") 
                                             Startup::*LHGameDB\Settings_Affinity = CPUIndex
                                             Args = DOS_TrimArg(Args.s, s) 
                                             Break;
@@ -3537,7 +3719,7 @@ Module VEngine
                             s.s + Mid(Args,ArgIndex+3,1)
                             
                             If ( s =  "%fmm" )                        
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Freemory External programm (Activ)")                         
+                                Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Freemory External programm (Activ)")                         
                                 Startup::*LHGameDB\Settings_FreeMemE = #True                                                                
                                 
                                 SchwellenMemory.s = ""
@@ -3571,10 +3753,8 @@ Module VEngine
                                     EndIf                                      
                                     
                                     SchwellenMemory = MathBytes::ConvertFileSize(Size.q,0,1)                                                                  
-                                    Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Freemory "+SchwellenMemory+" (Activ)")                                                
-                                      
+                                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Freemory "+SchwellenMemory+" (Activ)")                                      
                                     Startup::*LHGameDB\Settings_Schwelle = Size
-                                    
                                     Break
                                 EndIf
                                 
@@ -3603,7 +3783,7 @@ Module VEngine
         							Startup::*LHGameDB\DriveLetter 				= Right(s,1)
         							Startup::*LHGameDB\Settings_VrtlDrve 	= #True
         							Args = DOS_TrimArg(Args.s, s)         							
-        							Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Virtuial Drive Support - Mount: " + Startup::*LHGameDB\DriveLetter + ":\" )  
+                      Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Virtual Drive Support - Mount: " + Startup::*LHGameDB\DriveLetter + ":\" )  
         					EndSelect
         				EndIf        				
         			EndIf        			
@@ -3686,7 +3866,18 @@ Module VEngine
         
 
                              
-            
+        ;
+        ;
+        ;
+        ;
+        ; Command: VxKex-Next Support 
+        szCommand.s = "%vxkex"          
+        ArgPos.i = FindString( Args ,szCommand.s,1,#PB_String_CaseSensitive)
+        If ( ArgPos > 0 )
+             Args = DOS_TrimArg(Args.s, szCommand.s) 
+             Startup::*LHGameDB\Settings_VKexNext = #True
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / VKex-Next (Activ)")
+        EndIf             
         ;
         ;
         ; Aktiveren des Alternativen process
@@ -3695,7 +3886,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_aExecute = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Alternativer Process")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Alternativer Process")  
         EndIf             
        
         ;
@@ -3706,7 +3897,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_MameHelp = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mame Help")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Mame Help")  
         EndIf  
                         
         ;
@@ -3717,7 +3908,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_hkeyKill = #False
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Terminate Programm (Ausgeschaltet)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Hotkey: Terminate Programm (Ausgeschaltet)")  
         EndIf          
         
         ;
@@ -3728,7 +3919,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_Registry = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Hotkey: Registry Support (Eingeschaltet)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Hotkey: Registry Support (Eingeschaltet)")  
         EndIf  
            
         
@@ -3740,7 +3931,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_bNoOutPt = #False
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Disable Output (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Disable Output (Activ)")  
         EndIf  
         
         ;
@@ -3751,7 +3942,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_SaveTool = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Save Support (Backup and Restore)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Save Support (Backup and Restore)")  
         EndIf 
            
         ;
@@ -3762,7 +3953,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_bSaveLog = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Redirect Output (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Redirect Output (Activ)")  
          EndIf   
          
         ;
@@ -3773,7 +3964,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_fMonitor = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Monitoring Disk Activity")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Monitoring Disk Activity")  
         EndIf     
          
         ;
@@ -3784,7 +3975,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_LokMouse = #True 
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Mouse Lock (Activ)")   
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Mouse Lock (Activ)")   
         EndIf          
          
            
@@ -3798,7 +3989,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_Explorer = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")    
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Archive (Activ)")    
         EndIf         
         ;
         ;
@@ -3808,7 +3999,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              NoQuotes = 1
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Dont Use Double Quotes (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Dont Use Double Quotes (Activ)")  
         EndIf 
          
         ;
@@ -3819,7 +4010,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              ArcSupport = 1
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Archive (Activ)")  
          EndIf 
          
         ;
@@ -3830,7 +4021,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_Taskbar = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Archive (Activ)")  
         EndIf 
                 
         ;
@@ -3841,7 +4032,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_DwmUxsms = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Archive (Activ)")  
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Archive (Activ)")  
         EndIf  
         
         ; Einzelne Buchstaben ============================================================================================================================================
@@ -3853,7 +4044,7 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_Minimize = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Minimze (Activ)") 
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Minimze (Activ)") 
         EndIf          
         ;
         ;
@@ -3863,10 +4054,9 @@ Module VEngine
         If ( ArgPos > 0 )
              Args = DOS_TrimArg(Args.s, szCommand.s) 
              Startup::*LHGameDB\Settings_Asyncron = #True
-             Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Asyncron (Activ)")      
+             Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Asyncron (Activ)")      
         EndIf          
-        ;
-        ;
+
         ; Command: Hide, Unhide Taskbar 
         ;For  ArgIndex = 1 To Len(Args)
         ;    
@@ -3940,292 +4130,105 @@ Module VEngine
         
         ArgLen   = Len(Args) 
         For  ArgIndex = 1 To ArgLen           
-            s.s = Mid(Args,ArgIndex,1)
-            If ( s = "%" )
-                s.s + Mid(Args,ArgIndex+1,1)
-                If ( s =  "%c" )                                      
-                    sCompArg$ = Compat_GetCmdString(ArgIndex+2, ArgLen, Args )
-                                     
-                    If Len(sCompArg$) > 0
-                        
-                        UseModule Compatibility
-                        ; Lese OSModi
-                        
-                        ResetList(CompatibilitySystem())                    
-                        For LstIndex = 0 To ListSize(CompatibilitySystem()) 
-                            NextElement(CompatibilitySystem())
-                            sCmpMod$ = CompatibilitySystem()\OSModus$
-                            
-                            If UCase( sCompArg$ ) = UCase( sCmpMod$ )
-                                
-                                Startup::*LHGameDB\Settings_bCompatM = #True                                
-                                Startup::*LHGameDB\Settings_sCmpFile = FullPath + CheckPrg          ;Path und Programm der in die Registry geschrieben werden soll
-                                
-                                If Len(Startup::*LHGameDB\Settings_sCmpArgs) > 0
-                                    sCmpMod$ = " " + sCmpMod$ 
-                                EndIf
-                                
-                                Startup::*LHGameDB\Settings_sCmpArgs + UCase( sCmpMod$ )            ;Registry Werte für den Compatibility Modus                                
-                                
-                                Args     = DOS_TrimArg(Args.s, s+sCompArg$)
-                                ArgLen   = Len(Args) 
-                                ArgIndex = 0
-                                sCMPFound= #True
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Compatibility Mode (Activ)")   
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)  
-                                Break
-                                Continue
-                            EndIf    
-                                
-                        Next
-                        
-                        ; Lese Emulations Modi
-                        ResetList(CompatibilityEmulation())                    
-                        For LstIndex = 0 To ListSize(CompatibilityEmulation()) 
-                            NextElement(CompatibilityEmulation())
-                            sCmpEmu$ = CompatibilityEmulation()\Modus
-                            
-                            If UCase( sCompArg$ ) = UCase( sCmpEmu$ )
-                                
-                                Startup::*LHGameDB\Settings_bCompatM = #True                                
-                                Startup::*LHGameDB\Settings_sCmpFile = FullPath + CheckPrg          ;Path und Programm der in die Registry geschrieben werden soll
-                                
-                                If Len(Startup::*LHGameDB\Settings_sCmpArgs) > 0
-                                    sCmpEmu$ = " " + sCmpEmu$ 
-                                EndIf
-                                
-                                Startup::*LHGameDB\Settings_sCmpArgs + UCase( sCmpEmu$ )            ;Registry Werte für den Compatibility Modus                                
-                                
-                                Args     = DOS_TrimArg(Args.s, s+sCompArg$)
-                                ArgLen   = Len(Args) 
-                                ArgIndex = 0
-                                sCMPFound= #True
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Support for Compatibility Emulation (Activ)")
-                                Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)                                  
-                                Break
-                            EndIf    
-                                
-                        Next                        
-                                       
-                        UnuseModule Compatibility     
-                        
-                        If ( sCMPFound = #False )
-                        	;MessageRequester( "vSystem  Support","Compatibility: '" + sCompArg$ + "' nicht gefunden.")
-                        	Delay(250)
-                        	
-                        				  Request::*MsgEx\User_BtnTextL = "Starten"                 
-                						  Request::*MsgEx\User_BtnTextR = "Abbruch"                          	
-                        	CmpLogResult= Request::MSG(Startup::*LHGameDB\TitleVersion, "Windows Kompatibilitäts-Assistent","Ubekannter Kompatibilitäts Modus: "+#CR$+#CR$+#TAB$+Chr(34)+sCompArg$+Chr(34)+""+#CR$+#CR$+"Weiter?",10,1,"",0,0,DC::#_Window_001)
-                        	
-                        	SetActiveWindow(DC::#_Window_001)
-                        	SetActiveGadget(DC::#ListIcon_001)                        	
-                        	Delay(250)
-                        	
-                        	Select CmpLogResult
-	                    		Case 0; Ok                        	
-							    Case 1; Abbruch
-							    	ProcedureReturn "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
-						    EndSelect	
-                        EndIf
-                     EndIf                                             
-                EndIf
-            EndIf            
-        Next ArgIndex  
-        
-        
-        
-        Device1$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev0","",Startup::*LHGameDB\GameID,"",1):  
-        Device2$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev1","",Startup::*LHGameDB\GameID,"",1): 
-        Device3$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev2","",Startup::*LHGameDB\GameID,"",1): 
-        Device4$ = ExecSQL::nRow(DC::#Database_001,"Gamebase","MediaDev3","",Startup::*LHGameDB\GameID,"",1):
-        
-        If IsWindow(DC::#_Window_005)
-            ; Quck Start - For C64 File Manager
-            ;
-           Device1$ = GetGadgetText( DC::#String_102 )
-        EndIf   
-            
-        If ( Len(Device1$) >= 1 ) Or  ( Len(Device2$) >= 1 ) Or ( Len(Device3$) >= 1 ) Or ( Len(Device4$) >= 1 )
-            
-            Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + #CR$ +"#"+#TAB$+" #Adding Files Support : =======================================") 
-            
-            If ( Len(Device1$) >= 1 )
+          s.s = Mid(Args,ArgIndex,1)
+          If ( s = "%" )
+            s.s + Mid(Args,ArgIndex+1,1)
+            If ( s =  "%c" )                                      
+              sCompArg$ = Compat_GetCmdString(ArgIndex+2, ArgLen, Args )
+              
+              If Len(sCompArg$) > 0
                 
-                Device1$ = Getfile_Portbale_ModeOut(Device1$)
+                UseModule Compatibility
+                ; Lese OSModi
                 
-                If ( ArcSupport  = 1 )
-                    Device1$ = DOS_PKARC(Device1$, 1)
-                EndIf
-                
-                Device1$ = DOS_Device_GetInternalFile(Device1$, 1, CheckPrg)
-                
-                If (NoQuotes = -1 )
-                    Device1$ = DOS_Device_VerifySpace(Device1$)
-                EndIf   
-                Debug "Loaded Slot 1 Dir /File : " + Device1$
-            EndIf
-            
-            
-            If ( Len(Device2$) >= 1 )
-                Device2$ = Getfile_Portbale_ModeOut(Device2$)
-                
-                If ( ArcSupport  = 1 )
-                    Device2$ = DOS_PKARC(Device2$, 2)
-                EndIf
-                
-                Device2$ = DOS_Device_GetInternalFile(Device2$, 2, CheckPrg)
-                If (NoQuotes = -1 )
-                    Device2$ = DOS_Device_VerifySpace(Device2$)
-                EndIf              
-                
-                Debug "Loaded Slot 2 Dir /File : " + Device2$
-                
-            EndIf
-            
-            
-            If ( Len(Device3$) >= 1 )
-                Device3$ = Getfile_Portbale_ModeOut(Device3$)
-                
-                If ( ArcSupport  = 1 )
-                    Device3$ = DOS_PKARC(Device3$, 3)
-                EndIf
-                
-                Device3$ = DOS_Device_GetInternalFile(Device3$, 3, CheckPrg)
-                If (NoQuotes = -1 )
-                    Device3$ = DOS_Device_VerifySpace(Device3$)
-                EndIf               
-                
-                Debug "Loaded Slot 3 Dir /File : " + Device3$
-            EndIf
-            
-            If ( Len(Device4$) >= 1 )            
-                Device4$ = Getfile_Portbale_ModeOut(Device4$)
-                
-                If ( ArcSupport  = 1 )
-                    Device4$ = DOS_PKARC(Device4$, 4)
-                EndIf :Device4$ = DOS_Device_GetInternalFile(Device4$, 4, CheckPrg)
-                
-                If (NoQuotes = -1 )
-                    Device4$ = DOS_Device_VerifySpace(Device4$)
-                EndIf                 
-                
-                Debug "Loaded Slot 4 Dir /File : " + Device4$
-            EndIf 
-            
-            Args = Trim(Args)
-            
-            ;
-            ;
-            ; Mame/ Mess Helper.
-            If ( Startup::*LHGameDB\Settings_MameHelp = #True )
-                Args = DOS_Argv_MameHelp(Args.s)
-            EndIf    
-            ;
-            ;
-            
-            SlotsToUse = CountString(Args,"%sc")    ; Universelles Argument, Kommando übergabe an das programm
-            SlotsToUse + CountString(Args,"%s")        
-            
-            If ( SlotsToUse >= 1 )
-                
-                For SlotsIndex = 1 To SlotsToUse
+                ResetList(CompatibilitySystem())                    
+                For LstIndex = 0 To ListSize(CompatibilitySystem()) 
+                  NextElement(CompatibilitySystem())
+                  sCmpMod$ = CompatibilitySystem()\OSModus$
+                  
+                  If UCase( sCompArg$ ) = UCase( sCmpMod$ )
                     
-                    If ( SlotsIndex > SlotsToUse )
-                        Break;
+                    Startup::*LHGameDB\Settings_bCompatM = #True                                
+                    Startup::*LHGameDB\Settings_sCmpFile = FullPath + CheckPrg          ;Path und Programm der in die Registry geschrieben werden soll
+                    
+                    If Len(Startup::*LHGameDB\Settings_sCmpArgs) > 0
+                      sCmpMod$ = " " + sCmpMod$ 
                     EndIf
                     
-                    ArgLen = Len(Args)
-                    For  ArgIndex = 1 To ArgLen
-                        
-                        ;
-                        ; Routine für das Ausleen von Argumenten in den Media Slots
-                        If ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%sc" )
-                            
-                            If     ( Len(Device1$) <> 0 )
-                                
-                                If ( Right(Device1$, 1) = Chr( 34 ) ) And ( Left(Device1$, 1) = Chr( 34 ) )
-                                    Device1$ = Mid( Device1$, 2, Len(Device1$)-2 ) 
-                                EndIf
-                                
-                                Args = ReplaceString(Args,"%sc", Device1$,0,ArgIndex,1)
-                                Device1$ = "" 
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue 
-                                
-                            ElseIf ( Len(Device2$) <> 0 )
-                                If ( Right(Device2$, 1) = Chr( 34 ) ) And ( Left(Device2$, 1) = Chr( 34 ) )
-                                    Device2$ = Mid( Device2$, 2, Len(Device2$)-2 ) 
-                                EndIf     
-                                
-                                Args = ReplaceString(Args,"%sc", Device2$,0,ArgIndex,1)
-                                Device2$ = ""  
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue
-                                
-                            ElseIf ( Len(Device3$) <> 0 )
-                                If ( Right(Device3$, 1) = Chr( 34 ) ) And ( Left(Device3$, 1) = Chr( 34 ) )
-                                    Device3$ = Mid( Device3$, 2, Len(Device3$)-2 ) 
-                                EndIf                                              
-                                
-                                Args = ReplaceString(Args,"%sc", Device3$,0,ArgIndex,1)
-                                Device3$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue
-                                
-                            ElseIf ( Len(Device4$) <> 0 )
-                                If ( Right(Device4$, 1) = Chr( 34 ) ) And ( Left(Device4$, 1) = Chr( 34 ) )
-                                    Device4$ = Mid( Device4$, 2, Len(Device4$)-2 ) 
-                                EndIf                                              
-                                
-                                Args = ReplaceString(Args,"%sc", Device4$,0,ArgIndex,1)
-                                Device4$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue                         
-                            EndIf
-                            
-                        ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "%s" )
-                            If     ( Len(Device1$) <> 0 )
-                                Args = ReplaceString(Args,"%s", Device1$,0,ArgIndex,1)
-                                Device1$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue 
-                                
-                            ElseIf ( Len(Device2$) <> 0 )
-                                Args = ReplaceString(Args,"%s", Device2$,0,ArgIndex,1)
-                                Device2$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue
-                                
-                            ElseIf ( Len(Device3$) <> 0 )
-                                Args = ReplaceString(Args,"%s", Device3$,0,ArgIndex,1)
-                                Device3$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue
-                                
-                            ElseIf ( Len(Device4$) <> 0 )
-                                Args = ReplaceString(Args,"%s", Device4$,0,ArgIndex,1)
-                                Device4$ = ""
-                                ArgIndex = 0
-                                ArgLen = Len(Args)
-                                Continue                         
-                            EndIf
-                            
-                        ElseIf ( DOS_Argv_GetSlotContent(Args, ArgIndex) = "" )
-                            Continue
-                        EndIf         
-                        
-                    Next                   
+                    Startup::*LHGameDB\Settings_sCmpArgs + UCase( sCmpMod$ )            ;Registry Werte für den Compatibility Modus                                
+                    
+                    Args     = DOS_TrimArg(Args.s, s+sCompArg$)
+                    ArgLen   = Len(Args) 
+                    ArgIndex = 0
+                    sCMPFound= #True
+                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Compatibility Mode (Activ)")   
+                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)  
+                    Break
+                    Continue
+                  EndIf    
+                  
                 Next
-            EndIf   
-            
-        EndIf
+                
+                ; Lese Emulations Modi
+                ResetList(CompatibilityEmulation())                    
+                For LstIndex = 0 To ListSize(CompatibilityEmulation()) 
+                  NextElement(CompatibilityEmulation())
+                  sCmpEmu$ = CompatibilityEmulation()\Modus
+                  
+                  If UCase( sCompArg$ ) = UCase( sCmpEmu$ )
+                    
+                    Startup::*LHGameDB\Settings_bCompatM = #True                                
+                    Startup::*LHGameDB\Settings_sCmpFile = FullPath + CheckPrg          ;Path und Programm der in die Registry geschrieben werden soll
+                    
+                    If Len(Startup::*LHGameDB\Settings_sCmpArgs) > 0
+                      sCmpEmu$ = " " + sCmpEmu$ 
+                    EndIf
+                    
+                    Startup::*LHGameDB\Settings_sCmpArgs + UCase( sCmpEmu$ )            ;Registry Werte für den Compatibility Modus                                
+                    
+                    Args     = DOS_TrimArg(Args.s, s+sCompArg$)
+                    ArgLen   = Len(Args) 
+                    ArgIndex = 0
+                    sCMPFound= #True
+                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Support for Compatibility Emulation (Activ)")
+                    Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Modus: "+Startup::*LHGameDB\Settings_sCmpArgs)                                  
+                    Break
+                  EndIf    
+                  
+                Next                        
+                
+                UnuseModule Compatibility     
+                
+                If ( sCMPFound = #False )
+                  ;MessageRequester( "vSystem  Support","Compatibility: '" + sCompArg$ + "' nicht gefunden.")
+                  Delay(250)
+                  
+                  Request::*MsgEx\User_BtnTextL = "Starten"                 
+                  Request::*MsgEx\User_BtnTextR = "Abbruch"                          	
+                  CmpLogResult= Request::MSG(Startup::*LHGameDB\TitleVersion, "Windows Kompatibilitäts-Assistent","Ubekannter Kompatibilitäts Modus: "+#CR$+#CR$+#TAB$+Chr(34)+sCompArg$+Chr(34)+""+#CR$+#CR$+"Weiter?",10,1,"",0,0,DC::#_Window_001)
+                  
+                  SetActiveWindow(DC::#_Window_001)
+                  SetActiveGadget(DC::#ListIcon_001)                        	
+                  Delay(250)
+                  
+                  Select CmpLogResult
+                    Case 0; Ok                        	
+                    Case 1; Abbruch
+                      ProcedureReturn "KZV78EUKIQAH5QS4V4T5C6RGQGB5M"
+                  EndSelect	
+                EndIf
+              EndIf                                             
+            EndIf
+          EndIf            
+        Next ArgIndex  
+        
+        ;
+        ; Slots Lesen (Entweder %s als Datei/Verzeichniss oder %sc erweitertes Kommando)
+        Args    = DOS_SetupSlots(Args, ArcSupport, NoQuotes)
+        Args    = Trim(Args)
+        ArgIndex= 0
+        ArgLen  = Len(Args)
+          
         Debug Args
         
         ArgIndex = CountString(Args,"%su")
@@ -4248,9 +4251,8 @@ Module VEngine
         
         Args = Trim(Args)
         
-        Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #Commandline: (Siehe nächste Zeile)" + Chr(13) + "'"+Args+"'")
-    
-
+        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / (Siehe nächste Zeile)" + Chr(13) + "'"+Args+"'")
+        Debug("Modul End : " + #PB_Compiler_Module + #CRLF$)     
         
         ProcedureReturn Args
     EndProcedure
@@ -8078,13 +8080,13 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 5360
-; FirstLine = 1277
-; Folding = DAACCAAAAgg6-8hAA+
+; CursorPosition = 43
+; FirstLine = 18
+; Folding = rMICCPGMgmPz-4DBB9
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\Elder Scrolls 5 - Skyrim\
+; CurrentDirectory = D:\NewGame\
 ; Debugger = IDE
 ; Warnings = Display
 ; EnablePurifier

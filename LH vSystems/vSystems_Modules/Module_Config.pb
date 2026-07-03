@@ -285,7 +285,8 @@ DeclareModule Startup
         Settings_aExecute.i					;Alternativer Process für das Ausführen von programmen
         Settings_SaveTool.i					;Save Support: Backup/Restore
         Settings_VrtlDrve.i					;Virtual Drive Support
-        Settings_Registry.i					;Registry Support           
+        Settings_Registry.i         ;Registry Support
+        Settings_VKexNext.b			    ;VKex Support            
         vKeyActivShot.i             ;Temporäre Var für den Loop
         vKeyActivKill.i             ;Temporäre Var für den Loop
         vKeyActivMMBT.i			;Temporäre Var für den Loop
@@ -419,6 +420,22 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        
+        ;
+				; Version 0.60.32
+        ; Modul Tooltip: Überarbeitet
+        ;                ToolTip > ToolTipEX
+        ; Modul Images : Menü: Alle Bilder Löschen erweitert
+        ;              : Slideshow System Hinzugefügt
+        ;              : - Ein und Ausschalten mit "Space" 
+        ;              : - Nächtes Bild    = Taste d,Pfeil Rechts oder Nummern Taste 6
+        ;              : - Vorheriges Bild = Taste a,Pfeil Links  oder Nummern Taste 4        
+        ; VxKex Modul  : Wird nun über das Argument "%vxkex" aktiviert. Weniger "Overload" wenn die Registry geprüft wird
+        ; Menu         : Neu Andordnung
+        ; Save Modul   : Bug bei der Archiv erstellung gefixed
+        ; Tray Menu    : Webseiten hinzugefügt (Die ich meist immer brauch)
+        ; Icons und Buttons hinzugefügt
+        
         
         ;
 				; Version 0.60.31
@@ -1293,8 +1310,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 425
-; FirstLine = 403
+; CursorPosition = 435
+; FirstLine = 402
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

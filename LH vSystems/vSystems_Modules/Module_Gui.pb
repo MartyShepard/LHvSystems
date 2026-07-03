@@ -94,193 +94,243 @@ Module MagicGUI
     
     Global *r.EXT_WINDOWS            = AllocateMemory(SizeOf(EXT_WINDOWS))        
     
-    
-    
-    ;******************************************************************************************************************************************
-    ;   
-    ; Button Procedure
-    ;__________________________________________________________________________________________________________________________________________
-    Procedure SetButton(ObjectID,X.i,Y.i,Text1$="",Text2$="",Text3$="",Style=0); (Style 0 = Default Button)
-        
-        Select Style
-            Case 0
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_0H,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI11N) 
-                
-            Case 1
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_0H,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,SetColorBlue1,SetColorBlue2,Fonts::#_SEGOEUI10N)
-                
-            Case 2
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Close
-                              DI::#_BTN_CLOSE_0N,
-                              DI::#_BTN_CLOSE_0H,
-                              DI::#_BTN_CLOSE_0P,
-                              DI::#_BTN_CLOSE_0D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))     
-                
-            Case 3
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Minimized
-                              DI::#_BTN_MINIM_0N,
-                              DI::#_BTN_MINIM_0H,
-                              DI::#_BTN_MINIM_0P,
-                              DI::#_BTN_MINIM_0D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE)) 
-                
-            Case 4
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Resize
-                              DI::#_BTN_RESIZ_0N,
-                              DI::#_BTN_RESIZ_0H,
-                              DI::#_BTN_RESIZ_0P,
-                              DI::#_BTN_RESIZ_0D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))       
-                
-            Case 5
-                ButtonEX::Add(ObjectID,X.i,Y.i,302,21,                                   ; Lisbox Sort Title
-                              DI::#_BTN_LBOXT_N,
-                              DI::#_BTN_LBOXT_H,
-                              DI::#_BTN_LBOXT_P,
-                              DI::#_BTN_LBOXT_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)     
-                
-            Case 6
-                ButtonEX::Add(ObjectID,X.i,Y.i,138,21,                                   ; Lisbox Sort Platform
-                              DI::#_BTN_LBOXP_N,
-                              DI::#_BTN_LBOXP_H,
-                              DI::#_BTN_LBOXP_P,
-                              DI::#_BTN_LBOXP_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)                  
-                
-            Case 7
-                ButtonEX::Add(ObjectID,X.i,Y.i,98,21,                                   ; Lisbox Sort Language
-                              DI::#_BTN_LBOXL_N,
-                              DI::#_BTN_LBOXL_H,
-                              DI::#_BTN_LBOXL_P,
-                              DI::#_BTN_LBOXL_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)   
-                
-            Case 8
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,21,                                   ; Lisbox Sort Programm
-                              DI::#_BTN_LBOXE_N,
-                              DI::#_BTN_LBOXE_H,
-                              DI::#_BTN_LBOXE_P,
-                              DI::#_BTN_LBOXE_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)    
-                
-            Case 9
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Screenshots Anzeigen/Verbergen
-                              DI::#_BTN_SELECT_N,
-                              DI::#_BTN_SELECT_H,
-                              DI::#_BTN_SELECT_P,
-                              DI::#_BTN_SELECT_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))     
-                
-            Case 10
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Screenshots Anzeigen/Verbergen
-                              DI::#_BTN_MENU_N,
-                              DI::#_BTN_MENU_H,
-                              DI::#_BTN_MENU_P,
-                              DI::#_BTN_MENU_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))   
-                
-            Case 11
-                ButtonEX::Add(ObjectID,X.i,Y.i,20,20,                                   ; Floppy
-                              DI::#_BTN_FLOPPY_N,
-                              DI::#_BTN_FLOPPY_H,
-                              DI::#_BTN_FLOPPY_P,
-                              DI::#_BTN_FLOPPY_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))                   
-                
-            Case 12
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_0H,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N) 
-                
-            Case 13
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N) 
-                
-            Case 14
-                ButtonEX::Add(ObjectID,X.i,Y.i,170,20,
-                              DI::#_BTN_BLUELITE_N,
-                              DI::#_BTN_BLUELITE_H,
-                              DI::#_BTN_BLUELITE_P,
-                              DI::#_BTN_BLUELITE_D ,Text1$,Text2$,Text3$,RGB(28, 58, 119),RGB(7, 36, 153),Fonts::#_SEGOEUI10N) 
-                
-            Case 15
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; Menu
-                              DI::#_BTN_MENU_N,
-                              DI::#_BTN_MENU_H,
-                              DI::#_BTN_MENU_P,
-                              DI::#_BTN_MENU_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))       
-                
-                
-            Case 16                                                                        ; Hover Left Side
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_1H,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)       
-                
-            Case 17                                                                        ; Hover Both Side
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_2H,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)                 
-                
-            Case 18                                                                        ; Hover Copy Left
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_LC,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)      
-                
-            Case 19                                                                        ; Hover Copy Right
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_GREY4_0N,
-                              DI::#_BTN_GREY4_RC,
-                              DI::#_BTN_GREY4_0P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)
-                
-            Case 20
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_BLUELITE_N,
-                              DI::#_BTN_BLUELITE_H,
-                              DI::#_BTN_BLUELITE_P,
-                              DI::#_BTN_BLUELITE_D ,Text1$,Text2$,Text3$,RGB(28, 58, 119),RGB(7, 36, 153),Fonts::#_SEGOEUI10N)                  
-                
-            Case 21
-                ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
-                              DI::#_BTN_BLUELITE_N,
-                              DI::#_BTN_BLUELITE_H,
-                              DI::#_BTN_BLUELITE_P,
-                              DI::#_BTN_GREY4_0D ,Text1$,Text2$,Text3$,$200F07,RGB(7, 36, 153),Fonts::#_SEGOEUI10N)                 
-                
-            Case 22
-                ButtonEX::Add(ObjectID,X.i,Y.i,98,21, 
-                              DI::#_BTN_TAB_N,
-                              DI::#_BTN_TAB_H,
-                              DI::#_BTN_TAB_P,
-                              DI::#_BTN_TAB_D ,Text1$,Text2$,Text3$,RGB(113, 147, 165),$F3AF64,Fonts::#_SEGOEUI10N)                  
-                
-            Case 23
-                ButtonEX::Add(ObjectID,X.i,Y.i,98,21,                                   ; Lisbox Sort Language
-                              DI::#_BTN_LBOXL_N,
-                              DI::#_BTN_LBOXL_H,
-                              DI::#_BTN_SWT_P,
-                              DI::#_BTN_LBOXL_D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)
-                
-            Case 24
-                ButtonEX::Add(ObjectID,X.i,Y.i,30,30,                                   ; INFO
-                              DI::#_BTN_INFO_0N,
-                              DI::#_BTN_INFO_0H,
-                              DI::#_BTN_INFO_0P,
-                              DI::#_BTN_INFO_0D ,Text1$,Text2$,Text3$,GetSysColor_(#COLOR_3DFACE))                    
-        EndSelect                 
-        
-        
+    ;
+    ; Button Basteleien
+    Procedure SetButton(ObjectID.i, X.i, Y.i, szText1.s = "",szText2.s = "",szText3.s = "" ,nSkinned.i = 0)
+      
+      Select nSkinned
+        Case 0  ;nSkinned 0 = Default Button
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0H,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI11N)
+          ProcedureReturn
+          
+        Case 1
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0H,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,SetColorBlue1,SetColorBlue2,Fonts::#_SEGOEUI10N)
+          ProcedureReturn
+          
+        Case 2  ; Close
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_CLOSE_0N,
+                        DI::#_BTN_CLOSE_0H,
+                        DI::#_BTN_CLOSE_0P,
+                        DI::#_BTN_CLOSE_0D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))     
+          ProcedureReturn
+          
+        Case 3  ; Minimized
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_MINIM_0N,
+                        DI::#_BTN_MINIM_0H,
+                        DI::#_BTN_MINIM_0P,
+                        DI::#_BTN_MINIM_0D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE)) 
+          ProcedureReturn
+          
+        Case 4  ; Resize
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_RESIZ_0N,
+                        DI::#_BTN_RESIZ_0H,
+                        DI::#_BTN_RESIZ_0P,
+                        DI::#_BTN_RESIZ_0D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))       
+          ProcedureReturn
+          
+        Case 5  ; Listbox Sort Title
+          ButtonEX::Add(ObjectID,X.i,Y.i,302,21,
+                        DI::#_BTN_LBOXT_N,
+                        DI::#_BTN_LBOXT_H,
+                        DI::#_BTN_LBOXT_P,
+                        DI::#_BTN_LBOXT_D  ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE), $F3AF64, Fonts::#_SEGOEUI11N)     
+          ProcedureReturn
+          
+        Case 6  ; Listbox Sort Platform
+          ButtonEX::Add(ObjectID,X.i,Y.i,138,21,
+                        DI::#_BTN_LBOXP_N,
+                        DI::#_BTN_LBOXP_H,
+                        DI::#_BTN_LBOXP_P,
+                        DI::#_BTN_LBOXP_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)                  
+          ProcedureReturn
+          
+        Case 7  ; Listbox Sort Language
+          ButtonEX::Add(ObjectID,X.i,Y.i,98,21,
+                        DI::#_BTN_LBOXL_N,
+                        DI::#_BTN_LBOXL_H,
+                        DI::#_BTN_LBOXL_P,
+                        DI::#_BTN_LBOXL_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)   
+          ProcedureReturn
+          
+        Case 8  ; Lisbox Sort Programm
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,21,
+                        DI::#_BTN_LBOXE_N,
+                        DI::#_BTN_LBOXE_H,
+                        DI::#_BTN_LBOXE_P,
+                        DI::#_BTN_LBOXE_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)    
+          ProcedureReturn
+          
+        Case 9  ; Screenshots Anzeigen/Verbergen
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_SELECT_N,
+                        DI::#_BTN_SELECT_H,
+                        DI::#_BTN_SELECT_P,
+                        DI::#_BTN_SELECT_D,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))     
+          ProcedureReturn
+          
+        Case 10  ; Screenshots Anzeigen/Verbergen
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_MENU_N,
+                        DI::#_BTN_MENU_H,
+                        DI::#_BTN_MENU_P,
+                        DI::#_BTN_MENU_D,  szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))   
+           ProcedureReturn
+         
+        Case 11  ; Floppy
+          ButtonEX::Add(ObjectID,X.i,Y.i,20,20,
+                        DI::#_BTN_FLOPPY_N,
+                        DI::#_BTN_FLOPPY_H,
+                        DI::#_BTN_FLOPPY_P,
+                        DI::#_BTN_FLOPPY_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))                   
+          ProcedureReturn
+          
+        Case 12
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0H,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N) 
+          ProcedureReturn
+          
+        Case 13
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255), $F3AF64, Fonts::#_SEGOEUI10N) 
+           ProcedureReturn
+         
+        Case 14
+          ButtonEX::Add(ObjectID,X.i,Y.i,170,20,
+                        DI::#_BTN_BLUELITE_N,
+                        DI::#_BTN_BLUELITE_H,
+                        DI::#_BTN_BLUELITE_P,
+                        DI::#_BTN_BLUELITE_D,szText1,szText2,szText3,RGB(28, 58, 119),RGB(7, 36, 153),Fonts::#_SEGOEUI10N) 
+          ProcedureReturn
+          
+        Case 15  ; Menu
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_MENU_N,
+                        DI::#_BTN_MENU_H,
+                        DI::#_BTN_MENU_P,
+                        DI::#_BTN_MENU_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))       
+          ProcedureReturn
+          
+        Case 16   ; Hover Left Side
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_1H,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)       
+          ProcedureReturn
+          
+        Case 17   ; Hover Both Side
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_2H,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)                 
+          ProcedureReturn
+          
+        Case 18   ; Hover Copy Left
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_LC,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)      
+          ProcedureReturn
+          
+        Case 19   ; Hover Copy Right
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_RC,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI10N)
+          ProcedureReturn
+          
+        Case 20
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_BLUELITE_N,
+                        DI::#_BTN_BLUELITE_H,
+                        DI::#_BTN_BLUELITE_P,
+                        DI::#_BTN_BLUELITE_D ,szText1,szText2,Text3$,RGB(28, 58, 119),RGB(7, 36, 153),Fonts::#_SEGOEUI10N)                  
+          ProcedureReturn
+          
+        Case 21
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_BLUELITE_N,
+                        DI::#_BTN_BLUELITE_H,
+                        DI::#_BTN_BLUELITE_P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,$200F07,RGB(7, 36, 153),Fonts::#_SEGOEUI10N)                 
+          ProcedureReturn
+          
+        Case 22
+          ButtonEX::Add(ObjectID,X.i,Y.i,98,21, 
+                        DI::#_BTN_TAB_N,
+                        DI::#_BTN_TAB_H,
+                        DI::#_BTN_TAB_P,
+                        DI::#_BTN_TAB_D ,szText1,szText2,szText3,RGB(113, 147, 165),$F3AF64,Fonts::#_SEGOEUI10N)                  
+          ProcedureReturn
+          
+        Case 23   ; Lisbox Sort Language
+          ButtonEX::Add(ObjectID,X.i,Y.i,98,21,
+                        DI::#_BTN_LBOXL_N,
+                        DI::#_BTN_LBOXL_H,
+                        DI::#_BTN_SWT_P,
+                        DI::#_BTN_LBOXL_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE),$F3AF64,Fonts::#_SEGOEUI11N)
+          ProcedureReturn
+          
+        Case 24   ; INFO
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_INFO_0N,
+                        DI::#_BTN_INFO_0H,
+                        DI::#_BTN_INFO_0P,
+                        DI::#_BTN_INFO_0D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))
+          ProcedureReturn
+          
+        Case 25
+          ButtonEX::Add(ObjectID,X.i,Y.i,83,20,
+                        DI::#_BTN_GREY4_0N,
+                        DI::#_BTN_GREY4_0NX,
+                        DI::#_BTN_GREY4_0P,
+                        DI::#_BTN_GREY4_0D ,szText1,szText2,szText3,RGB(255,255,255),$F3AF64,Fonts::#_SEGOEUI11N)
+          ProcedureReturn
+          
+        Case 26   ; Slide Rechts
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_SSWR_N,
+                        DI::#_BTN_SSWR_H,
+                        DI::#_BTN_SSWR_P,
+                        DI::#_BTN_SSWR_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))
+          ProcedureReturn
+          
+        Case 27   ; Slide Links
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_SSWL_N,
+                        DI::#_BTN_SSWL_H,
+                        DI::#_BTN_SSWL_P,
+                        DI::#_BTN_SSWL_D ,szText1,szText2,szText3,GetSysColor_(#COLOR_3DFACE))
+          ProcedureReturn
+          
+        Case 28   ; Slide View (Automtic on)
+          ButtonEX::Add(ObjectID,X.i,Y.i,30,30,
+                        DI::#_BTN_SSWV_N,
+                        DI::#_BTN_SSWV_H,
+                        DI::#_BTN_SSWV_P,
+                        DI::#_BTN_SSWV_D ,szText1,szText2,szText3,RGB(113,147,165),RGB(113,147,165), Fonts::#_FIXPLAIN7_12)
+          ProcedureReturn              
+      EndSelect
     EndProcedure   
     ;******************************************************************************************************************************************
     ;__________________________________________________________________________________________________________________________________________       
@@ -432,19 +482,19 @@ Module MagicGUI
             ;
             ; Title
             FORM::StrgObject(DC::#String_001, *ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",1,1)
-            FORM::TextObject(DC::#Text_011,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Title",0)
+            FORM::TextObject(DC::#Text_011,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Titel",0)
             
             *ObjPos\y = *ObjPos\y + (*ObjPos\h*3)
             ;
             ; SubTitle
             FORM::StrgObject(DC::#String_002, *ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",1,1)
-            FORM::TextObject(DC::#Text_012,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Subtitle",0)            
+            FORM::TextObject(DC::#Text_012,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Untertitel",0)            
             
             *ObjPos\y = *ObjPos\y + (*ObjPos\h*3)
             ;
             ; Sprache
             FORM::StrgObject(DC::#String_003, *ObjPos\x,*ObjPos\y,*ObjPos\w/3,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",0 ,1)
-            FORM::TextObject(DC::#Text_013,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w/3,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Language",0)             
+            FORM::TextObject(DC::#Text_013,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w/3,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Sprache",0)             
             ;
             ; Platform
             FORM::StrgObject(DC::#String_004, *ObjPos\x + GadgetWidth(DC::#String_003)+4,*ObjPos\y,*ObjPos\w/3,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",0,1)
@@ -453,7 +503,7 @@ Module MagicGUI
             ; Year            
             FORM::StrgObject(DC::#String_005, GadgetX(DC::#String_004) + GadgetWidth(DC::#String_004)+4,*ObjPos\y,*ObjPos\w/3-38,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",1,1)
             SendMessage_(GadgetID(DC::#String_005),#EM_LIMITTEXT,10,0)
-            FORM::TextObject(DC::#Text_015,   GadgetX(DC::#String_004) + GadgetWidth(DC::#String_004)+4,*ObjPos\y-*ObjPos\h,*ObjPos\w/3-8,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Release",0)             
+            FORM::TextObject(DC::#Text_015,   GadgetX(DC::#String_004) + GadgetWidth(DC::#String_004)+4,*ObjPos\y-*ObjPos\h,*ObjPos\w/3-8,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Erscheinungs Datum",0)             
             FORM::DateObject(DC::#Calendar,   GadgetX(DC::#String_004) + GadgetWidth(DC::#String_004)+4,*ObjPos\y,*ObjPos\w/3-8,*ObjPos\h,Font_StR, RGB_FrntStR, RGB_BackStR,Startup::*LHGameDB\DateFormat,0,0 ,1)
             
             
@@ -461,19 +511,19 @@ Module MagicGUI
             ;
             ; Start
             FORM::StrgObject(DC::#String_006, *ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",1,1)
-            FORM::TextObject(DC::#Text_016,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Start: Emulator/Port or Nativ",0)
+            FORM::TextObject(DC::#Text_016,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Programm - Emulator - Port",0)
             
             *ObjPos\y = *ObjPos\y + (*ObjPos\h*3)
             ;
             ; Commandline
             FORM::StrgObject(DC::#String_007, *ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",1,1)
-            FORM::TextObject(DC::#Text_017,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Commandline",0)            
+            FORM::TextObject(DC::#Text_017,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Kommandozeile (Programm Argumente)",0)            
             
             *ObjPos\y = *ObjPos\y + (*ObjPos\h*3) 
             ;
             ; Medium #1
             FORM::StrgObject(DC::#String_008, *ObjPos\x,*ObjPos\y,*ObjPos\w-24,*ObjPos\h,Font_StR,RGB_FrntStR,RGB_BackStR,"",0,1)
-            FORM::TextObject(DC::#Text_018,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Device:0-3 (Floppy, HD, CD-Rom, Rom, Cartdrige, Tape)",0)             
+            FORM::TextObject(DC::#Text_018,   *ObjPos\x,*ObjPos\y-*ObjPos\h,*ObjPos\w,*ObjPos\h,Font_Txt,RGB_FrntTxt,RGB_BackTxT,"Media Device: 0-3 (%s = Datei, Verzeichnis) (%sc = Kommando Argumente)",0)             
             Setbutton(DC::#Button_103, GadgetX(DC::#String_008) + GadgetWidth(DC::#String_008)+4, *ObjPos\y,"","","",11)
             
             *ObjPos\y = *ObjPos\y + (*ObjPos\h+5)
@@ -671,22 +721,22 @@ Module MagicGUI
         *ObjPos\h = 0
         ;
         ; OK Button for Edit
-        SetButton(DC::#Button_020,*ObjPos\x,*ObjPos\y,"Language","Language","Language")           
+        SetButton(DC::#Button_020,*ObjPos\x,*ObjPos\y,"Sprache","Sprache","Sprache",25)           
         
         *ObjPos\x = GadgetX(DC::#Button_020) + GadgetWidth(DC::#Button_020) + ObjPosSpace
-        SetButton(DC::#Button_021,*ObjPos\x,*ObjPos\y,"Platform","Platform","Platform")
+        SetButton(DC::#Button_021,*ObjPos\x,*ObjPos\y,"Platform","Platform","Platform",25)
         
         *ObjPos\x = GadgetX(DC::#Button_021) + GadgetWidth(DC::#Button_020) + ObjPosSpace
-        SetButton(DC::#Button_022,*ObjPos\x,*ObjPos\y,"Program","Program","Program")            
+        SetButton(DC::#Button_022,*ObjPos\x,*ObjPos\y,"Programm","Programm","Programm",25)            
         
         *ObjPos\x = GadgetX(DC::#Button_022) + GadgetWidth(DC::#Button_020) + ObjPosSpace
-        SetButton(DC::#Button_023,*ObjPos\x,*ObjPos\y,"Update","Update","Update")
+        SetButton(DC::#Button_023,*ObjPos\x,*ObjPos\y,"Speichern","Speichern","Speichern",25)
         
         ;*ObjPos\x = GadgetX(DC::#Button_023) + GadgetWidth(DC::#Button_020) + ObjPosSpace
         ;SetButton(DC::#Button_033,*ObjPos\x,*ObjPos\y,"C64 Inhalt","C64 Inhalt","C64 Inhalt")            
         
-        *ObjPos\x = GadgetWidth(DC::#Contain_07) - GadgetWidth(DC::#Button_022) 
-        SetButton(DC::#Button_024,*ObjPos\x,*ObjPos\y,"Cancel","Cancel","Cancel")               
+        *ObjPos\x = GadgetWidth(DC::#Contain_07) - GadgetWidth(DC::#Button_023) 
+        SetButton(DC::#Button_024,*ObjPos\x,*ObjPos\y,"Abbruch","Abbruch","Abbruch")               
         CloseGadgetList()
         SetGadgetColor(DC::#Contain_07,#PB_Gadget_BackColor,*ObjPos\c\rgb_backgrd)    
         HideGadget(DC::#Contain_07,1)
@@ -711,16 +761,23 @@ Module MagicGUI
             *ObjPos\w = 0
             *ObjPos\h = 0
             
-            SetButton(DC::#Button_010,*ObjPos\x,*ObjPos\y,"New","New","New")
+            SetButton(DC::#Button_010,*ObjPos\x,*ObjPos\y,"Neu","Neu","Neu",25)
             
             *ObjPos\x = GadgetX(DC::#Button_010) + GadgetWidth(DC::#Button_010) + ObjPosSpace
-            SetButton(DC::#Button_011,*ObjPos\x,*ObjPos\y,"Duplicate","Duplicate","Duplicate")
+            SetButton(DC::#Button_011,*ObjPos\x,*ObjPos\y,"Klonen","Klonen","Klonen",25)
             
             *ObjPos\x = GadgetX(DC::#Button_011) + GadgetWidth(DC::#Button_011) + ObjPosSpace
-            SetButton(DC::#Button_012,*ObjPos\x,*ObjPos\y,"Delete","Delete","Delete")
+            SetButton(DC::#Button_012,*ObjPos\x,*ObjPos\y,"Löschen","Löschen","Löschen",25)
             
             *ObjPos\x = GadgetX(DC::#Button_012) + GadgetWidth(DC::#Button_011) + ObjPosSpace
-            SetButton(DC::#Button_013,*ObjPos\x,*ObjPos\y,"Edit","Edit","Edit") 
+            SetButton(DC::#Button_013,*ObjPos\x,*ObjPos\y,"Konfig","Konfig","Konfig",25) 
+            
+            ;
+            ; Info Window Button
+            *ObjPos\x = GadgetX(DC::#Button_013) + GadgetWidth(DC::#Button_012) + (ObjPosSpace*10)
+            SetButton(DC::#Button_016,*ObjPos\x,*ObjPos\y,"Infos","Infos","Infos",23)
+            ButtonEX::Toggle(DC::#Button_016, 0)            
+            
                     
             ;             
             ;             *ObjPos\x = GadgetX(DC::#Button_016) + GadgetWidth(DC::#Button_011) + ObjPosSpace
@@ -729,13 +786,7 @@ Module MagicGUI
             *ObjPos\x = GadgetWidth(DC::#Contain_03) - GadgetWidth(DC::#Button_013) 
             SetButton(DC::#Button_014,*ObjPos\x,*ObjPos\y,"Start","Start","Start")               
 
-            ObjSpace = Abs(  GadgetX(DC::#Button_013) + GadgetWidth(DC::#Button_013) - GadgetX(DC::#Button_014) /2 )
-            
-            ;
-            ; Info Window Button
-            *ObjPos\x = GadgetX(DC::#Button_013) + GadgetWidth(DC::#Button_011) + ObjPosSpace + ObjSpace
-            SetButton(DC::#Button_016,*ObjPos\x,*ObjPos\y,"Infos","Infos","Infos",23)
-            ButtonEX::Toggle(DC::#Button_016, 0)
+
             
             CloseGadgetList()
         SetGadgetColor(DC::#Contain_03,#PB_Gadget_BackColor,*ObjPos\c\rgb_backgrd)  
@@ -836,7 +887,12 @@ Module MagicGUI
         Select Resize
                 ;
                 ; Build Mode
-            Case 0                               
+          Case 0
+          
+                SetButton(DC::#Button_301,60,0,"","","",27)
+                SetButton(DC::#Button_302,WindowWidth(DC::#_Window_004)-90,0,"","","",26)
+                SetButton(DC::#Button_303,WindowWidth(DC::#_Window_004)-60,0,"00","00","00",28)                               
+                
                 ScrollAreaGadget(DC::#Contain_11, *ObjPos\x,*ObjPos\y, *ObjPos\w, *ObjPos\h-(*ObjPos\y*2),1,1,1,#PB_ScrollArea_BorderLess|#PB_ScrollArea_Center)
 								SetWindowLongPtr_(GadgetID(DC::#Contain_11), #GWL_STYLE, GetWindowLongPtr_(GadgetID(DC::#Contain_11), #GWL_STYLE) | #WS_CLIPSIBLINGS)
                 *ObjPos\x = 0 
@@ -852,15 +908,26 @@ Module MagicGUI
                 
                 *ObjPos\x = 4 
                 *ObjPos\y = WindowHeight(DC::#_Window_004) - 24                
-                *ObjPos\w = 200
+                *ObjPos\w = 400
                 *ObjPos\h = 20  
                 FORM::TextObject(DC::#Text_140,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h,Font_StR,*ObjPos\c\rgb_strFrCk,$1F1F1F,"DC::#Text_140",0)
                 
+                *ObjPos\x = GadgetX(DC::#Button_301) + GadgetWidth(DC::#Button_301) + 8
+                *ObjPos\y = 9               
+                *ObjPos\w = 610
+                *ObjPos\h = 20                 
+                FORM::TextObject(DC::#Text_141,  *ObjPos\x,  *ObjPos\y,   *ObjPos\w, *ObjPos\h,Font_StR,RGB(113, 147, 165),$1F1F1F,"DC::#Text_141",0)                 
                 ;
                 ; Resize Mode
               Case 1    
               		ResizeGadget(DC::#Contain_11    , #PB_Ignore , SnapHeight, *r\w, *r\h-60)
-            			ResizeGadget(DC::#Text_140      , #PB_Ignore , WindowHeight(DC::#_Window_004) - 20 ,WindowWidth(DC::#_Window_004)-30,#PB_Ignore)            		
+              		ResizeGadget(DC::#Text_140      , #PB_Ignore , WindowHeight(DC::#_Window_004) - 20 ,WindowWidth(DC::#_Window_004)-15,#PB_Ignore)
+              		           		
+                  ResizeGadget(DC::#Button_301,60,0,#PB_Ignore ,#PB_Ignore )
+                  ResizeGadget(DC::#Button_302,WindowWidth(DC::#_Window_004)-90,0,#PB_Ignore ,#PB_Ignore )	
+                  ResizeGadget(DC::#Button_303,WindowWidth(DC::#_Window_004)-60,0,#PB_Ignore ,#PB_Ignore )
+                  
+              		ResizeGadget(DC::#Text_141      , GadgetX(DC::#Button_301) + GadgetWidth(DC::#Button_301) + 8 , #PB_Ignore ,#PB_Ignore,#PB_Ignore)                  
         EndSelect        
     EndProcedure          
     ;******************************************************************************************************************************************
@@ -1875,11 +1942,11 @@ Module MagicGUI
                 *ObjPos\h = 20                       
                 SetButton(DC::#Button_203,*ObjPos\x,*ObjPos\y,"New","New","New")  
                 
-                SetButton(DC::#Button_204,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"Duplicate","Duplicate","Duplicate") 
+                SetButton(DC::#Button_204,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"Klonen","Klonen","Klonen") 
                 
-                SetButton(DC::#Button_205,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"Delete","Delete","Delete")                   
+                SetButton(DC::#Button_205,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"Löschen","Löschen","Löschen")                   
                 
-                SetButton(DC::#Button_206,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"Save","Save","Save") 
+                SetButton(DC::#Button_206,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"Speichern","Speichern","Speichern") 
                 
                 SetButton(DC::#Button_207,GadgetWidth(DC::#Contain_08) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"Ok","Ok","Ok")  
                 
@@ -2010,11 +2077,11 @@ Module MagicGUI
                 
                 SetButton(DC::#Button_203,*ObjPos\x,*ObjPos\y,"New","New","New")  
                 
-                SetButton(DC::#Button_204,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"Duplicate","Duplicate","Duplicate") 
+                SetButton(DC::#Button_204,GadgetX(DC::#Button_203)+GadgetWidth(DC::#Button_203)+ObjPosSpace, *ObjPos\y,"Klonen","Klonen","Klonen") 
                 
-                SetButton(DC::#Button_205,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"Delete","Delete","Delete")                   
+                SetButton(DC::#Button_205,GadgetX(DC::#Button_204)+GadgetWidth(DC::#Button_204)+ObjPosSpace, *ObjPos\y,"Löschen","Löschen","Löschen")                   
                 
-                SetButton(DC::#Button_206,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"Rename","Rename","Rename") 
+                SetButton(DC::#Button_206,GadgetX(DC::#Button_205)+GadgetWidth(DC::#Button_205)+ObjPosSpace, *ObjPos\y,"Umbennen","Umbennen","Umbennen") 
                 
                 SetButton(DC::#Button_207,GadgetWidth(DC::#Contain_08) - (GadgetWidth(DC::#Button_206)+1), *ObjPos\y,"Ok","Ok","Ok")                    
                 
@@ -2352,132 +2419,145 @@ Module MagicGUI
         vSystem::System_InfoToolTip()
         ToolTipInfoTitle$ = ".."
         ToolTipInfo_Text$ =  Startup::ToolTipSystemInfo.s; vSystem::System_InfoToolTip()
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_287 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_287 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "New"
-        ToolTipInfo_Text$ = "Neuen Eintrag Erstellen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Neu"
+        ToolTipInfo_Text$ = "Ein Neuen Eintrag Erstellen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Duplicate"
-        ToolTipInfo_Text$ = "Eintrag Duplizieren"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Duplizieren"
+        ToolTipInfo_Text$ = "Bestehenden Eintrag Duplizieren"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Delete"
-        ToolTipInfo_Text$ = "Aktuellen Eintrag Löschen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_012 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Löschen"
+        ToolTipInfo_Text$ = "Den aktuellen Eintrag löschen oder alle."
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_012 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Edit"
-        ToolTipInfo_Text$ = "Akutellen Eintrag Bearbeiten"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_013 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Editieren"
+        ToolTipInfo_Text$ = "Den aktuellen Eintrag bearbeiten"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_013 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Start"
-        ToolTipInfo_Text$ = "Spiel/ Port/ Emulator/ Programm Starten."
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_014 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
+        ToolTipInfoTitle$ = "Starten"
+        ToolTipInfo_Text$ = "Den aktuellen Eintrag Starten."
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_014 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         ;
         ;
         ;
-        ToolTipInfoTitle$ = "Title (Drag'n'Drop Supportet)"
-        ToolTipInfo_Text$ = "Titel Bearbeiten. (Alternativ Drag'n'Drop eine Datei oder Text)"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_001 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
+        ToolTipInfoTitle$ = "Titel"
+        ToolTipInfo_Text$ = "Titel bearbeiten. (Alternativ kann mit Drag'n'Drop eine Datei oder Text abgelegt werden)"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_001 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         
-        ToolTipInfoTitle$ = "Title"
-        ToolTipInfo_Text$ = "Optional: Untertitel Bearbeiten"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_002 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)          
+        ToolTipInfoTitle$ = "Untertitel"
+        ToolTipInfo_Text$ = "Optionalen Untertitel bearbeiten"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_002 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)          
         
-        ToolTipInfoTitle$ = "Language"
-        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für die Sprache zu öffnen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_003 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Sprach Auswahl"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl der Sprache zu öffnen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_003 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Platform/ System"
-        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für die Platform/ Systeme zu öffnen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_004 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
+        ToolTipInfoTitle$ = "Platform"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl der Platform zu öffnen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_004 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
         
-        ToolTipInfoTitle$ = "Release Date"
-        ToolTipInfo_Text$ = "Datum Bearbeiten"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_005 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Datum"
+        ToolTipInfo_Text$ = "Erscheinungs Datum Bearbeiten"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_005 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Configure the Program"
-        ToolTipInfo_Text$ = "Doppelklick in den String um das Auswahl Fenster für das Programm zu öffnen und erweiterte Einstellungen vorzunehmen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_006 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+        ToolTipInfoTitle$ = "Programm Konfiguration"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl zu öffnen und erweiterte Einstellungen vorzunehmen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_006 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
-        ToolTipInfoTitle$ = "Configure the Program Commandline"
+        ToolTipInfoTitle$ = "Kommandozeilen Argumente Konfigurieren"
         ToolTipInfo_Text$ = Set_Tooltype_Args()
-        ToolTipInfo_Text$ + #CR$ + #CR$+ "fOR dETAILED cOMMANDLINE eDIT, dOUBLEKLICK tHIS sTRING"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_007 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_007 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)
         
-        ToolTipInfoTitle$ = "Media Device 0 (Drag'n'Drop Supportet)"
-        ToolTipInfo_Text$ = "Full Path to Rom/Media File. This will be controlled by '%s' in the commandline." + #CR$ +
-                            "Press and Doubleklick the Left Mouse Button in the String to open and select a File." + #CR$ + #CR$ +
-                            "Hint: You can make this fully Portable. If you see a '.\'. Portable mode is activated." + #CR$ + #CR$ +
-                            "Hint: If the Title String is Empty. The Filename will be used As Title"+ #CR$ + #CR$ +
-                            "Remove and Clear Media Files" +Chr(9)+ "Shotcut: SHIFT+ENTF"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_008 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
-        ToolTipInfoTitle$ = "Media Device 1 (Drag'n'Drop Supportet)"        
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_009 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
-        ToolTipInfoTitle$ = "Media Device 2 (Drag'n'Drop Supportet)"        
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
-        ToolTipInfoTitle$ = "Media Device 3 (Drag'n'Drop Supportet)"        
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        
+        ToolTipInfoTitle$ = "Media Device File: 0 (Drag'n'Drop Supportet)"
+        ToolTipInfo_Text$ = "Doppelklick um eine Datei zu öffnen oder den Verzeichniss Pfad einzutragen"+ #CR$
+        ToolTipInfo_Exts$ = "Dies wird kontrolliert durch das Argument '%s'. Jeweils ein '%s' Argument "+ #CR$ +
+                            "je Datei/Verzeichniss (Max 4)"                                             + #CR$ + #CR$ +
+                            "Für den Portablen Modus muss sich die Datei im Verzeichnis von vSystem "   + #CR$ +
+                            "befinden. Erkennbar am '.\' - wenn man eine Datei ausgewählt hat. Optional" + #CR$ +
+                            "statt eine Datei oder ein Verzeichnis Pfad können auch Programm Parameter/"+ #CR$ +
+                            "Argumente eingetragen werden. Dies gilt nur für den ersten Eintrag und das"+ #CR$ +
+                            "Interne vSys Argument ist '%sc' (Das sollte an erster stelle stehen). Wenn"+ #CR$ +
+                            "die Titel eingabe leer ist wird die Datei als Titel automtisch übernommen."+ #CR$ + #CR$ +
+                            "Entfernen der Inhalte mit "+Chr(9)+ "Shotcut: SHIFT+ENTF"
+        
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_008 ,ToolTipInfo_Text$ + ToolTipInfo_Exts$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Media Device 1 (Drag'n'Drop Supportet)"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_009 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+        ToolTipInfoTitle$ = "Media Device 2 (Drag'n'Drop Supportet)"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_010 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+        ToolTipInfoTitle$ = "Media Device 3 (Drag'n'Drop Supportet)"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_011 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
         ToolTipInfoTitle$ = "Autoload Program (WinVice/Hoxs64)"
-        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird. Hint: Für 7z Images füge %pk zu der Komandozeile hinzu"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_107 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird."+ #CR$ +" Hint: Für 7z Dateien füge %pk zu der Kommandozeile hinzu."
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_107 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
         
         ToolTipInfoTitle$ = "Autoload Program (WinVice/Hoxs64)"
-        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird. Hint: Für 7z Images füge %pk zu der Komandozeile hinzu"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#String_108 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
+        ToolTipInfo_Text$ = "Datei die von dem Image im Slot zum Emulator übertragen wird."+ #CR$ +" Hint: Für 7z Dateien füge %pk zu der Kommandozeile hinzu."
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#String_108 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)         
         ;
         ;
         ;
-        ToolTipInfoTitle$ = "Language"
-        ToolTipInfo_Text$ = "Öffnet das Fenster mit der Auswahl für die Sprache"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_020 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)        
+        ToolTipInfoTitle$ = "Sprach Auswahl"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl der Sprache zu öffnen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_020 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)        
         
-        ToolTipInfoTitle$ = "System Choice"
-        ToolTipInfo_Text$ = "Öffnet das Fenster mit der Auswahl für das System"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_021 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+        ToolTipInfoTitle$ = "Platform"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl der Platform zu öffnen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_021 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
         
-        ToolTipInfoTitle$ = "Configure the Program"
-        ToolTipInfo_Text$ = "Öffnet das Fenster mit eingestellten Programmen"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_022 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        ToolTipInfoTitle$ = "Programm Konfiguration"
+        ToolTipInfo_Text$ = "Doppelklick um das Fenster für die Auswahl zu öffnen und erweiterte Einstellungen vorzunehmen"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_022 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Save Changes (CTRL-S)"
+        ToolTipInfoTitle$ = "Änderungen Speichern (CTRL-S)"
         ToolTipInfo_Text$ = "Speichert die Aktuellen einstellungen."
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_023 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_023 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
         
-        ToolTipInfoTitle$ = "Close (ESC)"
+        ToolTipInfoTitle$ = "Schließen (ESC)"
         ToolTipInfo_Text$ = "Schließt die Bearbeitung und kehrt zur Liste zurück. (Keine Speicherung)"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_024 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_024 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
-        ToolTipInfoTitle$ = "Sort: Title"
-        ToolTipInfo_Text$ = "Sortiert die Liste nach Titeln" +Chr(9)+"ShortKey: F1"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_025 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
+        ToolTipInfoTitle$ = "Sort: Titel"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Titeln" +
+                            Chr(9) +"ShortKey: F1"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_025 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
         
         ToolTipInfoTitle$ = "Sort: Platform"
-        ToolTipInfo_Text$ = "Sortiert die Liste nach Systemen" +Chr(9)+"ShortKey: F2"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_026 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)   
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Systemen" +
+                            Chr(9) + "ShortKey: F2"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_026 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)   
         
-        ToolTipInfoTitle$ = "Sort: Language"
-        ToolTipInfo_Text$ = "Sortiert die Liste nach Sprache" +Chr(9)+"ShortKey: F3"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_027 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+        ToolTipInfoTitle$ = "Sort: Sprache"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Sprache" +
+                            Chr(9) + "ShortKey: F3"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_027 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
-        ToolTipInfoTitle$ = "Sort: Program"
-        ToolTipInfo_Text$ = "Sortiert die Liste nach Programmen" +Chr(9)+"ShortKey: F4"
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Button_028 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+        ToolTipInfoTitle$ = "Sort: Programm"
+        ToolTipInfo_Text$ = "Sortiert die Liste nach Programmen" +
+                            Chr(9) + "ShortKey: F4"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Button_028 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
         
-        ToolTipInfoTitle$ = "Thumbnail: (Drag'n'Drop Unterstützung)"
-        ToolTipInfo_Text$ = "Unterstützte Bild Formate:"+ Chr(13) + 
-                            "BMP, GIF (Not Anim), ICO, JPG, PCX, PNG, TGA, TIFF" + Chr(13) + 
-                            "Amiga  :  IFF, ILBM" + Chr(13) + 
-                            "Texture:  DDS" + Chr(13) +  Chr(13) + 
-                            "Doppleklick auf das Bild Zeigt um es anzuzeigen" + Chr(13) + 
-                            "Thumbnail Größe vergrößern  (+)"+Chr(9)+"ShortKey: F5" + Chr(13) +
-                            "Thumbnail Größe verkleinern (-)"+Chr(9)+"ShortKey: F6" + Chr(13) +
-                            "Thumbnail Weite verfeinern: Größer  (+)"+Chr(9)+"ShortKey: Numpad 4" + Chr(13) +                            
-                            "Thumbnail Weite verfeinern: Kleiner (-)"+Chr(9)+"ShortKey: Numpad 6" + Chr(13) +                            
-                            "Thumbnail Höhe  verfeinern: Größer  (+)"+Chr(9)+"ShortKey: Numpad 8" + Chr(13) +                            
-                            "Thumbnail Höhe  verfeinern: Kleiner (-)"+Chr(9)+"ShortKey: Numpad 2"                           
-        SSTTIP::TooltTip(WindowID(DC::#_Window_001), DC::#Contain_10 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+50, 0, ToolTipFont ,#False)         
+        ToolTipInfoTitle$ = "Vorschau Info"
+        ToolTipInfo_Text$ = "Doppleklick: Öffnet das Bild in einer Vorschau Ansicht" + Chr(13) +
+                            "Rechte Maustaste: Läßt ein Popup-Menü anzeigen." + Chr(13) +
+                            "Mit Drag'n'Drop können die Bilder importiert werden"+ Chr(13) +
+                            "Unterstützte Formate:"                                       + Chr(13) + 
+                            "Standard: BMP, GIF (Not Anim), ICO"                          + Chr(13) +
+                            "        : JPG, PCX, PNG, TGA, TIFF"                          + Chr(13) +
+                            "Amiga   : IFF, ILBM" + Chr(13) +
+                            "Texture : DDS" + Chr(13) +  Chr(13) +
+                            "Vorschau Größe vergrößern  (+)"+Chr(9)+"Key: F5" + Chr(13) +
+                            "Vorschau Größe verkleinern (-)"+Chr(9)+"Key: F6" + Chr(13) +
+                            "Vorschau Weite verfeinern: Größer  (+)"+Chr(9)+"Key: Numpad 4" + Chr(13) +
+                            "Vorschau Weite verfeinern: Kleiner (-)"+Chr(9)+"Key: Numpad 6" + Chr(13) +
+                            "Vorschau Höhe  verfeinern: Größer  (+)"+Chr(9)+"Key: Numpad 8" + Chr(13) +
+                            "Vorschau Höhe  verfeinern: Kleiner (-)"+Chr(9)+"Key: Numpad 2"
+        SSTTIP::ToolTipEx(DC::#_Window_001,DC::#Contain_10 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+100, 0,  Fonts::#DEJAVUSANS_MONO_09   ,#False)         
     EndProcedure    
     Procedure Set_Tooltypes_Ext(ChildWindowID.i)
         
@@ -2487,144 +2567,173 @@ Module MagicGUI
             
             ToolTipInfoTitle$ = "Programm Description"
             ToolTipInfo_Text$ = "Beschreibung des Programms"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_100 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_003, DC::#String_100 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Short Description"
             ToolTipInfo_Text$ = "Kurz Beschreibung. (Erscheint in der Liste)"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_104 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_003, DC::#String_104 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Program and Path (Drag'n'Drop Supportet)"
             ToolTipInfo_Text$ = "Doppelklick in diesen String öffnet ein Auswahl Requester für Programme"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_101 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_003, DC::#String_101 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Workpath (Drag'n'Drop Supportet)"
             ToolTipInfo_Text$ = "Doppelklick in diesen String öffnet ein Auswahl Requester für den Arbeitspfad"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_102 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_003, DC::#String_102 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             
-            ToolTipInfoTitle$ = "vSystems Kommandozeilen Intetrface"
+            ToolTipInfoTitle$ = "vSystems Kommandozeilen Interface"
             ToolTipInfo_Text$ = Set_Tooltype_Args()
                                    
-            SSTTIP::TooltTip(WindowID( DC::#_Window_003), DC::#String_103 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)  
+            SSTTIP::ToolTipEx(DC::#_Window_003, DC::#String_103 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen+110, 0, Fonts::#_C64_CHARS2 ,#False)  
         EndIf
         
         If ( ChildWindowID = DC::#_Window_003 ) Or ( ChildWindowID = DC::#_Window_002 )
-            ToolTipInfoTitle$ = "New"
+            ToolTipInfoTitle$ = "Neu"
             ToolTipInfo_Text$ = "Neuer Eintrag"
-            SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_203 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(ChildWindowID, DC::#Button_203 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
-            ToolTipInfoTitle$ = "Duplicate"
+            ToolTipInfoTitle$ = "Duplizieren"
             ToolTipInfo_Text$ = "Markierten Eintrag Duplizieren"
-            SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_204 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(ChildWindowID, DC::#Button_204 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
-            ToolTipInfoTitle$ = "Delete"
+            ToolTipInfoTitle$ = "Löschen"
             ToolTipInfo_Text$ = "Markierten Eintrag Löschen"
-            SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_205 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(ChildWindowID, DC::#Button_205 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             Select ChildWindowID
                 Case DC::#_Window_002
-                    ToolTipInfoTitle$ = "Rename"
+                    ToolTipInfoTitle$ = "Umbennen"
                     ToolTipInfo_Text$ = "Markierten Eintrag umbennen"
                 Case DC::#_Window_003
-                    ToolTipInfoTitle$ = "Save Changes"
+                    ToolTipInfoTitle$ = "Speichern"
                     ToolTipInfo_Text$ = "Aktuelle Änderungen Speichern"                   
             EndSelect            
-            SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_206 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(ChildWindowID, DC::#Button_206 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
-            ToolTipInfoTitle$ = "Close and Take"
+            ToolTipInfoTitle$ = "Schließen"
             ToolTipInfo_Text$ = "Fenster Schließen und Aktuelle änderungen übernehmen"
-            SSTTIP::TooltTip(WindowID(ChildWindowID), DC::#Button_207 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(ChildWindowID, DC::#Button_207 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
-        EndIf
-        If ( ChildWindowID = DC::#_Window_005)
+          EndIf
+          ;
+          ; C64Er Datei-Manager
+          If ( ChildWindowID = DC::#_Window_005)
             ToolTipInfoTitle$ = "Load"+Chr(34)+"$"+Chr(34)+",Image"
             ToolTipInfo_Text$ = "Re/load the Directory of the Current Mounted Image"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_203 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_203 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Copy Files to Real Drive"
             ToolTipInfo_Text$ = "Copy Selected Files to the Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_204 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_204 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
             
             ToolTipInfoTitle$ = "Rename File(s)"
             ToolTipInfo_Text$ = "Rename Selected Files"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_205 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_205 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Copy Files to Image"
             ToolTipInfo_Text$ = "Read and Write Selected Files from Real Drive to Mounted Image"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_206 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_206 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Write Image To Drive"
             ToolTipInfo_Text$ = "Write the Mounted Image to Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_263 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_263 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Delete File(s)"
             ToolTipInfo_Text$ = "Delete Selected Files"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_264 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_264 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
             
             ToolTipInfoTitle$ = "Create a Image from Drive"
             ToolTipInfo_Text$ = "Read and Create a D64 Image from Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_265 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)            
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_265 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)            
             
             ToolTipInfoTitle$ = "Initialize Real Drive"
             ToolTipInfo_Text$ = "Init and Reset the Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_266 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_266 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
             
             ToolTipInfoTitle$ = "Create a New Image"
             ToolTipInfo_Text$ = "Creat a New Image on Local HD"+#CR$+"Use the Menu for Format Options"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_268 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)              
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_268 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)              
             
             ToolTipInfoTitle$ = "Format Disk"
             ToolTipInfo_Text$ = "Format a Disk in the Real Drive"+#CR$+"Use the Menu for Format Options"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_270 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_270 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
             
             ToolTipInfoTitle$ = "Validate Disk"
             ToolTipInfo_Text$ = "Validate a Disk in the Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_271 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_271 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)  
             
             ToolTipInfoTitle$ = "Copy Files From HD"
             ToolTipInfo_Text$ = "Copy Local Files to the Current Mounted Image"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_272 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_272 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Copy Files To HD"
             ToolTipInfo_Text$ = "Copy Selected Files from the Current Mounted Image to the Backup Path"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_273 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_273 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Quit 64Listing"
             ToolTipInfo_Text$ = "Exit the Window and Put the Current File and Disk in the Base Slots"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_274 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_274 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Copy Files to HD"
             ToolTipInfo_Text$ = "Copy Selected Files from the Current Real Drive to the Backup Path"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_275 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_275 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)             
             
             ToolTipInfoTitle$ = "Copy Files From HD"
             ToolTipInfo_Text$ = "Copy Local Files to Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_276 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_276 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
             
             ToolTipInfoTitle$ = "Change Font"
             ToolTipInfo_Text$ = "Shift Up and Down the Font"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_279 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_279 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)    
             
             ToolTipInfoTitle$ = "Set Aktiv: Image"
             ToolTipInfo_Text$ = "Refresh and or Set Aktiv the Current Loaded Image"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_277 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_277 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
             
             ToolTipInfoTitle$ = "Set Aktiv: Reasl Drive"
             ToolTipInfo_Text$ = "Refresh and or Set Aktiv the Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_280 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_280 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False) 
             
             ToolTipInfoTitle$ = "Load"+Chr(34)+"$"+Chr(34)+",Real Drive"
             ToolTipInfo_Text$ = "Re/load the Directory of the Real Drive"
-            SSTTIP::TooltTip(WindowID( DC::#_Window_005), DC::#Button_207 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)            
-        EndIf
-    EndProcedure    
+            SSTTIP::ToolTipEx(DC::#_Window_005, DC::#Button_207 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)            
+          EndIf
+          
+          If ( ChildWindowID = DC::#_Window_004) ; Screenshot Preview
+            ToolTipInfoTitle$ = "Vorheriges Bild"
+            ToolTipInfo_Text$ = "Lädt das vorherige Bild"        + Chr(13) +
+                                "Steuerung:"                     + Chr(13) +
+                                "Taste :"+Chr(9)+"Pfeil Links"   + Chr(13) +
+                                "Taste :"+Chr(9)+"a"             + Chr(13) +
+                                "Taste :"+Chr(9)+"Nummernblock 6"+ Chr(13) +
+                                "Taste :"+Chr(9)+"ESC (Schließen)"
+            SSTTIP::ToolTipEx(DC::#_Window_004, DC::#Button_301 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            
+            ToolTipInfoTitle$ = "Nächstes Bild"
+            ToolTipInfo_Text$ = "Lädt das nächste Bild"          + Chr(13) +
+                                "Steuerung:"                     + Chr(13) +
+                                "Taste :"+Chr(9)+"Pfeil Rechts"  + Chr(13) +
+                                "Taste :"+Chr(9)+"d"             + Chr(13) +
+                                "Taste :"+Chr(9)+"Nummernblock 6"+ Chr(13) +
+                                "Taste :"+Chr(9)+"ESC (Schließen)"
+            SSTTIP::ToolTipEx(DC::#_Window_004, DC::#Button_302 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)
+            
+            ToolTipInfoTitle$ = "Slideshow"
+            ToolTipInfo_Text$ = "Steuerung:"                    + Chr(13) +
+                                "Starten Taste : "+Chr(9)+"Space"+ Chr(13) +
+                                "Stoppen Taste : "+Chr(9)+"Space"+ Chr(13) +                                
+                                "Zeit verändern: "+Chr(9)+"Nummernblock +/-"
+            SSTTIP::ToolTipEx(DC::#_Window_004, DC::#Button_303 ,ToolTipInfo_Text$, ToolTipInfoTitle$,1, ToolTipLen, 0, ToolTipFont ,#False)            
+          EndIf
+        EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 642
-; FirstLine = 300
-; Folding = D+P+4
+; CursorPosition = 2718
+; FirstLine = 2587
+; Folding = H+---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

@@ -572,14 +572,15 @@ Module Interact
 										; Button Liste (Standard Ansicht)
               		Case DC::#Button_010 To DC::#Button_014, DC::#Button_016, DC::#Button_283 To DC::#Button_287
               			
-              			If Form::IsOverObject(GadgetID(DC::#Button_287)) And ( ToolTipSystemShow = #True )
-              				ToolTipSystemShow = #False
-              				vSystem::System_InfoToolTip()
-              				SSTTIP::ToolTipMode(0,DC::#Button_287,Startup::ToolTipSystemInfo.s)
-              				Delay(25)
-              			Else
-              				ToolTipSystemShow = #True
-              				Delay(25)
+              			If Form::IsOverObject(GadgetID(DC::#Button_287)) ;And ( ToolTipSystemShow = #True )
+              			  ;ToolTipSystemShow = #False              			  
+                      vSystem::System_InfoToolTip()       			  
+                      SSTTIP::ToolTipModeEx(0,DC::#Button_287,Startup::ToolTipSystemInfo)            			  
+                      Delay(100)
+                      Continue
+              			;Else
+              				:ToolTipSystemShow = #True
+              				;Delay(5)
               			EndIf
               			
               			Select ButtonEX::ButtonExEvent(EvntGadget)  
@@ -927,8 +928,8 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 863
-; FirstLine = 791
+; CursorPosition = 578
+; FirstLine = 516
 ; Folding = f-
 ; EnableAsm
 ; EnableXP

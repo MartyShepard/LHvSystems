@@ -184,12 +184,12 @@ Module INVMNU
 				Case 1821: RegsVK::VxKx_Open_LoaderTool_Next()
 				Case 1822: RegsVK::VxKx_Open_LogTool_Next()
 				Case 1803: 
-					If IsWindow( DC::#_Window_003 )
+				  If IsWindow( DC::#_Window_003 )
 						Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Help",RegsVK::VxKx_Support_Help()	,2,0,"",0,0,DC::#_Window_003)	
 					Else						
 						Request::MSG(Startup::*LHGameDB\TitleVersion, "vSystem Save Support: Help",RegsVK::VxKx_Support_Help()	,2,0,"",0,0,DC::#_Window_001)	
 					EndIf
-					
+				Case 1823: vSystemHelp::vSysCMD_VKexNextSupport()					
     	EndSelect
     EndProcedure
     ;
@@ -293,10 +293,10 @@ Module INVMNU
     	
     		Protected Index.i, MenuIndex.i, MountDrive.s, MountDirectory.s
 	    	If IsWindow( DC::#_Window_001 )		    	
-	    		OpenSubMenu("VirtualDrive Support")
-	    		MenuItem(2700, "Laufwerk: Aktiveren") 
-	    		MenuItem(2701, "Laufwerk: Entfernen")
-	    		MenuItem(2702, "Laufwerk: Entfernen (Force)")
+	    		OpenSubMenu("Konfiguriere: VirtualDrive .." ,ImageID( DI::#_MNU_VDMENU))  
+	    		MenuItem(2700, "Laufwerk: Aktiveren"        ,ImageID( DI::#_MNU_VDON)) 
+	    		MenuItem(2701, "Laufwerk: Entfernen"        ,ImageID( DI::#_MNU_VDOFF)) 
+	    		MenuItem(2702, "Laufwerk: Entfernen (Force)",ImageID( DI::#_MNU_VDOFF)) 
 	    		
 	    		;
 	    		; Hole angemldete Laufwerke
@@ -335,21 +335,21 @@ Module INVMNU
     		EndIf
     		   
 	    	If IsWindow( DC::#_Window_003 )		    	
-	    		OpenSubMenu("vSystem: Registry Support")	    		
+	    		OpenSubMenu("vSystem: Registry Support"                     , ImageID( DI::#_MNU_RME ))   	    		
 	    	Else
 	    		;
 	    		; Try Icon
-	    		OpenSubMenu("Registry Support")  
+	    		OpenSubMenu("Konfiguriere: Registry .."                     , ImageID( DI::#_MNU_RME ))     
 	    	EndIf
 	    	
-	    	MenuItem(2600, "Titel: " + RegsTool::RegsConfig_GetGameTitle())
-    		MenuItem(2601, RegsTool::RegsConfig_MenuFileExists())
+	    	MenuItem(2600, "Titel: " + RegsTool::RegsConfig_GetGameTitle(), ImageID( DI::#_MNU_RIF ))
+    		MenuItem(2601, RegsTool::RegsConfig_MenuFileExists()          , ImageID( DI::#_MNU_RIF ))
     		MenuBar() 	    	
-    		MenuItem(2602, "Hilfe") 
+    		MenuItem(2602, "Hilfe"                                        , ImageID( DI::#_MNU_RHP ))
     		MenuBar() 	    		
-    		MenuItem(2603, "Config: Erstellen")
-    		MenuItem(2604, "Config: Spiel Hinzufügen")
-    		MenuItem(2605, "Config: Editieren")
+    		MenuItem(2603, "Konfig: Erstellen"                            , ImageID( DI::#_MNU_RMK ))
+    		MenuItem(2604, "Konfig: Spiel Hinzufügen"                     , ImageID( DI::#_MNU_RAK ))
+    		MenuItem(2605, "Konfig: Editieren"                            , ImageID( DI::#_MNU_REG ))
     		MenuBar()    		
     		
     		
@@ -374,7 +374,7 @@ Module INVMNU
     			MenuItem(2610, "Editieren: " +  Left(szRegDataFile5, Len(szRegDataFile5)-CutLen ) )
     		EndIf
     		
-    		MenuItem(2611, "Editieren: - Eigene Datei Öffnen")
+    		MenuItem(2611, "Datei Öffnen und Editieren"             , ImageID( DI::#_MNU_RFL ))
     		MenuBar()
     		    		  
     		
@@ -421,7 +421,7 @@ Module INVMNU
     		If Len( szRegDataFile5 ) > 0    			
     			MenuItem(2616, "Konvertieren: " + szRegDataFile5)    	    		
     		EndIf
-    		MenuItem(2617, "Konvertieren: - Eigene Datei Öffnen")
+    		MenuItem(2617, "Datei Öffnen und Konvertieren"      , ImageID( DI::#_MNU_RCV ))
     		
 	    	If IsWindow( DC::#_Window_003 )		    	
 	    		MenuBar() 	    		
@@ -430,6 +430,11 @@ Module INVMNU
 	    	
 	    	CloseSubMenu() 	    	
 	    	
+	      If Not IsWindow( DC::#_Window_003 )	; Zeige im TrayMenu	
+    		  MenuItem(2603, "Regs Konfig: Erstellen",ImageID( DI::#_MNU_RMK ))
+    		  MenuItem(2604, "Regs Konfig: Spiel Hinzufügen",ImageID( DI::#_MNU_REG ))
+    	  EndIf
+    	
     		If CountGadgetItems(DC::#ListIcon_001) = 0
     			SetMenuItemText(MenuID, 2600, "Keine Spiel Einträge")
     			SetMenuItemText(MenuID, 2601, "Status: --")
@@ -444,48 +449,48 @@ Module INVMNU
     	
     	Protected Index.i
 	    	If IsWindow( DC::#_Window_003 )		    	
-	    		OpenSubMenu("vSystem: Save Support", ImageID( DI::#_MNU_SAVESUPPORT))
+	    		OpenSubMenu("vSystem: Save Support"               , ImageID( DI::#_MNU_SAVESUPPORT))
 	    	Else
 	    		;
 	    		; Try Icon
-	    		OpenSubMenu("Save Support", ImageID( DI::#_MNU_SAVESUPPORT))	    		
+	    		OpenSubMenu("Konfiguriere: Save .."               , ImageID( DI::#_MNU_SAVESUPPORT))	    		
 	    	EndIf
 	    	
-    		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle())  
-    		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists())
+    		MenuItem(1618, "Titel: " + SaveTool::SaveConfig_GetGameTitle(), ImageID( DI::#_MNU_SAVEINFO))  
+    		MenuItem(1619, SaveTool::SaveConfig_MenuFileExists(), ImageID( DI::#_MNU_SAVEINFO))  
     		MenuBar() 
-    		MenuItem(1600, "Hilfe")
+    		MenuItem(1600, "Hilfe"                              , ImageID( DI::#_MNU_SAVEHELP)) 
 	    	MenuBar() 
-	    	MenuItem(1615, "Info: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)) + " Millisekunden")
-	    	MenuItem(1616, "Info: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)) + " Millisekunden")
-	    	MenuItem(1614, "Info: Save Wiederherstellen")	
-	    	MenuItem(1613, "Info: Save Daten Sichern")	    	
-	    	MenuItem(1617, "Info: Save Daten Komprimieren")
-	    	MenuItem(1612, "Info: Konfigurierte Verzeichnisse")	    	
+	    	MenuItem(1615, "Edit: Verzögerung: Start = " 		+ Str(SaveTool::GetSaveOption(2)) + " Millisekunden")
+	    	MenuItem(1616, "Edit: Verzögerung: Ende = " 		+ Str(SaveTool::GetSaveOption(3)) + " Millisekunden")
+	    	MenuItem(1614, "Edit: Save Wiederherstellen")	
+	    	MenuItem(1613, "Edit: Save Daten Sichern")	    	
+	    	MenuItem(1617, "Edit: Save Daten Komprimieren")
+	    	MenuItem(1612, "Info: Konfigurierte Verzeichnisse"  , ImageID( DI::#_MNU_SAVEINFO)) 	
     		MenuBar() 
-    		MenuItem(1601, "Config: Erstellen",					ImageID( DI::#_MNU_SAVECREATE))
+    		MenuItem(1601, "Konfig: Erstellen"                  , ImageID( DI::#_MNU_SAVECREATE))
 	    	If IsWindow( DC::#_Window_003 )	    		
-	    		MenuItem(1602, "Config: Spiel Hinzufügen")
+	    		MenuItem(1602, "Konfig: Spiel Hinzufügen")
 	    	EndIf
 	    	MenuBar()
 	    	If IsWindow( DC::#_Window_003 )		    	
-	    		MenuItem(1603, "Config: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
+	    		MenuItem(1603, "Konfig: Editieren"                , ImageID( DI::#_MNU_SAVEEDIT))
 	    	EndIf
-	    	MenuItem(1608, "Config: Editieren (Öffne Mit..)")
-	    	MenuItem(1620, "Config: Verzeichnis Nr.1 wählen")
-	    	MenuItem(1621, "Config: Verzeichnis Nr.2 wählen")	    	
-	    	MenuItem(1622, "Config: Verzeichnis Nr.3 wählen")
-	    	MenuItem(1623, "Config: Verzeichnis Nr.4 wählen")
-	    	MenuItem(1624, "Config: Verzeichnis Nr.5 wählen")    	
+	    	MenuItem(1608, "Konfig: Editieren (Öffne Mit..)"    , ImageID( DI::#_MNU_SAVEFILE))
+	    	MenuItem(1620, "Konfig: Verzeichnis Nr.1 wählen"    , ImageID( DI::#_MNU_EX1 )) 
+	    	MenuItem(1621, "Konfig: Verzeichnis Nr.2 wählen"    , ImageID( DI::#_MNU_EX1 )) 	    	
+	    	MenuItem(1622, "Konfig: Verzeichnis Nr.3 wählen"    , ImageID( DI::#_MNU_EX1 )) 
+	    	MenuItem(1623, "Konfig: Verzeichnis Nr.4 wählen"    , ImageID( DI::#_MNU_EX1 )) 
+	    	MenuItem(1624, "Konfig: Verzeichnis Nr.5 wählen"    , ImageID( DI::#_MNU_EX1 )) 
 	    	MenuBar() 	    	   	
-	    	MenuItem(1607, "Config: vSystem Verzeichnis Öffnen") 	    		        	
+	    	MenuItem(1607, "Konfig: vSystem Verzeichnis Öffnen" , ImageID( DI::#_MNU_EX1 ))     		        	
 	    	MenuBar() 
-	    	MenuItem(1604, "Save Backup: Kopieren",					ImageID( DI::#_MNU_SAVEBCKCOPY))
-	    	MenuItem(1609, "Save Backup: Verschieben",			ImageID( DI::#_MNU_SAVEBCKMOVE))        		
-	    	MenuItem(1605, "Save Backup: Wiederherstellen",	ImageID( DI::#_MNU_SAVERSTCOPY))
-	    	MenuItem(1610, "Save Backup: Löschen",					ImageID( DI::#_MNU_SAVEBCKDEL))
+	    	MenuItem(1604, "Save Backup: Kopieren"              ,	ImageID( DI::#_MNU_SAVEBCKCOPY))
+	    	MenuItem(1609, "Save Backup: Verschieben"           ,	ImageID( DI::#_MNU_SAVEBCKMOVE))        		
+	    	MenuItem(1605, "Save Backup: Wiederherstellen"      ,	ImageID( DI::#_MNU_SAVERSTCOPY))
+	    	MenuItem(1610, "Save Backup: Löschen"               ,	ImageID( DI::#_MNU_SAVEBCKDEL))
 	    	MenuBar() 
-	    	MenuItem(1611, "Save Backup Komprimieren",					ImageID( DI::#_MNU_SAVECOMPRESS))    		
+	    	MenuItem(1611, "Save Backup Komprimieren"           ,	ImageID( DI::#_MNU_SAVECOMPRESS))    		
 	    	If IsWindow( DC::#_Window_003 )		    	
 	    		MenuBar() 	    		
 	    		MenuItem(1606, "Commandline Hinzufügen")    		
@@ -494,8 +499,8 @@ Module INVMNU
     		If Not IsWindow( DC::#_Window_003 )    			
     			;
 					; Tray Icon
-    			MenuItem(1602, "Save Config: Erstellen",				ImageID( DI::#_MNU_SAVECREATE))
-    			MenuItem(1603, "Save Config: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
+    			MenuItem(1602, "Save Konfig: Erstellen",				ImageID( DI::#_MNU_SAVECREATE))
+    			MenuItem(1603, "Save Konfig: Editieren",				ImageID( DI::#_MNU_SAVEEDIT))
     		EndIf	
     			
     	If CountGadgetItems(DC::#ListIcon_001) = 0
@@ -522,53 +527,68 @@ Module INVMNU
 	  	Protected KxVxStatus.s 	= ""
 	  	Protected KxOpt.i				= 0
 	  	Protected KxPatchedExe.s	= ""
+	  	Protected KxVxArgument.b = #False
 	  	
-	  	KxVxInstalled = RegsVK::VxKxInstallPath()
-	  	Select KxVxInstalled
-	  		Case 0: KxVxStatus = "Ok. Installed"
-	  		Case 1: KxVxStatus = "Not Installed"
-	  		Case 2: KxVxStatus = "Path Mismatch"
-	  	EndSelect	  		  	
-	  		  	
-	  	If IsWindow( DC::#_Window_003 )		    	
-	  		OpenSubMenu("vSystem: KxVex Support")	    		
+	  	KxVxArgument = vSystemHelp::CheckCMD_VKexNextSupport()
+	  	If (KxVxArgument.b = #False)
+	  	  ;
+	  	  ; Kein %vxkex argument gefunden
+	  	  KxVxStatus = "Ausgeschaltet"
 	  	Else
-	  		OpenSubMenu("KxVex Datei Support")
+	  	
+  	  	KxVxInstalled = RegsVK::VxKxInstallPath()
+  	  	Select KxVxInstalled
+  	  		Case 0: KxVxStatus = "Ok. Installed"
+  	  		Case 1: KxVxStatus = "Not Installed"
+  	  		Case 2: KxVxStatus = "Path Mismatch"
+  	  	EndSelect	  		  	
+  	  	
+  	  EndIf
+  	  
+	  	If IsWindow( DC::#_Window_003 )		    	
+	  		OpenSubMenu("vSystem: VxKex Support"    ,ImageID( DI::#_MNU_VXMENU))  	    		
+	  	Else
+	  		OpenSubMenu("Konfiguriere: VxKex .."    ,ImageID( DI::#_MNU_VXMENU))  
 	  	EndIf
 	  	
-	  	KxPatchedExe = GetFilePart( vSystemHelp::vSysCMD_FileGetBase(#True), #PB_FileSystem_NoExtension )
+	  	If (KxVxArgument = #True)
+	  	  ;
+	  	  ; %vxkex argument gefunden	  	  
+	  	  KxPatchedExe = GetFilePart( vSystemHelp::vSysCMD_FileGetBase(#True), #PB_FileSystem_NoExtension )
+	  	  If (KxPatchedExe = "")
+	  	    KxPatchedExe = "Nicht Konfiguriert"
+	  	  EndIf	  	  
+	  	Else
+	  	  KxPatchedExe = "Kein %vxkex Argument"
+	  	EndIf	  	
 	  	
-	  	If (KxPatchedExe = "")
-	  	  KxPatchedExe = "Nicht Konfiguriert"
-	  	EndIf
-	  	
-	  	MenuItem(1800, "VxKex NEXT Support")	  	
-	  	MenuItem(1801, "Status: " + KxVxStatus)
-	  	MenuItem(1803, "Hilfe und Kompatibilität")		  	
-	  	MenuItem(1802, "[" +	KxPatchedExe +  "]")		  	
+	  	MenuItem(1800, "VxKex NEXT Support"         ,ImageID( DI::#_MNU_VXHTTP))	  	
+	  	MenuItem(1801, "Status: " + KxVxStatus      ,ImageID( DI::#_MNU_VXINFO))
+	  	MenuItem(1803, "Hilfe und Kompatibilität"   ,ImageID( DI::#_MNU_VXHELP))
+	  	MenuItem(1802, "[" +	KxPatchedExe +  "]"   ,ImageID( DI::#_MNU_VXINFO))
 	  	MenuBar()
 	  	
-	  	MenuItem(1810, "Kompatibilität Einschalten")
+	  	MenuItem(1810, "Kompatibilität Einschalten" ,ImageID( DI::#_MNU_VXAKTIV))
 	  	MenuBar()
-	  	MenuItem(1811, "Täusche: Windows 7 (SP1)")
-	  	MenuItem(1812, "Täusche: Windows 8")
-	  	MenuItem(1813, "Täusche: Windows 8.1")
-	  	MenuItem(1814, "Täusche: Windows 10")
-	  	MenuItem(1815, "Täusche: Windows 11")
+	  	MenuItem(1811, "Täusche: Windows 7 (SP1)"   ,ImageID( DI::#_MNU_VXWN07))
+	  	MenuItem(1812, "Täusche: Windows 8"         ,ImageID( DI::#_MNU_VXWN08))
+	  	MenuItem(1813, "Täusche: Windows 8.1"       ,ImageID( DI::#_MNU_VXWN08))
+	  	MenuItem(1814, "Täusche: Windows 10"        ,ImageID( DI::#_MNU_VXWN10))
+	  	MenuItem(1815, "Täusche: Windows 11"        ,ImageID( DI::#_MNU_VXWN11))
 	  	MenuBar()
-	  	MenuItem(1816, "Stärker Täuschen")
+	  	MenuItem(1816, "Stärker Täuschen"           ,ImageID( DI::#_MNU_VXAKTIV))
 	  	MenuBar()
-	  	MenuItem(1817, "Unterprozesse Ausschließen")
-	  	MenuItem(1818, "Patches/Hacks Deaktivieren")
+	  	MenuItem(1817, "Unterprozesse Ausschließen" ,ImageID( DI::#_MNU_VXAKTIV))
+	  	MenuItem(1818, "Patches/Hacks Deaktivieren" ,ImageID( DI::#_MNU_VXAKTIV))
 	  	MenuBar()	  	
-	  	MenuItem(1819, "VxKex Einstellung Entfernen")
+	  	MenuItem(1819, "VxKex Einstellung Entfernen",ImageID( DI::#_MNU_VXREMOVE))
 	  	MenuBar()	
-	  	MenuItem(1820, "VxKex: Konfigutions Tool")
-	  	MenuItem(1821, "VxKex: Programm Starter")			  	
-	  	MenuItem(1822, "VxKex: LOG Betrachter")	  	
+	  	MenuItem(1820, "VxKex: Konfigutions Tool"   ,ImageID( DI::#_MNU_VXAKTIV))
+	  	MenuItem(1821, "VxKex: Programm Starter"    ,ImageID( DI::#_MNU_VXAKTIV))
+	  	MenuItem(1822, "VxKex: LOG Betrachter"      ,ImageID( DI::#_MNU_VXAKTIV))
 	  	CloseSubMenu()
 	  	
-	  	If (KxVxInstalled = 1)
+	  	If (KxVxInstalled = 1) Or (KxVxArgument = #False)
 	  		; Nicht Installiert. Alles ausgrauen
 	  		DisableMenuItem(MenuID, 1810, 1)
 	  		DisableMenuItem(MenuID, 1811, 1)
@@ -630,7 +650,7 @@ Module INVMNU
 	  			MNU_SetCheckmark(MenuID, 1817, RegsVK::VxKx_GetOpt_ChildDisable(IndexNum) )
 	  			MNU_SetCheckmark(MenuID, 1818, RegsVK::VxKx_GetOpt_AppScDisable(IndexNum) )	  			
 	  			
-	  	EndIf	
+	  		EndIf	  	  
 	  EndIf	  
 	  EndProcedure
 	  
@@ -739,21 +759,19 @@ Module INVMNU
 			; vSystem Save Support    	   	    	
     	Set_AppMenu_SaveSupport(MenuID)
     	;
-			; vSystem Registry Support    	   	    	
+      ; vSystem Registry Support
     	Set_AppMenu_RegsSupport(MenuID)      				    	    					    
     	;
     	MenuBar() 
-    	MenuItem(1736, "vSystem: Datei Eingeschaft")
+    	MenuItem(1736, "vSystem: Datei Eigenschaft")
+      MenuItem(1823, "VxKex: Einschalten")    	
     	Set_AppMenu_KxVexSupport(MenuID.i)
     	MenuBar()
     	MenuItem(1723, "vSystem: Argument Hilfe")	    	 		
     EndProcedure    
-    ;*******************************************************************************************************************************************************************
-    ;
-    ; Individuelle Layouts (C64 Datei Manager)
     ;
     ;
-    ;*******************************************************************************************************************************************************************     
+    ; Individuelle Layouts (C64 Datei Manager) 
     Procedure Get_C64Menu(MenuID.i, GadgetID.i)
                         
         Select MenuID.i
@@ -990,23 +1008,21 @@ Module INVMNU
         SetMenuItemState(MenuID, 38, INVMNU::*LHMNU64\BAMOCP)        
     EndProcedure  
     
-    ;*******************************************************************************************************************************************************************
-    ;
-    ; Individuelle Layouts (Thumbnails)
     ;
     ;
-    ;*******************************************************************************************************************************************************************     
+    ; Individuelle Layouts (Thumbnails)    
     Procedure Get_ShotsMenu(MenuID.i, GadgetID.i)
         
         Select MenuID.i
-            Case 1: vImages::Screens_Menu_Import(GadgetID.i)
-            Case 2: vImages::Screens_Menu_Save_Image(GadgetID.i)
-            Case 3: vImages::Screens_Menu_Save_Images_All()
-            Case 4: vImages::Screens_Menu_Delete_Single(GadgetID.i)
-            Case 5: vImages::Screens_Menu_Delete_All()
-            Case 8: vImages::Screens_SzeThumbnails_Reset()
-                    vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*1, #True)
-            Case 9: VEngine::Splitter_SetAll()
+            Case 01: vImages::Screens_Menu_Import(GadgetID.i)
+            Case 02: vImages::Screens_Menu_Save_Image(GadgetID.i)
+            Case 03: vImages::Screens_Menu_Save_Images_All()
+            Case 04: vImages::Screens_Menu_Delete_Single(GadgetID.i)
+            Case 05: vImages::Screens_Menu_Delete_All()
+            Case 06: vImages:: Screens_Menu_Delete_All_DB()                           
+            Case 08: vImages::Screens_SzeThumbnails_Reset()
+                      vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*1, #True)
+            Case 09: VEngine::Splitter_SetAll()
             Case 10: vEngine::Thumbnails_SetAll()
             Case 11: vEngine::Thumbnails_Set(1)
             Case 12: vEngine::Thumbnails_Set(2)   
@@ -1041,8 +1057,9 @@ Module INVMNU
         MenuItem(18 , "Bild Kopieren")          			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 5, #MF_BYPOSITION, ImageID( DI::#_MNU_COP ),0)
         MenuItem(19 , "Bild Einfügen")          			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 6, #MF_BYPOSITION, ImageID( DI::#_MNU_PAS ),0)          
         MenuBar()
-        MenuItem(4 , "Dieses Bild Löschen")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
-        MenuItem(5,  "Alle Bilder Löschen")     			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
+        MenuItem(4 , "Bild Löschen")     			        :SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 8, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0) 
+        MenuItem(5,  "Alle Löschen. Akt. Eintrag")     		:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 9, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)
+        MenuItem(6,  "Alle Löschen. Alle Einträge")     		:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ),10, #MF_BYPOSITION, ImageID( DI::#_MNU_DPC ),0)        
         MenuBar()
         MenuItem(20, "Splitter Höhe Einstellen")			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 11, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)
         MenuItem(9,  "...Gleiche Höhe für alle")			:SetMenuItemBitmaps_( MenuID( CLSMNU::*MNU\HandleID[0] ), 12, #MF_BYPOSITION, ImageID( DI::#_MNU_SPL ),0)          
@@ -1077,464 +1094,485 @@ Module INVMNU
     EndProcedure      
     Procedure Get_PopMenu1(MenuID.i, GadgetID.i)
     EndProcedure
-    ;*******************************************************************************************************************************************************************          
+    ;          
     Procedure Set_PopMenu1() 
     EndProcedure      
-    ;*******************************************************************************************************************************************************************
-    ;
-    ; Individuelle Layouts
     ;
     ;
-    ;*******************************************************************************************************************************************************************    
+    ; Individuelle Layouts   
     Procedure Get_TrayMenu(MenuID.i)
-    	Select MenuID.i              
-    		Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
-    		Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
-    		Case 8:  vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
-    		Case 11: vDiskPath::ReConstrukt(4, #False) ; Search for All on Slot 4 
-    		Case 12: vDiskPath::ReConstrukt(1, #True ) ; Search for Current Item on Slot 1
-    		Case 13: vDiskPath::ReConstrukt(2, #True ) ; Search for Current Item on Slot 2                 
-    		Case 14: vDiskPath::ReConstrukt(3, #True ) ; Search for Current Item on Slot 3
-    		Case 15: vDiskPath::ReConstrukt(4, #True ) ; Search for Current Item on Slot 4   
-    		Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow() 
-    		Case 17: VEngine::Database_Remove(1,#True)  
-    		Case 30: DesktopEX::CloseExplorer() 
-    		Case 32: DesktopEX::SetTaskBar()
-    		Case 35: vEngine::ServiceOption("uxsms", #False)                 
-    		Case 34: vEngine::ServiceOption("uxsms", #True) 
-    		Case 40: vEngine::MAME_Driver_Import()             	        
-    		Case 41: vEngine::MAME_Roms_Check_Import()
-    		Case 42: vEngine::MAME_Roms_Check()            	
-    		Case 43: vEngine::MAME_Roms_Backup() 
-    		Case 44: vEngine::MAME_Roms_GetInfos() 
-    		Case 44: vEngine::MAME_Roms_GetInfos() 
-    		Case 47: vEngine::MAME_Driver_Info_wwwAI() 
-    		Case 48: VEngine::Database_Remove()   
-    			
-    			; Resetet die Fenster Position
-    		Case 20
-    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosX", Str(0),1)    
-    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosY", Str(0),1)                
-    			Startup::*LHGameDB\WindowPosition\X = 0
-    			Startup::*LHGameDB\WindowPosition\Y = 0         
-    			WinGuru::WindowPosition(DC::#_Window_001,Startup::*LHGameDB\WindowPosition\X,Startup::*LHGameDB\WindowPosition\Y)
-    			
-    		Case 1
-    			Startup::*LHGameDB\SortMode = 0
-    			Startup::*LHGameDB\SortXtendMode = #False
-    			VEngine::Thread_LoadGameList_Sort()
-    			
-    		Case 2
-    			Startup::*LHGameDB\SortMode = 1
-    			Startup::*LHGameDB\SortXtendMode = #False
-    			VEngine::Thread_LoadGameList_Sort()
-    			
-    		Case 3
-    			Startup::*LHGameDB\SortMode = 2
-    			Startup::*LHGameDB\SortXtendMode = #False
-    			VEngine::Thread_LoadGameList_Sort()
-    			
-    		Case 4  			    				    			
-    			VEngine::Thread_LoadGameList_Sort()     				
-    			
-    		Case 45
-    			bReloadSort.i = #False
-    			
-    			If ( Startup::*LHGameDB\SortMode  >= 5 )
-    				bReloadSort.i = #True
-    			EndIf
-    			
-    			Startup::*LHGameDB\SortMode = 3
-    			Startup::*LHGameDB\SortXtendMode = #False
-    			
-    			If ( bReloadSort = #True )
-    				VEngine::Thread_LoadGameList_Action() 			
-    			EndIf          	
-    			
-    		Case 46    			
-    			bReloadSort.i = #False
-    			
-    			If ( Startup::*LHGameDB\SortMode  <= 4 )
-    				bReloadSort.i = #True
-    			EndIf
-    			
-    			Startup::*LHGameDB\SortMode = 5
-    			Startup::*LHGameDB\SortXtendMode = #True
-    			
-    			If ( bReloadSort = #True )
-    				VEngine::Thread_LoadGameList_Action() 			
-    			EndIf	
-    			
-    		Case 7, 71 To 85     			    			    	    			
-    			Startup::*LHGameDB\bvSystem_Restart = #True
-    			
-    			Select MenuID
-    				Case 71: ;1280x720
-    					vEngine::Splitter_SetHeight(0, #False, #True, 0)			: Startup::*LHGameDB\WindowHeight = 0
-    				Case 72: ;1920x1080
-    					vEngine::Splitter_SetHeight(0, #False, #True, 360)    : Startup::*LHGameDB\WindowHeight = 360				
-    				Case 73: ;1024x1280
-    					vEngine::Splitter_SetHeight(0, #False, #True, 560)    : Startup::*LHGameDB\WindowHeight = 560
-    				Case 74: ;1024x768
-    					vEngine::Splitter_SetHeight(0, #False, #True, 48)			: Startup::*LHGameDB\WindowHeight = 48
-    				Case 75: ;1280x1024
-    					vEngine::Splitter_SetHeight(0, #False, #True, 304)		: Startup::*LHGameDB\WindowHeight = 304
-    				Case 76:	;1280x960
-    					vEngine::Splitter_SetHeight(0, #False, #True, 240)   	: Startup::*LHGameDB\WindowHeight = 240 				
-    				Case 77:	;3840x2160
-    					vEngine::Splitter_SetHeight(0, #False, #True, 1440)   : Startup::*LHGameDB\WindowHeight = 1440
-    				Case 78: ;1440x2560
-    					vEngine::Splitter_SetHeight(0, #False, #True, 1840)   : Startup::*LHGameDB\WindowHeight = 1840
-    				Case 79: ;1024x1600
-    					vEngine::Splitter_SetHeight(0, #False, #True, 880) 		: Startup::*LHGameDB\WindowHeight = 880
-    				Case 80: ;2160x3840
-    					vEngine::Splitter_SetHeight(0, #False, #True, 3120)		: Startup::*LHGameDB\WindowHeight = 3120
-    				Default
-    					
-    					r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
-    					If ( r = 1 )                   
-    						SetActiveGadget(DC::#ListIcon_001)                
-    						Startup::*LHGameDB\bvSystem_Restart = #False
-    						ProcedureReturn
-    					EndIf    				
-    					vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
-    					Startup::*LHGameDB\WindowHeight = Val(Request::*MsgEx\Return_String)
-    			EndSelect
-    			VEngine::Splitter_SetAll()
-    			ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)	
-    			
-    			a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
-    			Delay( 5 )
-    			If ( a > 0 )
-    				WriteStringN(a, "Restart..")
-    				RunProgram(ProgramFilename())               
-    				End
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem beim Anlegen der Textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
-    			EndIf    
-    			
-    		Case 9 : vFont::SetDB(1) 
-    		Case 10: vFont::SetDB(2)                 
-    		Case 98: vUpdate::Update_Check()
-    			
-    		Case 18:
-    			File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt"
-    			If FileSize(File) <> -1
-    				FFH::ShellExec(File, "open")
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-    			EndIf    
-    			
-    		Case 19: 
-    			File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt"
-    			If FileSize(File) <> -1
-    				FFH::ShellExec(File, "open")
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-    			EndIf 
-    			
-    		Case 21:
-    			Path.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
-    			If FileSize(Path) = -2
-    				FFH::ShellExec(Path, "explore")
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
-    			EndIf
-    			
-    		Case 22:
-    			Path.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
-    			If FileSize(Path) = -2
-    				FFH::ShellExec(Path, "explore")
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
-    			EndIf                 
-    			
-    		Case 200 To 300
-    			FFH::ShellExec(GetMenuItemText(CLSMNU::*MNU\HandleID[0], MenuID), "open")
-    			
-    		Case 23
-    			ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"                
-    			ShotSize.i = 0
-    			
-    			ShotSize = vItemTool::File_GetFiles(ShotPath)
-    			If  (ShotSize > 0 )
-    				
-    				Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Löschen?","Alle Snapshot Dateie(n) löschen? ("+Str(ShotSize)+") " + #CR$ + "Pfad: " + ShotPath,11,2,"",0,0,DC::#_Window_001)
-    				If (Result = 0)                
-    					While NextElement(FFS::FullFileSource())
-    						Delay( 5 )
-    						DeleteFile( FFS::FullFileSource()\FileName )
-    					Wend
-    				EndIf    
-    				ClearList( FFS::FullFileSource() )
-    				
-    				Delay( 5 )
-    				ShotSize = vItemTool::File_GetFiles(ShotPath)
-    				If ( ShotSize > 0 )
-    					Request::MSG(Startup::*LHGameDB\TitleVersion, "Fehler", "Konnte alle Snapshot Dateie(n) nicht löschen" ,2,1,"",0,0,DC::#_Window_001 )
-    				Else
-    					Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
-    				EndIf
-    			EndIf                    
-    			
-    		Case 24
-    			If ( Startup::*LHGameDB\FileMonitoring = #False )
-    				Monitoring::Activate("C:\")
-    			Else
-    				Monitoring::DeActivate()
-    			EndIf
-    			
-    		Case 25
-    			File.s = Startup::*LHGameDB\Monitoring\LatestLog
-    			If FileSize(File) <> -1
-    				FFH::ShellExec(File, "open")
-    			Else
-    				Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
-    			EndIf 
-    			
-    		Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
-    			
-    		Case 1600 To 1699
-    			Get_MenuItems_SaveSupport(MenuID.i)
-    			
-    		Case 2600 To 2699
-    			Get_MenuItems_RegsSupport(MenuID.i)
-    			
-    		Case 2700 To 2750
-    			Get_MenuItems_VirtualDriveSupport(MenuID.i)
-    		Case 97    			
-    			vSystemHelp::vSysCMD_FileProperties()
-        Case 1800 To 1899
-        	Get_MenuItems_KxVXSupport(MenuID.i)    			
-    			
-    	EndSelect       
-    EndProcedure
-    ;*******************************************************************************************************************************************************************    
-    Procedure Set_TrayMenu_LoggUtil()    
-        Protected LognPath.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
-        
-        MenuItem(22, "Log Verzeichnis Öffnen"                   ,ImageID( DI::#_MNU_EX1 )) 
-        
-        If ( FileSize(LognPath) <> -2 )      
-            DisableMenuItem( CLSMNU::*MNU\HandleID[0], 22, 1)
-        Else
-            MenuItem(18, "Log Datei Öffnen: stdout"                 ,ImageID( DI::#_MNU_CLR ))
-            MenuItem(19, "Log Datei Öffnen: error"                  ,ImageID( DI::#_MNU_CLR ))
-        EndIf    
-        
-    EndProcedure
-
-    ;*******************************************************************************************************************************************************************    
-    Procedure Set_TrayMenu_ShotUtil()
-    	
-        Protected ShotPath.s = Startup::*LHGameDB\Base_Shot
-        Protected ShotSize.i = 0
-               
-        If ( FileSize(ShotPath) <> -2 )
-            MenuItem(21, "Capture Verzeichnis Öffnen"              ,ImageID( DI::#_MNU_EX1 ))            
-            DisableMenuItem( CLSMNU::*MNU\HandleID[0], 21, 1)            
-        Else                        
-            ShotSize = vItemTool::File_GetFiles(ShotPath)  
+      Select MenuID.i              
+        Case 5:  vDiskPath::ReConstrukt(1, #False) ; Search for All on Slot 1
+        Case 6:  vDiskPath::ReConstrukt(2, #False) ; Search for All on Slot 2                 
+        Case 8:  vDiskPath::ReConstrukt(3, #False) ; Search for All on Slot 3
+        Case 11: vDiskPath::ReConstrukt(4, #False) ; Search for All on Slot 4 
+        Case 12: vDiskPath::ReConstrukt(1, #True ) ; Search for Current Item on Slot 1
+        Case 13: vDiskPath::ReConstrukt(2, #True ) ; Search for Current Item on Slot 2                 
+        Case 14: vDiskPath::ReConstrukt(3, #True ) ; Search for Current Item on Slot 3
+        Case 15: vDiskPath::ReConstrukt(4, #True ) ; Search for Current Item on Slot 4   
+        Case 16: vInfoMenu::Cmd_DockSettings(0): vInfoMenu::Cmd_ResetWindow() 
+        Case 17: VEngine::Database_Remove(1,#True)  
+        Case 30: DesktopEX::CloseExplorer() 
+        Case 32: DesktopEX::SetTaskBar()
+        Case 35: vEngine::ServiceOption("uxsms", #False)                 
+        Case 34: vEngine::ServiceOption("uxsms", #True) 
+        Case 40: vEngine::MAME_Driver_Import()             	        
+        Case 41: vEngine::MAME_Roms_Check_Import()
+        Case 42: vEngine::MAME_Roms_Check()            	
+        Case 43: vEngine::MAME_Roms_Backup() 
+        Case 44: vEngine::MAME_Roms_GetInfos() 
+        Case 44: vEngine::MAME_Roms_GetInfos() 
+        Case 47: vEngine::MAME_Driver_Info_wwwAI() 
+        Case 48: VEngine::Database_Remove()   
+          
+          ; Resetet die Fenster Position
+        Case 20
+          ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosX", Str(0),1)    
+          ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WPosY", Str(0),1)                
+          Startup::*LHGameDB\WindowPosition\X = 0
+          Startup::*LHGameDB\WindowPosition\Y = 0         
+          WinGuru::WindowPosition(DC::#_Window_001,Startup::*LHGameDB\WindowPosition\X,Startup::*LHGameDB\WindowPosition\Y)
+          
+        Case 1
+          Startup::*LHGameDB\SortMode = 0
+          Startup::*LHGameDB\SortXtendMode = #False
+          VEngine::Thread_LoadGameList_Sort()
+          
+        Case 2
+          Startup::*LHGameDB\SortMode = 1
+          Startup::*LHGameDB\SortXtendMode = #False
+          VEngine::Thread_LoadGameList_Sort()
+          
+        Case 3
+          Startup::*LHGameDB\SortMode = 2
+          Startup::*LHGameDB\SortXtendMode = #False
+          VEngine::Thread_LoadGameList_Sort()
+          
+        Case 4  			    				    			
+          VEngine::Thread_LoadGameList_Sort()     				
+          
+        Case 45
+          bReloadSort.i = #False
+          
+          If ( Startup::*LHGameDB\SortMode  >= 5 )
+            bReloadSort.i = #True
+          EndIf
+          
+          Startup::*LHGameDB\SortMode = 3
+          Startup::*LHGameDB\SortXtendMode = #False
+          
+          If ( bReloadSort = #True )
+            VEngine::Thread_LoadGameList_Action() 			
+          EndIf          	
+          
+        Case 46    			
+          bReloadSort.i = #False
+          
+          If ( Startup::*LHGameDB\SortMode  <= 4 )
+            bReloadSort.i = #True
+          EndIf
+          
+          Startup::*LHGameDB\SortMode = 5
+          Startup::*LHGameDB\SortXtendMode = #True
+          
+          If ( bReloadSort = #True )
+            VEngine::Thread_LoadGameList_Action() 			
+          EndIf	
+          
+        Case 7, 71 To 85     			    			    	    			
+          Startup::*LHGameDB\bvSystem_Restart = #True
+          
+          Select MenuID
+            Case 71: ;1280x720
+              vEngine::Splitter_SetHeight(0, #False, #True, 0)			: Startup::*LHGameDB\WindowHeight = 0
+            Case 72: ;1920x1080
+              vEngine::Splitter_SetHeight(0, #False, #True, 360)    : Startup::*LHGameDB\WindowHeight = 360				
+            Case 73: ;1024x1280
+              vEngine::Splitter_SetHeight(0, #False, #True, 560)    : Startup::*LHGameDB\WindowHeight = 560
+            Case 74: ;1024x768
+              vEngine::Splitter_SetHeight(0, #False, #True, 48)			: Startup::*LHGameDB\WindowHeight = 48
+            Case 75: ;1280x1024
+              vEngine::Splitter_SetHeight(0, #False, #True, 304)		: Startup::*LHGameDB\WindowHeight = 304
+            Case 76:	;1280x960
+              vEngine::Splitter_SetHeight(0, #False, #True, 240)   	: Startup::*LHGameDB\WindowHeight = 240 				
+            Case 77:	;3840x2160
+              vEngine::Splitter_SetHeight(0, #False, #True, 1440)   : Startup::*LHGameDB\WindowHeight = 1440
+            Case 78: ;1440x2560
+              vEngine::Splitter_SetHeight(0, #False, #True, 1840)   : Startup::*LHGameDB\WindowHeight = 1840
+            Case 79: ;1024x1600
+              vEngine::Splitter_SetHeight(0, #False, #True, 880) 		: Startup::*LHGameDB\WindowHeight = 880
+            Case 80: ;2160x3840
+              vEngine::Splitter_SetHeight(0, #False, #True, 3120)		: Startup::*LHGameDB\WindowHeight = 3120
+            Default
+              
+              r = vItemTool::DialogRequest_Add("Fenster Grösse (Höhe) Einstellen","Einstellung von 0 (Standard) bis unendlich. (Keine Minus Angabe)",Str(Startup::*LHGameDB\WindowHeight))              
+              If ( r = 1 )                   
+                SetActiveGadget(DC::#ListIcon_001)                
+                Startup::*LHGameDB\bvSystem_Restart = #False
+                ProcedureReturn
+              EndIf    				
+              vEngine::Splitter_SetHeight(0, #False, #True, Val(Request::*MsgEx\Return_String))
+              Startup::*LHGameDB\WindowHeight = Val(Request::*MsgEx\Return_String)
+          EndSelect
+          VEngine::Splitter_SetAll()
+          ExecSQL::UpdateRow(DC::#Database_001,"Settings", "WindowHeight", Str(Startup::*LHGameDB\WindowHeight),1)	
+          
+          a.l = CreateFile(#PB_Any, Startup::*LHGameDB\SubF_vSys+"\_Restart.lck" )
+          Delay( 5 )
+          If ( a > 0 )
+            WriteStringN(a, "Restart..")
+            RunProgram(ProgramFilename())               
+            End
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Problem", "Problem beim Anlegen der Textdatei",11,-1,ProgramFilename(),0,0,DC::#_Window_001 )
+          EndIf    
+          
+        Case 9 : vFont::SetDB(1) 
+        Case 10: vFont::SetDB(2)                 
+        Case 98: vUpdate::Update_Check()
+          
+        Case 18:
+          File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "stdout.txt"
+          If FileSize(File) <> -1
+            FFH::ShellExec(File, "open")
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+          EndIf    
+          
+        Case 19: 
+          File.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\" + "error.txt"
+          If FileSize(File) <> -1
+            FFH::ShellExec(File, "open")
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+          EndIf 
+          
+        Case 21:
+          Path.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"
+          If FileSize(Path) = -2
+            FFH::ShellExec(Path, "explore")
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+          EndIf
+          
+        Case 22:
+          Path.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+          If FileSize(Path) = -2
+            FFH::ShellExec(Path, "explore")
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Das Verzeichnis Existiert nicht.", Path.s ,2,1,"",0,0,DC::#_Window_001 )
+          EndIf                 
+          
+        Case 200 To 300
+          FFH::ShellExec(GetMenuItemText(CLSMNU::*MNU\HandleID[0], MenuID), "open")
+          
+        Case 23
+          ShotPath.s = Startup::*LHGameDB\Base_Path + "Systeme\SHOT\"                
+          ShotSize.i = 0
+          
+          ShotSize = vItemTool::File_GetFiles(ShotPath)
+          If  (ShotSize > 0 )
             
-            MenuItem(21, "Capture Verzeichnis Öffnen (" + Str(ShotSize) + ")",ImageID( DI::#_MNU_EX1 ))                
-                       
+            Result = Request::MSG(Startup::*LHGameDB\TitleVersion, "Löschen?","Alle Snapshot Dateie(n) löschen? ("+Str(ShotSize)+") " + #CR$ + "Pfad: " + ShotPath,11,2,"",0,0,DC::#_Window_001)
+            If (Result = 0)                
+              While NextElement(FFS::FullFileSource())
+                Delay( 5 )
+                DeleteFile( FFS::FullFileSource()\FileName )
+              Wend
+            EndIf    
+            ClearList( FFS::FullFileSource() )
+            
+            Delay( 5 )
+            ShotSize = vItemTool::File_GetFiles(ShotPath)
             If ( ShotSize > 0 )
-                OpenSubMenu("Capture Dateien ...")
-                While NextElement(FFS::FullFileSource())
-                    
-                    MenuItem(200, FFS::FullFileSource()\FileName) 
-                    
-                    Debug "FullPath : " +FFS::FullFileSource()\FileName
-                Wend
-                CloseSubMenu()    
-                ClearList( FFS::FullFileSource() )                
-                MenuItem(23, "Capture Dateien Löschen"              ) 
+              Request::MSG(Startup::*LHGameDB\TitleVersion, "Fehler", "Konnte alle Snapshot Dateie(n) nicht löschen" ,2,1,"",0,0,DC::#_Window_001 )
+            Else
+              Request::MSG(Startup::*LHGameDB\TitleVersion, "Erfolgreich", "Alle Snapshot(s) (ShotSize) wurden gelöscht" ,2,1,"",0,0,DC::#_Window_001 )                    
             EndIf
-        EndIf    
-    EndProcedure  
-    ;*******************************************************************************************************************************************************************    
-    Procedure Set_TrayMenu_Monitor()        
-                
-        If ( Startup::*LHGameDB\FileMonitoring = #False )
-            MenuItem(24, "Start: Monitoring"   ,ImageID( DI::#_MNU_MON ))            
-            SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 0) 
-        Else
-            MenuItem(24, "Stop: Monitoring"   ,ImageID( DI::#_MNU_MON ))             
-            SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 1) 
-        EndIf          
-        
-        If ( FileSize(Startup::*LHGameDB\Monitoring\LatestLog) <> -1 ) And (Startup::*LHGameDB\Monitoring\LogHandle = 0)
-            MenuItem(25, "Open Monitoring Log File"  ,ImageID( DI::#_MNU_MON ))            
-        EndIf    
-        
-    EndProcedure  
+          EndIf                    
+          
+        Case 24
+          If ( Startup::*LHGameDB\FileMonitoring = #False )
+            Monitoring::Activate("C:\")
+          Else
+            Monitoring::DeActivate()
+          EndIf
+          
+        Case 25
+          File.s = Startup::*LHGameDB\Monitoring\LatestLog
+          If FileSize(File) <> -1
+            FFH::ShellExec(File, "open")
+          Else
+            Request::MSG(Startup::*LHGameDB\TitleVersion, "Die Datei konnte nicht geöffnet werden", File.s ,2,1,"",0,0,DC::#_Window_001 )
+          EndIf 
+          
+        Case 99: Startup::*LHGameDB\ProgrammQuit = Request_MSG_Quit()
+          
+        Case 1600 To 1699
+          Get_MenuItems_SaveSupport(MenuID)
+          
+        Case 2600 To 2699
+          Get_MenuItems_RegsSupport(MenuID)
+          
+        Case 2700 To 2750
+          Get_MenuItems_VirtualDriveSupport(MenuID)
+        Case 97    			
+          vSystemHelp::vSysCMD_FileProperties()
+        Case 1800 To 1899
+          Get_MenuItems_KxVXSupport(MenuID)    			
+          
+        Case 1900 To 1999
+        	vSystemHelp::vSysCMD_WebViewSupport(MenuID)          
+      EndSelect       
+    EndProcedure
+    ;    
+    Procedure Set_TrayMenu_LoggUtil()    
+      Protected LognPath.s = Startup::*LHGameDB\Base_Path + "Systeme\LOGS\"
+      
+      MenuItem(22, "Verzeichnis Öffnen: Log"                   ,ImageID( DI::#_MNU_EX1 )) 
+      
+      If ( FileSize(LognPath) <> -2 )      
+        DisableMenuItem( CLSMNU::*MNU\HandleID[0], 22, 1)
+      Else
+        OpenSubMenu( "Logging Dateien.."                    ,ImageID( DI::#_MNU_VSI ))
+        MenuItem(18, "Datei Öffnen: stdout"                 ,ImageID( DI::#_MNU_CLR ))
+        MenuItem(19, "Datei Öffnen: error"                  ,ImageID( DI::#_MNU_CLR ))
+        CloseSubMenu()
+      EndIf    
+      
+    EndProcedure
     
-    ;*******************************************************************************************************************************************************************    
+    ;    
+    Procedure Set_TrayMenu_ShotUtil()
+      
+      Protected ShotPath.s = Startup::*LHGameDB\Base_Shot
+      Protected ShotSize.i = 0
+      
+      If ( FileSize(ShotPath) <> -2 )
+        MenuItem(21, "Verzeichnis Öffnen: Capture"              ,ImageID( DI::#_MNU_EX1 )) 
+        DisableMenuItem( CLSMNU::*MNU\HandleID[0], 21, 1) 
+      Else                        
+        ShotSize = vItemTool::File_GetFiles(ShotPath)                            
+        
+        If ( ShotSize > 0 )
+          MenuItem(21, "Verzeichnis Öffnen: Capture (" + Str(ShotSize) + ")",ImageID( DI::#_MNU_EX1 ))                 
+          OpenSubMenu("Capture Dateien ...")
+          While NextElement(FFS::FullFileSource())
+            
+            MenuItem(200, FFS::FullFileSource()\FileName) 
+            
+            Debug "FullPath : " +FFS::FullFileSource()\FileName
+          Wend
+          CloseSubMenu()    
+          ClearList( FFS::FullFileSource() )                
+          MenuItem(23, "Capture Dateien Löschen"              )
+          DisableMenuItem( CLSMNU::*MNU\HandleID[0], 21, 0) 
+        Else
+          MenuItem(21, "Verzeichnis Öffnen: Capture",ImageID( DI::#_MNU_EX1 )) 
+          DisableMenuItem( CLSMNU::*MNU\HandleID[0], 21, 1) 
+        EndIf
+        
+      EndIf    
+    EndProcedure  
+    ;    
+    Procedure Set_TrayMenu_Monitor()        
+      
+      If ( Startup::*LHGameDB\FileMonitoring = #False )
+        MenuItem(24, "Start: Monitoring"   ,ImageID( DI::#_MNU_MON ))            
+        SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 0) 
+      Else
+        MenuItem(24, "Stop: Monitoring"   ,ImageID( DI::#_MNU_MON ))             
+        SetMenuItemState(CLSMNU::*MNU\HandleID[0], 24, 1) 
+      EndIf          
+      
+      If ( FileSize(Startup::*LHGameDB\Monitoring\LatestLog) <> -1 ) And (Startup::*LHGameDB\Monitoring\LogHandle = 0)
+        MenuItem(25, "Open Monitoring Log File"  ,ImageID( DI::#_MNU_MON ))            
+      EndIf    
+      
+    EndProcedure  
+    ;
+    ;    
     Procedure Set_Mame_Menu()        
-    	
-            MenuItem(41 , "Sets/Roms Einsortieren" 				,ImageID( DI::#_MNU_MIR ))
-            MenuItem(42 , "Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MIV ))
-            MenuBar()             
-            MenuItem(44 , "Informationen hinzufügen" 	  	,ImageID( DI::#_MNU_MIF ))             
-            MenuBar()   
-            MenuItem(43 , "Backup aus dem Internet" 	   	,ImageID( DI::#_MNU_MWW ))            
-            MenuItem(47 , "Info Database (ArcadeItalia)" 	,ImageID( DI::#_MNU_MWW ))     
-            
-            If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 0) 
-            	;DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 0) 
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 0)             	
-            Else
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 1) 
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 1) 
-            	;DisableMenuItem(CLSMNU::*MNU\HandleID[0], 43, 1) 
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 1)             	
-            EndIf
-            
-          EndProcedure 
-          
-    ;*******************************************************************************************************************************************************************    
-     Procedure Set_SortBUtton()
-     	
-     	Protected ButtonText.s = ButtonEx::Gettext(DC::#Button_028, 0)  
-    		MenuItem(4 , "Sortieren: "+ButtonText+"  " +Chr(9)+"F4" ,ImageID( DI::#_MNU_VSY ))
-    		OpenSubMenu( "Sortieren und Anzeigen .."                ,ImageID( DI::#_MNU_VSI ))   
-    		MenuItem(45, "Anzeigen : Programm"					       			,ImageID( DI::#_MNU_VSY ))  
-    		MenuItem(46, "Anzeigen : Release"						       			,ImageID( DI::#_MNU_VSY ))
-				CloseSubMenu()
-			EndProcedure 
-		;*******************************************************************************************************************************************************************			        		
-			Procedure Set_TrayMenu_SaveSupport() 
-				
-			; CLSMNU::*MNU\HandleID[0]	MenuHandle
-			;
-			; ============================================================= vSystem Save Support    	   	    	
-				Set_AppMenu_SaveSupport(CLSMNU::*MNU\HandleID[0])
-	    	
-			EndProcedure 
-			
-		;*******************************************************************************************************************************************************************				
-			Procedure Set_TrayMenu_VirtualDriveSupport() 
-				
-			; CLSMNU::*MNU\HandleID[0]	MenuHandle
-			;
-			; ============================================================= VirtualDriveSupport   	   	    	
-				Set_AppMenu_VirtualDriveSupport(CLSMNU::*MNU\HandleID[0])
-	    	
-			EndProcedure 
-			
-		;*******************************************************************************************************************************************************************			        		
-			Procedure Set_TrayMenu_RegsSupport() 
-				
-			; CLSMNU::*MNU\HandleID[0]	MenuHandle
-			;
-			; ============================================================= vSystem Save Support    	   	    	
-				Set_AppMenu_RegsSupport(CLSMNU::*MNU\HandleID[0])
-	    	
-			EndProcedure 				
-			
-		;*******************************************************************************************************************************************************************			        		
-			Procedure Set_TrayMenu_KxVXSupport() 
-				
-			; CLSMNU::*MNU\HandleID[0]	MenuHandle
-			;
-			; ============================================================= vSystem Save Support    	   	    	
-				Set_AppMenu_KxVexSupport(CLSMNU::*MNU\HandleID[0])
-	    	
-			EndProcedure 	
-			
-    ;*******************************************************************************************************************************************************************    
+      
+      OpenSubMenu( "Mame Unterstützung .."          ,ImageID( DI::#_MNU_MAM ))
+      
+      MenuItem(40 , "Import. Titel in die Datenbank",ImageID( DI::#_MNU_MIP )) 
+      MenuItem(41 , "Sets/Roms Einsortieren" 				,ImageID( DI::#_MNU_MIR ))
+      MenuItem(42 , "Sets/Roms Überprüfen" 	      	,ImageID( DI::#_MNU_MIV ))
+      MenuBar()             
+      MenuItem(44 , "Informationen hinzufügen" 	  	,ImageID( DI::#_MNU_MIF ))             
+      MenuBar()   
+      MenuItem(43 , "Backup aus dem Internet" 	   	,ImageID( DI::#_MNU_MWW ))            
+      MenuItem(47 , "Info Database (ArcadeItalia)" 	,ImageID( DI::#_MNU_MWW ))     
+      
+      CloseSubMenu()
+      
+      If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 0)
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 0) 
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 0)             	
+      Else
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 41, 1) 
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 42, 1)  
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 44, 1)             	
+      EndIf
+      
+      
+    EndProcedure 
+    ;
+    ;
+    Procedure Set_SortBUtton()      
+      Protected ButtonText.s = ButtonEx::Gettext(DC::#Button_028, 0)        
+      MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
+      MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
+      MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))       		
+      MenuItem(4 , "Sortieren: "+ButtonText+"  " +Chr(9)+"F4" ,ImageID( DI::#_MNU_VSY ))    		
+      MenuBar()
+      MenuItem(45, "Anzeigen Wechsel : Programm"	       			,ImageID( DI::#_MNU_VSY ))  
+      MenuItem(46, "Anzeigen Wechsel : Release"		       			,ImageID( DI::#_MNU_VSY ))    		
+    EndProcedure 
+    ;
+    ;
+    Procedure Set_TrayMenu_SaveSupport() 				
+      ; CLSMNU::*MNU\HandleID[0]	MenuHandle   	   	    	
+      Set_AppMenu_SaveSupport(CLSMNU::*MNU\HandleID[0])      
+    EndProcedure 
+    ;
+    ;
+    Procedure Set_TrayMenu_VirtualDriveSupport()				
+      ; CLSMNU::*MNU\HandleID[0]	MenuHandle 	   	    	
+      Set_AppMenu_VirtualDriveSupport(CLSMNU::*MNU\HandleID[0])     
+    EndProcedure 
+    ;
+    ;
+    Procedure Set_TrayMenu_RegsSupport() 				
+      ; CLSMNU::*MNU\HandleID[0]	MenuHandle   	   	    	
+      Set_AppMenu_RegsSupport(CLSMNU::*MNU\HandleID[0]) 
+    EndProcedure 				
+    ;
+    ;
+    Procedure Set_TrayMenu_KxVXSupport() 				
+      ; CLSMNU::*MNU\HandleID[0]	MenuHandle					     	   	    	
+      Set_AppMenu_KxVexSupport(CLSMNU::*MNU\HandleID[0])	    	
+    EndProcedure 	
+    ;
+    ;
     Procedure Set_FileProps_Menu()            	
-            MenuItem(97 , "Datei Eingeschaft Anzeigen",ImageID( DI::#_MNU_FPS ))
-            If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 0)            	
-            Else
-            	DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 1)              	
-            EndIf            
-     EndProcedure 
-          
-    ;*******************************************************************************************************************************************************************     
+      MenuItem(97 , "Datei Eingeschaft Anzeigen",ImageID( DI::#_MNU_FPS ))
+      If ( CountGadgetItems(DC::#ListIcon_001) > 0 )
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 0)            	
+      Else
+        DisableMenuItem(CLSMNU::*MNU\HandleID[0], 97, 1)              	
+      EndIf            
+    EndProcedure 
+     
+     	;Procedure VxKx_Open_SupportURL_Next()
+		; Öffne URL
+		;Protected URL.s = "https://github.com/YuZhouRen86/VxKex-Next"
+    ;FFH::ShellExec(URL, "open","",#Null,#SW_SHOWNORMAL,#False,1)
+   ; ProcedureReturn 
+   ;EndProcedure
+    Procedure Set_WebViewSupport_Menu()
+      
+      OpenSubMenu( "WebSeiten"                        , ImageID( DI::#_MNU_WEB ))       
+      MenuItem(1900 , "vSystem: About"                , ImageID( DI::#_MNU_VSY ))
+      MenuBar()
+      MenuItem(1902 , "Datenbank: Mobygames"          , ImageID( DI::#_MNU_WEB_MOBY )) 
+      MenuItem(1903 , "Datenbank: OGDB"               , ImageID( DI::#_MNU_WEB_OGDB ))
+      MenuItem(1904 , "Datenbank: Visul Novel"        , ImageID( DI::#_MNU_WEB_VNDB ))
+      MenuBar()      
+      MenuItem(1901 , "PC-Gaming Wiki"                , ImageID( DI::#_MNU_WEB_PCGW ))
+      CloseSubMenu()
+
+    EndProcedure
+    ;
+    ;
     Procedure Set_TrayMenu()
     	
-    	If IsWindow(DC::#_Window_001)                            
-    		MenuItem(1 , "Sortieren: Gametitle " +Chr(9)+"F1"       ,ImageID( DI::#_MNU_VSY ))
-    		MenuItem(2 , "Sortieren: Platform  " +Chr(9)+"F2"       ,ImageID( DI::#_MNU_VSY ))      
-    		MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))            
-    		Set_SortBUtton()     		  		       
-    		MenuBar()            
-    		MenuItem(40 , "Import. Titel in die Datenbank"	     		,ImageID( DI::#_MNU_MIP ))
-    		OpenSubMenu( "Mame Tools .."                            ,ImageID( DI::#_MNU_MAM ))               
-    		Set_Mame_Menu() 
-    		CloseSubMenu()             
-    		MenuBar()                     
+      If IsWindow(DC::#_Window_001)
+        
+    		OpenSubMenu( "Einträge Sortieren .."                    ,ImageID( DI::#_MNU_VSI ))         
+    		Set_SortBUtton()
+    		CloseSubMenu()    		
+    		
+    		MenuBar()    		
     		MenuItem(48, "Eintrag/ Alle Löschen"                    ,ImageID( DI::#_MNU_SPL ))     		
     		MenuItem(17, "Einträge Löschen bis auf 1"               ,ImageID( DI::#_MNU_SPL ))
-    		MenuBar()  
-    		Set_TrayMenu_LoggUtil()   
-    		MenuBar()              
-    		Set_TrayMenu_ShotUtil()
-    		MenuBar()
-    		Set_TrayMenu_Monitor()
-    		MenuBar()              
-    		OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
-    		MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
-    		MenuItem(6 , "Alle Prüfen & Reparieren (Slot 2)"        ,ImageID( DI::#_MNU_RAL ))                       
-    		MenuItem(8 , "Alle Prüfen & Reparieren (Slot 3)"        ,ImageID( DI::#_MNU_RAL ))                       
-    		MenuItem(11, "Alle Prüfen & Reparieren (Slot 4)"        ,ImageID( DI::#_MNU_RAL ))
-    		MenuBar() 
-    		MenuItem(12, "Aktuellen Prüfen & Reparieren (Slot 1)"   ,ImageID( DI::#_MNU_RNE )) 
-    		MenuItem(13, "Aktuellen Prüfen & Reparieren (Slot 2)"   ,ImageID( DI::#_MNU_RNE ))                        
-    		MenuItem(14, "Aktuellen Prüfen & Reparieren (Slot 3)"   ,ImageID( DI::#_MNU_RNE )) 
-    		MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
-    		CloseSubMenu()       
-    		MenuBar()
-    		OpenSubMenu( "Windows Einstellung .."                   ,ImageID( DI::#_MNU_SWN ))      		
-    		MenuItem(34, "Enable : Aero/Uxsms"                      ,ImageID( DI::#_MNU_AEE ))
-    		MenuBar()
-    		MenuItem(30, "Disable: Explorer"                        ,ImageID( DI::#_MNU_EXD ))         
-    		MenuItem(32, "Disable: Taskbar"                         ,ImageID( DI::#_MNU_TBD ))                      
-    		MenuItem(35, "Disable: Aero/Uxsms"                      ,ImageID( DI::#_MNU_AED ))
-    		CloseSubMenu()      		
-    		MenuBar()
-    		Set_TrayMenu_VirtualDriveSupport()     		
-    		MenuBar()    		
-    		Set_TrayMenu_SaveSupport()     		
-    		MenuBar()
-    		Set_TrayMenu_RegsSupport()
+
+    		MenuBar()    		               
+    		Set_Mame_Menu()   		
+    		
+    		
     		MenuBar()    		
     		Set_FileProps_Menu()
+    		MenuBar()  
+    		
+    		Set_TrayMenu_RegsSupport()
+    		MenuBar()  
+    		Set_TrayMenu_SaveSupport()
+    		MenuBar()  
     		Set_TrayMenu_KxVXSupport()
+        Set_TrayMenu_VirtualDriveSupport()    		
+    		Set_TrayMenu_ShotUtil()
+    		Set_TrayMenu_LoggUtil()       		
+    		MenuBar()
+    		Set_TrayMenu_Monitor()    		
     		MenuBar()    		
-    		OpenSubMenu( "Einstellungen"   													,ImageID( DI::#_MNU_VSP )) 
-    		MenuItem(9 , "Schriftart: Title..."                     ,ImageID( DI::#_MNU_FDL ))
-    		MenuItem(10, "Schriftart: Liste..."                     ,ImageID( DI::#_MNU_FDL )) 
+    		; TODO
+    		;OpenSubMenu( "Pfade .."                                 ,ImageID( DI::#_MNU_DIR ))                       
+    		;MenuItem(5 , "Alle Prüfen & Reparieren (Slot 1)"        ,ImageID( DI::#_MNU_RAL )) 
+    		;MenuItem(6 , "Alle Prüfen & Reparieren (Slot 2)"        ,ImageID( DI::#_MNU_RAL ))                       
+    		;MenuItem(8 , "Alle Prüfen & Reparieren (Slot 3)"        ,ImageID( DI::#_MNU_RAL ))                       
+    		;MenuItem(11, "Alle Prüfen & Reparieren (Slot 4)"        ,ImageID( DI::#_MNU_RAL ))
+    		;MenuBar() 
+    		;MenuItem(12, "Aktuellen Prüfen & Reparieren (Slot 1)"   ,ImageID( DI::#_MNU_RNE )) 
+    		;MenuItem(13, "Aktuellen Prüfen & Reparieren (Slot 2)"   ,ImageID( DI::#_MNU_RNE ))                        
+    		;MenuItem(14, "Aktuellen Prüfen & Reparieren (Slot 3)"   ,ImageID( DI::#_MNU_RNE )) 
+    		;MenuItem(15, "Aktuellen Prüfen & Reparieren (Slot 4)"   ,ImageID( DI::#_MNU_RNE ))            
+        ;CloseSubMenu()
+    	    		
+    		
+    		OpenSubMenu( "Windows Einstellung .."              ,ImageID( DI::#_MNU_SWN ))      		
+    		MenuItem(34, "Enable : Aero/Uxsms"                 ,ImageID( DI::#_MNU_AEE ))
+    		MenuBar()
+    		MenuItem(30, "Disable: Explorer"                   ,ImageID( DI::#_MNU_EXD ))         
+    		MenuItem(32, "Disable: Taskbar"                    ,ImageID( DI::#_MNU_TBD ))                      
+    		MenuItem(35, "Disable: Aero/Uxsms"                 ,ImageID( DI::#_MNU_AED ))
+    		CloseSubMenu()
+    		MenuBar()
+    		
+    		OpenSubMenu( "Einstellungen"   										 ,ImageID( DI::#_MNU_VSP )) 
+    		MenuItem(9 , "Schriftart: Title"                   ,ImageID( DI::#_MNU_FDL ))
+    		MenuItem(10, "Schriftart: Liste"                   ,ImageID( DI::#_MNU_FDL )) 
     		MenuBar()                   
-    		MenuItem(20, "Fenster Zurücksetzen"                     ,ImageID( DI::#_MNU_WMS ))                                        
-    		MenuItem(7 , "Fenster Höhe Ändern"                      ,ImageID( DI::#_MNU_WMH ))    			
-    		MenuItem(71, "Fenster Höhe (Desktop 1280x720)"          ,ImageID( DI::#_MNU_WMH )) 
-    		MenuItem(72, "Fenster Höhe (Desktop 1920x1080)"         ,ImageID( DI::#_MNU_WMH ))
-    		MenuItem(73, "Fenster Höhe (Desktop 1024x1280)"         ,ImageID( DI::#_MNU_WMH ))
-    		MenuItem(74, "Fenster Höhe (Desktop 1024x768)"          ,ImageID( DI::#_MNU_WMH ))
-    		MenuItem(75, "Fenster Höhe (Desktop 1280x1024)"         ,ImageID( DI::#_MNU_WMH ))
-    		MenuItem(76, "Fenster Höhe (Desktop 1280x960)"         ,ImageID( DI::#_MNU_WMH ))
-    		MenuItem(77, "Fenster Höhe (Desktop 3840x2160)"         ,ImageID( DI::#_MNU_WMH ))   
-    		MenuItem(78, "Fenster Höhe (Desktop 1440x2560)"         ,ImageID( DI::#_MNU_WMH ))    			
-    		MenuItem(79, "Fenster Höhe (Desktop 1024x1600)"         ,ImageID( DI::#_MNU_WMH ))  
-    		MenuItem(80, "Fenster Höhe (Desktop 2160x3840)"         ,ImageID( DI::#_MNU_WMH ))   
-    		MenuBar()            
-    		MenuItem(16, "Info Zurücksetzen"                        ,ImageID( DI::#_MNU_WRS ))
+    		MenuItem(20, "Fenster Zurücksetzen"                ,ImageID( DI::#_MNU_WMS ))                                        
+    		MenuItem(7 , "Fenster Höhe Ändern"                 ,ImageID( DI::#_MNU_WMH ))    			
+    		MenuItem(71, "Fenster Höhe (Desktop 1280x720)"     ,ImageID( DI::#_MNU_WMH )) 
+    		MenuItem(72, "Fenster Höhe (Desktop 1920x1080)"    ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(73, "Fenster Höhe (Desktop 1024x1280)"    ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(74, "Fenster Höhe (Desktop 1024x768)"     ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(75, "Fenster Höhe (Desktop 1280x1024)"    ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(76, "Fenster Höhe (Desktop 1280x960)"     ,ImageID( DI::#_MNU_WMH ))
+    		MenuItem(77, "Fenster Höhe (Desktop 3840x2160)"    ,ImageID( DI::#_MNU_WMH ))   
+    		MenuItem(78, "Fenster Höhe (Desktop 1440x2560)"    ,ImageID( DI::#_MNU_WMH ))    			
+    		MenuItem(79, "Fenster Höhe (Desktop 1024x1600)"    ,ImageID( DI::#_MNU_WMH ))  
+    		MenuItem(80, "Fenster Höhe (Desktop 2160x3840)"    ,ImageID( DI::#_MNU_WMH ))   
+    		MenuBar()
+    		
+    		MenuItem(16, "Info Zurücksetzen"                   ,ImageID( DI::#_MNU_WRS ))
     		CloseSubMenu()
     		MenuBar()      		
     	EndIf
-    	MenuItem(98, "vSystems Update"														,ImageID( DI::#_MNU_VSU ))        
-    	MenuItem(99, "vSystems Beenden"														,ImageID( DI::#_MNU_VSY ))
+    	Set_WebViewSupport_Menu()
+    	MenuBar() 
+    	MenuItem(98, "vSystems Update"											 ,ImageID( DI::#_MNU_VSU ))
+    	MenuItem(99, "vSystems Beenden"											 ,ImageID( DI::#_MNU_VSY ))
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 121
-; FirstLine = 15
-; Folding = JCHYI5
+; CursorPosition = 1477
+; FirstLine = 448
+; Folding = JOCgJ6
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
