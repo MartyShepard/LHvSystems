@@ -18,7 +18,7 @@ DeclareModule DI
         #_MNU_MON: #_MNU_VSP: #_MNU_MIP: #_MNU_MIR:	#_MNU_MIV: #_MNU_MIF: #_MNU_MWW: #_MNU_VSI: #_MNU_PIN: #_MNU_RME
         #_MNU_RMK: #_MNU_REG: #_MNU_RAK: #_MNU_RIF: #_MNU_RHP: #_MNU_RFL: #_MNU_RCV: #_MNU_WEB
         
-        #_MNU_WEB_MOBY:#_MNU_WEB_VNDB:#_MNU_WEB_OGDB:#_MNU_WEB_PCGW
+        #_MNU_WEB_MOBY:#_MNU_WEB_VNDB:#_MNU_WEB_OGDB:#_MNU_WEB_PCGW:#_MNU_WEB_NXUS:#_MNU_WEB_GGLE:#_MNU_WEB_DUCK
         
         #_MNU_SAVESUPPORT: #_MNU_SAVEBCKCOPY: #_MNU_SAVEBCKMOVE:	#_MNU_SAVERSTCOPY: #_MNU_SAVEBCKDEL: #_MNU_SAVECREATE
         #_MNU_SAVEEDIT	 : #_MNU_SAVECOMPRESS:#_MNU_SAVEINFO   :  #_MNU_SAVEHELP   : #_MNU_SAVEFILE
@@ -144,7 +144,8 @@ Module DI
     CatchImage(#_BTN_SSWV_N, ?_BTN_SSWV_N): CatchImage(#_BTN_SSWV_H, ?_BTN_SSWV_N): CatchImage(#_BTN_SSWV_P, ?_BTN_SSWV_P): CatchImage(#_BTN_SSWV_D, ?_BTN_SSWV_D)
     
     ; Webseiten
-    CatchImage(#_MNU_WEB_MOBY, ?_MNU_WEB_MOBY): CatchImage(#_MNU_WEB_VNDB, ?_MNU_WEB_VNDB): CatchImage(#_MNU_WEB_OGDB, ?_MNU_WEB_OGDB): CatchImage(#_MNU_WEB_PCGW, ?_MNU_WEB_PCGW)    
+    CatchImage(#_MNU_WEB_MOBY, ?_MNU_WEB_MOBY): CatchImage(#_MNU_WEB_VNDB, ?_MNU_WEB_VNDB): CatchImage(#_MNU_WEB_OGDB, ?_MNU_WEB_OGDB): CatchImage(#_MNU_WEB_PCGW, ?_MNU_WEB_PCGW)
+    CatchImage(#_MNU_WEB_NXUS, ?_MNU_WEB_NXUS): CatchImage(#_MNU_WEB_GGLE, ?_MNU_WEB_GGLE): CatchImage(#_MNU_WEB_DUCK, ?_MNU_WEB_DUCK)
     DataSection
         
         
@@ -484,6 +485,12 @@ Module DI
         IncludeBinary "Data_Images\MENU\Connect_OGDB.png"
         _MNU_WEB_PCGW:
         IncludeBinary "Data_Images\MENU\Connect_PCGW.png"
+        _MNU_WEB_NXUS:
+        IncludeBinary "Data_Images\MENU\Connect_NXUS.png"
+        _MNU_WEB_GGLE:
+        IncludeBinary "Data_Images\MENU\Connect_GGLE.png"
+        _MNU_WEB_DUCK:
+        IncludeBinary "Data_Images\MENU\Connect_DUCK.png"
         
         _MNU_SAVESUPPORT:
         IncludeBinary "Data_Images\MENU\SaveSupport.png"           
@@ -538,8 +545,8 @@ Module DI
     EndDataSection
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 110
-; FirstLine = 88
+; CursorPosition = 147
+; FirstLine = 111
 ; Folding = -
 ; EnableAsm
 ; EnableXP

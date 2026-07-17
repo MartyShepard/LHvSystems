@@ -389,7 +389,7 @@ Module SaveTool
 		;
 		;
 	Procedure.i SaveFile_Read()		
-			Startup::*LHGameDB\SaveTool\SaveHandle =  ReadFile( #PB_Any,  Startup::*LHGameDB\SaveTool\SaveFile )
+			Startup::*LHGameDB\SaveTool\SaveHandle =  ReadFile( #PB_Any,  Startup::*LHGameDB\SaveTool\SaveFile,#PB_UTF8)
 	EndProcedure
     ;
     ;	      
@@ -408,7 +408,7 @@ Module SaveTool
     ;
     ;     
 	Procedure.i SaveFile_Create()		
-			Startup::*LHGameDB\SaveTool\SaveHandle =  CreateFile( #PB_Any,  Startup::*LHGameDB\SaveTool\SaveFile )
+			Startup::*LHGameDB\SaveTool\SaveHandle =  CreateFile( #PB_Any,  Startup::*LHGameDB\SaveTool\SaveFile ,#PB_UTF8)
 	EndProcedure
     ;
     ;	 		
@@ -2661,9 +2661,9 @@ Module SaveTool
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 778
-; FirstLine = 213
-; Folding = TYAAA-j-0-
+; CursorPosition = 391
+; FirstLine = 174
+; Folding = TYFAA-j-0-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

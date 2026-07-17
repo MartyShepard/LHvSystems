@@ -254,9 +254,11 @@ Module vImages
 		;
     ;
     Procedure Screens_Show_A_Thread(*interval)         
-    	    	
+      
+      Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Screens_Show_A_Thread Begin")
+      
     	For nSlot = 1 To Startup::*LHGameDB\MaxScreenshots                                                  		
-
+    	      	    	  
     		Startup::SlotShots(nSlot)\thumb[Startup::*LHGameDB\GameID] = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(nSlot)+ "_Thb",Startup::*LHGameDB\GameID,"BaseGameID")        		        		        		
     		ProcessEX::DelayMicroSeconds(*Interval)
     		Timeout.i = 1
@@ -311,7 +313,9 @@ Module vImages
     				Startup::*LHGameDB\Images_Thread[nSlot] = CreateThread( vThumbSys::@MainThread_8(),nSlot)                      				
     		EndSelect
     		Thread_DoEvents()				
-    	Next  
+    	Next
+    	
+    	Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Screens_Show_A_Thread End --")
     	
     EndProcedure    
     ;******************************************************************************************************************************************
@@ -323,13 +327,15 @@ Module vImages
     	
     	Protected IntervalThread.i  = CreateThread(@Screens_Show_A_Thread(), 1)
     	
+    	Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Screens_Show Begin")
+    	
     	While IsThread(IntervalThread)        	
     		WaitThread( IntervalThread,ProcessEX::DelayMicroSeconds(25))
     	Wend
     	
     	DisableGadget( DC::#Contain_10, #False)     
     	
-    	Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Routine Finished")
+    	Request::SetDebugLog("Debug: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" Screens_Show End --- ")
     EndProcedure 
     
     ;******************************************************************************************************************************************
@@ -2135,9 +2141,9 @@ Module vImages
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2052
-; FirstLine = 1083
-; Folding = PCAQgg-FAOf---
+; CursorPosition = 317
+; FirstLine = 144
+; Folding = PGAQgg-FAOf---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

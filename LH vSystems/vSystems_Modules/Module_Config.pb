@@ -422,6 +422,11 @@ Module Startup
         XIncludeFile "Module_Version.pb"
         
         ;
+				; Version 0.60.33
+        ; Memory Error : Bei dem VEngine Modul ParthPathEx die Routine eingefügt und "List" mit einer Memory Structure 
+        ;                ersetzt. Das sollte nun Hoffentlich den String Bug entfernen
+        
+        ;
 				; Version 0.60.32
         ; Modul Tooltip: Überarbeitet
         ;                ToolTip > ToolTipEX
@@ -1310,8 +1315,8 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 435
-; FirstLine = 402
+; CursorPosition = 426
+; FirstLine = 405
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

@@ -80,6 +80,9 @@ Module ButtonEX
         
         Protected TextSize.SIZE, CenterY.i ,CenterX.i
         
+        If (FontID = 0)
+          CallDebugger
+        EndIf
         SelectObject_(_DRAWING, FontID(FontID))
         
         GetTextExtentPoint32_(_DRAWING, Text$, Len(Text$), @TextSize) 
@@ -432,7 +435,8 @@ Module ButtonEX
 EndProcedure
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 29
+; CursorPosition = 85
+; FirstLine = 53
 ; Folding = f-+
 ; EnableAsm
 ; EnableXP

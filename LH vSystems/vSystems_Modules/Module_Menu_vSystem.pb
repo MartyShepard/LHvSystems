@@ -29,11 +29,10 @@ Module vFilePortable
             ;
 						; Splitte den Source Path und Vergleiche diesen
           Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" PathPartsExt: "+Startup::*LHGameDB\PortablePath+ "Linked Ist SourceParts()")
-                     
-            FFH::PathPartsExt(Startup::*LHGameDB\PortablePath)
+            NewList SourceParts.s()           
+            FFH::PathPartsExt(SourceParts(), Startup::*LHGameDB\PortablePath)
             
-            NewList SourceParts.s() 
-            CopyList(FFH::CharList(),SourceParts())
+            ;CopyList(FFH::CharList(),SourceParts())
             
             
             ResetList( SourceParts() ):
@@ -938,7 +937,10 @@ Module vSystemHelp
 	  AddElement( WebSeiten() ): WebSeiten() = "www.mobygames.com"
 	  AddElement( WebSeiten() ): WebSeiten() = "ogdb.eu"
 	  AddElement( WebSeiten() ): WebSeiten() = "vndb.org"
-	  
+	  AddElement( WebSeiten() ): WebSeiten() = "www.google.com"	  
+	  AddElement( WebSeiten() ): WebSeiten() = "duckduckgo.com"
+	  AddElement( WebSeiten() ): WebSeiten() = "duckduckgo.com"	  
+	        
 	  ResetList( WebSeiten() )
 	  Protected eIndex =  nIndex - 1900: SelectElement(WebSeiten(), eIndex)
 	  
@@ -982,7 +984,26 @@ Module vSystemHelp
     	      ; Visual Novel Database
     	    Case 4
     	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
-            szURL = szURL + "/v?q=" +szSuchString+ "&sb=Search%21&ch=&f="	      
+    	      szURL = szURL + "/v?q=" +szSuchString+ "&sb=Search%21&ch=&f="
+    	      
+    	      ; Google
+    	    Case 5
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+    	      szURL = szURL + "/search?q=" +szSuchString
+    	      
+    	      ; Duck Duck Go
+    	    Case 6
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+    	      szURL = szURL + "/?q=" +szSuchString+"&ia=web"
+    	      
+    	      ; Duck Duck Go & Nexus Title Suche
+    	    Case 7
+    	      szSuchString = vSysCMD_CleanAscii(szSuchString, "+")
+    	      szURL = szURL + "/?q=Nexus+" +szSuchString+"&ia=web"
+    	      
+    	    Default
+    	      ; Github
+    	      
     	  EndSelect  	     	  
   	  EndIf
  	  
@@ -1001,9 +1022,9 @@ Module vSystemHelp
 EndModule
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 709
-; FirstLine = 292
-; Folding = 8hBAICCgj-
+; CursorPosition = 32
+; FirstLine = 10
+; Folding = -hBAICCgj-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -1717,27 +1717,27 @@ Module VEngine
     Procedure Switcher_Pres_NoItems()
         Protected szMemDate.i, szMemSysm.i, szMemLang.i, szMemFile.i
         Structure SZDATE
-            c.a[20]
+            c.a[22]
         EndStructure 
                 
         Structure SZSYSM
-            c.a[30]
+            c.a[32]
         EndStructure 
         
         Structure SZLANG
-            c.a[14]
+            c.a[16]
         EndStructure          
         
         Structure SZFILE
-            c.a[30]
+            c.a[32]
         EndStructure   
         
         Protected  *szMemDate.SZDATE,*szMemSysm.SZSYSM,*szMemLang.SZLANG,*szMemFile.SZFILE
 
-        *szMemDate = AllocateMemory(20) 
-        *szMemSysm = AllocateMemory(30)        
-        *szMemLang = AllocateMemory(14)         
-        *szMemFile = AllocateMemory(30)
+        *szMemDate = AllocateMemory(SizeOf(SZDATE))
+        *szMemSysm = AllocateMemory(SizeOf(SZSYSM))       
+        *szMemLang = AllocateMemory(SizeOf(SZLANG))          
+        *szMemFile = AllocateMemory(SizeOf(SZFILE)) 
       
         ;
         ; Alternativ Text für die Sprache System
@@ -1853,20 +1853,61 @@ Module VEngine
     Procedure.s Getfile_Portbale_ModeOut(TestFile$)
         ProcedureReturn vFilePortable::GetFullPath(TestFile$)            
     EndProcedure
-    ;****************************************************************************************************************************************************************
+    
+    Structure PathPartsExt_t
+          s.s{#MAX_PATH}[1024]        
+    EndStructure 
+        
+    Procedure.l PathPartsExt_vEngine(sText.s, *PathPartsExt.PathPartsExt_t ,sChar$ = Chr(92))
+        
+        Debug(#CRLF$ + "PathPartsExt_vEngine() called - Module: " + #PB_Compiler_Module)
+        
+        If Trim(sText) = ""
+            ProcedureReturn -1
+        EndIf
+                               
+        Protected CountIndex = CountString(sText, sChar$) + 1   ; +1 wichtig!
+        Protected part.s
+        
+        ; Array sauber zurücksetzen
+        FillMemory(*PathPartsExt, SizeOf(PathPartsExt_t), 0)
+        
+        ; Aufteilen und direkt in die interne Liste schreiben
+        For i = 1 To CountIndex
+            part = StringField(sText, i, sChar$)
+            
+            If part <> ""
+              *PathPartsExt\s[i-1] = part
+              
+              ;Optional: Backslash anhängen              
+              If sChar$ = Chr(92)                
+                If Right(part, 1) <> Chr(92)
+                  *PathPartsExt\s[i-1]  + Chr(92)
+                EndIf
+              EndIf              
+            EndIf
+        Next i
+        
+        ProcedureReturn CountIndex
+    EndProcedure
     ;
-    ;****************************************************************************************************************************************************************     
+    ;
+    ;     
     Procedure.s Getfile_Portbale_ModeIn(szTestFile.s = "")
-      
-      Debug(#CRLF$ + "Modul Init: " + #PB_Compiler_Module +  " =======================================")
+            
+      Debug(#CRLF$ + "Modul Init: " + #PB_Compiler_Module +  " =======================================  Line: " + Str(#PB_Compiler_Line))
       
       Protected sMaxList.i, dMaxList.i, Index.i, MaxIndex.i, SString$, DString$, CompareBaseP$ = "", CompareResult.i
       Protected OptDIR$, OptIn.b = #False, OptOut.b = #False 
       Protected szOrigSourcePath.s = ""
       Protected szOrigDestPath.s   = ""
       Protected szOrigDestFile.s   = ""
+      Protected SplitCount.i       = -1
+      Protected SplitIndex.i       = -1
       
       If (szTestFile)        
+        
+        
         ; 
         ; Original Path. Nicht kleingesschrieben
         
@@ -1881,40 +1922,29 @@ Module VEngine
           Request::SetDebugLog("Debug Modul: " + #PB_Compiler_Module + " #LINE:" + Str(#PB_Compiler_Line) + "#"+#TAB$+" #File In: " + Chr(13) + szOrigDestPath + szOrigDestFile)
           ProcedureReturn szOrigDestPath + szOrigDestFile
         EndIf
+                
+        Protected *PathPartsExt.PathPartsExt_t    
+        *PathPartsExt = AllocateMemory( SizeOf(PathPartsExt_t) )  
         
-        FFH::PathPartsExt(szOrigSourcePath)
+        Protected *SourceParts.PathPartsExt_t    
+        *SourceParts = AllocateMemory( SizeOf(PathPartsExt_t) )  
         
-        If ( ListSize( FFH::CharList() ) > 0 )
-          ;
-          ; Splitte den Source Path und Vergleiche
-          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List SourceParts(): '"+szOrigSourcePath+"'") 
-          
-          NewList SourceParts.s()              
-          CopyList( FFH::CharList(),SourceParts() )
-          
-          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List ClearList( FFH::CharList() )")             
-          ClearList( FFH::CharList() )
-        EndIf
+        Protected *Destn_Parts.PathPartsExt_t    
+        *Destn_Parts = AllocateMemory( SizeOf(PathPartsExt_t) ) 
         
+        
+        sMaxList = PathPartsExt_vEngine(szOrigSourcePath,*SourceParts)
+        If ( sMaxList = -1)
+          CallDebugger
+          ProcedureReturn szTestFile
+        EndIf                        
         ;
-        ; Splitte den Source Path und Vergleiche  
-        FFH::PathPartsExt(szOrigDestPath)
-        If ( ListSize( FFH::CharList() ) > 0 )
-          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List Destn_Parts(): '"+szOrigDestPath+"'") 
-          
-          
-          NewList Destn_Parts.s()
-          CopyList( FFH::CharList(),Destn_Parts() )
-          
-          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List ClearList( FFH::CharList() )")
-          ClearList( FFH::CharList() )
-        EndIf  
-        
-        
-        ResetList( SourceParts() ): ResetList( Destn_Parts() )
-        
-        sMaxList = ListSize(SourceParts())
-        dMaxList = ListSize(Destn_Parts())
+        ; Splitte den Source Path und Vergleiche
+        dMaxList = PathPartsExt_vEngine(szOrigDestPath,*Destn_Parts)        
+        If ( dMaxList = -1)
+          CallDebugger
+          ProcedureReturn szTestFile
+        EndIf
         
         If ( sMaxList > dMaxList )
           ;
@@ -1931,11 +1961,9 @@ Module VEngine
         EndIf    
         
         For Index = 0 To MaxIndex -1
-          SelectElement( SourceParts(),Index)
-          SelectElement( Destn_Parts(),Index)
           
-          SString$ = SourceParts()
-          DString$ = Destn_Parts()
+          SString$  = *SourceParts\s[index]
+          DString$  = *Destn_Parts\s[index]          
           If ( SString$ <> DString$ )
             Break;
           EndIf    
@@ -1966,20 +1994,20 @@ Module VEngine
             EndIf    
           EndIf                                
         Next
-        
+              
         ;
         ; Liste Löschen
-        ClearList( Destn_Parts() )  
+        FreeMemory(*SourceParts)
+        FreeMemory(*Destn_Parts)
         
+        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / Pfad splitten")          
         ;
         ; Pfad splitten anhand den ORIGINALEN Pfad vergleichen            
-        FFH::PathPartsExt(szOrigDestPath)
-        If ( ListSize( FFH::CharList() ) > 0 )
-          Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / List Destn_Parts(): '"+szOrigDestPath+"'")          
-          CopyList( FFH::CharList(),Destn_Parts() )
-        EndIf  
-        
-        ResetList( Destn_Parts() )
+        SplitCount = PathPartsExt_vEngine(szOrigDestPath,*PathPartsExt)        
+        If ( SplitCount = -1)
+          CallDebugger
+          ProcedureReturn szTestFile
+        EndIf
         
         If ( CompareResult >= 1 )
           
@@ -1993,12 +2021,12 @@ Module VEngine
             
             For Index = 0 To CompareResult
               
-              SelectElement( Destn_Parts(),Index)
+              ;SelectElement( *p\Destn_Parts(),Index)
               
               If ( CompareResult = Index )
-                szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),OptDIR$,0,1,1)
+                szOrigDestPath = ReplaceString(szOrigDestPath,*PathPartsExt\s[Index],OptDIR$,0,1,1)
               Else
-                szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),"",0,1,1)
+                szOrigDestPath = ReplaceString(szOrigDestPath,*PathPartsExt\s[Index],"",0,1,1)                
               EndIf    
             Next  
             
@@ -2009,21 +2037,17 @@ Module VEngine
           
           If ( CreateInsidePath = #False )
             For Index = 0 To CompareResult -1
-              SelectElement( Destn_Parts(),Index)
-              szOrigDestPath = ReplaceString(szOrigDestPath,Destn_Parts(),OptDIR$,0,1,1)
+              szOrigDestPath = ReplaceString(szOrigDestPath,*PathPartsExt\s[Index],OptDIR$,0,1,1)
             Next Index                      
           EndIf
         EndIf
         
         Startup::*LHGameDB\PortablePath = szOrigSourcePath
         szTestFile = szOrigDestPath + szOrigDestFile 
+        
+        FreeMemory(*PathPartsExt)        
       EndIf  
-      
-      If ( ListSize( FFH::CharList() ) > 0 )
-        Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / ClearList FFH::CharList()") 
-        ClearList( FFH::CharList() )
-      EndIf 
-      
+            
       Debug(#TAB$ + " Line: " + Str(#PB_Compiler_Line) + " / File In: '"+szTestFile+"'") 
       Debug("Modul Exit : " + #PB_Compiler_Module +  " =======================================")
       ProcedureReturn szTestFile
@@ -8080,9 +8104,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 43
-; FirstLine = 18
-; Folding = rMICCPGMgmPz-4DBB9
+; CursorPosition = 1889
+; FirstLine = 1087
+; Folding = rMICCPPYANfm-vHCC5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

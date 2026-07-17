@@ -2128,9 +2128,9 @@ CompilerEndIf
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 685
-; FirstLine = 307
-; Folding = PI-3
+; CursorPosition = 716
+; FirstLine = 159
+; Folding = HIi4
 ; EnableAsm
 ; EnableXP
 ; CurrentDirectory = Release\

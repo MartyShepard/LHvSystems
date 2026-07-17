@@ -162,17 +162,17 @@
         If IsProgram( GetCurrentProcessId_() )
             KillProgram( GetCurrentProcessId_() )
         EndIf    
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 63
-; FirstLine = 41
+; IDE Options = PureBasic 5.73 LTS (Windows - x86)
+; CursorPosition = 82
+; FirstLine = 45
 ; EnableAsm
 ; EnableThread
 ; EnableXP
 ; EnableOnError
 ; UseIcon = vSystems_Modules\Data_Images\Icon\icon pro.ico
-; Executable = Release\vSystems64Bit.exe
+; Executable = Release\vSystems32Bit.exe
 ; CurrentDirectory = D:\NewGame\
-; Compiler = PureBasic 5.73 LTS (Windows - x64)
+; Compiler = PureBasic 5.73 LTS (Windows - x86)
 ; Debugger = IDE
 ; Warnings = Display
 ; EnableUnicode

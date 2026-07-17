@@ -275,6 +275,7 @@ Module vDiskPath
                 ;
                 ;---------------------------------------------------------------------------
                 ;
+                CallDebugger
                 NewList *p\pSplitParts()
                
                     FFH::PathPartsExt(*p\pszMediaDB, *p\pSplitParts() )
@@ -619,9 +620,9 @@ Module vDiskPath
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 581
-; FirstLine = 125
-; Folding = DAg-
+; CursorPosition = 277
+; FirstLine = 63
+; Folding = Dgg-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

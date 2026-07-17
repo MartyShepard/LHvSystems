@@ -1466,12 +1466,6 @@ Module INVMNU
       EndIf            
     EndProcedure 
      
-     	;Procedure VxKx_Open_SupportURL_Next()
-		; Öffne URL
-		;Protected URL.s = "https://github.com/YuZhouRen86/VxKex-Next"
-    ;FFH::ShellExec(URL, "open","",#Null,#SW_SHOWNORMAL,#False,1)
-   ; ProcedureReturn 
-   ;EndProcedure
     Procedure Set_WebViewSupport_Menu()
       
       OpenSubMenu( "WebSeiten"                        , ImageID( DI::#_MNU_WEB ))       
@@ -1482,6 +1476,11 @@ Module INVMNU
       MenuItem(1904 , "Datenbank: Visul Novel"        , ImageID( DI::#_MNU_WEB_VNDB ))
       MenuBar()      
       MenuItem(1901 , "PC-Gaming Wiki"                , ImageID( DI::#_MNU_WEB_PCGW ))
+      MenuBar()
+      MenuItem(1905 , "Suche über Google"             , ImageID( DI::#_MNU_WEB_GGLE ))
+      MenuItem(1906 , "Suche über Duck-Duck Go"       , ImageID( DI::#_MNU_WEB_DUCK ))
+      MenuItem(1907 , "Nexus Quick Suche"             , ImageID( DI::#_MNU_WEB_NXUS ))     
+
       CloseSubMenu()
 
     EndProcedure
@@ -1570,9 +1569,9 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1477
-; FirstLine = 448
-; Folding = JOCgJ6
+; CursorPosition = 1481
+; FirstLine = 311
+; Folding = JOAgJ6
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
