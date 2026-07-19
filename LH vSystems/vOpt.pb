@@ -9,7 +9,7 @@
     ; Include Modules, Global Code Modules
     ;   
         
-        XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
+        XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"  ; WM::
         
         XIncludeFile "..\INCLUDES\Class_Process.pb"     
         XIncludeFile "..\INCLUDES\Class_ServiceEX.pb"           
@@ -164,8 +164,7 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 12
-; FirstLine = 6
+; CursorPosition = 11
 ; EnableAsm
 ; EnableThread
 ; EnableXP

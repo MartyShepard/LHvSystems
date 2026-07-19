@@ -46,6 +46,7 @@ DeclareModule FontEX
         DTitle.s    ; Dialog Title
         Intern.b    ; Interner Front
         fontid.l    ; Die Purebasic Rückgabe ID
+        Height.i    ; Höhe des Fenster
     EndStructure 
     
     Declare.i   Dialog_Font(*font.FONTPARAMS, StructChooseFontFlags.l = 0)
@@ -92,7 +93,8 @@ Module FontEX
         If (DC::#Text_001 = *TargetGadget)
           SetGadgetFont(DC::#Text_002, FontID(TempFont))
         EndIf
-        FreeFont(TempFont)
+        ;Freefont kann nicht angwendet werden weil sonst der Schrit Vorschau für die Listicon Box nicht funktioniert
+        ;FreeFont(TempFont)
       EndIf
       ProcedureReturn #True
     EndProcedure    
@@ -218,7 +220,8 @@ Module FontEX
               Protected x = (r1\right  - (r2\right  - r2\left)) / 2
               Protected y = (r1\bottom - (r2\bottom - r2\top)) / 2
               
-              MoveWindow_(hWnd, x-100, y-100, r2\right-r2\left, r2\bottom-r2\top, #True)
+              
+              MoveWindow_(hWnd, x, y+*CurrentFont\Height , r2\right-r2\left, r2\bottom-r2\top, #True)
               
               ; Hintergrundfarbe (z.B. Hellgrau)
               If hBrush
@@ -832,8 +835,8 @@ CompilerEndIf
 ; Obsolete. ChooseFont ignores this flag.
 ; Windows Vista And Windows XP/2000:  ChooseFont should allow only the selection of fonts available on both the printer And the display. If this flag is specified, the CF_SCREENSHOTS And CF_PRINTERFONTS, Or CF_BOTH flags should also be specified.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 193
-; FirstLine = 165
-; Folding = -H-
+; CursorPosition = 223
+; FirstLine = 133
+; Folding = -G-
 ; EnableAsm
 ; EnableXP

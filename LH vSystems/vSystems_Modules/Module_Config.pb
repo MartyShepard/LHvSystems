@@ -421,6 +421,11 @@ Module Startup
                
         XIncludeFile "Module_Version.pb"
         ;
+        ; Version 0.60.35
+        ; Font Dialog  : Bug bei dem ListIcon gefixed. Preview versemmelt. Höhe des Font Dialog Fenster gegeben an
+        ;              : den Fenstern angepasst
+        
+        ;
         ; Version 0.60.34
         ; Font Dialog  : Die Windows APi Font Dialog Box überarbeite was nun auch ein Live Vorschau enthält
         ;                Korrekturen bei der behandlung der Logfont Struktur
@@ -1321,7 +1326,7 @@ Module Startup
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 426
-; FirstLine = 401
+; FirstLine = 396
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP

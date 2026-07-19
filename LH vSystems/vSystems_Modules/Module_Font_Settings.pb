@@ -103,14 +103,15 @@ Module vFont
         *font\Qualty = #PB_Font_HighQuality
         *font\DTitle = "(Schriftart auswählen...)"
         *font\Intern = #False
+            
         
        Select RowID
-         Case 1: FontGadgetID = DC::#Text_001     :PBWindowID = WindowID(DC::#_Window_001)
-         Case 2: FontGadgetID = DC::#ListIcon_001 :PBWindowID = WindowID(DC::#_Window_001)
-         Case 3: FontGadgetID = DC::#Text_128     :PBWindowID = WindowID(DC::#_Window_006)
-         Case 4: FontGadgetID = DC::#Text_129     :PBWindowID = WindowID(DC::#_Window_006)           
-         Case 5: FontGadgetID = DC::#Text_130     :PBWindowID = WindowID(DC::#_Window_006)
-         Case 6: FontGadgetID = DC::#Text_131     :PBWindowID = WindowID(DC::#_Window_006)     
+         Case 1: FontGadgetID = DC::#Text_001     :PBWindowID = WindowID(DC::#_Window_001): *font\Height = 0  
+         Case 2: FontGadgetID = DC::#ListIcon_001 :PBWindowID = WindowID(DC::#_Window_001): *font\Height = 230  
+         Case 3: FontGadgetID = DC::#Text_128     :PBWindowID = WindowID(DC::#_Window_006): *font\Height = 100 
+         Case 4: FontGadgetID = DC::#Text_129     :PBWindowID = WindowID(DC::#_Window_006): *font\Height = 100           
+         Case 5: FontGadgetID = DC::#Text_130     :PBWindowID = WindowID(DC::#_Window_006): *font\Height = 100
+         Case 6: FontGadgetID = DC::#Text_131     :PBWindowID = WindowID(DC::#_Window_006): *font\Height = 100     
        EndSelect
        
        If (*font\fnName = "")
@@ -168,8 +169,8 @@ Module vFont
     
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 130
-; FirstLine = 119
+; CursorPosition = 113
+; FirstLine = 84
 ; Folding = -
 ; EnableAsm
 ; EnableXP
