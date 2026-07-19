@@ -8,6 +8,9 @@
     ;
     ; Include Modules, Global Code Modules
     ;   
+        
+        XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
+        
         XIncludeFile "..\INCLUDES\Class_Process.pb"     
         XIncludeFile "..\INCLUDES\Class_ServiceEX.pb"           
         
@@ -41,9 +44,7 @@
         
         XIncludeFile "..\INCLUDES\CLASSES_EMU\FileFormat_DiskImageC64.pb"     
         XIncludeFile "..\INCLUDES\ClassEX_ArchiveLZX.pb"         
-                  
-        XIncludeFile "..\INCLUDES\Class_Debug_WM_MSG.pb"                    ; WM::
-        
+                                 
         XIncludeFile ".\vSystems_Modules\Module_LogitechLCD.pb"   
         
         UseZipPacker(): UseLZMAPacker(): UseSHA1Fingerprint()
@@ -163,8 +164,8 @@
             KillProgram( GetCurrentProcessId_() )
         EndIf    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x86)
-; CursorPosition = 82
-; FirstLine = 45
+; CursorPosition = 12
+; FirstLine = 6
 ; EnableAsm
 ; EnableThread
 ; EnableXP

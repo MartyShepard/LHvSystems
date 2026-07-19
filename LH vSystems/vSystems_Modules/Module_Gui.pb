@@ -381,7 +381,7 @@ Module MagicGUI
         ;
         ; Title
         ;
-        nFont = Fonts::#_EUROSTILE_20        
+        nFont = Fonts::#_EUROSTILE_20     
         FORM::TextObject(DC::#Text_001,*ObjPos\x,*ObjPos\y,*ObjPos\w,*ObjPos\h,FontID(nFont),c,*ObjPos\c\rgb_strBckC,"",1)
         
         *ObjPos\y = GadgetHeight(DC::#Text_001) + GadgetY(DC::#Text_001) + 5
@@ -2729,9 +2729,9 @@ Module MagicGUI
         EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2718
-; FirstLine = 2587
-; Folding = H+---
+; CursorPosition = 383
+; FirstLine = 346
+; Folding = n+---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -1,70 +1,70 @@
 ﻿DeclareModule VEngine
        
-    Declare     Thread_LoadGameList_Action()
-    Declare     Thread_LoadGameList(t)
-    Declare     Thread_LoadGameList_Sort(Save.i = -1)
+    Declare   Thread_LoadGameList_Action()
+    Declare   Thread_LoadGameList(t)
+    Declare   Thread_LoadGameList_Sort(Save.i = -1)
     
-    Declare     ListBox_GetData_LeftMouse(ForceUpdate = #False)
-    Declare     ListBox_GetData_KeyBoard(KeyPressed.i)
+    Declare   ListBox_GetData_LeftMouse(ForceUpdate = #False)
+    Declare   ListBox_GetData_KeyBoard(KeyPressed.i)
     
-    Declare     DataBase_Add()    
-    Declare     Database_Get(RowID)
-    Declare     Database_Set_Title(Str$)
-    Declare     Database_Remove(SafeItems.i = 0, Special.i = #False)
-    Declare     Database_Set_Release()
-    Declare     DataBase_Duplicate() 
-    Declare     Update_Changes()    
-    Declare     Database_Set_ProgramArgs(StringID.i)
-    Declare     Database_Set_ProgramTitle(StringID.i)    
+    Declare   DataBase_Add()    
+    Declare   Database_Get(RowID)
+    Declare   Database_Set_Title(Str$)
+    Declare   Database_Remove(SafeItems.i = 0, Special.i = #False)
+    Declare   Database_Set_Release()
+    Declare   DataBase_Duplicate() 
+    Declare   Update_Changes()    
+    Declare   Database_Set_ProgramArgs(StringID.i)
+    Declare   Database_Set_ProgramTitle(StringID.i)    
     
-    Declare     GadObjects_ClrRve_MediaOnly()
+    Declare   GadObjects_ClrRve_MediaOnly()
     
-    Declare     GetFile_Media       (DPGadgetID.i, FileStream.s = "")
-    Declare     GetFile_Programm    (DPGadgetID.i, FileStream.s = "") 
-    Declare     GetFile_Programm_64 (DPGadgetID.i, FileStream.s = "")    
+    Declare   GetFile_Media       (DPGadgetID.i, FileStream.s = "")
+    Declare   GetFile_Programm    (DPGadgetID.i, FileStream.s = "") 
+    Declare   GetFile_Programm_64 (DPGadgetID.i, FileStream.s = "")    
     
     
-    Declare     Change_Title(GadgetID.i)
+    Declare   Change_Title(GadgetID.i)
       
-    Declare     Switcher_Pres_NoItems()
-    Declare     Switcher_Pres_List(Obj.i)    
+    Declare   Switcher_Pres_NoItems()
+    Declare   Switcher_Pres_List(Obj.i)    
     
-    Declare     Splitter_SetGet(Get = #True, Height = 289)  
-    Declare     Splitter_SetAll(NoAsk = #False)
-    Declare     Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+    Declare   Splitter_SetGet(Get = #True, Height = -1)  
+    Declare   Splitter_SetAll(NoAsk = #False)
+    Declare   Splitter_SetHeight(SetHeight.i = -1, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
        
-    Declare     DOS_Prepare()
-    Declare.i   DOS_Open_Directory(nOption, bCheck = #False)
+    Declare   DOS_Prepare()
+    Declare.i DOS_Open_Directory(nOption, bCheck = #False)
     
-    Declare     ListIconBox_Get_InfoPosition()
+    Declare   ListIconBox_Get_InfoPosition()
     
-    Declare     PicSupport_Hide_Show()
+    Declare   PicSupport_Hide_Show()
     
-    Declare.s   Getfile_Portbale_ModeOut(TestFile$)
-    Declare.s   Getfile_Portbale_ModeIn(szTestFile.s = "")
+    Declare.s Getfile_Portbale_ModeOut(TestFile$)
+    Declare.s Getfile_Portbale_ModeIn(szTestFile.s = "")
     
-    Declare     Text_Show()
-    Declare     Text_GetDB()
-    Declare.i   Text_GetDB_Check()
-    Declare     Text_UpdateDB()
-    Declare		 Text_GetDB_Content()
+    Declare   Text_Show()
+    Declare   Text_GetDB()
+    Declare.i Text_GetDB_Check()
+    Declare   Text_UpdateDB()
+    Declare		Text_GetDB_Content()
     
-    Declare     Thumbnails_SetAll()
-    Declare     Thumbnails_Set(nSize.i)
+    Declare   Thumbnails_SetAll()
+    Declare   Thumbnails_Set(nSize.i)
     
-    Declare.i   FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
+    Declare.i FileManageR_MediumCheck(GadgetID.i, DestGadgetID.i)
     
-    Declare	 MAME_Driver_Import() 
-    Declare	 MAME_Roms_Check_Import()
-    Declare	 MAME_Roms_Check()    
+    Declare	  MAME_Driver_Import() 
+    Declare	  MAME_Roms_Check_Import()
+    Declare	  MAME_Roms_Check()    
     Declare.i MAME_Roms_Backup(UserFile.s = "")
     Declare.i MAME_Roms_GetInfos() 
-    Declare	 Thread_HTTP_MAME_Roms_DoEvents() 
-    Declare	 MAME_Driver_Info_wwwAI() 
+    Declare	  Thread_HTTP_MAME_Roms_DoEvents() 
+    Declare	  MAME_Driver_Info_wwwAI() 
     
-    Declare	 vSys_MainButtonsConfig(state.i = #True)
+    Declare	  vSys_MainButtonsConfig(state.i = #True)
     
-    Declare     ServiceOption(service$, Start.i = #True) 
+    Declare   ServiceOption(service$, Start.i = #True) 
 EndDeclareModule
 
 Module VEngine
@@ -4798,26 +4798,35 @@ Module VEngine
     ;****************************************************************************************************************************************************************
     ; Setzt die Höhe des Splitters
     ;****************************************************************************************************************************************************************    
-    Procedure Splitter_SetGet(Get = #True, Height = 289)      
-       ; Höhe Setzen, aus der DB lesen
-        If  ( Get = #True )
-            SetGadgetState(DC::#Splitter1,GadgetHeight(DC::#Contain_02)) 
-            Height = ExecSQL::iRow(DC::#Database_001,"Gamebase","SplitHeight",0,Startup::*LHGameDB\GameID,"",1)
-            If ( Height = 0 )
-                Height = 289
-            EndIf
-            SetGadgetState(DC::#Splitter1,Height) 
-            ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))              
-        Else
-            ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(Height),Startup::*LHGameDB\GameID)
-            ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(Height),1)                
-        EndIf                
+    Procedure Splitter_SetGet(Get = #True, Height = -1)
+      ; Höhe Setzen, aus der DB lesen
+      
+      If (Height = -1)
+        Height =  Startup::*LHGameDB\hSplitterDef
+      EndIf
+      
+      If  ( Get = #True )
+        SetGadgetState(DC::#Splitter1,GadgetHeight(DC::#Contain_02)) 
+        Height = ExecSQL::iRow(DC::#Database_001,"Gamebase","SplitHeight",0,Startup::*LHGameDB\GameID,"",1)
+        If ( Height = 0 )
+          Height = Startup::*LHGameDB\hSplitterDef
+        EndIf
+        SetGadgetState(DC::#Splitter1,Height) 
+        ResizeGadget(DC::#ListIcon_001, #PB_Ignore, #PB_Ignore,#PB_Ignore,GadgetHeight(DC::#Contain_02))              
+      Else
+        ExecSQL::UpdateRow(DC::#Database_001,"Gamebase", "SplitHeight", Str(Height),Startup::*LHGameDB\GameID)
+        ExecSQL::UpdateRow(DC::#Database_001,"Settings", "SplitHeight", Str(Height),1)                
+      EndIf                
     EndProcedure   
 
     ;****************************************************************************************************************************************************************
     ; Ändert die Splitterhöhe 
     ;****************************************************************************************************************************************************************
-    Procedure Splitter_SetHeight(SetHeight.i = 289, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+    Procedure Splitter_SetHeight(SetHeight.i = -1, ThumbnailMode = #False, NewWindowHeight = #False, SetWindowHeight = 0)
+      
+        If ( SetHeight = -1 )
+          SetHeight = Startup::*LHGameDB\hSplitterDef
+        EndIf
         ;
         ; Current Splitter height
         Protected CHSplit.i = GadgetHeight(DC::#Contain_02)
@@ -8104,8 +8113,7 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1889
-; FirstLine = 1087
+; CursorPosition = 2
 ; Folding = rMICCPPYANfm-vHCC5
 ; EnableAsm
 ; EnableXP

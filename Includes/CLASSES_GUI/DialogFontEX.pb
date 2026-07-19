@@ -27,27 +27,438 @@
 ;       ClearStructure(*font, FONTPARAMS)
 ;
 ;       Flags: #CF_FIXEDPITCHONLY           ChooseFont should enumerate and allow selection of only fixed-pitch fonts.
-;_______________________________________________________________________________________________________________________________     
+;_______________________________________________________________________________________________________________________________ 
+
+CompilerIf #PB_Compiler_IsMainFile
+  XIncludeFile "..\..\INCLUDES\Class_Debug_WM_MSG.pb" ; WM::
+CompilerEndIf  
 DeclareModule FontEX 
     
     Structure FONTPARAMS
         fnName.s    ; Der Fontname
-        fnSize.i    ; Die grösse (Integer)
+        fnSize.l    ; Die grösse (Integer)
         fColor.l    ; Fontname Text Farbe
         Italic.i    ; Kursiv
         IsBold.i    ; Fett
         UnLine.i    ; Unterstrichen
         Strike.i    ; Durchgestrichen
+        Qualty.l    ; Qualität oder Clear
+        DTitle.s    ; Dialog Title
+        Intern.b    ; Interner Front
         fontid.l    ; Die Purebasic Rückgabe ID
     EndStructure 
     
     Declare.i   Dialog_Font(*font.FONTPARAMS, StructChooseFontFlags.l = 0)
     Declare.i   Dialog_Font_Bold(*font.FONTPARAMS, EvntGadget.i)
+    Declare.b   Dialog_Font_Neu(*font.FONTPARAMS, GadgetToPreview.i, ExtraFlags.l = 0, WindowHandle.l = 0)
+    Declare.l   Dialog_Font_Read_InternDB(*font.FONTPARAMS,PB_GadgetID.i)
     
     
 EndDeclareModule
 Module FontEX
-    ;******************************************************************************************************************************************
+    ;
+    ;
+    ; Hook-Prozedur für Live-Preview
+    Procedure.b FontHook_Proc()
+      
+      Shared *TargetGadget, *CurrentFont.FONTPARAMS, lf.LOGFONT
+      
+      Protected FontName.s  = PeekS(@lf\lfFaceName)
+
+      Protected hdc = GetDC_(hWnd)
+      Protected Size.l = -MulDiv_(lf\lfHeight, 72, GetDeviceCaps_(hdc, #LOGPIXELSY))
+      ReleaseDC_(hWnd, hdc)
+            
+      Protected Style.i = 0
+      If lf\lfWeight >= #FW_BOLD : Style | #PB_Font_Bold      : EndIf
+      If lf\lfItalic             : Style | #PB_Font_Italic    : EndIf
+      If lf\lfStrikeOut          : Style | #PB_Font_StrikeOut : EndIf
+      If lf\lfUnderline          : Style | #PB_Font_Underline : EndIf
+      
+      
+      Debug ""            
+      Debug "Selected Fontname : " + FontName
+      Debug "Selected FontSize : " + Str(Size)
+      Debug "Selected FnWeight : " + Str(lf\lfWeight)
+      Debug "Selected FnItalic : " + Str(lf\lfItalic)
+      Debug "Selected StrikeOut: " + Str(lf\lfStrikeOut)
+      Debug "SelectedUnderline : " + Str(lf\lfUnderline)      
+      Debug "Selected FnStyle  : " + Str(Style)       
+      Debug "======================================="        
+      
+      Protected TempFont.l = LoadFont(#PB_Any, FontName, Size, Style | #PB_Font_HighQuality)
+      If TempFont 
+        SetGadgetFont(*TargetGadget, FontID(TempFont))
+        If (DC::#Text_001 = *TargetGadget)
+          SetGadgetFont(DC::#Text_002, FontID(TempFont))
+        EndIf
+        FreeFont(TempFont)
+      EndIf
+      ProcedureReturn #True
+    EndProcedure    
+    ;
+    ;
+    ; Wert (wParam >> 16)
+    ; Konstante     Bedeutung
+    ; 1             #CBN_SELCHANGE    Auswahl wurde geändert
+    ; 2             #CBN_DBLCLK       Doppelklick
+    ; 3             #CBN_SETFOCUS     ComboBox hat Fokus bekommen
+    ; 4             #CBN_KILLFOCUS    ComboBox hat Fokus verloren
+    ; 5             #CBN_EDITCHANGE   Text im Edit-Feld wurde geändert
+    ; 6             #CBN_EDITUPDATE   Edit-Feld wird aktualisiert
+    ; 9             #CBN_DROPDOWN     Dropdown-Liste wird aufgeklappt
+    ; 10            #CBN_CLOSEUP      Dropdown-Liste wird geschlossen
+    ; 11            #CBN_SELENDOK     Auswahl bestätigt (OK)
+    ; 12            #CBN_SELENDCANCEL Auswahl abgebrochen
+    ; 
+    ;     
+    Global LogFont_Old.LOGFONT
+    Global DlgTitle.s = ""
+    
+    Macro LOWORD( word )   : (word & $FFFF)             : EndMacro
+    Macro HIWORD( word )   : ((word >> 16) & $FFFF)     : EndMacro
+    ;
+    ;
+    Procedure.l FontHook_GetRGB(cbSelection.i = 0)
+      Protected FontFarbe.l, FarbName.s = ""
+      
+      Select cbSelection
+        Case 0
+          FarbName  = "Schwarz"
+          FontFarbe = RGB(0,0,0)
+          
+        Case 1
+          FarbName  = "Kastanienbraun - Long 128"
+          FontFarbe = RGB(128,0,0)
+          
+        Case 2
+          FarbName  = "Grün - Long 32768"
+          FontFarbe = RGB(0,128,0)        
+          
+        Case 3
+          FarbName  = "Olivegrün - Long 32896"
+          FontFarbe = RGB(128,128,0)         
+          
+        Case 4
+          FarbName  = "Marineblau - Long 8388608"
+          FontFarbe = RGB(0,0,128) 
+          
+        Case 5
+          FarbName  = "Lila - Long 8388736"
+          FontFarbe = RGB(128,0,128)
+          
+        Case 6
+          FarbName  = "Blaugrün - Long 8421376"
+          FontFarbe = RGB(0,128,128)
+          
+        Case 7
+          FarbName  = "Grau - Long 8421504"
+          FontFarbe = RGB(128,128,128)
+          
+        Case 8
+          FarbName  = "Silber - Long 12632256"
+          FontFarbe = RGB(192,192,192)
+          
+        Case 9
+          FarbName  = "Rot - Long 255"
+          FontFarbe = RGB(255,0,0)
+          
+        Case 10
+          FarbName  = "Gelbgrün - Long 65280"
+          FontFarbe = RGB(0,255,0)
+          
+        Case 11
+          FarbName  = "Gelb - Long 65535"
+          FontFarbe = RGB(255,255,0)
+          
+        Case 12
+          FarbName  = "Blaugrün - Long 16711680"
+          FontFarbe = RGB(0,0,255)
+          
+        Case 13
+          FarbName  = "Violett - Long 16711935"
+          FontFarbe = RGB(255,0,255 )
+          
+        Case 14
+          FarbName  = "Aquamarin - Long 16776960"
+          FontFarbe = RGB(0,255,255)
+          
+        Case 15
+          FarbName  = "Weiß - Long 16777215"
+          FontFarbe = RGB(255,255,255)
+          
+        Default
+        ProcedureReturn RGB(0,0,0)  
+      EndSelect
+      
+      Debug "Selected FontColr : " + FarbName
+      ProcedureReturn FontFarbe
+      
+    EndProcedure
+    Procedure.b FontDialogHook(hWnd.l, Msg.l, wParam.l, lParam.l)
+      
+      Shared *TargetGadget, *CurrentFont.FONTPARAMS, lf.LOGFONT, lpcf.CHOOSEFONT 
+     
+      Select Msg
+        Case #WM_INITDIALOG
+          
+          If lpcf
+            ; Zeiger auf unsere Struktur holen
+            *CurrentDialog = lpcf\lCustData
+            
+            If *CurrentDialog
+              ; Fenster-Titel setzen
+              SetWindowText_(hWnd, DlgTitle)
+              
+              ; Dialog zentrieren
+              Protected r1.RECT, r2.RECT
+              GetWindowRect_(hWnd, @r2)
+              SystemParametersInfo_(#SPI_GETWORKAREA, 0, @r1, 0)
+              
+              Protected x = (r1\right  - (r2\right  - r2\left)) / 2
+              Protected y = (r1\bottom - (r2\bottom - r2\top)) / 2
+              
+              MoveWindow_(hWnd, x-100, y-100, r2\right-r2\left, r2\bottom-r2\top, #True)
+              
+              ; Hintergrundfarbe (z.B. Hellgrau)
+              If hBrush
+                DeleteObject_(hBrush)
+              EndIf
+              hBrush = CreateSolidBrush_(RGB(240,240,240))
+              CopyMemory(@lf, @LogFont_Old, SizeOf(LOGFONT))                
+            EndIf
+          EndIf
+          
+        Case #WM_CTLCOLORLISTBOX
+          ;Debug "#WM_CTLCOLORLISTBOX"
+        Case #WM_CTLCOLORDLG, #WM_CTLCOLORSTATIC
+
+          If hBrush
+            SetBkMode_(wParam, #TRANSPARENT)
+            SetBkColor_(wParam, RGB(240,240,240))                            
+            ProcedureReturn hBrush
+          EndIf
+          
+        Case #WM_LBUTTONDOWN,#WM_LBUTTONUP,#WM_NOTIFY,#WM_ACTIVATE
+            If (Msg = #WM_NOTIFY)
+              SetTimer_(hWnd,1,1,#Null)
+            EndIf
+            SendMessage_(hWnd, #WM_CHOOSEFONT_GETLOGFONT, 0, @lf)
+            ProcedureReturn #True
+          
+       Case #WM_DESTROY
+          If hBrush
+            DeleteObject_(hBrush)
+            hBrush = 0
+          EndIf
+          Protected Class.s = Space(64)
+          GetClassName_(hWnd,@Class,64)
+          ;Debug "Destroy HWND = " + Hex(hWnd)
+          ;Debug "Class = " + PeekS(@Class)
+          
+        Case #WM_CHOOSEFONT_SETLOGFONT        
+          FontHook_Proc()
+          FillMemory( @LogFont_Old, 0)
+          SendMessage_(hWnd, #WM_DESTROY, 0, 0)
+          
+        Case #WM_CHOOSEFONT_SETFLAGS                    
+        Case #WM_CHOOSEFONT_GETLOGFONT
+          If CompareMemory(@lf,@LogFont_Old,SizeOf(LOGFONT)) = 0
+            FontHook_Proc()
+            CopyMemory(@lf, @LogFont_Old, SizeOf(LOGFONT)) 
+          EndIf
+          
+        Case #WM_TIMER
+          SetTimer_(hWnd,1,1,#Null)
+        Case #WM_COMMAND        
+          If (msg = #WM_COMMAND)
+            
+            Define nLOW.w = LOWORD(wParam)
+            Define nHIW.w = HIWORD(wParam)            
+            
+            Select nLOW
+              Case #CBN_SELCHANGE
+                ;
+                ; Standard Selektion                
+                SendMessage_(hWnd, #WM_CHOOSEFONT_GETLOGFONT, 0, @lf)
+                FillMemory( @LogFont_Old, 0)
+              Case 9
+                ;
+                ; Standard Selektion                
+                SendMessage_(hWnd, #WM_CHOOSEFONT_GETLOGFONT, 0, @lf)
+                FillMemory( @LogFont_Old, 0)                
+              Case 3,4
+                ;
+                ; Focus eigenschaft
+                ProcedureReturn #False
+              Case 1040, 1041
+                ;
+                ; Checkbox Durchgestrichen
+                SendMessage_(hWnd, #WM_CHOOSEFONT_GETLOGFONT, 0, @lf)
+                FillMemory( @LogFont_Old, 0)
+                ProcedureReturn #True             
+              Case 1139
+                cbHwnd.l = GetDlgItem_(hWnd,1139)
+                Select nHIW
+                  Case #CBN_SELCHANGE
+                    ;Debug "Farbe geändert" 
+                    ;Debug "Farbe: " + Str(lpcf\rgbColors)                    
+                  Case #CBN_SELENDOK
+                    ;Debug  "endgültig ausgewählt"
+                    ;Debug "Farbe: " + Str(lpcf\rgbColors)                    
+                    lpcf\rgbColors = FontHook_GetRGB(SendMessage_(cbHwnd,#CB_GETCURSEL,0,0))
+                    SetGadgetColor(*TargetGadget, #PB_Gadget_FrontColor , lpcf\rgbColors)
+                    If (DC::#Text_001 = *TargetGadget)
+                        SetGadgetColor(DC::#Text_002, #PB_Gadget_FrontColor , lpcf\rgbColors)
+                    EndIf                    
+                    FontHook_Proc()
+                EndSelect                
+                Debug "Aktuelles Item: "+Str(SendMessage_(cbHwnd,#CB_GETCURSEL,0,0))
+                
+              Default
+                Debug "unknown #WM_COMMAND Loword: "+ Str(nLOW)
+            EndSelect
+            
+            Select nHIW    
+              Case 0
+                ;
+                ; Aktiviert das aussteigen
+                SendMessage_(hWnd, #WM_DESTROY, 0, 0) 
+              Default
+                Debug "Unknown #WM_COMMAND HiWord: "+ Str(nHIW)                
+            EndSelect
+          EndIf
+          
+        Case #WM_PAINT         
+        Default
+          ;WM::DebugConstant(Msg)
+          ;Debug "hwnd = " + Str(hwnd)
+      EndSelect
+      
+      ProcedureReturn #False
+    EndProcedure
+    ;
+    ;
+    Procedure.b Dialog_Font_Neu(*font.FONTPARAMS, GadgetToPreview.i, ExtraFlags.l = 0, WindowHandle.l = 0)
+        
+       ; Protected lf.LOGFONT, lpcf.CHOOSEFONT
+        Protected hdc.l = CreateDC_("DISPLAY", 0, 0, 0)
+        Protected Result.i = #False
+        
+        Shared *TargetGadget, *CurrentFont.FONTPARAMS, lf.LOGFONT, lpcf.CHOOSEFONT   ; Für Hook
+        
+        *TargetGadget = GadgetToPreview
+        *CurrentFont  = *font
+
+        ; Standardwerte
+        
+        If ( Len(*font\fnName) = 0 )
+                 *font\fnName = "Segoe UI"
+        EndIf
+        
+        If ( *font\fnSize = 0 )
+             *font\fnSize = 12
+        EndIf
+                 
+        ; LOGFONT füllen
+        lf\lfHeight = -MulDiv_(*font\fnSize, GetDeviceCaps_(hdc, #LOGPIXELSY), 72)
+        lf\lfWeight = *font\IsBold
+        
+        If *font\Italic : lf\lfItalic    = #True : EndIf
+        If *font\Strike : lf\lfStrikeOut = #True : EndIf
+        If *font\UnLine : lf\lfUnderline = #True : EndIf
+        
+        
+        PokeS(@lf\lfFaceName, *font\fnName, #LF_FACESIZE)
+        
+        DeleteDC_(hdc)
+        
+        ; CHOOSEFONT
+        lpcf\lStructSize  = SizeOf(CHOOSEFONT)
+        lpcf\hwndOwner    = WindowHandle          ; oder deine Fenster-ID
+        lpcf\lpLogFont    = @lf
+        lpcf\Flags        = #CF_INITTOLOGFONTSTRUCT | #CF_BOTH| #CF_ENABLEHOOK |#CF_WYSIWYG | #CF_EFFECTS | ExtraFlags
+        lpcf\rgbColors    = *font\fColor
+        lpcf\lpfnHook     = @FontDialogHook()
+        lpcf\lCustData    = *font          ; Wichtig: Zeiger auf unsere Struktur
+        lpcf\hDC          = hdc
+        
+        DlgTitle = *font\DTitle
+        
+        If ChooseFont_(@lpcf)
+                      
+            *font\IsBold = #Null
+            *font\Italic = #Null          
+            *font\UnLine = #Null
+            *font\Strike = #Null
+            
+            Protected Style.i = 0
+            
+            Select lf\lfWeight
+                Case #FW_DONTCARE   : Style = 0            : *font\IsBold = #FW_DONTCARE
+                Case #FW_THIN       : Style = 0            : *font\IsBold = #FW_THIN
+                Case #FW_EXTRALIGHT : Style = 0            : *font\IsBold = #FW_EXTRALIGHT
+                Case #FW_ULTRALIGHT : Style = 0            : *font\IsBold = #FW_ULTRALIGHT                 
+                Case #FW_LIGHT      : Style = 0            : *font\IsBold = #FW_LIGHT                
+                Case #FW_NORMAL     : Style = 0            : *font\IsBold = #FW_NORMAL  
+                Case #FW_REGULAR    : Style = 0            : *font\IsBold = #FW_REGULAR          
+                Case #FW_MEDIUM     : Style = 0            : *font\IsBold = #FW_MEDIUM      
+                Case #FW_SEMIBOLD   : Style = 0            : *font\IsBold = #FW_SEMIBOLD       
+                Case #FW_DEMIBOLD   : Style = 0            : *font\IsBold = #FW_DEMIBOLD          
+                Case #FW_BOLD       : Style = #PB_Font_Bold: *font\IsBold = #FW_BOLD
+                Case #FW_EXTRABOLD  : Style = 0            : *font\IsBold = #FW_EXTRABOLD          
+                Case #FW_ULTRABOLD  : Style = 0            : *font\IsBold = #FW_ULTRABOLD            
+                Case #FW_HEAVY      : Style = 0            : *font\IsBold = #FW_HEAVY       
+                Case #FW_BLACK      : Style = 0            : *font\IsBold = #FW_BLACK       
+              EndSelect
+              
+            ; === OK geklickt → endgültig übernehmen ===
+            *font\fnName = PeekS(@lf\lfFaceName)
+            *font\fnSize = lpcf\iPointSize / 10
+            *font\fColor = lpcf\rgbColors
+             
+            If ( lf\lfItalic <> 0 )
+                Style = Style|#PB_Font_Italic:     
+                *font\Italic = #PB_Font_Italic
+            EndIf  
+            If ( lf\lfUnderline <> 0 )
+                Style = Style|#PB_Font_Underline
+                *font\UnLine = #PB_Font_Underline
+            EndIf              
+            If ( lf\lfStrikeOut <> 0 )
+                Style = Style|#PB_Font_StrikeOut
+                *font\Strike = #PB_Font_StrikeOut
+           EndIf  
+           
+            Debug "Übernommen - Fontname: " + *font\fnName
+            Debug "               Size  : " + Str(lpcf\iPointSize/10)
+            Debug "               Bold  : " + Str(lf\lfWeight)
+            Debug "             Italic  : " + Str(lf\lfItalic)           
+            Debug "          Underline  : " + Str(lf\lfUnderline)   
+            Debug "          StrikeOut  : " + Str(lf\lfStrikeOut)
+            Debug "          Color      : " + Str(*font\fColor)   
+            
+           ; If lf\lfWeight >= #FW_BOLD     : Style | #PB_Font_Bold      : EndIf
+           ; If lf\lfItalic                 : Style | #PB_Font_Italic    : EndIf
+           ; If lf\lfUnderline              : Style | #PB_Font_Underline : EndIf
+           ; If lf\lfStrikeOut              : Style | #PB_Font_StrikeOut : EndIf
+            
+            ; Alten Font freigeben
+            ;If *font\fontid : FreeFont(*font\fontid) : EndIf
+            
+            *font\fontid = LoadFont(#PB_Any, *font\fnName, *font\fnSize, Style | #PB_Font_HighQuality)
+            
+            ; Endgültig auf Gadget anwenden
+            ;If GadgetToPreview
+            ;    SetGadgetFont(GadgetToPreview, *font\fontid
+            ;EndIf
+            
+            Result = #True
+        EndIf
+        
+        ProcedureReturn Result
+    EndProcedure    
+    ;
     ; 
     Procedure.i Dialog_Font(*font.FONTPARAMS, StructChooseFontFlags.l = 0)
         
@@ -149,7 +560,7 @@ Module FontEX
         EndIf
         ProcedureReturn  #False 
     EndProcedure
-    ;******************************************************************************************************************************************
+    ;
     ;     
     Procedure.i Dialog_Font_Bold(*font.FONTPARAMS, EvntGadget.i)
         Protected fnt.l, szFace.s
@@ -167,11 +578,9 @@ Module FontEX
             lg\lfHeight     = -MulDiv_(*font\fnSize,GetDeviceCaps_(hdc,#LOGPIXELSX),72)
             
             If ( *font\Italic = #PB_Font_Italic )
-                lg\lfItalic     = #True
+                lg\lfItalic = #True
             EndIf
-            
-            lg\lfQuality    = #CLEARTYPE_QUALITY
-            
+                        
             If ( *font\Strike = #PB_Font_StrikeOut )                
                 lg\lfStrikeOut  = #True
             EndIf
@@ -180,13 +589,57 @@ Module FontEX
                 lg\lfUnderline  = #True
             EndIf
             
-            lg\lfWeight     = *font\IsBold
+            lg\lfQuality = #CLEARTYPE_QUALITY            
+            lg\lfWeight = *font\IsBold
             
             fnt = CreateFontIndirect_(lg)
             SendMessage_(GadgetID( EvntGadget ) , #WM_SETFONT, fnt, 1)
             
         EndIf  
-    EndProcedure 
+      EndProcedure
+      ;
+      ;
+      Procedure.l Dialog_Font_Read_InternDB(*font.FONTPARAMS,PB_GadgetID.i)
+        
+        If IsGadget( PB_GadgetID )
+          Define hdc.l = CreateDC_("DISPLAY",0,0,0)
+          
+          Define Fnt.l = SendMessage_(GadgetID( PB_GadgetID ) ,#WM_GETFONT,0,0)
+          If (Fnt = 0)
+            ;
+            ; Versuche es mit dem Gadget
+            Fnt = GetGadgetFont(PB_GadgetID)
+          EndIf
+          
+          GetObject_( Fnt, SizeOf(LOGFONT) , InternFnt.LOGFONT )
+          
+          *font\fnName =  PeekS  (@InternFnt\lfFaceName)
+          *font\fnSize = -MulDiv_(InternFnt\lfHeight, 72, GetDeviceCaps_(hdc, #LOGPIXELSY))
+          *font\fontid = Fnt
+              
+          If (InternFnt\lfItalic <> 0)
+            *font\Italic = #PB_Font_Italic 
+          EndIf
+          
+          If (InternFnt\lfQuality  <> 0)              
+          EndIf            
+          
+          If ( InternFnt\lfStrikeOut <> 0 )                
+            *font\Strike = #PB_Font_StrikeOut
+          EndIf            
+          
+          If ( InternFnt\lfUnderline )                  
+            *font\UnLine = #PB_Font_Underline
+          EndIf            
+          
+          If ( InternFnt\lfWeight <> 0 ) 
+            *font\IsBold = InternFnt\lfWeight
+          EndIf
+          
+          ProcedureReturn Fnt        
+        EndIf             
+        ProcedureReturn -1
+      EndProcedure
 EndModule
 
 CompilerIf #PB_Compiler_IsMainFile
@@ -200,36 +653,10 @@ CompilerIf #PB_Compiler_IsMainFile
         End
     EndIf
     
-    FontEX::Dialog_Font(*font )
-    
-    Debug FontID(*font\fontid)
-    
-    If CreateImage(0, 450, 130)
-        
-        If StartDrawing(ImageOutput(0))           ;
-            Box(0, 0, 450, 130, RGB(255, 255, 255)) ; White background
-            
-            DrawingMode(1)                          ; Transparent TextBackground
-            
-            DrawingFont(FontID(*font\fontid))                 ; Use the 'Courier' font
-                                                              ;FontEX::Dialog_Font_Bold(*font, 0, @x )
-            DrawText(10,10, "Font: "+ *font\fnName +" - Size: "+ Str(*font\fnSize) +" - Color: " + Str(*font\fColor),*font\fColor)    ; Print our text
-            
-            
-            StopDrawing()                        ; This is absolutely needed when the drawing operations are 
-        EndIf                                    ; finished !!! Never forget it !
-        
-    EndIf
-    
-    ; Display the image on the window
-    ;
-    ImageGadget(0, 5, 10, 450, 130, ImageID(0))
-    
-    ;
-    ; This is the 'event loop'. All the user actions are processed here.
-    ; It's very easy to understand: when an action occurs, the Event
-    ; isn't 0 and we just have to see what have happened...
-    ;
+    TextGadget(5,20,20,420,120,"Franz jagt komplett mit einem Taxi druch Bayern")
+    ;;FontEX::Dialog_Font(*font )
+    FontEX::Dialog_Font_Neu(*font, 5, 0, WindowID(0))
+
     Repeat
         
         Event = WaitWindowEvent()
@@ -405,8 +832,8 @@ CompilerEndIf
 ; Obsolete. ChooseFont ignores this flag.
 ; Windows Vista And Windows XP/2000:  ChooseFont should allow only the selection of fonts available on both the printer And the display. If this flag is specified, the CF_SCREENSHOTS And CF_PRINTERFONTS, Or CF_BOTH flags should also be specified.
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 96
-; FirstLine = 75
-; Folding = n
+; CursorPosition = 193
+; FirstLine = 165
+; Folding = -H-
 ; EnableAsm
 ; EnableXP

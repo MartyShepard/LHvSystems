@@ -46,14 +46,14 @@ Module vFont
         InitializeStructure(*font, FontEX::FONTPARAMS)  
         
         
-        *font\fnName.s = ExecSQL::nRow(DC::#Database_001,"SetFonts","fnName","",RowID,"",1) ; Der Fontname
-        *font\fnSize.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","fnSize",0,RowID,"",1)  ; Die grösse (Integer)
-        *font\fColor.l = ExecSQL::iRow(DC::#Database_001,"SetFonts","fColor",0,RowID,"",1)  ; Fontname Text Farbe
-        *font\Italic.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","Italic",0,RowID,"",1)  ; Kursiv
-        *font\IsBold.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","IsBold",0,RowID,"",1)  ; Fett
-        *font\UnLine.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","UnLine",0,RowID,"",1)  ; Unterstrichen
-        *font\Strike.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","Strike",0,RowID,"",1)  ; Durchgestrichen
-        *font\fontid.l = ExecSQL::iRow(DC::#Database_001,"SetFonts","fontid",0,RowID,"",1)  ; PurebasicID   
+        *font\fnName = ExecSQL::nRow(DC::#Database_001,"SetFonts","fnName","",RowID,"",1) ; Der Fontname
+        *font\fnSize = ExecSQL::iRow(DC::#Database_001,"SetFonts","fnSize",0,RowID,"",1)  ; Die grösse (Integer)
+        *font\fColor = ExecSQL::iRow(DC::#Database_001,"SetFonts","fColor",0,RowID,"",1)  ; Fontname Text Farbe
+        *font\Italic = ExecSQL::iRow(DC::#Database_001,"SetFonts","Italic",0,RowID,"",1)  ; Kursiv
+        *font\IsBold = ExecSQL::iRow(DC::#Database_001,"SetFonts","IsBold",0,RowID,"",1)  ; Fett
+        *font\UnLine = ExecSQL::iRow(DC::#Database_001,"SetFonts","UnLine",0,RowID,"",1)  ; Unterstrichen
+        *font\Strike = ExecSQL::iRow(DC::#Database_001,"SetFonts","Strike",0,RowID,"",1)  ; Durchgestrichen
+        *font\fontid = ExecSQL::iRow(DC::#Database_001,"SetFonts","fontid",0,RowID,"",1)  ; PurebasicID   
         
         If (*font\fontid <> 0)
             
@@ -74,12 +74,12 @@ Module vFont
         
         ProcedureReturn nFont
         
-    EndProcedure     
-    ;****************************************************************************************************************************************************************
+      EndProcedure      
+    ;
     ; Speichert die Font Einstellung in die DB
     ;      
     Procedure   SetDB(RowID.i, FixedFonts.i = 0) 
-        Protected  Result.i
+        Protected  Result.i, FontGadgetID.i = 0, PBWindowID.l = 0
         FontEX::*font.FONTPARAMS = AllocateMemory(SizeOf(FontEX::FONTPARAMS))
         InitializeStructure(*font, FontEX::FONTPARAMS)  
         
@@ -92,23 +92,53 @@ Module vFont
         EndIf    
         ; 
         ; Die Einstellungen aus der DB  laden und übergeben
-        *font\fnName.s = ExecSQL::nRow(DC::#Database_001,"SetFonts","fnName","",RowID,"",1) ; Der Fontname
-        *font\fnSize.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","fnSize",0,RowID,"",1)  ; Die grösse (Integer)
-        *font\fColor.l = ExecSQL::iRow(DC::#Database_001,"SetFonts","fColor",0,RowID,"",1)  ; Fontname Text Farbe
-        *font\Italic.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","Italic",0,RowID,"",1)  ; Kursiv
-        *font\IsBold.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","IsBold",0,RowID,"",1)  ; Fett
-        *font\UnLine.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","UnLine",0,RowID,"",1)  ; Unterstrichen
-        *font\Strike.i = ExecSQL::iRow(DC::#Database_001,"SetFonts","Strike",0,RowID,"",1)  ; Durchgestrichen
-        *font\fontid.l = ExecSQL::iRow(DC::#Database_001,"SetFonts","fontid",0,RowID,"",1)  ; PurebasicID  
+        *font\fnName = ExecSQL::nRow(DC::#Database_001,"SetFonts","fnName","",RowID,"",1) ; Der Fontname
+        *font\fnSize = ExecSQL::iRow(DC::#Database_001,"SetFonts","fnSize",0,RowID,"",1)  ; Die grösse (Integer)
+        *font\fColor = ExecSQL::iRow(DC::#Database_001,"SetFonts","fColor",0,RowID,"",1)  ; Fontname Text Farbe
+        *font\Italic = ExecSQL::iRow(DC::#Database_001,"SetFonts","Italic",0,RowID,"",1)  ; Kursiv
+        *font\IsBold = ExecSQL::iRow(DC::#Database_001,"SetFonts","IsBold",0,RowID,"",1)  ; Fett
+        *font\UnLine = ExecSQL::iRow(DC::#Database_001,"SetFonts","UnLine",0,RowID,"",1)  ; Unterstrichen
+        *font\Strike = ExecSQL::iRow(DC::#Database_001,"SetFonts","Strike",0,RowID,"",1)  ; Durchgestrichen
+        *font\fontid = ExecSQL::iRow(DC::#Database_001,"SetFonts","fontid",0,RowID,"",1)  ; PurebasicID  
+        *font\Qualty = #PB_Font_HighQuality
+        *font\DTitle = "(Schriftart auswählen...)"
+        *font\Intern = #False
+        
+       Select RowID
+         Case 1: FontGadgetID = DC::#Text_001     :PBWindowID = WindowID(DC::#_Window_001)
+         Case 2: FontGadgetID = DC::#ListIcon_001 :PBWindowID = WindowID(DC::#_Window_001)
+         Case 3: FontGadgetID = DC::#Text_128     :PBWindowID = WindowID(DC::#_Window_006)
+         Case 4: FontGadgetID = DC::#Text_129     :PBWindowID = WindowID(DC::#_Window_006)           
+         Case 5: FontGadgetID = DC::#Text_130     :PBWindowID = WindowID(DC::#_Window_006)
+         Case 6: FontGadgetID = DC::#Text_131     :PBWindowID = WindowID(DC::#_Window_006)     
+       EndSelect
+       
+       If (*font\fnName = "")
+         *font\fontid = FontEX::Dialog_Font_Read_InternDB(*font, FontGadgetID)
+         *font\Intern = #True
+         *font\DTitle + " Aktueller Interner Font: " + *font\fnName          
+       ElseIf (*font\fontid = 0)
+         *font\fontid = FontEX::Dialog_Font_Read_InternDB(*font, FontGadgetID) 
+         *font\Intern = #True
+         *font\DTitle + " Aktuellen Font Nicht Gefunden: " + *font\fnName          
+       Else
+         *font\Intern = #False
+         *font\DTitle + " Aktueller Font: " + *font\fnName 
+       EndIf
         
         Select FixedFonts
-            Case 0: Result = FontEX::Dialog_Font(*font)
-            Case 1: Result = FontEX::Dialog_Font(*font, #CF_TTONLY)
-            Case 2: Result = FontEX::Dialog_Font(*font, #CF_FIXEDPITCHONLY)                    
+            Case 0: Result = FontEX::Dialog_Font_Neu(*font, FontGadgetID, 0,PBWindowID)
+            Case 1: Result = FontEX::Dialog_Font_Neu(*font, FontGadgetID, #CF_TTONLY,PBWindowID)             
+            Case 2: Result = FontEX::Dialog_Font_Neu(*font, FontGadgetID, #CF_FIXEDPITCHONLY,PBWindowID) 
         EndSelect
+         
+        If Not IsFont(*font\fontid)
+           ;
+           ; Sollte nicht passieren
+           *font\fontid = LoadFont(#PB_Any, *font\fnName, *font\fnSize, #PB_Font_HighQuality) 
+        EndIf
         
-        If ( Result = #True )
-            
+        If ( Result = #True )            
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "fnName", *font\fnName.s,RowID,"","",1,#False)
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "fnSize", Str(*font\fnSize),RowID)
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "fColor", Str(*font\fColor),RowID)
@@ -117,19 +147,20 @@ Module vFont
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "UnLine", Str(*font\UnLine),RowID)
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "Strike", Str(*font\Strike),RowID)
             ExecSQL::UpdateRow(DC::#Database_001,"SetFonts", "fontid", Str(*font\fontid),RowID)
-            
-            Select RowID
-                Case 1
-                    SetGadgetFont(DC::#Text_001,FontID(*font\fontid) )        :FontEX::Dialog_Font_Bold(*font, DC::#Text_001) 
-                    SetGadgetFont(DC::#Text_002,FontID(*font\fontid) )        :FontEX::Dialog_Font_Bold(*font, DC::#Text_002)
-                    
-                Case 2: SetGadgetFont(DC::#ListIcon_001,FontID(*font\fontid) ):FontEX::Dialog_Font_Bold(*font, DC::#ListIcon_001) 
-                Case 3: SetGadgetFont(DC::#Text_128,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_128) 
-                Case 4: SetGadgetFont(DC::#Text_129,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_129)                       
-                Case 5: SetGadgetFont(DC::#Text_130,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_130)                       
-                Case 6: SetGadgetFont(DC::#Text_131,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_131)                      
-            EndSelect      
-        EndIf
+       EndIf
+          
+       Select RowID
+         Case 1
+           SetGadgetFont(DC::#Text_001,FontID(*font\fontid) )        :FontEX::Dialog_Font_Bold(*font, DC::#Text_001) 
+           SetGadgetFont(DC::#Text_002,FontID(*font\fontid) )        :FontEX::Dialog_Font_Bold(*font, DC::#Text_002)
+           
+         Case 2: SetGadgetFont(DC::#ListIcon_001,FontID(*font\fontid) ):FontEX::Dialog_Font_Bold(*font, DC::#ListIcon_001) 
+         Case 3: SetGadgetFont(DC::#Text_128,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_128) 
+         Case 4: SetGadgetFont(DC::#Text_129,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_129)                       
+         Case 5: SetGadgetFont(DC::#Text_130,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_130)                       
+         Case 6: SetGadgetFont(DC::#Text_131,FontID(*font\fontid) )    :FontEX::Dialog_Font_Bold(*font, DC::#Text_131)                      
+       EndSelect      
+        
         
         ClearStructure(*font, FontEX::FONTPARAMS) 
         
@@ -137,9 +168,10 @@ Module vFont
     
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 15
+; CursorPosition = 130
+; FirstLine = 119
 ; Folding = -
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\

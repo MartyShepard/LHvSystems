@@ -1019,7 +1019,7 @@ Module INVMNU
             Case 03: vImages::Screens_Menu_Save_Images_All()
             Case 04: vImages::Screens_Menu_Delete_Single(GadgetID.i)
             Case 05: vImages::Screens_Menu_Delete_All()
-            Case 06: vImages:: Screens_Menu_Delete_All_DB()                           
+            Case 06: vImages::Screens_Menu_Delete_All_DB()                           
             Case 08: vImages::Screens_SzeThumbnails_Reset()
                       vEngine::Splitter_SetHeight(Startup::*LHGameDB\hScreenShotGadget*1, #True)
             Case 09: VEngine::Splitter_SetAll()
@@ -1228,7 +1228,7 @@ Module INVMNU
           EndIf    
           
         Case 9 : vFont::SetDB(1) 
-        Case 10: vFont::SetDB(2)                 
+        Case 10: vFont::SetDB(2) 
         Case 98: vUpdate::Update_Check()
           
         Case 18:
@@ -1569,9 +1569,9 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1481
-; FirstLine = 311
-; Folding = JOAgJ6
+; CursorPosition = 1229
+; FirstLine = 197
+; Folding = BAARAw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

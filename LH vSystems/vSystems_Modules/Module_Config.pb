@@ -420,6 +420,11 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+        ;
+        ; Version 0.60.34
+        ; Font Dialog  : Die Windows APi Font Dialog Box überarbeite was nun auch ein Live Vorschau enthält
+        ;                Korrekturen bei der behandlung der Logfont Struktur
+        ;                ! Farbe wird im Live angezeigt. Aber nicht übernommen/ Gespeichert
         
         ;
 				; Version 0.60.33
@@ -1187,11 +1192,11 @@ Module Startup
          *LHGameDB\TaskbarCreate        = RegisterWindowMessage_("TaskbarCreated")
          *LHGameDB\SortMode             = 0
          *LHGameDB\ProgrammQuit         = #False
-         *LHGameDB\hSplitterDef         = 289
-         *LHGameDB\WindowHeight         = 0 ; Standard Höhe
+         *LHGameDB\WindowHeight         = 110 ; Standard Höhe
          *LHGameDB\wScreenShotGadget    = 202
          *LHGameDB\hScreenShotGadget    = 142
          *LHGameDB\MaxScreenshots       = 50
+         *LHGameDB\hSplitterDef         = 254 ; Alt 289
          *LHGameDB\isGIF                = #False
          *LHGameDB\isIFF                = #False
          *LHGameDB\isPCX                = #False
@@ -1316,10 +1321,10 @@ Module Startup
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 426
-; FirstLine = 405
+; FirstLine = 401
 ; Folding = -L+
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = D:\NewGame2\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode

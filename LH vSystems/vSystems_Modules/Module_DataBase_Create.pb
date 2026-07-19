@@ -35,7 +35,7 @@ Module DB_Create
 ;                 ExecSQL::InsertRow(BaseID,"Gamebase", "GameTitle ", "Tayler Game " + Str(i))    
 ;             Next i
             ; Table Settings besitz nur Eine Zeile
-            ExecSQL::InsertRow(BaseID,"Settings", "GameID", Str(1))                            ;*
+            ExecSQL::InsertRow(BaseID,"Settings", "GameID", Str(1))                             ;*
             ExecSQL::UpdateRow(BaseID,"Settings", "WPosX" , Str(0),1)                           ;*
             ExecSQL::UpdateRow(BaseID,"Settings", "WPosY" , Str(0),1)                           ;*
             ExecSQL::UpdateRow(BaseID,"Settings", "dbsvn" , "db004",1)
@@ -142,6 +142,7 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Czech-Republic")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","European")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","France")
+                ExecSQL::InsertRow(BaseID,"Language", "Locale","Deutsch")                
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Germany")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ DE")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ JP")                
@@ -263,9 +264,9 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 10"); (~2015)
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 11"); (~2021)
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 12"); (~2026)
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 13"); (~????)
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 14"); (~2015)
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 15"); (~2015)                
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 13"); (~2030)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 14"); (~2035)
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","PC Windows 15"); (~2040)                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega 32X")     ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega 32X CD")  ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sega Dreamcast");
@@ -279,7 +280,9 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 2");
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 3");                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 4");
-                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 5");                
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 5");
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 6");
+                ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation 7");                
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Playstation Portable");
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Sony Vita")                ;
                 ExecSQL::InsertRow(BaseID,"Platform", "Platform","Spectravideo")             ;
@@ -319,15 +322,13 @@ Module DB_Create
                                                      "UnLine INT," +        ; Unterstrichen
                                                      "Strike INT," +        ; Durchgestrichen
                                                      "fontid INT", #True)   ; Die Purebasic Rückgabe ID
-                
-                
-                
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Title                                
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; ListIcon
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Info Gadget 1
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Info Gadget 2
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Info Gadget 3
-               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Info Gadget 4               
+                                                               
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 1: Title                                
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 2: ListIcon               
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 3: Info Gadget 1
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 4: Info Gadget 2
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 5: Info Gadget 3
+               ExecSQL::InsertRow(BaseID,"SetFonts", "fontid", "0" ) ; Reihe 6: Info Gadget 4               
                 
              
     EndProcedure 
@@ -454,11 +455,11 @@ Module DB_Create
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 241
-; FirstLine = 42
+; CursorPosition = 325
+; FirstLine = 293
 ; Folding = --
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb
-; CurrentDirectory = ..\Release\
+; CurrentDirectory = D:\NewGame\
 ; EnableUnicode
