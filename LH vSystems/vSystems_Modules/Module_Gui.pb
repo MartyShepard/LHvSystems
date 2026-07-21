@@ -422,7 +422,7 @@ Module MagicGUI
             *ObjPos\h = 0
             ;
             ; Listbox Button Sort Title 
-            SetButton(DC::#Button_025,*ObjPos\x,*ObjPos\y,"Title","Title","Title",5)   
+            SetButton(DC::#Button_025,*ObjPos\x,*ObjPos\y,"Titel","Titel","Titel",5)   
             
             *ObjPos\x = GadgetWidth(DC::#Button_025) + GadgetX(DC::#Button_025) + 4
             ;
@@ -432,12 +432,12 @@ Module MagicGUI
             *ObjPos\x = GadgetWidth(DC::#Button_026) + GadgetX(DC::#Button_026) + 4
             ;
             ; Listbox Button Sort Title 
-            SetButton(DC::#Button_027,*ObjPos\x,*ObjPos\y,"Language","Language","Language",7) 
+            SetButton(DC::#Button_027,*ObjPos\x,*ObjPos\y,"Sprache","Sprache","Sprache",7) 
             
             *ObjPos\x = GadgetWidth(DC::#Button_027) + GadgetX(DC::#Button_027) + 4
             ;
             ; Listbox Button Sort Title 
-            SetButton(DC::#Button_028,*ObjPos\x,*ObjPos\y,"Program","Program","Program",7)  ;8            
+            SetButton(DC::#Button_028,*ObjPos\x,*ObjPos\y,"Release","Release","Release",7)  ;8            
         
         CloseGadgetList()
         SetGadgetColor(DC::#Contain_09,#PB_Gadget_BackColor,*ObjPos\c\rgb_61_61_61)         
@@ -2729,9 +2729,9 @@ Module MagicGUI
         EndProcedure    
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 383
-; FirstLine = 346
-; Folding = n+---
+; CursorPosition = 439
+; FirstLine = 386
+; Folding = n----
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

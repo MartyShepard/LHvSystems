@@ -1428,8 +1428,8 @@ Module INVMNU
       MenuItem(3 , "Sortieren: Language  " +Chr(9)+"F3"       ,ImageID( DI::#_MNU_VSY ))       		
       MenuItem(4 , "Sortieren: "+ButtonText+"  " +Chr(9)+"F4" ,ImageID( DI::#_MNU_VSY ))    		
       MenuBar()
-      MenuItem(45, "Anzeigen Wechsel : Programm"	       			,ImageID( DI::#_MNU_VSY ))  
-      MenuItem(46, "Anzeigen Wechsel : Release"		       			,ImageID( DI::#_MNU_VSY ))    		
+      MenuItem(45, "Anzeigen Wechsel : Release"	       			  ,ImageID( DI::#_MNU_VSY ))  
+      MenuItem(46, "Anzeigen Wechsel : Programm"		       		,ImageID( DI::#_MNU_VSY ))    		
     EndProcedure 
     ;
     ;
@@ -1569,9 +1569,9 @@ Module INVMNU
     EndProcedure           
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 1229
-; FirstLine = 197
-; Folding = BAARAw
+; CursorPosition = 1431
+; FirstLine = 320
+; Folding = BAARIw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -1344,7 +1344,10 @@ Module VEngine
          ; Verstecke das Intro
 
          HideGadget(TxtObject,1)
-         SetGadgetColor(TxtObject, #PB_Gadget_BackColor, RGB(71,71,71)): SetGadgetText(TxtObject,""): HideGadget(LstObject,0): Thread_LoadGameList_Anim(39,TxtObject):
+         SetGadgetColor(TxtObject, #PB_Gadget_BackColor, RGB(71,71,71))
+         SetGadgetText(TxtObject,"")
+         HideGadget(LstObject,0)
+         Thread_LoadGameList_Anim(39,TxtObject):
          
          ;
          ; Database Stuff
@@ -1413,18 +1416,16 @@ Module VEngine
              ReleaseYear.s = ExecSQL::nRow(DC::#Database_001,"Gamebase","Release","",ExecSQL::_IOSQL()\nRowID,"",1) 
              
              If ( Startup::*LHGameDB\SortMode = 5)
-             	Startup::*LHGameDB\SortXtendMode = #True
-             	
-             	ButtonEx::Settext(DC::#Button_028, 0, "Release")             	
-             	ButtonEx::Settext(DC::#Button_028, 1, "Release")
-             	
-             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +LSet(ReleaseYear,10, Chr(32)))             	
+             	Startup::*LHGameDB\SortXtendMode = #True             	
+             	ButtonEx::Settext(DC::#Button_028, 0, "Program")
+             	ButtonEx::Settext(DC::#Button_028, 1, "Program")
+             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$)             	            	
              Else             	
              	Startup::*LHGameDB\SortXtendMode = #False             	
-             	ButtonEx::Settext(DC::#Button_028, 0, "Program")             	
-             	ButtonEx::Settext(DC::#Button_028, 1, "Program")               	
-             	
-             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +PrgDesc$)
+             	ButtonEx::Settext(DC::#Button_028, 0, "Release")
+             	ButtonEx::Settext(DC::#Button_028, 1, "Release")             	
+             	AddGadgetItem(LstObject,-1,GameTitle1$ + Chr(10) + Pltform$ + Chr(10) + Lnguage$ + Chr(10) +RSet(ReleaseYear,10, Chr(32)))              	
+
              EndIf	
                           
              SetGadgetItemData(LstObject,RowID ,ExecSQL::_IOSQL()\nRowID) 
@@ -1434,7 +1435,9 @@ Module VEngine
          SendMessage_(GadgetID(DC::#ListIcon_001),#WM_SETREDRAW,1,0) 
          UnlockMutex(MainEventMutex)          
          
-         HideGadget(TxtObject,1): HideGadget(LstObject,0): RemoveGadgetItem(LstObject,0)
+         HideGadget(TxtObject,1)
+         HideGadget(LstObject,0)
+         RemoveGadgetItem(LstObject,0)
          
          SetWindowText_(WindowID(DC::#_Window_001), Startup::*LHGameDB\TrayIconTitle)  
      EndProcedure
@@ -1539,7 +1542,8 @@ Module VEngine
             While WindowEvent()                                    
             Wend
         Wend 
-        SetGadgetText(DC::#Text_004, ""): HideGadget(DC::#Text_004,1)
+        SetGadgetText(DC::#Text_004, "")
+        HideGadget(DC::#Text_004,1)
         SetActiveGadget(DC::#ListIcon_001)
     EndProcedure    
     ;****************************************************************************************************************************************************************
@@ -2491,8 +2495,8 @@ Module VEngine
             PrgDesc$ = ExecSQL::nRow(DC::#Database_001,"Programs","ExShort_Name","",id,"",1) 
         EndIf
         
-        If ( Startup::*LHGameDB\SortMode = 5)
-        			PrgDesc$ = LSet(DMMYYYY$, 10, Chr(32) )
+        If ( Startup::*LHGameDB\SortMode < 5)
+        			PrgDesc$ = RSet(DMMYYYY$, 10, Chr(32) )
         EndIf	        
         
         Database_Set_ProgramTitle(DC::#String_006)          
@@ -8113,8 +8117,9 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 2
-; Folding = rMICCPPYANfm-vHCC5
+; CursorPosition = 2498
+; FirstLine = 1551
+; Folding = rMICyfPYANfm-vHCC5
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -32,7 +32,7 @@ CompilerIf #PB_Compiler_OS <> #PB_OS_Windows
 CompilerEndIf
 
 CompilerIf Not #PB_Compiler_Thread
-  CompilerError "Thread-Safe is needed!"
+ ; CompilerError "Thread-Safe is needed!"
 CompilerEndIf
 
 DeclareModule Logitech_Common
@@ -739,7 +739,7 @@ CompilerEndIf
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
 ; CursorPosition = 34
-; FirstLine = 30
+; FirstLine = 9
 ; Folding = --v-
 ; EnableAsm
 ; EnableThread

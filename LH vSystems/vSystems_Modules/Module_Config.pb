@@ -420,6 +420,15 @@ Module Startup
         Protected Version.s, Title.s, BuildDate.s, dbSVN.s
                
         XIncludeFile "Module_Version.pb"
+       
+        ;
+        ; Version 0.60.36
+        ; Sortier Reihen Folge geändert. ErscheinungsDatum anstatt Programm. Ich denke es ist eher das Datum
+        ;              als erstes interessanter als der Programm/Exe
+        ; Datenbank: Doppelten Eintrag entfernt
+        ; Mehr Oprimierung bei der Speicherfreigabe der Bilder. Das sollte vermdiden das sich der "Task Prozess"
+        ; Unnötig aufbläht.
+        
         ;
         ; Version 0.60.35
         ; Font Dialog  : Bug bei dem ListIcon gefixed. Preview versemmelt. Höhe des Font Dialog Fenster gegeben an
@@ -1325,9 +1334,9 @@ Module Startup
     EndProcedure
 EndModule    
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 426
-; FirstLine = 396
-; Folding = -L+
+; CursorPosition = 429
+; FirstLine = 404
+; Folding = -Dw
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

@@ -169,9 +169,9 @@ Module ProcessEX
                     PHandle = OpenProcess_(#PROCESS_ALL_ACCESS, #False, MemFreeProcess)
                     Result= SetProcessWorkingSetSize_(PHandle,-1,-1)
                     If Result
-                        ;Debug "Free Ram: "+TaskName$
+                        Debug "Free Ram: "+TaskName$
                     Else
-                        ;Debug "Free Ram: "+TaskName$+ " Failed > Try Parent"                  
+                        Debug "Free Ram: "+TaskName$+ " Failed > Try Parent"                  
                     EndIf    
             EndSelect
         Wend
@@ -585,6 +585,7 @@ CompilerIf #PB_Compiler_IsMainFile
 CompilerEndIf
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
+; FirstLine = 9
 ; Folding = v+
 ; EnableAsm
 ; EnableXP

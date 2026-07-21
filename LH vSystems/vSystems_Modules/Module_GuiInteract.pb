@@ -242,15 +242,16 @@ Module Interact
         VEngine::Switcher_Pres_List(DC::#Button_023)          
         ;
         ; Fenster Anzeigen
-        
+             
         ;
         ; Sortier Modus Configuration Laden
         VEngine::Thread_LoadGameList_Sort(#False)        
         
         VEngine::Thread_LoadGameList_Action()                  
         
+        Debug "Sortier Modus " + Str(Startup::*LHGameDB\SortMode)          
         ;
-				; Sortier Modus Anwenden
+        ; Sortier Modus Anwenden
         If ( Startup::*LHGameDB\SortMode >= 5)
         	   Startup::*LHGameDB\SortMode = 1
         	
@@ -928,9 +929,9 @@ Module Interact
     EndProcedure  
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 578
-; FirstLine = 516
-; Folding = f-
+; CursorPosition = 247
+; FirstLine = 126
+; Folding = P-
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

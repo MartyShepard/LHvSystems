@@ -688,6 +688,7 @@ Module vWindows
 			Startup::*LHimgEdit\bmCopy\rawsize = #Null			
 			Startup::*LHimgEdit\bmCopy\imgsize = ""				
 			
+			ProcessEX::LHFreeMem()
 	EndProcedure              
 	;
 	;
@@ -1466,8 +1467,8 @@ EndModule
 
 
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 567
-; FirstLine = 42
+; CursorPosition = 690
+; FirstLine = 159
 ; Folding = Bg2
 ; EnableAsm
 ; EnableXP

@@ -835,14 +835,23 @@ Module vImages
     ;  Holt das Originale Bild aus der DB
     ;__________________________________________________________________________________________________________________________________________     
     Procedure.l Screens_Menu_Get_Original(n)
-      Protected *MemoryImage
-        *MemoryImage = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")  
-        If ( *MemoryImage <> 0 )
-            Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage))
-            ;Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage) -1)            
-            ProcedureReturn Unknown           
-        EndIf
-        ProcedureReturn 0
+      
+      Protected StartTime.q
+      Protected EndTime.q
+      
+      QueryPerformanceCounter_(@StartTime)     
+      
+      Define *MemoryImage = ExecSQL::ImageGet(DC::#Database_002,"GameShot","Shot" +Str(n)+ "_Big",Startup::*LHGameDB\GameID,"BaseGameID")      
+      If ( *MemoryImage <> 0 )
+        
+        Unknown.l = CatchImage(#PB_Any, *MemoryImage ,MemorySize(*MemoryImage))
+        QueryPerformanceCounter_(@EndTime)
+        Debug "Zeit: " + Str(EndTime-StartTime)
+        
+        ProcedureReturn Unknown           
+      EndIf
+      
+      ProcedureReturn 0
     EndProcedure  
     ;******************************************************************************************************************************************
     ;  Setzte Jpg Qualität
@@ -1256,18 +1265,15 @@ Module vImages
     				Case #PB_ImagePlugin_ICON			: Debug "Bild liegt im ICON Format vor"     					
     				Case #PB_ImagePlugin_GIF			: Debug "Bild liegt im GIF Format vor"  
     				Default
-    					Debug "FEHELR Unbekanntes Format"	
-    					
+    					Debug "FEHELR Unbekanntes Format"	    					
     			EndSelect
     			
-    			*ImageBuffer = EncodeImage(ImageData, ImageFormat(ImageData),0,ImageDepth(ImageData,#PB_Image_OriginalDepth))
+    			
+    			*ImageBuffer = EncodeImage(ImageData, ImageFormat(ImageData),0,ImageDepth(ImageData,#PB_Image_OriginalDepth))    			
     		Else
-
-    			*ImageBuffer = EncodeImage(ImageData, #PB_ImagePlugin_PNG,0,ImageDepth(ImageData,#PB_Image_OriginalDepth))
-    		EndIf
-    		
-    		ImageSize.q = MemorySize(*ImageBuffer)
-    		
+          *ImageBuffer = EncodeImage(ImageData, #PB_ImagePlugin_PNG,0,ImageDepth(ImageData,#PB_Image_OriginalDepth))
+    		EndIf    		
+    		ImageSize.q = MemorySize(*ImageBuffer)    		
     		FreeMemory(*ImageBuffer)
     	EndIf
     	ProcedureReturn ImageSize
@@ -1290,11 +1296,16 @@ Module vImages
 		;   	
     Procedure Window_ConvertDepth(Source.l,Destination.l,Depth.i, width.i, height.i)
     	    	
-    	If Not ( ImageDepth(Source) = Depth )    		  
+      If Not ( ImageDepth(Source) = Depth )
+        
+        Debug "Window_ConvertDepth@ Konvertire BitTiefe"
+            			
     		NewImage.l = CreateImage(Destination, width, height, Depth)
     		StartDrawing( ImageOutput( NewImage ))
     		DrawImage( ImageID( Source ),0,0 )
-    		StopDrawing()    		
+    		StopDrawing()
+    		
+    		Debug "Window_ConvertDepth@ Konvertire BitTiefe - Fertig"
     	Else
     		NewImage.l = CopyImage(Source,Destination)    		    		
     	EndIf
@@ -1322,6 +1333,7 @@ Module vImages
     Procedure.l Window_GetCurrentRaw( CurrentGadgetID.i )
     	
     	Protected ImageData.l
+    	ProcessEX::LHFreeMem()
     	
     	For n = 1 To Startup::*LHGameDB\MaxScreenshots    		
     		
@@ -1339,7 +1351,15 @@ Module vImages
     			EndIf
     			
     			If Not ( ImageData = 0 )
-    				
+    			  
+    			  SetPriorityClass_(GetCurrentProcess_(),#REALTIME_PRIORITY_CLASS)
+    			  Protected StartTime.q
+            Protected EndTime.q
+      
+            QueryPerformanceCounter_(@StartTime)     
+            Debug "Window_GetCurrentRaw@ Messe Zeit: " + Str(StartTime)    
+
+
     				Startup::*LHimgEdit\cPBID 	 			= CurrentGadgetID
     				
     				Startup::*LHimgEdit\OrgData 			= CopyImage( ImageData, #PB_Any)
@@ -1350,6 +1370,11 @@ Module vImages
     				Startup::*LHimgEdit\bmOrig\rawsize=	Get_BitmapSize(imagedata)
     				Startup::*LHimgEdit\bmOrig\imgsize=	MathBytes::Bytes2String( Startup::*LHimgEdit\bmOrig\rawsize)
     				
+    				Debug "Window_GetCurrentRaw@ Format " + Startup::*LHimgEdit\bmOrig\bits 
+    				Debug "Window_GetCurrentRaw@ Format " + Startup::*LHimgEdit\bmOrig\format
+    				
+    				QueryPerformanceCounter_(@EndTime)
+    				Debug "Window_GetCurrentRaw@ Messe Zeit: " + Str(EndTime-StartTime) + " / Mittel"   	
     				
     				;
     				; Convert to 32Bit for Zoom Mode    				
@@ -1357,12 +1382,22 @@ Module vImages
     				
     				Startup::*LHimgEdit\CpyData 			= CopyImage( ImageData, #PB_Any)
     				Startup::*LHimgEdit\bmCopy\w 	  	= Startup::*LHimgEdit\bmOrig\w
-    				Startup::*LHimgEdit\bmCopy\h 	  	= Startup::*LHimgEdit\bmOrig\h 
+    				Startup::*LHimgEdit\bmCopy\h 	  	= Startup::*LHimgEdit\bmOrig\h
     				Startup::*LHimgEdit\bmCopy\bits 	= ImageDepth(ImageData, #PB_Image_OriginalDepth)
-    				Startup::*LHimgEdit\bmCopy\format	=	Screens_Menu_Save_Format(ImageData) 
-    				Startup::*LHimgEdit\bmCopy\rawsize=	Get_BitmapSize(imagedata)
+    				
+    				If Startup::*LHimgEdit\bmOrig\format = "PNG"
+    				  ;
+    				  ; Das sollte ein enig Zeit einsparen wenn das Bild eh in PNG vorliegt
+    				  Startup::*LHimgEdit\bmCopy\rawsize=	Startup::*LHimgEdit\bmOrig\rawsize
+    				Else
+    				  Startup::*LHimgEdit\bmCopy\rawsize=	Get_BitmapSize(imagedata)
+    				EndIf
+    				   				
     				Startup::*LHimgEdit\bmCopy\imgsize=	MathBytes::Bytes2String( Startup::*LHimgEdit\bmCopy\rawsize)  
     				
+            QueryPerformanceCounter_(@EndTime)
+            Debug "Window_GetCurrentRaw@ Messe Zeit: " + Str(EndTime-StartTime) + " / Fertig"
+            SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
     			EndIf	
     			ProcedureReturn ImageData    			   			
     		EndIf
@@ -1908,7 +1943,8 @@ Module vImages
      	EndIf     	
      	
      	If IsImage( Startup::*LHimgEdit\CpyData )
-     		FreeImage(  Startup::*LHimgEdit\CpyData )
+     	  FreeImage(  Startup::*LHimgEdit\CpyData )
+     	  ProcessEX::LHFreeMem()
      	EndIf
      	
      	Startup::*LHimgEdit\CpyData = CopyImage(Startup::*LHimgEdit\OrgData , #PB_Any)
@@ -1957,7 +1993,9 @@ Module vImages
     	Protected x	=	Startup::*LHimgEdit\bmCopy\x
     	Protected y	=	Startup::*LHimgEdit\bmCopy\y 
     	Protected w	=	Startup::*LHimgEdit\bmCopy\w 
-    	Protected h	=	Startup::*LHimgEdit\bmCopy\h      		
+    	Protected h	=	Startup::*LHimgEdit\bmCopy\h
+    	
+    	SetPriorityClass_(GetCurrentProcess_(),#REALTIME_PRIORITY_CLASS)
     	
     	Debug "--------------------------------------------"
     	Debug "PB ID: " + Str( Startup::*LHimgEdit\CpyData )    	
@@ -1974,6 +2012,7 @@ Module vImages
     	Startup::*LHimgEdit\bmCopy\h = h
     	     	
     	If Window_ZoomScroll_Max() = #True
+    	  SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
     		ProcedureReturn 
     	EndIf	   				
     		
@@ -1981,7 +2020,8 @@ Module vImages
     	Startup::*LHimgEdit\mWheelActiv = #False
     	
     	Debug "Ziel (Weite): "+ Str(w) + "x" + Str(h) + " :(Höhe) / " + " Depth: " + Str(ImageDepth(Startup::*LHimgEdit\CpyData ))  
-    	    	
+    	
+    	SetPriorityClass_(GetCurrentProcess_(),#NORMAL_PRIORITY_CLASS)
     EndProcedure
 		;
 		;
@@ -2141,9 +2181,9 @@ Module vImages
   EndModule
   
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 317
-; FirstLine = 144
-; Folding = PGAQgg-FAOf---
+; CursorPosition = 1946
+; FirstLine = 1143
+; Folding = PHAUwg-0DOf---
 ; EnableAsm
 ; EnableXP
 ; UseMainFile = ..\vOpt.pb

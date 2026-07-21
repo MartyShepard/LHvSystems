@@ -145,8 +145,7 @@ Module DB_Create
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Deutsch")                
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Germany")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ DE")
-                ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ JP")                
-                ExecSQL::InsertRow(BaseID,"Language", "Locale","Deutsch")                 
+                ExecSQL::InsertRow(BaseID,"Language", "Locale","English/ JP")                                
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Hong-Kong")
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Italy")                
                 ExecSQL::InsertRow(BaseID,"Language", "Locale","Japan")
@@ -455,8 +454,8 @@ Module DB_Create
     EndProcedure    
 EndModule
 ; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 325
-; FirstLine = 293
+; CursorPosition = 147
+; FirstLine = 134
 ; Folding = --
 ; EnableAsm
 ; EnableXP
